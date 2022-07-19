@@ -112,7 +112,7 @@ class IplExportOperator(bpy.types.Operator):
                 #if object name contains a dot get the string before the dot
                 if "." in nombre_objeto:
                     nombre_objeto = objeto.name.split(".")[0]
-                f.write(f"9999, {nombre_objeto}, 1, {objeto.location[0]}, {objeto.location[1]}, {objeto.location[2]}, {quaternion_objeto[0]}, {quaternion_objeto[1]}, {quaternion_objeto[2]}, {quaternion_objeto[3]}, 0\n")
+                f.write(f"9999, {nombre_objeto}, 1, {objeto.location[0]}, {objeto.location[1]}, {objeto.location[2]}, {quaternion_objeto[3]}, {quaternion_objeto[0]}, {quaternion_objeto[1]}, {quaternion_objeto[2]}, 0\n")
             f.write("end")
         #close file
         f.close()
