@@ -162,7 +162,7 @@ class ExportMLOTransFile(bpy.types.Operator):
                     f.write("\n")
                     f.write(f"{objeto.location[0]}, {objeto.location[1]}, {objeto.location[2]}")
                     f.write("\n")
-                    f.write(f"{objeto.rotation_quaternion[0]}, {objeto.rotation_quaternion[1]}, {objeto.rotation_quaternion[2]}, {objeto.rotation_quaternion[3]}")
+                    f.write(f"{objeto.rotation_quaternion[3]}, {objeto.rotation_quaternion[0]}, {objeto.rotation_quaternion[1]}, {objeto.rotation_quaternion[2]}")
                     f.write("\n")
                 f.close()
                 self.report({'INFO'}, f"{objeto.name} location and rotation exported to file")
