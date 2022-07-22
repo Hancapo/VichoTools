@@ -1,6 +1,6 @@
 # Blender's VichoTools
 
-Some tools to make Sollumz usage easier with some timesaving features.
+Some tools to make V modding easier with some timesaving features.
 
 
 ## Requirements
