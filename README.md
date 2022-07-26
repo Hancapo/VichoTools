@@ -1,4 +1,4 @@
-# Blender's VichoTools
+# VichoTools
 
 Some tools to make V modding easier with some timesaving features.
 
