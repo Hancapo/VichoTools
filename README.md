@@ -14,7 +14,7 @@ Some tools to make V modding easier with some timesaving features.
 ## Features
 
 - Save object selection as a unique list to a text file.
-- Export selected objects as an GTA SA .IPL file.
+- Export selected objects as an GTA SA .IPL file. (Which can be converted to YMAP using VIPL, enabling the export of instanced entities)
 - Reset Object(s) transforms (Location, Rotation and Scale).
 - Export MLO Transforms as a working ```.xml.ymap```
 - Set picked object's transforms to a second picked one.
