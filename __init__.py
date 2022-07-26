@@ -1,10 +1,12 @@
 import bpy
 import os
+import xml.dom.minidom as md
+from mathutils import Quaternion
 
 bl_info = {
     "name": "Vicho's Misc Tools",
     "author": "Somebody",
-    "version": (0, 0, 5),
+    "version": (0, 0, 6),
     "blender": (2, 93, 0),
     "location": "View3D",
     "description": "Some tools for Vicho",
@@ -47,7 +49,8 @@ class VichoToolsPanel(bpy.types.Panel):
         row = layout.row()
         row.operator("custom.exportmlostransformstofile")
         row = layout.row()
-        #create centered label
+        row.prop(context.scene, "ymap_mlo_name_field", text="YMAP name")
+        row = layout.row()
         row.label(text="Object misc tools:", icon='OBJECT_DATAMODE')
         row = layout.row()
         row.label(text="Set Object transforms to picked Object", icon='TRACKING_BACKWARDS')
@@ -136,7 +139,13 @@ class ResetObjTransRot(bpy.types.Operator):
             if check_loc == True:
                 objeto.location = (0, 0, 0)
             if check_rot == True:
-                objeto.rotation_euler = (0, 0, 0)
+                if objeto.rotation_mode == 'QUATERNION':
+                    objeto.rotation_quaternion = (1, 0, 0, 0)
+                elif objeto.rotation_mode == 'AXIS_ANGLE':
+                    objeto.rotation_axis_angle = (0, 0, 0, 0)
+                else:
+                    objeto.rotation_euler = (0, 0, 0)
+                    
             if check_scale == True:
                 objeto.scale = (1, 1, 1)
             
@@ -144,7 +153,7 @@ class ResetObjTransRot(bpy.types.Operator):
 
 class ExportMLOTransFile(bpy.types.Operator):
     bl_idname = "custom.exportmlostransformstofile"
-    bl_label = "Export MLO(s) transforms to file"
+    bl_label = "Export MLO transforms to YMAP"
     
     @classmethod
     def poll(cls, context):
@@ -154,17 +163,8 @@ class ExportMLOTransFile(bpy.types.Operator):
         objetos = context.selected_objects
 
         for objeto in objetos:
-            if objeto.sollum_type == 'sollumz_bound_composite' or objeto.type == 'MESH':
-                #export object location and rotation (in quaternion) to file in selected folder
-                desktop_path = os.path.expanduser("~/Desktop")
-                with open(desktop_path + "/" + "MloData.txt", "w") as f:
-                    f.write(f"{objeto.name}")
-                    f.write("\n")
-                    f.write(f"{objeto.location[0]}, {objeto.location[1]}, {objeto.location[2]}")
-                    f.write("\n")
-                    f.write(f"{objeto.rotation_quaternion[1]}, {objeto.rotation_quaternion[2]}, {objeto.rotation_quaternion[3] * -1}, {objeto.rotation_quaternion[0]}")
-                    f.write("\n")
-                f.close()
+            if objeto.sollum_type == 'sollumz_bound_composite':
+                export_milo_ymap_xml(context.scene.ymap_mlo_name_field, objeto)
                 self.report({'INFO'}, f"{objeto.name} location and rotation exported to file")
             
             else:
@@ -201,6 +201,165 @@ CLASSES = [
 
 ]
 
+def export_milo_ymap_xml(ymapname, object):
+
+    root = md.Document()
+
+    xml = root.createElement('CMapData')
+    root.appendChild(xml)
+
+    ymapName = root.createElement('name')
+    ymapName.appendChild(root.createTextNode(os.path.basename(ymapname)))
+    xml.appendChild(ymapName)
+
+    parent = root.createElement('parent')
+    xml.appendChild(parent)
+
+    flags = root.createElement('flags')
+    flags.setAttribute('value', '0')
+    xml.appendChild(flags)
+
+    contentFlags = root.createElement('contentFlags')
+    contentFlags.setAttribute('value', '9')
+    xml.appendChild(contentFlags)
+
+    streamingExtentsMin = root.createElement('streamingExtentsMin')
+    streamingExtentsMin.setAttribute('x', '0')
+    streamingExtentsMin.setAttribute('y', '0')
+    streamingExtentsMin.setAttribute('z', '0')
+    xml.appendChild(streamingExtentsMin)
+
+    streamingExtentsMax = root.createElement('streamingExtentsMax')
+    streamingExtentsMax.setAttribute('x', '0')
+    streamingExtentsMax.setAttribute('y', '0')
+    streamingExtentsMax.setAttribute('z', '0')
+    xml.appendChild(streamingExtentsMax)
+
+    entitiesExtentsMin = root.createElement('entitiesExtentsMin')
+    entitiesExtentsMin.setAttribute('x', '0')
+    entitiesExtentsMin.setAttribute('y', '0')
+    entitiesExtentsMin.setAttribute('z', '0')
+    xml.appendChild(entitiesExtentsMin)
+
+    entitiesExtentsMax = root.createElement('entitiesExtentsMax')
+    entitiesExtentsMax.setAttribute('x', '0')
+    entitiesExtentsMax.setAttribute('y', '0')
+    entitiesExtentsMax.setAttribute('z', '0')
+    xml.appendChild(entitiesExtentsMax)
+
+    entities = root.createElement('entities')
+
+    Item = root.createElement('Item')
+    Item.setAttribute('type', 'CMloInstanceDef')
+    entities.appendChild(Item)
+
+    archetypeName = root.createElement('archetypeName')
+    archetypeName.appendChild(root.createTextNode(object.name))
+    Item.appendChild(archetypeName)
+
+    itemFlags = root.createElement('flags')
+    itemFlags.setAttribute('value', '0')
+    Item.appendChild(itemFlags)
+
+    itemGuid = root.createElement('guid')
+    itemGuid.setAttribute('value', '0')
+    Item.appendChild(itemGuid)
+
+    itemPosition = root.createElement('position')
+    itemPosition.setAttribute('x', str(object.location[0]))
+    itemPosition.setAttribute('y', str(object.location[1]))
+    itemPosition.setAttribute('z', str(object.location[2]))
+    Item.appendChild(itemPosition)
+
+    itemRotation = root.createElement('rotation')
+    itemRotation.setAttribute('x', str(object.rotation_euler.to_quaternion().x))
+    itemRotation.setAttribute('y', str(object.rotation_euler.to_quaternion().y))
+    itemRotation.setAttribute('z', str(object.rotation_euler.to_quaternion().z * -1))
+    itemRotation.setAttribute('w', str(object.rotation_euler.to_quaternion().w))
+
+    Item.appendChild(itemRotation)
+
+    itemScaleXY = root.createElement('scaleXY')
+    itemScaleXY.setAttribute('value', '1')
+    Item.appendChild(itemScaleXY)
+
+    itemScaleZ = root.createElement('scaleZ')
+    itemScaleZ.setAttribute('value', '1')
+    Item.appendChild(itemScaleZ)
+
+    itemParentIndex = root.createElement('parentIndex')
+    itemParentIndex.setAttribute('value', '-1')
+    Item.appendChild(itemParentIndex)
+
+    itemLodDist = root.createElement('lodDist')
+    itemLodDist.setAttribute('value', '700')
+    Item.appendChild(itemLodDist)
+
+    itemchildLodDist = root.createElement('childLodDist')
+    itemchildLodDist.setAttribute('value', '0')
+    Item.appendChild(itemchildLodDist)
+
+    itemlodLevel = root.createElement('lodLevel')
+    itemlodLevel.appendChild(root.createTextNode('LODTYPES_DEPTH_ORPHANHD'))
+    Item.appendChild(itemlodLevel)
+
+    itennumChildren = root.createElement('numChildren')
+    itennumChildren.setAttribute('value', '0')
+    Item.appendChild(itennumChildren)
+
+    itempriorityLevel = root.createElement('priorityLevel')
+    itempriorityLevel.appendChild(root.createTextNode('PRI_REQUIRED'))
+    Item.appendChild(itempriorityLevel)
+
+    itemextensions = root.createElement('extensions')
+    Item.appendChild(itemextensions)
+
+
+    itemambientOcclusionMultiplier = root.createElement('ambientOcclusionMultiplier')
+    itemambientOcclusionMultiplier.setAttribute('value', '255')
+    Item.appendChild(itemambientOcclusionMultiplier)
+
+    itemartificialAmbientOcclusion = root.createElement('artificialAmbientOcclusion')
+    itemartificialAmbientOcclusion.setAttribute('value', '255')
+    Item.appendChild(itemartificialAmbientOcclusion)
+
+    itemtintValue = root.createElement('tintValue')
+    itemtintValue.setAttribute('value', '0')
+    Item.appendChild(itemtintValue)
+
+    itemgroupId = root.createElement('groupId')
+    itemgroupId.setAttribute('value', '0')
+    Item.appendChild(itemgroupId)
+
+    itemfloorId = root.createElement('floorId')
+    itemfloorId.setAttribute('value', '0')
+    Item.appendChild(itemfloorId)
+
+    itemdefaultEntitySets = root.createElement('defaultEntitySets')
+    Item.appendChild(itemdefaultEntitySets)
+
+    itemnumExitPortals = root.createElement('numExitPortals')
+    itemnumExitPortals.setAttribute('value', '0')
+    Item.appendChild(itemnumExitPortals)
+
+    itemMLOInstflags = root.createElement('MLOInstflags')
+    itemMLOInstflags.setAttribute('value', '0')
+    Item.appendChild(itemMLOInstflags)
+    xml.appendChild(entities)
+
+    xml_str = xml.toprettyxml(indent='\t')
+    
+
+    desktop_path = os.path.expanduser("~/Desktop")
+
+    save_path = desktop_path + "/" + ymapname + '.ymap.xml'
+
+
+    with open(save_path, 'w') as f:
+        f.write(xml_str)
+        f.close()
+
+
 def register():
     for klass in CLASSES:
         bpy.utils.register_class(klass)
@@ -209,6 +368,13 @@ def register():
         default="",
         description="File name for the text file",
         maxlen=50)
+
+    bpy.types.Scene.ymap_mlo_name_field = bpy.props.StringProperty(
+        name="YMAP Name",
+        default="",
+        description="YMAP name for the MLO Instance",
+        maxlen=50)
+        
     
     bpy.types.Scene.ipl_name_field = bpy.props.StringProperty(
         name="IPL Name",
@@ -247,6 +413,7 @@ def unregister():
     for klass in CLASSES:
         bpy.utils.unregister_class(klass)
     del bpy.types.Scene.file_name_field
+    del bpy.types.Scene.ymap_mlo_name_field
     del bpy.types.Scene.ipl_name_field
     del bpy.types.Scene.location_checkbox
     del bpy.types.Scene.rotation_checkbox
