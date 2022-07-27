@@ -163,7 +163,7 @@ class ExportMLOTransFile(bpy.types.Operator):
         objetos = context.selected_objects
 
         for objeto in objetos:
-            if objeto.sollum_type == 'sollumz_bound_composite':
+            if objeto.sollum_type == 'sollumz_bound_composite' or objeto.type == 'MESH':
                 export_milo_ymap_xml(context.scene.ymap_mlo_name_field, objeto)
                 self.report({'INFO'}, f"{objeto.name} location and rotation exported to file")
             
