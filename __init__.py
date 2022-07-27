@@ -51,6 +51,8 @@ class VichoToolsPanel(bpy.types.Panel):
         row = layout.row()
         row.prop(context.scene, "ymap_mlo_name_field", text="YMAP name")
         row = layout.row()
+        row.prop(context.scene, "ymap_instance_name_field", text="Instance name")
+        row = layout.row()
         row.label(text="Object misc tools:", icon='OBJECT_DATAMODE')
         row = layout.row()
         row.label(text="Set Object transforms to picked Object", icon='TRACKING_BACKWARDS')
@@ -164,7 +166,7 @@ class ExportMLOTransFile(bpy.types.Operator):
 
         for objeto in objetos:
             if objeto.sollum_type == 'sollumz_bound_composite' or objeto.type == 'MESH':
-                export_milo_ymap_xml(context.scene.ymap_mlo_name_field, objeto)
+                export_milo_ymap_xml(context.scene.ymap_mlo_name_field, objeto, context.scene.ymap_instance_name_field)
                 self.report({'INFO'}, f"{objeto.name} location and rotation exported to file")
             
             else:
@@ -201,7 +203,7 @@ CLASSES = [
 
 ]
 
-def export_milo_ymap_xml(ymapname, object):
+def export_milo_ymap_xml(ymapname, object, instance_name):
 
     root = md.Document()
 
@@ -254,7 +256,7 @@ def export_milo_ymap_xml(ymapname, object):
     entities.appendChild(Item)
 
     archetypeName = root.createElement('archetypeName')
-    archetypeName.appendChild(root.createTextNode(object.name))
+    archetypeName.appendChild(root.createTextNode(instance_name))
     Item.appendChild(archetypeName)
 
     itemFlags = root.createElement('flags')
@@ -374,6 +376,12 @@ def register():
         default="",
         description="YMAP name for the MLO Instance",
         maxlen=50)
+
+    bpy.types.Scene.ymap_instance_name_field = bpy.props.StringProperty(
+        name="Instance Name",
+        default="",
+        description="instance name for the MLO Instance",
+        maxlen=50)
         
     
     bpy.types.Scene.ipl_name_field = bpy.props.StringProperty(
@@ -414,6 +422,7 @@ def unregister():
         bpy.utils.unregister_class(klass)
     del bpy.types.Scene.file_name_field
     del bpy.types.Scene.ymap_mlo_name_field
+    del bpy.types.Scene.ymap_instance_name_field
     del bpy.types.Scene.ipl_name_field
     del bpy.types.Scene.location_checkbox
     del bpy.types.Scene.rotation_checkbox
