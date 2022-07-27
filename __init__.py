@@ -276,7 +276,7 @@ def export_milo_ymap_xml(ymapname, object, instance_name):
     itemRotation = root.createElement('rotation')
     itemRotation.setAttribute('x', str(object.rotation_euler.to_quaternion().x))
     itemRotation.setAttribute('y', str(object.rotation_euler.to_quaternion().y))
-    itemRotation.setAttribute('z', str(object.rotation_euler.to_quaternion().z * -1))
+    itemRotation.setAttribute('z', str(object.rotation_euler.to_quaternion().z))
     itemRotation.setAttribute('w', str(object.rotation_euler.to_quaternion().w))
 
     Item.appendChild(itemRotation)
