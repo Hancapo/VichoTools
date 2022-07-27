@@ -260,7 +260,7 @@ def export_milo_ymap_xml(ymapname, object, instance_name):
     Item.appendChild(archetypeName)
 
     itemFlags = root.createElement('flags')
-    itemFlags.setAttribute('value', '0')
+    itemFlags.setAttribute('value', '1572865')
     Item.appendChild(itemFlags)
 
     itemGuid = root.createElement('guid')
