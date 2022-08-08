@@ -6,7 +6,7 @@ from mathutils import Quaternion
 bl_info = {
     "name": "Vicho's Misc Tools",
     "author": "Somebody",
-    "version": (0, 0, 6),
+    "version": (0, 0, 8),
     "blender": (2, 93, 0),
     "location": "View3D",
     "description": "Some tools for Vicho",
@@ -96,7 +96,7 @@ class ExpSelObjsFile(bpy.types.Operator):
 
 class IplExportOperator(bpy.types.Operator):
     bl_idname = "custom.exportallobjstoipl"
-    bl_label = "Export all objects to IPL"
+    bl_label = "Export selected objects to IPL"
 
     @classmethod
     def poll(cls, context):
@@ -104,7 +104,6 @@ class IplExportOperator(bpy.types.Operator):
 
     def execute(self, context):
         objetos = context.selected_objects
-        #get quaternion from object
         desktop_path = os.path.expanduser("~/Desktop")
 
 
@@ -112,12 +111,12 @@ class IplExportOperator(bpy.types.Operator):
             f.write("inst")
             f.write("\n")
             for objeto in objetos:
-                quaternion_objeto = objeto.rotation_quaternion
+                quaternion_objeto = objeto.rotation_euler.to_quaternion()
                 nombre_objeto = objeto.name
                 #if object name contains a dot get the string before the dot
                 if "." in nombre_objeto:
                     nombre_objeto = objeto.name.split(".")[0]
-                f.write(f"9999, {nombre_objeto}, 1, {objeto.location[0]}, {objeto.location[1]}, {objeto.location[2]}, {quaternion_objeto[1]}, {quaternion_objeto[2]}, {quaternion_objeto[3]}, {quaternion_objeto[0]}, 0\n")
+                f.write(f"9999, {nombre_objeto}, 1, {objeto.location[0]}, {objeto.location[1]}, {objeto.location[2]}, {quaternion_objeto[1]}, {quaternion_objeto[2]}, {quaternion_objeto[3] * -1}, {quaternion_objeto[0]}, 0\n")
             f.write("end")
         #close file
         f.close()
@@ -382,8 +381,6 @@ def register():
         default="",
         description="instance name for the MLO Instance",
         maxlen=50)
-        
-    
     bpy.types.Scene.ipl_name_field = bpy.props.StringProperty(
         name="IPL Name",
         default="",
