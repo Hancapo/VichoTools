@@ -6,16 +6,16 @@ from mathutils import Quaternion
 bl_info = {
     "name": "Vicho's Misc Tools",
     "author": "Somebody",
-    "version": (0, 0, 8),
+    "version": (0, 0, 9),
     "blender": (2, 93, 0),
     "location": "View3D",
-    "description": "Some tools for Vicho",
+    "description": "Some tools by Vicho",
     "warning": "",
     "wiki_url": "",
-    "category": "Misc Tools",
+    "category": "Vicho Tools",
 }
 
-class VichoToolsPanel(bpy.types.Panel):
+class VichoMisc1ToolsPanel(bpy.types.Panel):
     bl_label = "Misc Tools 1" 
     bl_idname = "MAINMISCTOOLS_PT_"
     bl_space_type = 'VIEW_3D'
@@ -24,49 +24,95 @@ class VichoToolsPanel(bpy.types.Panel):
 
     def draw(self, context):
         layout = self.layout
-        row = layout.row()
+        #Create category
+        box = layout.box()
+        row = box.row()
         row.label(text="Save selected object(s) as unique list to file:", icon='ALIGN_RIGHT')
-        row = layout.row()
+        row = box.row()
         row.prop(context.scene, "file_name_field", text="File name")
-        row = layout.row()
+        row = box.row()
         row.operator("custom.selobjsastext")
-        row = layout.row()
-        row.label(text="Export selected object(s) as IPL file:", icon='FILE_NEW')
-        row = layout.row()
-        row.prop(context.scene, "ipl_name_field", text="IPL Name")
-        row = layout.row()
-        row.operator("custom.exportallobjstoipl")
-        row = layout.row()
+        row = box.row()
+
+class VichoMloToolsPanel(bpy.types.Panel):
+    bl_label = "MLO Tools" 
+    bl_idname = "VICMLOTOOLS_PT_"
+    bl_space_type = 'VIEW_3D'
+    bl_region_type = 'UI'
+    bl_category = "Vicho's Misc Tools"
+
+    def draw(self, context):
+        layout = self.layout
+        box = layout.box()
+        row = box.row()
+        row.prop(context.scene, "ymap_mlo_name_field", text="YMAP name")
+        row = box.row()
+        row.prop(context.scene, "ymap_instance_name_field", text="Instance name")
+        row = box.row()
+        row.operator("custom.exportmlostransformstofile")
+
+class VichoObjectToolsPanel(bpy.types.Panel):
+    bl_label = "Object Tools" 
+    bl_idname = "VICHOBJECTTOOLS_PT_"
+    bl_space_type = 'VIEW_3D'
+    bl_region_type = 'UI'
+    bl_category = "Vicho's Misc Tools"
+
+    def draw(self, context):
+        layout = self.layout
+        box = layout.box()
+        row = box.row()
         row.label(text="Reset Object(s) transform:", icon='PLAY_REVERSE')
-        row = layout.row()
+        row = box.row()
         row.prop(context.scene, "location_checkbox", text="Reset Location")
         row.prop(context.scene, "rotation_checkbox", text="Reset Rotation")
         row.prop(context.scene, "scale_checkbox", text="Reset Scale")
-        row = layout.row()
+        row = box.row()
         row.operator("custom.resetobjtransrot")
-        row = layout.row()
-        row.label(text="MLO Misc tools:", icon="MOD_DECIM")
-        row = layout.row()
-        row.operator("custom.exportmlostransformstofile")
-        row = layout.row()
-        row.prop(context.scene, "ymap_mlo_name_field", text="YMAP name")
-        row = layout.row()
-        row.prop(context.scene, "ymap_instance_name_field", text="Instance name")
-        row = layout.row()
-        row.label(text="Object misc tools:", icon='OBJECT_DATAMODE')
-        row = layout.row()
+        row = box.row()
+
+        box = layout.box()
+        row = box.row()
         row.label(text="Set Object transforms to picked Object", icon='TRACKING_BACKWARDS')
-        row = layout.row()
+        row = box.row()
         row.prop(context.scene, "PasteDataToObject", text="From")
-        row = layout.row()
+        row = box.row()
         row.prop(context.scene, "CopyDataFromObject", text="To")
-        row = layout.row()
+        row = box.row()
         row.prop(context.scene, "locationOb_checkbox", text="Location")
         row.prop(context.scene, "rotationOb_checkbox", text="Rotation")
         row.prop(context.scene, "scaleOb_checkbox", text="Scale")
-        row = layout.row()
+        row = box.row()
         row.operator("custom.pasteobjtransfrompickedobject")
+
+        box = layout.box()
+        row = box.row()
+        row.label(text="Delete meshes without data and others", icon='DOT')
+        row = box.row()
+        row.operator("custom.deleteemptyobj")
+        row = box.row()
+
+
+
+class VichoPlacementToolsPanel(bpy.types.Panel):
+    bl_label = "Placement Tools" 
+    bl_idname = "VICHOPLACEMENTTOOLS_PT_"
+    bl_space_type = 'VIEW_3D'
+    bl_region_type = 'UI'
+    bl_category = "Vicho's Misc Tools"
+
+    def draw(self, context):
+        layout = self.layout
+        box = layout.box()
+
         
+        row = box.row()
+        row.label(text="Export selected object(s) as IPL file:", icon='FILE_NEW')
+        row = box.row()
+        row.prop(context.scene, "ipl_name_field", text="IPL Name")
+        row = box.row()
+        row.operator("custom.exportallobjstoipl")
+        row = box.row()
 
 class ExpSelObjsFile(bpy.types.Operator):
     bl_idname = "custom.selobjsastext"
@@ -192,15 +238,32 @@ class PasteObjectTransformFromPickedObject(bpy.types.Operator):
 
         return {'FINISHED'}
 
-CLASSES = [
-    ExpSelObjsFile,
-    IplExportOperator,
-    ResetObjTransRot,
-    ExportMLOTransFile,
-    VichoToolsPanel,
-    PasteObjectTransformFromPickedObject
+class DeleteEmptyObj(bpy.types.Operator):
+    bl_idname = "custom.deleteemptyobj"
+    bl_label = "Delete empty objects"
 
-]
+    @classmethod
+    def poll(cls, context):
+        return context.scene.objects is not None
+
+    def execute(self, context):
+        objects = context.scene.objects
+        for obj in objects:
+            if obj.type == 'MESH' and obj.sollum_type == 'sollumz_drawable_geometry':
+                if len(obj.data.vertices) == 0:
+                    bpy.data.objects.remove(obj)
+        #Count verts from children inside the parent with sollum_type = 'sollumz_drawable_model'
+        for obj in objects:
+
+            if obj.sollum_type == 'sollumz_drawable_model':
+                obj_total_verts = 0
+                for child in obj.children:
+                    if child.type == 'MESH' and child.sollum_type == 'sollumz_drawable_geometry':
+                        obj_total_verts += len(child.data.vertices)
+                    
+                if obj_total_verts == 0:
+                    bpy.data.objects.remove(obj)
+        return {'FINISHED'}
 
 def export_milo_ymap_xml(ymapname, object, instance_name):
 
@@ -360,6 +423,19 @@ def export_milo_ymap_xml(ymapname, object, instance_name):
         f.write(xml_str)
         f.close()
 
+CLASSES = [
+    ExpSelObjsFile,
+    IplExportOperator,
+    ResetObjTransRot,
+    ExportMLOTransFile,
+    DeleteEmptyObj,
+    VichoMisc1ToolsPanel,
+    VichoMloToolsPanel,
+    VichoPlacementToolsPanel,
+    VichoObjectToolsPanel,
+    PasteObjectTransformFromPickedObject
+
+]
 
 def register():
     for klass in CLASSES:
