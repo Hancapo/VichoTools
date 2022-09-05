@@ -6,7 +6,7 @@ from mathutils import Quaternion
 bl_info = {
     "name": "Vicho's Misc Tools",
     "author": "Somebody",
-    "version": (0, 0, 9),
+    "version": (0, 1, 3),
     "blender": (2, 93, 0),
     "location": "View3D",
     "description": "Some tools by Vicho",
@@ -15,104 +15,113 @@ bl_info = {
     "category": "Vicho Tools",
 }
 
-class VichoMisc1ToolsPanel(bpy.types.Panel):
-    bl_label = "Misc Tools 1" 
+
+class VICHO_PT_MAIN_PANEL(bpy.types.Panel):
+    bl_label = "Vicho's Tools"
+    bl_idname = "VICHO_PT_MAIN_PANEL"
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "UI"
+    bl_category = "Vicho's Tools"
+
+    def draw_header(self, context):
+        self.layout.label(text="", icon="TOOL_SETTINGS")
+
+    def draw(self, context):
+        layout = self.layout
+        layout.use_property_split = True
+
+
+class VICHO_PT_MISC1_PANEL(bpy.types.Panel):
+    bl_label = "Misc Tools"
     bl_idname = "MAINMISCTOOLS_PT_"
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
     bl_category = "Vicho's Misc Tools"
+    bl_parent_id = VICHO_PT_MAIN_PANEL.bl_idname
+    bl_options = {'DEFAULT_CLOSED'}
+
+    def draw_header(self, context):
+        self.layout.label(text="", icon="ALIGN_RIGHT")
 
     def draw(self, context):
         layout = self.layout
-        #Create category
-        box = layout.box()
-        row = box.row()
-        row.label(text="Save selected object(s) as unique list to file:", icon='ALIGN_RIGHT')
-        row = box.row()
+        # Create category
+        row = layout.row()
+        row.label(
+            text="Save selected object(s) as unique list to file:", icon='ALIGN_RIGHT')
+        row = layout.row()
         row.prop(context.scene, "file_name_field", text="File name")
-        row = box.row()
+        row = layout.row()
         row.operator("custom.selobjsastext")
-        row = box.row()
+        row = layout.row()
+
 
 class VichoMloToolsPanel(bpy.types.Panel):
-    bl_label = "MLO Tools" 
+    bl_label = "MLO Tools"
     bl_idname = "VICMLOTOOLS_PT_"
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
     bl_category = "Vicho's Misc Tools"
+    bl_parent_id = VICHO_PT_MAIN_PANEL.bl_idname
+    bl_options = {'DEFAULT_CLOSED'}
+
+    def draw_header(self, context):
+        self.layout.label(text="", icon="WORLD")
 
     def draw(self, context):
         layout = self.layout
-        box = layout.box()
-        row = box.row()
+        row = layout.row()
         row.prop(context.scene, "ymap_mlo_name_field", text="YMAP name")
-        row = box.row()
-        row.prop(context.scene, "ymap_instance_name_field", text="Instance name")
-        row = box.row()
+        row = layout.row()
+        row.prop(context.scene, "ymap_instance_name_field",
+                 text="Instance name")
+        row = layout.row()
         row.operator("custom.exportmlostransformstofile")
 
+
 class VichoObjectToolsPanel(bpy.types.Panel):
-    bl_label = "Object Tools" 
+    bl_label = "Object Tools"
     bl_idname = "VICHOBJECTTOOLS_PT_"
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
     bl_category = "Vicho's Misc Tools"
+    bl_parent_id = VICHO_PT_MAIN_PANEL.bl_idname
+    bl_options = {'DEFAULT_CLOSED'}
+
+    def draw_header(self, context):
+        self.layout.label(text="", icon="OVERLAY")
 
     def draw(self, context):
         layout = self.layout
-        box = layout.box()
-        row = box.row()
+
+        row = layout.row()
         row.label(text="Reset Object(s) transform:", icon='PLAY_REVERSE')
-        row = box.row()
+        row = layout.row()
         row.prop(context.scene, "location_checkbox", text="Reset Location")
         row.prop(context.scene, "rotation_checkbox", text="Reset Rotation")
         row.prop(context.scene, "scale_checkbox", text="Reset Scale")
-        row = box.row()
+        row = layout.row()
         row.operator("custom.resetobjtransrot")
-        row = box.row()
 
-        box = layout.box()
-        row = box.row()
-        row.label(text="Set Object transforms to picked Object", icon='TRACKING_BACKWARDS')
-        row = box.row()
+        row = layout.row()
+        row.label(text="Set Object transforms to picked Object",
+                  icon='TRACKING_BACKWARDS')
+        row = layout.row()
         row.prop(context.scene, "PasteDataToObject", text="From")
-        row = box.row()
+        row = layout.row()
         row.prop(context.scene, "CopyDataFromObject", text="To")
-        row = box.row()
+        row = layout.row()
         row.prop(context.scene, "locationOb_checkbox", text="Location")
         row.prop(context.scene, "rotationOb_checkbox", text="Rotation")
         row.prop(context.scene, "scaleOb_checkbox", text="Scale")
-        row = box.row()
+        row = layout.row()
         row.operator("custom.pasteobjtransfrompickedobject")
 
-        box = layout.box()
-        row = box.row()
+        row = layout.row()
         row.label(text="Delete meshes without data and others", icon='DOT')
-        row = box.row()
+        row = layout.row()
         row.operator("custom.deleteemptyobj")
-        row = box.row()
-
-
-
-class VichoPlacementToolsPanel(bpy.types.Panel):
-    bl_label = "Placement Tools" 
-    bl_idname = "VICHOPLACEMENTTOOLS_PT_"
-    bl_space_type = 'VIEW_3D'
-    bl_region_type = 'UI'
-    bl_category = "Vicho's Misc Tools"
-
-    def draw(self, context):
-        layout = self.layout
-        box = layout.box()
-
-        
-        row = box.row()
-        row.label(text="Export selected object(s) as IPL file:", icon='FILE_NEW')
-        row = box.row()
-        row.prop(context.scene, "ipl_name_field", text="IPL Name")
-        row = box.row()
-        row.operator("custom.exportallobjstoipl")
-        row = box.row()
+        row = layout.row()
 
 class ExpSelObjsFile(bpy.types.Operator):
     bl_idname = "custom.selobjsastext"
@@ -127,46 +136,18 @@ class ExpSelObjsFile(bpy.types.Operator):
         nombres = []
         for objeto in objetos:
             nombres.append(objeto.name)
-        #filter name with a dot and just get the string before the dot
+        # filter name with a dot and just get the string before the dot
         nombres = [nombre.split(".")[0] for nombre in nombres]
         nombres = list(set(nombres))
-        #get user's desktop path
+        # get user's desktop path
         desktop_path = os.path.expanduser("~/Desktop")
-        #export list to file with name from scene
+        # export list to file with name from scene
         with open(desktop_path + "/" + context.scene.file_name_field + ".txt", "w") as f:
             for nombre in nombres:
                 f.write(nombre + "\n")
-        
 
         return {'FINISHED'}
 
-class IplExportOperator(bpy.types.Operator):
-    bl_idname = "custom.exportallobjstoipl"
-    bl_label = "Export selected objects to IPL"
-
-    @classmethod
-    def poll(cls, context):
-        return context.selected_objects is not None
-
-    def execute(self, context):
-        objetos = context.selected_objects
-        desktop_path = os.path.expanduser("~/Desktop")
-
-
-        with open(desktop_path + "/" + context.scene.ipl_name_field + ".ipl", "w") as f:
-            f.write("inst")
-            f.write("\n")
-            for objeto in objetos:
-                quaternion_objeto = objeto.rotation_euler.to_quaternion()
-                nombre_objeto = objeto.name
-                #if object name contains a dot get the string before the dot
-                if "." in nombre_objeto:
-                    nombre_objeto = objeto.name.split(".")[0]
-                f.write(f"9999, {nombre_objeto}, 1, {objeto.location[0]}, {objeto.location[1]}, {objeto.location[2]}, {quaternion_objeto[1]}, {quaternion_objeto[2]}, {quaternion_objeto[3] * -1}, {quaternion_objeto[0]}, 0\n")
-            f.write("end")
-        #close file
-        f.close()
-        return {'FINISHED'}
 
 class ResetObjTransRot(bpy.types.Operator):
     bl_idname = "custom.resetobjtransrot"
@@ -174,7 +155,7 @@ class ResetObjTransRot(bpy.types.Operator):
 
     @classmethod
     def poll(cls, context):
-        return context.selected_objects is not None and (context.scene.location_checkbox or context.scene.rotation_checkbox or context.scene.scale_checkbox)
+        return len(context.selected_objects) > 0 and (context.scene.location_checkbox or context.scene.rotation_checkbox or context.scene.scale_checkbox)
 
     def execute(self, context):
         check_loc = context.scene.location_checkbox
@@ -183,42 +164,46 @@ class ResetObjTransRot(bpy.types.Operator):
 
         objetos = context.selected_objects
         for objeto in objetos:
-            if check_loc == True:
+            if check_loc:
                 objeto.location = (0, 0, 0)
-            if check_rot == True:
+            if check_rot:
                 if objeto.rotation_mode == 'QUATERNION':
                     objeto.rotation_quaternion = (1, 0, 0, 0)
                 elif objeto.rotation_mode == 'AXIS_ANGLE':
                     objeto.rotation_axis_angle = (0, 0, 0, 0)
                 else:
                     objeto.rotation_euler = (0, 0, 0)
-                    
-            if check_scale == True:
+
+            if check_scale:
                 objeto.scale = (1, 1, 1)
-            
+
         return {'FINISHED'}
+
 
 class ExportMLOTransFile(bpy.types.Operator):
     bl_idname = "custom.exportmlostransformstofile"
     bl_label = "Export MLO transforms to YMAP"
-    
+
     @classmethod
     def poll(cls, context):
         return context.selected_objects is not None
-    
+
     def execute(self, context):
         objetos = context.selected_objects
 
         for objeto in objetos:
             if objeto.sollum_type == 'sollumz_bound_composite' or objeto.type == 'MESH':
-                export_milo_ymap_xml(context.scene.ymap_mlo_name_field, objeto, context.scene.ymap_instance_name_field)
-                self.report({'INFO'}, f"{objeto.name} location and rotation exported to file")
-            
+                export_milo_ymap_xml(
+                    context.scene.ymap_mlo_name_field, objeto, context.scene.ymap_instance_name_field)
+                self.report(
+                    {'INFO'}, f"{objeto.name} location and rotation exported to file")
+
             else:
-                self.report({'WARNING'}, f"{objeto.name} is not a Bound Composite or a Mesh")
-                
-                
+                self.report(
+                    {'WARNING'}, f"{objeto.name} is not a Bound Composite or a Mesh")
+
         return {'FINISHED'}
+
 
 class PasteObjectTransformFromPickedObject(bpy.types.Operator):
     bl_idname = "custom.pasteobjtransfrompickedobject"
@@ -230,7 +215,7 @@ class PasteObjectTransformFromPickedObject(bpy.types.Operator):
 
     def execute(self, context):
         fromobj = context.scene.CopyDataFromObject
-        toobj = context.scene.PasteDataToObject   
+        toobj = context.scene.PasteDataToObject
 
         toobj.location = fromobj.location
         toobj.rotation_euler = fromobj.rotation_euler
@@ -238,32 +223,70 @@ class PasteObjectTransformFromPickedObject(bpy.types.Operator):
 
         return {'FINISHED'}
 
+
 class DeleteEmptyObj(bpy.types.Operator):
     bl_idname = "custom.deleteemptyobj"
     bl_label = "Delete empty objects"
 
     @classmethod
     def poll(cls, context):
-        return context.scene.objects is not None
+        return context.selected_objects is not None
 
     def execute(self, context):
-        objects = context.scene.objects
-        for obj in objects:
-            if obj.type == 'MESH' and obj.sollum_type == 'sollumz_drawable_geometry':
-                if len(obj.data.vertices) == 0:
-                    bpy.data.objects.remove(obj)
-        #Count verts from children inside the parent with sollum_type = 'sollumz_drawable_model'
-        for obj in objects:
+        objects = context.selected_objects
 
-            if obj.sollum_type == 'sollumz_drawable_model':
-                obj_total_verts = 0
-                for child in obj.children:
-                    if child.type == 'MESH' and child.sollum_type == 'sollumz_drawable_geometry':
-                        obj_total_verts += len(child.data.vertices)
-                    
-                if obj_total_verts == 0:
-                    bpy.data.objects.remove(obj)
+        for obj in objects:
+            if obj.type == 'EMPTY':
+                if obj.sollum_type == 'sollumz_drawable':
+                    if len(obj.children) < 1:
+                        bpy.data.objects.remove(obj)
+                    else:
+                        for ochild in obj.children:
+                            if ochild.sollum_type == 'sollumz_drawable_model':
+                                drawmodelchild = ochild.children
+                                if len(drawmodelchild) < 1:
+                                    bpy.data.objects.remove(ochild)
+
+                                else:
+
+                                    for dchild in drawmodelchild:
+                                        if dchild.sollum_type == 'sollumz_drawable_geometry' and dchild.type == 'MESH':
+                                            if len(dchild.data.vertices) < 1:
+                                                bpy.data.objects.remove(dchild)
+                                                if len(ochild.children) < 1:
+                                                    bpy.data.objects.remove(
+                                                        ochild)
+
+                elif obj.sollum_type == 'sollumz_bound_composite':
+                    if len(obj.children) < 1:
+                        bpy.data.objects.remove(obj)
+                    else:
+                        for ochild in obj.children:
+                            if ochild.sollum_type == 'sollumz_bound_geometrybvh':
+                                drawmodelchild = ochild.children
+                                if len(drawmodelchild) < 1:
+                                    bpy.data.objects.remove(ochild)
+
+                                else:
+
+                                    for dchild in drawmodelchild:
+                                        if (dchild.sollum_type == 'sollumz_bound_poly_triangle' or
+                                            dchild.sollum_type == 'sollumz_bound_poly_box' or
+                                            dchild.sollum_type == 'sollumz_bound_poly_sphere' or
+                                            dchild.sollum_type == 'sollumz_bound_poly_cylinder' or
+                                                dchild.sollum_type == 'sollumz_bound_poly_capsule') and dchild.type == 'MESH':
+                                            if len(dchild.data.vertices) < 1:
+                                                bpy.data.objects.remove(dchild)
+                                                if len(ochild.children) < 1:
+                                                    bpy.data.objects.remove(
+                                                        ochild)
+                elif obj.sollum_type == 'sollumz_drawable_dictionary':
+                    print('todo')
+            else:
+                continue
+
         return {'FINISHED'}
+
 
 def export_milo_ymap_xml(ymapname, object, instance_name):
 
@@ -336,10 +359,14 @@ def export_milo_ymap_xml(ymapname, object, instance_name):
     Item.appendChild(itemPosition)
 
     itemRotation = root.createElement('rotation')
-    itemRotation.setAttribute('x', str(object.rotation_euler.to_quaternion().x))
-    itemRotation.setAttribute('y', str(object.rotation_euler.to_quaternion().y))
-    itemRotation.setAttribute('z', str(object.rotation_euler.to_quaternion().z))
-    itemRotation.setAttribute('w', str(object.rotation_euler.to_quaternion().w))
+    itemRotation.setAttribute(
+        'x', str(object.rotation_euler.to_quaternion().x))
+    itemRotation.setAttribute(
+        'y', str(object.rotation_euler.to_quaternion().y))
+    itemRotation.setAttribute(
+        'z', str(object.rotation_euler.to_quaternion().z))
+    itemRotation.setAttribute(
+        'w', str(object.rotation_euler.to_quaternion().w))
 
     Item.appendChild(itemRotation)
 
@@ -378,12 +405,13 @@ def export_milo_ymap_xml(ymapname, object, instance_name):
     itemextensions = root.createElement('extensions')
     Item.appendChild(itemextensions)
 
-
-    itemambientOcclusionMultiplier = root.createElement('ambientOcclusionMultiplier')
+    itemambientOcclusionMultiplier = root.createElement(
+        'ambientOcclusionMultiplier')
     itemambientOcclusionMultiplier.setAttribute('value', '255')
     Item.appendChild(itemambientOcclusionMultiplier)
 
-    itemartificialAmbientOcclusion = root.createElement('artificialAmbientOcclusion')
+    itemartificialAmbientOcclusion = root.createElement(
+        'artificialAmbientOcclusion')
     itemartificialAmbientOcclusion.setAttribute('value', '255')
     Item.appendChild(itemartificialAmbientOcclusion)
 
@@ -412,36 +440,45 @@ def export_milo_ymap_xml(ymapname, object, instance_name):
     xml.appendChild(entities)
 
     xml_str = xml.toprettyxml(indent='\t')
-    
 
     desktop_path = os.path.expanduser("~/Desktop")
 
     save_path = desktop_path + "/" + ymapname + '.ymap.xml'
 
-
     with open(save_path, 'w') as f:
         f.write(xml_str)
         f.close()
 
+
+def get_textures_from_the_material(blender_material):
+    textures = []
+    if blender_material:
+        if blender_material.node_tree:
+            for tn in blender_material.node_tree.nodes:
+                if tn.type == 'TEX_IMAGE':
+                    textures.append(tn)
+    return textures
+
+
 CLASSES = [
+    VICHO_PT_MAIN_PANEL,
     ExpSelObjsFile,
-    IplExportOperator,
     ResetObjTransRot,
     ExportMLOTransFile,
     DeleteEmptyObj,
-    VichoMisc1ToolsPanel,
+    VICHO_PT_MISC1_PANEL,
     VichoMloToolsPanel,
-    VichoPlacementToolsPanel,
     VichoObjectToolsPanel,
     PasteObjectTransformFromPickedObject
 
 ]
 
+
 def register():
     for klass in CLASSES:
         bpy.utils.register_class(klass)
     bpy.types.Scene.file_name_field = bpy.props.StringProperty(
-        name="File Name", 
+        name="File Name",
         default="",
         description="File name for the text file",
         maxlen=50)
@@ -456,11 +493,6 @@ def register():
         name="Instance Name",
         default="",
         description="instance name for the MLO Instance",
-        maxlen=50)
-    bpy.types.Scene.ipl_name_field = bpy.props.StringProperty(
-        name="IPL Name",
-        default="",
-        description="IPL name for the IPL file",
         maxlen=50)
     bpy.types.Scene.location_checkbox = bpy.props.BoolProperty(
         name="Reset Location",
@@ -488,7 +520,6 @@ def register():
         name="Scale",
         description="Scale")
 
-    
 
 def unregister():
     for klass in CLASSES:
@@ -496,7 +527,6 @@ def unregister():
     del bpy.types.Scene.file_name_field
     del bpy.types.Scene.ymap_mlo_name_field
     del bpy.types.Scene.ymap_instance_name_field
-    del bpy.types.Scene.ipl_name_field
     del bpy.types.Scene.location_checkbox
     del bpy.types.Scene.rotation_checkbox
     del bpy.types.Scene.scale_checkbox
@@ -505,7 +535,6 @@ def unregister():
     del bpy.types.Scene.locationOb_checkbox
     del bpy.types.Scene.rotationOb_checkbox
     del bpy.types.Scene.scaleOb_checkbox
-
 
 
 if __name__ == '__main__':
