@@ -1,7 +1,11 @@
+from ast import Try
 import bpy
 import os
 import xml.dom.minidom as md
 from mathutils import Quaternion
+from bpy.props import StringProperty, BoolProperty
+from bpy_extras.io_utils import ExportHelper
+from bpy.types import Operator
 
 bl_info = {
     "name": "Vicho's Misc Tools",
@@ -71,12 +75,10 @@ class VichoMloToolsPanel(bpy.types.Panel):
     def draw(self, context):
         layout = self.layout
         row = layout.row()
-        row.prop(context.scene, "ymap_mlo_name_field", text="YMAP name")
-        row = layout.row()
         row.prop(context.scene, "ymap_instance_name_field",
                  text="Instance name")
         row = layout.row()
-        row.operator("custom.exportmlostransformstofile")
+        row.operator("vicho.mloyampfilebrowser")
 
 
 class VichoObjectToolsPanel(bpy.types.Panel):
@@ -122,6 +124,7 @@ class VichoObjectToolsPanel(bpy.types.Panel):
         row = layout.row()
         row.operator("custom.deleteemptyobj")
         row = layout.row()
+
 
 class ExpSelObjsFile(bpy.types.Operator):
     bl_idname = "custom.selobjsastext"
@@ -194,7 +197,7 @@ class ExportMLOTransFile(bpy.types.Operator):
         for objeto in objetos:
             if objeto.sollum_type == 'sollumz_bound_composite' or objeto.type == 'MESH':
                 export_milo_ymap_xml(
-                    context.scene.ymap_mlo_name_field, objeto, context.scene.ymap_instance_name_field)
+                    'Mi bro', objeto, context.scene.ymap_instance_name_field)
                 self.report(
                     {'INFO'}, f"{objeto.name} location and rotation exported to file")
 
@@ -288,6 +291,36 @@ class DeleteEmptyObj(bpy.types.Operator):
         return {'FINISHED'}
 
 
+class MloYmapFileBrowser(bpy.types.Operator, ExportHelper):
+    bl_idname = "vicho.mloyampfilebrowser"
+    bl_label = "Export MLO transforms to YMAP"
+    bl_action = "Export a YMAP MLO"
+    bl_showtime = True
+
+    filename_ext = '.ymap'
+
+    filter_glob: StringProperty(
+        default='*.ymap',
+        options={'HIDDEN'}
+    )
+
+    def execute(self, context):
+        try:
+            export_milo_ymap_xml(
+                self.filepath, context.active_object, context.scene.ymap_instance_name_field)
+            self.report({'INFO'}, f"{self.filepath} successfully exported")
+            return {'FINISHED'}
+
+
+
+        except:
+            self.report(
+                {'ERROR'}, f"Error exporting {self.filepath} ")
+            return {'FINISHED'}
+            
+
+
+
 def export_milo_ymap_xml(ymapname, object, instance_name):
 
     root = md.Document()
@@ -296,7 +329,8 @@ def export_milo_ymap_xml(ymapname, object, instance_name):
     root.appendChild(xml)
 
     ymapName = root.createElement('name')
-    ymapName.appendChild(root.createTextNode(os.path.basename(ymapname)))
+    ymapName.appendChild(root.createTextNode(
+        os.path.basename(ymapname.split('.')[0])))
     xml.appendChild(ymapName)
 
     parent = root.createElement('parent')
@@ -440,10 +474,7 @@ def export_milo_ymap_xml(ymapname, object, instance_name):
     xml.appendChild(entities)
 
     xml_str = xml.toprettyxml(indent='\t')
-
-    desktop_path = os.path.expanduser("~/Desktop")
-
-    save_path = desktop_path + "/" + ymapname + '.ymap.xml'
+    save_path = ymapname + '.xml'
 
     with open(save_path, 'w') as f:
         f.write(xml_str)
@@ -469,7 +500,8 @@ CLASSES = [
     VICHO_PT_MISC1_PANEL,
     VichoMloToolsPanel,
     VichoObjectToolsPanel,
-    PasteObjectTransformFromPickedObject
+    PasteObjectTransformFromPickedObject,
+    MloYmapFileBrowser
 
 ]
 
@@ -481,12 +513,6 @@ def register():
         name="File Name",
         default="",
         description="File name for the text file",
-        maxlen=50)
-
-    bpy.types.Scene.ymap_mlo_name_field = bpy.props.StringProperty(
-        name="YMAP Name",
-        default="",
-        description="YMAP name for the MLO Instance",
         maxlen=50)
 
     bpy.types.Scene.ymap_instance_name_field = bpy.props.StringProperty(
@@ -525,7 +551,6 @@ def unregister():
     for klass in CLASSES:
         bpy.utils.unregister_class(klass)
     del bpy.types.Scene.file_name_field
-    del bpy.types.Scene.ymap_mlo_name_field
     del bpy.types.Scene.ymap_instance_name_field
     del bpy.types.Scene.location_checkbox
     del bpy.types.Scene.rotation_checkbox
