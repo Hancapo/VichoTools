@@ -126,6 +126,20 @@ class VichoObjectToolsPanel(bpy.types.Panel):
         row.operator("custom.deleteemptyobj")
         row = layout.row()
 
+class Vicho_PT_vertex_color(bpy.types.Panel):
+    bl_label = "Oldy Vertex Color"
+    bl_idname = "VICHO_PT_vertex_color"
+    bl_space_type = 'PROPERTIES'
+    bl_region_type = 'WINDOW'
+    bl_context = "object"
+    bl_options = {'DEFAULT_CLOSED'}
+
+    def draw(self, context):
+        layout = self.layout
+        row = layout.row()
+        row.operator("vicho.vertexcolor", text="Create Vertex Color", icon='COLOR')
+        row = layout.row()
+        
 
 class ExpSelObjsFile(bpy.types.Operator):
     bl_idname = "custom.selobjsastext"
@@ -152,6 +166,17 @@ class ExpSelObjsFile(bpy.types.Operator):
 
         return {'FINISHED'}
 
+class VichoCreateVC(bpy.types.Operator):
+    bl_idname = "vicho.vertexcolor"
+    bl_label = "Create Vertex Color"
+
+    @classmethod
+    def poll(cls, context):
+        return context.active_object is not None
+
+    def execute(self, context):
+        bpy.ops.geometry.color_attribute_add(name="colour0", domain='CORNER', data_type='BYTE_COLOR')
+        return {'FINISHED'}
 
 class ResetObjTransRot(bpy.types.Operator):
     bl_idname = "custom.resetobjtransrot"
@@ -500,7 +525,10 @@ CLASSES = [
     VichoMloToolsPanel,
     VichoObjectToolsPanel,
     PasteObjectTransformFromPickedObject,
-    MloYmapFileBrowser
+    MloYmapFileBrowser,
+    Vicho_PT_vertex_color,
+    VichoCreateVC
+
 
 ]
 
