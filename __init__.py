@@ -6,6 +6,7 @@ from mathutils import Quaternion
 from bpy.props import StringProperty, BoolProperty
 from bpy_extras.io_utils import ExportHelper
 from bpy.types import Operator
+from .utils.vichohelper import get_bound_extents
 
 bl_info = {
     "name": "Vicho's Misc Tools",
@@ -311,17 +312,15 @@ class MloYmapFileBrowser(bpy.types.Operator, ExportHelper):
             self.report({'INFO'}, f"{self.filepath} successfully exported")
             return {'FINISHED'}
 
-
-
         except:
             self.report(
                 {'ERROR'}, f"Error exporting {self.filepath} ")
             return {'FINISHED'}
-            
-
 
 
 def export_milo_ymap_xml(ymapname, object, instance_name):
+
+    bbmin, bbmax = get_bound_extents(object)
 
     root = md.Document()
 
@@ -345,27 +344,27 @@ def export_milo_ymap_xml(ymapname, object, instance_name):
     xml.appendChild(contentFlags)
 
     streamingExtentsMin = root.createElement('streamingExtentsMin')
-    streamingExtentsMin.setAttribute('x', '0')
-    streamingExtentsMin.setAttribute('y', '0')
-    streamingExtentsMin.setAttribute('z', '0')
+    streamingExtentsMin.setAttribute('x', str(bbmin[0]))
+    streamingExtentsMin.setAttribute('y', str(bbmin[1]))
+    streamingExtentsMin.setAttribute('z', str(bbmin[2]))
     xml.appendChild(streamingExtentsMin)
 
     streamingExtentsMax = root.createElement('streamingExtentsMax')
-    streamingExtentsMax.setAttribute('x', '0')
-    streamingExtentsMax.setAttribute('y', '0')
-    streamingExtentsMax.setAttribute('z', '0')
+    streamingExtentsMax.setAttribute('x', str(bbmax[0]))
+    streamingExtentsMax.setAttribute('y', str(bbmax[1]))
+    streamingExtentsMax.setAttribute('z', str(bbmax[2]))
     xml.appendChild(streamingExtentsMax)
 
     entitiesExtentsMin = root.createElement('entitiesExtentsMin')
-    entitiesExtentsMin.setAttribute('x', '0')
-    entitiesExtentsMin.setAttribute('y', '0')
-    entitiesExtentsMin.setAttribute('z', '0')
+    entitiesExtentsMin.setAttribute('x', str(bbmin[0]))
+    entitiesExtentsMin.setAttribute('y', str(bbmin[1]))
+    entitiesExtentsMin.setAttribute('z', str(bbmin[2]))
     xml.appendChild(entitiesExtentsMin)
 
     entitiesExtentsMax = root.createElement('entitiesExtentsMax')
-    entitiesExtentsMax.setAttribute('x', '0')
-    entitiesExtentsMax.setAttribute('y', '0')
-    entitiesExtentsMax.setAttribute('z', '0')
+    entitiesExtentsMax.setAttribute('x', str(bbmax[0]))
+    entitiesExtentsMax.setAttribute('y', str(bbmax[1]))
+    entitiesExtentsMax.setAttribute('z', str(bbmax[2]))
     xml.appendChild(entitiesExtentsMax)
 
     entities = root.createElement('entities')
