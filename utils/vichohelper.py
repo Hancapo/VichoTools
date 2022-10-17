@@ -18,7 +18,7 @@ def get_bound_extents(obj, margin=0):
 
     min = subtract_from_vector(get_min_vector_list(corners), margin)
     max = add_to_vector(get_max_vector_list(corners), margin)
-    return min, max
+    return min + obj.location, max + obj.location
 
 
 def subtract_from_vector(v, f):

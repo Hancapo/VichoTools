@@ -369,15 +369,15 @@ def export_milo_ymap_xml(ymapname, object, instance_name):
     xml.appendChild(contentFlags)
 
     streamingExtentsMin = root.createElement('streamingExtentsMin')
-    streamingExtentsMin.setAttribute('x', str(bbmin[0]))
-    streamingExtentsMin.setAttribute('y', str(bbmin[1]))
-    streamingExtentsMin.setAttribute('z', str(bbmin[2]))
+    streamingExtentsMin.setAttribute('x', str(bbmin[0] + 100))
+    streamingExtentsMin.setAttribute('y', str(bbmin[1] + 100))
+    streamingExtentsMin.setAttribute('z', str(bbmin[2] + 100))
     xml.appendChild(streamingExtentsMin)
 
     streamingExtentsMax = root.createElement('streamingExtentsMax')
-    streamingExtentsMax.setAttribute('x', str(bbmax[0]))
-    streamingExtentsMax.setAttribute('y', str(bbmax[1]))
-    streamingExtentsMax.setAttribute('z', str(bbmax[2]))
+    streamingExtentsMax.setAttribute('x', str(bbmax[0] + 100))
+    streamingExtentsMax.setAttribute('y', str(bbmax[1] + 100))
+    streamingExtentsMax.setAttribute('z', str(bbmax[2] + 100))
     xml.appendChild(streamingExtentsMax)
 
     entitiesExtentsMin = root.createElement('entitiesExtentsMin')
