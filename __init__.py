@@ -11,7 +11,7 @@ from .utils.vichohelper import get_bound_extents
 bl_info = {
     "name": "Vicho's Misc Tools",
     "author": "Somebody",
-    "version": (0, 1, 3),
+    "version": (0, 1, 4),
     "blender": (2, 93, 0),
     "location": "View3D",
     "description": "Some tools by Vicho",
@@ -126,6 +126,7 @@ class VichoObjectToolsPanel(bpy.types.Panel):
         row.operator("custom.deleteemptyobj")
         row = layout.row()
 
+
 class Vicho_PT_vertex_color(bpy.types.Panel):
     bl_label = "Oldy Vertex Color"
     bl_idname = "VICHO_PT_vertex_color"
@@ -137,9 +138,10 @@ class Vicho_PT_vertex_color(bpy.types.Panel):
     def draw(self, context):
         layout = self.layout
         row = layout.row()
-        row.operator("vicho.vertexcolor", text="Create Vertex Color", icon='COLOR')
+        row.operator("vicho.vertexcolor",
+                     text="Create Vertex Color", icon='COLOR')
         row = layout.row()
-        
+
 
 class ExpSelObjsFile(bpy.types.Operator):
     bl_idname = "custom.selobjsastext"
@@ -166,6 +168,7 @@ class ExpSelObjsFile(bpy.types.Operator):
 
         return {'FINISHED'}
 
+
 class VichoCreateVC(bpy.types.Operator):
     bl_idname = "vicho.vertexcolor"
     bl_label = "Create Vertex Color"
@@ -175,8 +178,10 @@ class VichoCreateVC(bpy.types.Operator):
         return context.active_object is not None
 
     def execute(self, context):
-        bpy.ops.geometry.color_attribute_add(name="colour0", domain='CORNER', data_type='BYTE_COLOR')
+        bpy.ops.geometry.color_attribute_add(
+            name="colour0", domain='CORNER', data_type='BYTE_COLOR')
         return {'FINISHED'}
+
 
 class ResetObjTransRot(bpy.types.Operator):
     bl_idname = "custom.resetobjtransrot"
@@ -240,15 +245,18 @@ class PasteObjectTransformFromPickedObject(bpy.types.Operator):
 
     @classmethod
     def poll(cls, context):
-        return context.scene.CopyDataFromObject is not None and (context.scene.PasteDataToObject or context.scene.locationOb_checkbox or context.scene.rotationOb_checkbox or context.scene.scaleOb_checkbox)
+        return context.scene.CopyDataFromObject is not None and (context.scene.locationOb_checkbox or context.scene.rotationOb_checkbox or context.scene.scaleOb_checkbox)
 
     def execute(self, context):
         fromobj = context.scene.CopyDataFromObject
         toobj = context.scene.PasteDataToObject
 
-        toobj.location = fromobj.location
-        toobj.rotation_euler = fromobj.rotation_euler
-        toobj.scale = fromobj.scale
+        if context.scene.locationOb_checkbox:
+            toobj.location = fromobj.location
+        if context.scene.rotationOb_checkbox:
+            toobj.rotation_euler = fromobj.rotation_euler
+        if context.scene.scaleOb_checkbox:
+            toobj.scale = fromobj.scale
 
         return {'FINISHED'}
 
