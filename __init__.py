@@ -1,17 +1,17 @@
-from ast import Try
 import bpy
 import os
-import xml.dom.minidom as md
 from mathutils import Quaternion
 from bpy.props import StringProperty, BoolProperty
 from bpy_extras.io_utils import ExportHelper
 from bpy.types import Operator
-from .utils.vichohelper import get_bound_extents
+from .utils.ytdHelper import *
+from .utils.vichofuncs import *
+import subprocess
 
 bl_info = {
     "name": "Vicho's Misc Tools",
     "author": "Somebody",
-    "version": (0, 1, 4),
+    "version": (0, 1, 5),
     "blender": (2, 93, 0),
     "location": "View3D",
     "description": "Some tools by Vicho",
@@ -141,6 +141,34 @@ class Vicho_PT_vertex_color(bpy.types.Panel):
         row.operator("vicho.vertexcolor",
                      text="Create Vertex Color", icon='COLOR')
         row = layout.row()
+
+
+class Vicho_TextureDictionaryPanel(bpy.types.Panel):
+    bl_label = "Texture Dictionary Tools"
+    bl_idname = "VICHO_PT_texture_dictionary"
+    bl_space_type = 'VIEW_3D'
+    bl_region_type = 'UI'
+    bl_options = {'DEFAULT_CLOSED'}
+    bl_parent_id = VICHO_PT_MAIN_PANEL.bl_idname
+
+    def draw_header(self, context):
+        self.layout.label(text="", icon="TEXTURE")
+
+    def draw(self, context):
+        layout = self.layout
+        row = layout.row()
+        list_col = row.column()
+        scene = context.scene
+        list_col.template_list("YtdList", "", scene,
+                             "ytd_list", scene, "ytd_active_index")
+        col = row.column(align=True)
+        col.operator("ytd_list.add_ytd", icon='ADD', text="")
+        col.operator("ytd_list.remove_ytd", icon='REMOVE', text="")
+        list_col.separator()
+        list_col.prop(scene, "ytd_export_path", text="")
+        list_col.separator()
+        list_col.operator("custom.exportytdfolders", text="Export YTD Folders")
+
 
 
 class ExpSelObjsFile(bpy.types.Operator):
@@ -324,6 +352,22 @@ class DeleteEmptyObj(bpy.types.Operator):
 
         return {'FINISHED'}
 
+class YtdExportPath(bpy.types.Operator):
+    bl_idname = "custom.exportytdfolders"
+    bl_label = "Export YTD folders"
+
+
+    @classmethod
+    def poll(cls, context):
+        return len(context.scene.ytd_list) > 0 and context.scene.ytd_export_path != '' and os.path.exists(context.scene.ytd_export_path)
+
+    def execute(self, context):
+        ytds = context.scene.ytd_list
+
+        print(f'WIP {ytds}')
+        ExportYTDFolders(ytds, context.scene.ytd_export_path)
+        subprocess.Popen('explorer "{}"'.format(context.scene.ytd_export_path))
+        return {'FINISHED'}
 
 class MloYmapFileBrowser(bpy.types.Operator, ExportHelper):
     bl_idname = "vicho.mloyampfilebrowser"
@@ -351,178 +395,6 @@ class MloYmapFileBrowser(bpy.types.Operator, ExportHelper):
             return {'FINISHED'}
 
 
-def export_milo_ymap_xml(ymapname, object, instance_name):
-
-    bbmin, bbmax = get_bound_extents(object)
-
-    root = md.Document()
-
-    xml = root.createElement('CMapData')
-    root.appendChild(xml)
-
-    ymapName = root.createElement('name')
-    ymapName.appendChild(root.createTextNode(
-        os.path.basename(ymapname.split('.')[0])))
-    xml.appendChild(ymapName)
-
-    parent = root.createElement('parent')
-    xml.appendChild(parent)
-
-    flags = root.createElement('flags')
-    flags.setAttribute('value', '0')
-    xml.appendChild(flags)
-
-    contentFlags = root.createElement('contentFlags')
-    contentFlags.setAttribute('value', '9')
-    xml.appendChild(contentFlags)
-
-    streamingExtentsMin = root.createElement('streamingExtentsMin')
-    streamingExtentsMin.setAttribute('x', str(bbmin[0] + 100))
-    streamingExtentsMin.setAttribute('y', str(bbmin[1] + 100))
-    streamingExtentsMin.setAttribute('z', str(bbmin[2] + 100))
-    xml.appendChild(streamingExtentsMin)
-
-    streamingExtentsMax = root.createElement('streamingExtentsMax')
-    streamingExtentsMax.setAttribute('x', str(bbmax[0] + 100))
-    streamingExtentsMax.setAttribute('y', str(bbmax[1] + 100))
-    streamingExtentsMax.setAttribute('z', str(bbmax[2] + 100))
-    xml.appendChild(streamingExtentsMax)
-
-    entitiesExtentsMin = root.createElement('entitiesExtentsMin')
-    entitiesExtentsMin.setAttribute('x', str(bbmin[0]))
-    entitiesExtentsMin.setAttribute('y', str(bbmin[1]))
-    entitiesExtentsMin.setAttribute('z', str(bbmin[2]))
-    xml.appendChild(entitiesExtentsMin)
-
-    entitiesExtentsMax = root.createElement('entitiesExtentsMax')
-    entitiesExtentsMax.setAttribute('x', str(bbmax[0]))
-    entitiesExtentsMax.setAttribute('y', str(bbmax[1]))
-    entitiesExtentsMax.setAttribute('z', str(bbmax[2]))
-    xml.appendChild(entitiesExtentsMax)
-
-    entities = root.createElement('entities')
-
-    Item = root.createElement('Item')
-    Item.setAttribute('type', 'CMloInstanceDef')
-    entities.appendChild(Item)
-
-    archetypeName = root.createElement('archetypeName')
-    archetypeName.appendChild(root.createTextNode(instance_name))
-    Item.appendChild(archetypeName)
-
-    itemFlags = root.createElement('flags')
-    itemFlags.setAttribute('value', '1572865')
-    Item.appendChild(itemFlags)
-
-    itemGuid = root.createElement('guid')
-    itemGuid.setAttribute('value', '0')
-    Item.appendChild(itemGuid)
-
-    itemPosition = root.createElement('position')
-    itemPosition.setAttribute('x', str(object.location[0]))
-    itemPosition.setAttribute('y', str(object.location[1]))
-    itemPosition.setAttribute('z', str(object.location[2]))
-    Item.appendChild(itemPosition)
-
-    itemRotation = root.createElement('rotation')
-    itemRotation.setAttribute(
-        'x', str(object.rotation_euler.to_quaternion().x))
-    itemRotation.setAttribute(
-        'y', str(object.rotation_euler.to_quaternion().y))
-    itemRotation.setAttribute(
-        'z', str(object.rotation_euler.to_quaternion().z))
-    itemRotation.setAttribute(
-        'w', str(object.rotation_euler.to_quaternion().w))
-
-    Item.appendChild(itemRotation)
-
-    itemScaleXY = root.createElement('scaleXY')
-    itemScaleXY.setAttribute('value', '1')
-    Item.appendChild(itemScaleXY)
-
-    itemScaleZ = root.createElement('scaleZ')
-    itemScaleZ.setAttribute('value', '1')
-    Item.appendChild(itemScaleZ)
-
-    itemParentIndex = root.createElement('parentIndex')
-    itemParentIndex.setAttribute('value', '-1')
-    Item.appendChild(itemParentIndex)
-
-    itemLodDist = root.createElement('lodDist')
-    itemLodDist.setAttribute('value', '700')
-    Item.appendChild(itemLodDist)
-
-    itemchildLodDist = root.createElement('childLodDist')
-    itemchildLodDist.setAttribute('value', '0')
-    Item.appendChild(itemchildLodDist)
-
-    itemlodLevel = root.createElement('lodLevel')
-    itemlodLevel.appendChild(root.createTextNode('LODTYPES_DEPTH_ORPHANHD'))
-    Item.appendChild(itemlodLevel)
-
-    itennumChildren = root.createElement('numChildren')
-    itennumChildren.setAttribute('value', '0')
-    Item.appendChild(itennumChildren)
-
-    itempriorityLevel = root.createElement('priorityLevel')
-    itempriorityLevel.appendChild(root.createTextNode('PRI_REQUIRED'))
-    Item.appendChild(itempriorityLevel)
-
-    itemextensions = root.createElement('extensions')
-    Item.appendChild(itemextensions)
-
-    itemambientOcclusionMultiplier = root.createElement(
-        'ambientOcclusionMultiplier')
-    itemambientOcclusionMultiplier.setAttribute('value', '255')
-    Item.appendChild(itemambientOcclusionMultiplier)
-
-    itemartificialAmbientOcclusion = root.createElement(
-        'artificialAmbientOcclusion')
-    itemartificialAmbientOcclusion.setAttribute('value', '255')
-    Item.appendChild(itemartificialAmbientOcclusion)
-
-    itemtintValue = root.createElement('tintValue')
-    itemtintValue.setAttribute('value', '0')
-    Item.appendChild(itemtintValue)
-
-    itemgroupId = root.createElement('groupId')
-    itemgroupId.setAttribute('value', '0')
-    Item.appendChild(itemgroupId)
-
-    itemfloorId = root.createElement('floorId')
-    itemfloorId.setAttribute('value', '0')
-    Item.appendChild(itemfloorId)
-
-    itemdefaultEntitySets = root.createElement('defaultEntitySets')
-    Item.appendChild(itemdefaultEntitySets)
-
-    itemnumExitPortals = root.createElement('numExitPortals')
-    itemnumExitPortals.setAttribute('value', '0')
-    Item.appendChild(itemnumExitPortals)
-
-    itemMLOInstflags = root.createElement('MLOInstflags')
-    itemMLOInstflags.setAttribute('value', '0')
-    Item.appendChild(itemMLOInstflags)
-    xml.appendChild(entities)
-
-    xml_str = xml.toprettyxml(indent='\t')
-    save_path = ymapname + '.xml'
-
-    with open(save_path, 'w') as f:
-        f.write(xml_str)
-        f.close()
-
-
-def get_textures_from_the_material(blender_material):
-    textures = []
-    if blender_material:
-        if blender_material.node_tree:
-            for tn in blender_material.node_tree.nodes:
-                if tn.type == 'TEX_IMAGE':
-                    textures.append(tn)
-    return textures
-
-
 CLASSES = [
     VICHO_PT_MAIN_PANEL,
     ExpSelObjsFile,
@@ -535,66 +407,30 @@ CLASSES = [
     PasteObjectTransformFromPickedObject,
     MloYmapFileBrowser,
     Vicho_PT_vertex_color,
-    VichoCreateVC
-
-
+    VichoCreateVC,
+    Vicho_TextureDictionaryPanel,
+    ImageString,
+    YtdList,
+    YtdItem,
+    YTDLIST_OT_add,
+    YTDLIST_OT_remove,
+    YtdExportPath
 ]
 
 
 def register():
     for klass in CLASSES:
         bpy.utils.register_class(klass)
-    bpy.types.Scene.file_name_field = bpy.props.StringProperty(
-        name="File Name",
-        default="",
-        description="File name for the text file",
-        maxlen=50)
 
-    bpy.types.Scene.ymap_instance_name_field = bpy.props.StringProperty(
-        name="Instance Name",
-        default="",
-        description="instance name for the MLO Instance",
-        maxlen=50)
-    bpy.types.Scene.location_checkbox = bpy.props.BoolProperty(
-        name="Reset Location",
-        description="Reset location")
-    bpy.types.Scene.rotation_checkbox = bpy.props.BoolProperty(
-        name="Reset Rotation",
-        description="Reset rotation")
-    bpy.types.Scene.scale_checkbox = bpy.props.BoolProperty(
-        name="Reset Scale",
-        description="Reset scale")
-    bpy.types.Scene.CopyDataFromObject = bpy.props.PointerProperty(
-        name="Copy Data From Object",
-        type=bpy.types.Object)
-    bpy.types.Scene.PasteDataToObject = bpy.props.PointerProperty(
-        name="Paste Data To Object",
-        type=bpy.types.Object)
-
-    bpy.types.Scene.locationOb_checkbox = bpy.props.BoolProperty(
-        name="Location",
-        description="Location")
-    bpy.types.Scene.rotationOb_checkbox = bpy.props.BoolProperty(
-        name="Rotation",
-        description="Rotation")
-    bpy.types.Scene.scaleOb_checkbox = bpy.props.BoolProperty(
-        name="Scale",
-        description="Scale")
-
+    bpy.types.Scene.ytd_list = bpy.props.CollectionProperty(type=YtdItem)
+    bpy.types.Scene.ytd_active_index = bpy.props.IntProperty()
 
 def unregister():
     for klass in CLASSES:
         bpy.utils.unregister_class(klass)
-    del bpy.types.Scene.file_name_field
-    del bpy.types.Scene.ymap_instance_name_field
-    del bpy.types.Scene.location_checkbox
-    del bpy.types.Scene.rotation_checkbox
-    del bpy.types.Scene.scale_checkbox
-    del bpy.types.Scene.CopyDataFromObject
-    del bpy.types.Scene.PasteDataToObject
-    del bpy.types.Scene.locationOb_checkbox
-    del bpy.types.Scene.rotationOb_checkbox
-    del bpy.types.Scene.scaleOb_checkbox
+    
+    del bpy.types.Scene.ytd_list
+    del bpy.types.Scene.ytd_active_index
 
 
 if __name__ == '__main__':
