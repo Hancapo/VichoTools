@@ -1,8 +1,7 @@
-import bpy
 import os
 import xml.dom.minidom as md
 from mathutils import Vector
-from ..utils.vichohelper import get_bound_extents
+from .vicho_helper import get_bound_extents
 
 
 def export_milo_ymap_xml(ymapname, object, instance_name):

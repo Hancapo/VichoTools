@@ -1,6 +1,6 @@
 from mathutils import Vector
 import bpy
-from ..utils.ytdHelper import YtdItem
+from .ytd_helper import YtdItem
 
 
 def get_bounds_from_single_object(obj):

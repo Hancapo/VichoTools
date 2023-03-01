@@ -16,8 +16,13 @@ class ImageString(bpy.types.PropertyGroup):
     filepath: bpy.props.StringProperty()
 
 
+class MeshGroup(bpy.types.PropertyGroup):
+    mesh: bpy.props.PointerProperty(type=bpy.types.Object)
+
+
 class YtdItem(bpy.types.PropertyGroup):
     image_list: bpy.props.CollectionProperty(type=ImageString)
+    mesh_list: bpy.props.CollectionProperty(type=MeshGroup)
 
 
 class YTDLIST_OT_add(bpy.types.Operator):
@@ -36,7 +41,9 @@ class YTDLIST_OT_add(bpy.types.Operator):
         item.name = f"TextureDictionary{len(scene.ytd_list)}"
         for image_path in images_paths_from_objects(bpy.context.selected_objects):
             item.image_list.add().filepath = image_path
+        mesh_list_from_objects(bpy.context.selected_objects, item)
         scene.ytd_active_index = len(scene.ytd_list) - 1
+        self.report({'INFO'}, f"Added {item.name}")
         return {'FINISHED'}
 
 
@@ -79,6 +86,18 @@ def images_paths_from_objects(objects):
                 for node in slot.material.node_tree.nodes:
                     if node.type == 'TEX_IMAGE':
                         bpy.ops.file.make_paths_absolute()
+                        if not node.image or not node.image.filepath:
+                            continue
                         image_paths.append(node.image.filepath)
-    print(image_paths)
     return image_paths
+
+
+def mesh_list_from_objects(objects, item):
+    for obj in objects:
+        item.mesh_list.add().mesh = obj
+
+def does_mesh_already_exist(mesh, item):
+    for m in item.mesh_list:
+        if m.mesh == mesh:
+            return True
+    return False
