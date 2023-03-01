@@ -5,7 +5,7 @@ Some tools to make V modding easier with some timesaving features.
 
 ## Requirements
 
-- Blender 3.0+
+- Blender 3.3+
 
 - Sollumz (latest available build)
 
@@ -17,3 +17,4 @@ Some tools to make V modding easier with some timesaving features.
 - Reset Object(s) transforms (Location, Rotation and Scale).
 - Export MLO Transforms as a working ```.xml.ymap```
 - Set picked object's transforms to a second picked one.
+- YTD tools to export YTD folders to create YTDs using Folders2YTD.
