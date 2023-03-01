@@ -43,6 +43,7 @@ CLASSES = [
     YtdItem,
     YTDLIST_OT_add,
     YTDLIST_OT_remove,
+    YTDLIST_OT_reloadall,
     YtdExportPath
 ]
 
@@ -54,10 +55,11 @@ def register():
     bpy.types.Scene.ytd_list = bpy.props.CollectionProperty(type=YtdItem)
     bpy.types.Scene.ytd_active_index = bpy.props.IntProperty()
 
+
 def unregister():
     for klass in CLASSES:
         bpy.utils.unregister_class(klass)
-    
+
     del bpy.types.Scene.ytd_list
     del bpy.types.Scene.ytd_active_index
 

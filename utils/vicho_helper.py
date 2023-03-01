@@ -103,8 +103,5 @@ class VichoGroup(bpy.types.PropertyGroup):
         name="YTD Export Path",
         default="",
         description="Path to export the YTD file",
-        subtype = 'DIR_PATH'
+        subtype='DIR_PATH'
     )
-
-    #bpy.types.Scene.my_ytd_list = bpy.props.CollectionProperty(type=ytdItem)
-    #bpy.types.Scene.ytd_active_index = bpy.props.IntProperty()

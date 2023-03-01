@@ -8,7 +8,6 @@ from bpy.props import StringProperty
 from bpy_extras.io_utils import ExportHelper
 
 
-
 class ExpSelObjsFile(bpy.types.Operator):
     bl_idname = "custom.selobjsastext"
     bl_label = "Save to file"
@@ -190,10 +189,10 @@ class DeleteEmptyObj(bpy.types.Operator):
 
         return {'FINISHED'}
 
+
 class YtdExportPath(bpy.types.Operator):
     bl_idname = "custom.exportytdfolders"
     bl_label = "Export YTD folders"
-
 
     @classmethod
     def poll(cls, context):
@@ -201,11 +200,10 @@ class YtdExportPath(bpy.types.Operator):
 
     def execute(self, context):
         ytds = context.scene.ytd_list
-
-        print(f'WIP {ytds}')
         ExportYTDFolders(ytds, context.scene.ytd_export_path)
         subprocess.Popen('explorer "{}"'.format(context.scene.ytd_export_path))
         return {'FINISHED'}
+
 
 class MloYmapFileBrowser(bpy.types.Operator, ExportHelper):
     bl_idname = "vicho.mloyampfilebrowser"

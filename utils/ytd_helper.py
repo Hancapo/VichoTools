@@ -6,7 +6,6 @@ import shutil
 class YtdList(bpy.types.UIList):
 
     def draw_item(self, context, layout, data, item, icon, active_data, active_propname):
-        # draw_item must handle the three layout types... Usually 'DEFAULT' and 'COMPACT' can share the same code.
         if self.layout_type in {'DEFAULT', 'COMPACT'}:
             row = layout.row()
             row.prop(item, "name", text="", emboss=False, icon='FILE_FOLDER')
@@ -37,13 +36,10 @@ class YTDLIST_OT_add(bpy.types.Operator):
 
     def execute(self, context):
         scene = context.scene
-        item = scene.ytd_list.add()
-        item.name = f"TextureDictionary{len(scene.ytd_list)}"
-        for image_path in images_paths_from_objects(bpy.context.selected_objects):
-            item.image_list.add().filepath = image_path
-        mesh_list_from_objects(bpy.context.selected_objects, item)
-        scene.ytd_active_index = len(scene.ytd_list) - 1
-        self.report({'INFO'}, f"Added {item.name}")
+        ytd_list = scene.ytd_list
+        sel_objs = context.selected_objects
+        if not (add_ytd_to_list(scene, sel_objs, ytd_list, self)):
+            self.report({'ERROR'}, f"Failed to add a new texture dictionary")
         return {'FINISHED'}
 
 
@@ -67,6 +63,22 @@ class YTDLIST_OT_remove(bpy.types.Operator):
             index = index - 1
 
         scene.ytd_active_index = index
+        return {'FINISHED'}
+
+
+class YTDLIST_OT_reloadall(bpy.types.Operator):
+    """Reload all texture dictionaries from the list to include changes made to the textures"""
+    bl_idname = "ytd_list.reload_all"
+    bl_label = "Reload all texture dictionaries"
+
+    @classmethod
+    def poll(cls, context):
+        return context.scene.ytd_active_index >= 0 and len(context.scene.ytd_list) > 0
+
+    def execute(self, context):
+        scene = context.scene
+        list = scene.ytd_list
+        reload_images_from_ytd_list(list, self)
         return {'FINISHED'}
 
 
@@ -96,8 +108,34 @@ def mesh_list_from_objects(objects, item):
     for obj in objects:
         item.mesh_list.add().mesh = obj
 
-def does_mesh_already_exist(mesh, item):
-    for m in item.mesh_list:
-        if m.mesh == mesh:
-            return True
-    return False
+
+def add_ytd_to_list(scene, objects, ytd_list, self):
+    for ytd in scene.ytd_list:
+        for mesh in ytd.mesh_list:
+            if mesh.mesh in objects:
+                self.report(
+                    {'ERROR'}, f"Mesh {mesh.mesh.name} already exists in {ytd.name}")
+                return False
+
+    item = scene.ytd_list.add()
+    item.name = f"TextureDictionary{len(ytd_list)}"
+    for image_path in images_paths_from_objects(objects):
+        item.image_list.add().filepath = image_path
+    mesh_list_from_objects(objects, item)
+    self.report({'INFO'}, f"Added {item.name}")
+    return True
+
+
+def reload_images_from_ytd_list(ytd_list, self):
+    for ytd in ytd_list:
+        ytd.image_list.clear()
+        for mesh in ytd.mesh_list:
+            for slot in mesh.mesh.material_slots:
+                if slot.material:
+                    for node in slot.material.node_tree.nodes:
+                        if node.type == 'TEX_IMAGE':
+                            bpy.ops.file.make_paths_absolute()
+                            if not node.image or not node.image.filepath:
+                                continue
+                            ytd.image_list.add().filepath = node.image.filepath
+        self.report({'INFO'}, f"Reloaded all textures in {ytd.name}")

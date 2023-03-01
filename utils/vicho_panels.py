@@ -149,14 +149,16 @@ class Vicho_TextureDictionaryPanel(bpy.types.Panel):
         list_col = row.column()
         scene = context.scene
         list_col.template_list("YtdList", "", scene,
-                             "ytd_list", scene, "ytd_active_index")
+                               "ytd_list", scene, "ytd_active_index")
         col = row.column(align=True)
         col.operator("ytd_list.add_ytd", icon='ADD', text="")
         col.operator("ytd_list.remove_ytd", icon='REMOVE', text="")
+        col.operator("ytd_list.reload_all", icon='FILE_REFRESH', text="")
         list_col.separator()
         list_col.prop(scene, "ytd_export_path", text="Export path")
         list_col.separator()
-        list_col.operator("custom.exportytdfolders", text="Export YTD Folders", icon='FORCE_TEXTURE')
+        list_col.operator("custom.exportytdfolders",
+                          text="Export YTD Folders", icon='FORCE_TEXTURE')
 
 
 class F2YTD_PT_Panel_Settings(bpy.types.Panel):
