@@ -43,7 +43,8 @@ CLASSES = [
     YtdItem,
     YTDLIST_OT_add,
     YTDLIST_OT_remove,
-    YTDLIST_OT_reloadall,
+    YTDLIST_OT_reload_all,
+    YTDLIST_OT_add_to_ytd,
     YtdExportPath
 ]
 

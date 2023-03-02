@@ -66,7 +66,7 @@ class YTDLIST_OT_remove(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class YTDLIST_OT_reloadall(bpy.types.Operator):
+class YTDLIST_OT_reload_all(bpy.types.Operator):
     """Reload all texture dictionaries from the list to include changes made to the textures"""
     bl_idname = "ytd_list.reload_all"
     bl_label = "Reload all texture dictionaries"
@@ -82,6 +82,25 @@ class YTDLIST_OT_reloadall(bpy.types.Operator):
         return {'FINISHED'}
 
 
+class YTDLIST_OT_add_to_ytd(bpy.types.Operator):
+    """Add selected objects to the selected texture dictionary and reload the textures"""
+    bl_idname = "ytd_list.add_to_ytd"
+    bl_label = "Add selected objects to the selected texture dictionary"
+
+    @classmethod
+    def poll(cls, context):
+        return context.scene.ytd_active_index >= 0 and len(context.scene.ytd_list) > 0
+
+    def execute(self, context):
+        scene = context.scene
+        selec_objs = context.selected_objects
+        if add_meshes_to_ytd(scene.ytd_active_index, selec_objs, scene, self):
+            reload_images_from_ytd_list(scene.ytd_list, self)
+            self.report(
+                {'INFO'}, f"Added selected objects to {scene.ytd_list[scene.ytd_active_index].name}")
+        return {'FINISHED'}
+
+
 def ExportYTDFolders(FolderList, ExportPath):
     for folder in FolderList:
         folder_path = os.path.join(ExportPath, folder.name)
@@ -90,9 +109,9 @@ def ExportYTDFolders(FolderList, ExportPath):
             shutil.copy(str(img.filepath), folder_path)
 
 
-def images_paths_from_objects(objects):
+def images_paths_from_objects(objs):
     image_paths = []
-    for obj in objects:
+    for obj in objs:
         for slot in obj.material_slots:
             if slot.material:
                 for node in slot.material.node_tree.nodes:
@@ -109,21 +128,15 @@ def mesh_list_from_objects(objects, item):
         item.mesh_list.add().mesh = obj
 
 
-def add_ytd_to_list(scene, objects, ytd_list, self):
-    for ytd in scene.ytd_list:
-        for mesh in ytd.mesh_list:
-            if mesh.mesh in objects:
-                self.report(
-                    {'ERROR'}, f"Mesh {mesh.mesh.name} already exists in {ytd.name}")
-                return False
-
-    item = scene.ytd_list.add()
-    item.name = f"TextureDictionary{len(ytd_list)}"
-    for image_path in images_paths_from_objects(objects):
-        item.image_list.add().filepath = image_path
-    mesh_list_from_objects(objects, item)
-    self.report({'INFO'}, f"Added {item.name}")
-    return True
+def add_ytd_to_list(scene, objs, ytd_list, self):
+    if not mesh_exist_in_ytd(scene, objs, self):
+        item = scene.ytd_list.add()
+        item.name = f"TextureDictionary{len(ytd_list)}"
+        for image_path in images_paths_from_objects(objs):
+            item.image_list.add().filepath = image_path
+        mesh_list_from_objects(objs, item)
+        self.report({'INFO'}, f"Added {item.name}")
+        return True
 
 
 def reload_images_from_ytd_list(ytd_list, self):
@@ -139,3 +152,21 @@ def reload_images_from_ytd_list(ytd_list, self):
                                 continue
                             ytd.image_list.add().filepath = node.image.filepath
         self.report({'INFO'}, f"Reloaded all textures in {ytd.name}")
+
+
+def add_meshes_to_ytd(index: int, objects, scene, self=None):
+    if not mesh_exist_in_ytd(scene, objects, self):
+        for obj in objects:
+            scene.ytd_list[index].mesh_list.add().mesh = obj
+            return True
+    return False
+
+
+def mesh_exist_in_ytd(scene, objs, self=None):
+    for ytd in scene.ytd_list:
+        for mesh in ytd.mesh_list:
+            if mesh.mesh in objs:
+                self.report(
+                    {'ERROR'}, f"Mesh {mesh.mesh.name} already exists in {ytd.name}")
+                return True
+    return False
