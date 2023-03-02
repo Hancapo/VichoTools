@@ -107,7 +107,7 @@ class YTDLIST_OT_assign_ytd_field_from_list(bpy.types.Operator):
 
     @classmethod
     def poll(cls, context):
-        return context.scene.ytd_active_index >= 0 and len(context.scene.ytd_list) > 0
+        return context.scene.ytd_active_index >= 0 and len(context.scene.ytd_list) > 0 and len(context.scene.ytyps) > 0
 
     def execute(self, context):
         scene = context.scene
