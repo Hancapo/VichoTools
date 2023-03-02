@@ -100,6 +100,19 @@ class YTDLIST_OT_add_to_ytd(bpy.types.Operator):
                 {'INFO'}, f"Added selected objects to {scene.ytd_list[scene.ytd_active_index].name}")
         return {'FINISHED'}
 
+class YTDLIST_OT_assign_ytd_field_from_list(bpy.types.Operator):
+    """Auto-fill Texture Dictionary field in all YTYPs"""
+    bl_idname = "ytd_list.assign_ytd_field_from_list"
+    bl_label = "Auto-fill Texture Dictionary field"
+
+    @classmethod
+    def poll(cls, context):
+        return context.scene.ytd_active_index >= 0 and len(context.scene.ytd_list) > 0
+
+    def execute(self, context):
+        scene = context.scene
+        auto_fill_ytd_field(scene, self)
+        return {'FINISHED'}
 
 def ExportYTDFolders(FolderList, ExportPath):
     for folder in FolderList:
@@ -170,3 +183,14 @@ def mesh_exist_in_ytd(scene, objs, self=None):
                     {'ERROR'}, f"Mesh {mesh.mesh.name} already exists in {ytd.name}")
                 return True
     return False
+
+
+def auto_fill_ytd_field(scene, self):
+    for ytyp in scene.ytyps:
+        for arch in ytyp.archetypes:
+            if arch.type == 'sollumz_archetype_base' or arch.type == 'sollumz_archetype_time':
+                for ytd in scene.ytd_list:
+                    for m in ytd.mesh_list:
+                        if m.mesh.parent.parent.name == arch.asset_name or m.mesh.name == arch.asset_name:
+                            arch.texture_dictionary = ytd.name
+                            self.report({'INFO'}, f"Assigned {ytd.name} to {arch.asset_name}")

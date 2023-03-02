@@ -45,6 +45,7 @@ CLASSES = [
     YTDLIST_OT_remove,
     YTDLIST_OT_reload_all,
     YTDLIST_OT_add_to_ytd,
+    YTDLIST_OT_assign_ytd_field_from_list,
     YtdExportPath
 ]
 
