@@ -1,14 +1,16 @@
 import bpy
-from .utils.ytd_helper import *
-from .utils.vicho_funcs import *
-from .utils.vicho_operators import *
-from .utils.vicho_panels import *
-from .utils.folders2ytd import *
-
+from .ytd.ytd_helper import *
+from .tools.vicho_funcs import *
+from .tools.vicho_helper import *
+from .vicho_operators import *
+from .vicho_panels import *
+from .ytd.folders2ytd import *
+from .ytd.operators import *
+from .ytd.ui import *
 bl_info = {
     "name": "Vicho's Misc Tools",
     "author": "MrVicho13",
-    "version": (0, 2, 0),
+    "version": (0, 2, 1),
     "blender": (3, 0, 0),
     "location": "View3D",
     "description": "Some tools by Vicho",
@@ -48,16 +50,16 @@ vicho_classes = [
 
 
 def register():
-    for klass in vicho_classes:
-        bpy.utils.register_class(klass)
+    for _class in vicho_classes:
+        bpy.utils.register_class(_class)
 
     bpy.types.Scene.ytd_list = bpy.props.CollectionProperty(type=YtdItem)
     bpy.types.Scene.ytd_active_index = bpy.props.IntProperty()
 
 
 def unregister():
-    for klass in vicho_classes:
-        bpy.utils.unregister_class(klass)
+    for _class in vicho_classes:
+        bpy.utils.unregister_class(_class)
 
     del bpy.types.Scene.ytd_list
     del bpy.types.Scene.ytd_active_index

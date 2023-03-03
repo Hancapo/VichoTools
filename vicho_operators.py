@@ -2,8 +2,8 @@ import subprocess
 import bpy
 import os
 
-from .vicho_funcs import export_milo_ymap_xml
-from .ytd_helper import ExportYTD_Folders, ExportYTD_Files
+from .tools.vicho_funcs import export_milo_ymap_xml
+from .ytd.ytd_helper import ExportYTD_Folders, ExportYTD_Files
 from bpy.props import StringProperty
 from bpy_extras.io_utils import ExportHelper
 
@@ -187,38 +187,6 @@ class DeleteEmptyObj(bpy.types.Operator):
             else:
                 continue
 
-        return {'FINISHED'}
-
-
-class ExportYTDFolders(bpy.types.Operator):
-    bl_idname = "vicho.exportytdfolders"
-    bl_label = "Export YTD folders"
-
-    @classmethod
-    def poll(cls, context):
-        return len(context.scene.ytd_list) > 0 and context.scene.ytd_export_path != '' and os.path.exists(context.scene.ytd_export_path)
-
-    def execute(self, context):
-        ytds = context.scene.ytd_list
-        ExportYTD_Folders(ytds, context.scene.ytd_export_path)
-        subprocess.Popen('explorer "{}"'.format(context.scene.ytd_export_path))
-        return {'FINISHED'}
-
-
-class ExportYTDFiles(bpy.types.Operator):
-    bl_idname = "vicho.exportytdfiles"
-    bl_label = "Export YTD files"
-
-    @classmethod
-    def poll(cls, context):
-        f2ytd_loaded : bool = os.path.isfile(bpy.context.preferences.addons['VichoTools'].preferences.folders2ytd_path + "Folder2YTD.exe")
-        return len(context.scene.ytd_list) > 0 and context.scene.ytd_export_path != '' and os.path.exists(context.scene.ytd_export_path) and context.scene.convert_to_ytd and f2ytd_loaded
-
-    def execute(self, context):
-        scene = context.scene
-        ytds = scene.ytd_list
-        ExportYTD_Files(ytds, scene.ytd_export_path, self, scene)
-        subprocess.Popen('explorer "{}"'.format(scene.ytd_export_path))
         return {'FINISHED'}
 
 

@@ -17,4 +17,4 @@ Some tools to make V modding easier with some timesaving features.
 - Reset Object(s) transforms (Location, Rotation and Scale).
 - Export MLO Transforms as a working ```.xml.ymap```
 - Set picked object's transforms to a second picked one.
-- YTD tools to export YTD folders to create YTDs using Folders2YTD.
+- YTD tools to export YTD folders and directly create YTDs using
