@@ -1,12 +1,8 @@
 import bpy
 import os
 from mathutils import Quaternion
-from bpy.props import StringProperty, BoolProperty
-from bpy_extras.io_utils import ExportHelper
-from bpy.types import Operator
 from .ytd_helper import *
 from .vicho_funcs import *
-import subprocess
 from .vicho_operators import *
 
 
@@ -46,7 +42,7 @@ class VICHO_PT_MISC1_PANEL(bpy.types.Panel):
         row = layout.row()
         row.prop(context.scene, "file_name_field", text="File name")
         row = layout.row()
-        row.operator("custom.selobjsastext")
+        row.operator("vicho.selobjsastext")
         row = layout.row()
 
 
@@ -93,7 +89,7 @@ class VichoObjectToolsPanel(bpy.types.Panel):
         row.prop(context.scene, "rotation_checkbox", text="Reset Rotation")
         row.prop(context.scene, "scale_checkbox", text="Reset Scale")
         row = layout.row()
-        row.operator("custom.resetobjtransrot")
+        row.operator("vicho.resetobjtransrot")
 
         row = layout.row()
         row.label(text="Set Object transforms to picked Object",
@@ -107,12 +103,12 @@ class VichoObjectToolsPanel(bpy.types.Panel):
         row.prop(context.scene, "rotationOb_checkbox", text="Rotation")
         row.prop(context.scene, "scaleOb_checkbox", text="Scale")
         row = layout.row()
-        row.operator("custom.pasteobjtransfrompickedobject")
+        row.operator("vicho.pasteobjtransfrompickedobject")
 
         row = layout.row()
         row.label(text="Delete meshes without data and others", icon='DOT')
         row = layout.row()
-        row.operator("custom.deleteemptyobj")
+        row.operator("vicho.deleteemptyobj")
         row = layout.row()
 
 
@@ -154,25 +150,38 @@ class Vicho_TextureDictionaryPanel(bpy.types.Panel):
         row2 = list_col.row()
         row2.operator("ytd_list.add_ytd", icon='ADD', text="Create Folder from selected object(s)")
         row2.operator("ytd_list.remove_ytd", icon='REMOVE', text="Delete Folder")
+        list_col.separator()
         row3 = list_col.row()
         row3.operator("ytd_list.reload_all", icon='FILE_REFRESH', text="Reload all folders in list")
         row3.operator("ytd_list.add_to_ytd", icon='IMPORT', text="Add selected object(s) to folder")
+        list_col.separator()
         list_col.operator("ytd_list.assign_ytd_field_from_list", icon='CURRENT_FILE', text="Auto-fill Texture Dictionary fields")
         list_col.separator()
         list_col.prop(scene, "ytd_export_path", text="Export path")
         list_col.separator()
-        list_col.operator("custom.exportytdfolders",
-                          text="Export YTD Folders", icon='FORCE_TEXTURE')
-
-
-class F2YTD_PT_Panel_Settings(bpy.types.Panel):
-    bl_label = "Folder2YTD Settings"
-    bl_idname = "F2YTD_PT_Panel_Settings"
-    bl_space_type = 'VIEW_3D'
-    bl_region_type = 'UI'
-    bl_parent_id = Vicho_TextureDictionaryPanel.bl_idname
-
+        list_col.prop(scene, "convert_to_ytd", text="Create YTD file(s) with Folder2YTD")
+        if(scene.convert_to_ytd):
+            list_col.separator()
+            row4 = list_col.row()
+            row4.prop(scene, "mip_maps", text="Generate MipMaps")
+            row4.prop(scene, "quality_mode", text="Quality")
+            row4.separator()
+            row5 = list_col.row()
+            row5.prop(scene, "transparency", text="Detect transparency")
+            row5.prop(scene, "export_mode", text="Export mode")
+        list_col.separator()
+        list_col.operator("vicho.exportytdfolders",
+                          text="Export folders", icon='FILE_FOLDER')
+        list_col.separator()
+        list_col.operator("vicho.exportytdfiles",
+                          text="Export YTD Files", icon='FORCE_TEXTURE')
+                          
+class VichoToolsAddonProperties(bpy.types.AddonPreferences):
+    bl_idname = __package__.split(".")[0]
+    
+    folders2ytd_path: bpy.props.StringProperty(
+        name="Folder2YTD path", subtype='DIR_PATH')
+    
     def draw(self, context):
         layout = self.layout
-        layout.use_property_split = True
-        layout.use_property_decorate = False
+        layout.prop(self, "folders2ytd_path")

@@ -1,3 +1,5 @@
+import subprocess
+import time
 import bpy
 import os
 import shutil
@@ -100,6 +102,7 @@ class YTDLIST_OT_add_to_ytd(bpy.types.Operator):
                 {'INFO'}, f"Added selected objects to {scene.ytd_list[scene.ytd_active_index].name}")
         return {'FINISHED'}
 
+
 class YTDLIST_OT_assign_ytd_field_from_list(bpy.types.Operator):
     """Auto-fill Texture Dictionary field in all YTYPs"""
     bl_idname = "ytd_list.assign_ytd_field_from_list"
@@ -114,13 +117,48 @@ class YTDLIST_OT_assign_ytd_field_from_list(bpy.types.Operator):
         auto_fill_ytd_field(scene, self)
         return {'FINISHED'}
 
-def ExportYTDFolders(FolderList, ExportPath):
+
+def ExportYTD_Folders(FolderList, ExportPath):
+    create_ytd_folders(FolderList, ExportPath)
+
+
+def ExportYTD_Files(FolderList, ExportPath, self, scene):
+    f2ytd_path = f'{bpy.context.preferences.addons["VichoTools"].preferences.folders2ytd_path}'
+    folders2ytdpath : str = f2ytd_path + "folder2ytd.exe"
+    f2td_args : str = " -silentmode"
+    if (scene.convert_to_ytd):
+        if (scene.mip_maps):
+            f2td_args += " -mipmaps"
+        f2td_args += f' -quality "{scene.export_mode}"'
+        f2td_args += f' -format "{scene.export_mode}"'
+        f2td_args += f' -folder "{ExportPath[:-1]}"'
+        if (scene.transparency):
+            f2td_args += f' -transparency'
+
+        create_ytd_folders(FolderList, ExportPath)
+        try:
+            salida = subprocess.Popen(folders2ytdpath + f2td_args)
+            while salida.poll() is None:
+                pass
+        finally:
+            salida.terminate()
+            delete_folders(FolderList, ExportPath)
+            delete_ini_from_F2YTD()
+        self.report(
+            {'INFO'}, f"Exported {len(FolderList)} texture dictionaries")
+
+
+def create_ytd_folders(FolderList, ExportPath):
     for folder in FolderList:
         folder_path = os.path.join(ExportPath, folder.name)
         os.makedirs(folder_path, exist_ok=True)
         for img in folder.image_list:
             shutil.copy(str(img.filepath), folder_path)
 
+def delete_folders(FolderList, ExportPath):
+    for folder in FolderList:
+        folder_path = os.path.join(ExportPath, folder.name)
+        shutil.rmtree(folder_path)
 
 def images_paths_from_objects(objs):
     image_paths = []
@@ -193,4 +231,12 @@ def auto_fill_ytd_field(scene, self):
                     for m in ytd.mesh_list:
                         if m.mesh.parent.parent.name == arch.asset_name or m.mesh.name == arch.asset_name:
                             arch.texture_dictionary = ytd.name
-                            self.report({'INFO'}, f"Assigned {ytd.name} to {arch.asset_name}")
+                            self.report(
+                                {'INFO'}, f"Assigned {ytd.name} to {arch.asset_name}")
+
+
+def delete_ini_from_F2YTD():
+    f2ytd_path = bpy.context.preferences.addons['VichoTools'].preferences.folders2ytd_path
+    ini_path = os.path.join(f2ytd_path, "config.ini")
+    if os.path.exists(ini_path):
+        os.remove(ini_path)
