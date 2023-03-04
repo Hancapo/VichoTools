@@ -1,3 +1,4 @@
+import bpy
 import os
 import xml.dom.minidom as md
 from mathutils import Vector

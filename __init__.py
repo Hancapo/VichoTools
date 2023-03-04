@@ -1,16 +1,17 @@
 import bpy
 from .ytd.ytd_helper import *
-from .tools.vicho_funcs import *
 from .tools.vicho_helper import *
 from .vicho_operators import *
 from .vicho_panels import *
 from .ytd.folders2ytd import *
 from .ytd.operators import *
 from .ytd.ui import *
+from .vicho_useless import VichoToolsAddonProperties
+
 bl_info = {
     "name": "Vicho's Misc Tools",
     "author": "MrVicho13",
-    "version": (0, 2, 1),
+    "version": (0, 2, 3),
     "blender": (3, 0, 0),
     "location": "View3D",
     "description": "Some tools by Vicho",
@@ -18,7 +19,6 @@ bl_info = {
     "wiki_url": "",
     "category": "Vicho Tools",
 }
-
 
 vicho_classes = [
     VICHO_PT_MAIN_PANEL,
@@ -31,7 +31,6 @@ vicho_classes = [
     VichoObjectToolsPanel,
     PasteObjectTransformFromPickedObject,
     MloYmapFileBrowser,
-    Vicho_PT_vertex_color,
     VichoCreateVC,
     Vicho_TextureDictionaryPanel,
     MeshGroup,

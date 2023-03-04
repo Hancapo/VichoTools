@@ -110,26 +110,3 @@ class VichoObjectToolsPanel(bpy.types.Panel):
         row = layout.row()
 
 
-class Vicho_PT_vertex_color(bpy.types.Panel):
-    bl_label = "Oldy Vertex Color"
-    bl_idname = "VICHO_PT_vertex_color"
-    bl_space_type = 'PROPERTIES'
-    bl_region_type = 'WINDOW'
-    bl_context = "object"
-    bl_options = {'DEFAULT_CLOSED'}
-
-    def draw(self, context):
-        layout = self.layout
-        row = layout.row()
-        row.operator("vicho.vertexcolor",
-                     text="Create Vertex Color", icon='COLOR')
-        row = layout.row()
-
-    bl_idname = __package__.split(".")[0]
-    
-    folders2ytd_path: bpy.props.StringProperty(
-        name="Folder2YTD path", subtype='DIR_PATH')
-    
-    def draw(self, context):
-        layout = self.layout
-        layout.prop(self, "folders2ytd_path")

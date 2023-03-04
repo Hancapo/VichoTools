@@ -2,8 +2,8 @@ import os
 import subprocess
 import bpy
 
+from ..vicho_useless import get_addon_preferences
 from .ytd_helper import ExportYTD_Files, ExportYTD_Folders, add_meshes_to_ytd, add_ytd_to_list, auto_fill_ytd_field, reload_images_from_ytd_list
-
 
 class ExportYTDFolders(bpy.types.Operator):
     bl_idname = "vicho.exportytdfolders"
@@ -26,8 +26,8 @@ class ExportYTDFiles(bpy.types.Operator):
 
     @classmethod
     def poll(cls, context):
-        f2ytd_loaded: bool = os.path.isfile(
-            bpy.context.preferences.addons['VichoTools'].preferences.folders2ytd_path + "Folder2YTD.exe")
+        preferences = get_addon_preferences(bpy.context)
+        f2ytd_loaded: bool = os.path.isfile(preferences.folders2ytd_path + "Folder2YTD.exe") 
         return len(context.scene.ytd_list) > 0 and os.path.exists(context.scene.ytd_export_path) and context.scene.convert_to_ytd and f2ytd_loaded
 
     def execute(self, context):

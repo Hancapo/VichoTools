@@ -2,6 +2,7 @@ import subprocess
 import bpy
 import os
 import shutil
+from ..vicho_useless import get_addon_preferences
 
 
 class YtdList(bpy.types.UIList):
@@ -30,8 +31,9 @@ def ExportYTD_Folders(FolderList, ExportPath):
 
 
 def ExportYTD_Files(FolderList, ExportPath, self, scene):
-    f2ytd_path = f'{bpy.context.preferences.addons["VichoTools"].preferences.folders2ytd_path}'
-    folders2ytdpath: str = f2ytd_path + "folder2ytd.exe"
+    preferences = get_addon_preferences(bpy.context)
+    f2ytd_path = preferences.folders2ytd_path
+    folders2ytdpath: str = f2ytd_path + "Folder2YTD.exe"
     f2td_args: str = " -silentmode"
     if (scene.convert_to_ytd):
         if (scene.mip_maps):
@@ -145,7 +147,8 @@ def auto_fill_ytd_field(scene, self):
 
 
 def delete_ini_from_F2YTD():
-    f2ytd_path = bpy.context.preferences.addons['VichoTools'].preferences.folders2ytd_path
+    preferences = get_addon_preferences(bpy.context)
+    f2ytd_path = preferences.folders2ytd_path
     ini_path = os.path.join(f2ytd_path, "config.ini")
     if os.path.exists(ini_path):
         os.remove(ini_path)

@@ -57,13 +57,3 @@ class Vicho_TextureDictionaryPanel(bpy.types.Panel):
         list_col.operator("vicho.exportytdfiles",
                           text="Export YTD Files", icon='FORCE_TEXTURE')
 
-
-class VichoToolsAddonProperties(bpy.types.AddonPreferences):
-    bl_idname = "VichoTools"
-
-    folders2ytd_path: bpy.props.StringProperty(
-        name="Folder2YTD path", subtype='DIR_PATH')
-
-    def draw(self, context):
-        layout = self.layout
-        layout.prop(self, "folders2ytd_path")
