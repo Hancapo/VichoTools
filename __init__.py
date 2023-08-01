@@ -8,14 +8,6 @@ from .vicho_panels import *
 from .ytd.folders2ytd import *
 from .ytd.operators import *
 from .ytd.ui import *
-from .yft.yft_helper import *
-from .yft.glass_windows.glass_frag_helper import *
-from .yft.glass_windows.ui import *
-from .yft.glass_windows.operators import *
-from .yft.glass_windows.glass_frag_properties import *
-from .yft.operators import *
-from .yft.yft_properties import *
-from .yft.ui import *
 from .vicho_misc import VichoToolsAddonProperties
 
 bl_info = {
@@ -31,13 +23,10 @@ bl_info = {
 }
 
 vicho_classes = [
-    MaterialDensityPropertyEnum,
-    VichoFragmentToolsPanel,
     ExpSelObjsFile,
     ResetObjTransRot,
     ExportMLOTransFile,
     DeleteEmptyObj,
-    CreateFragChildsFromCols,
     VICHO_PT_MISC1_PANEL,
     VichoMloToolsPanel,
     VichoObjectToolsPanel,
@@ -57,18 +46,6 @@ vicho_classes = [
     YTDLIST_OT_assign_ytd_field_from_list,
     ExportYTDFolders,
     ExportYTDFiles,
-    GlassFragList,
-    ProjectionGroup,
-    GlassFragItem,
-    Vicho_FragmentGlassWindowsPanel,
-    GLASSLIST_OT_add,
-    GLASSLIST_OT_remove,
-    GLASSLIST_OT_export_xml,
-    VichoFragmentCreationToolsProperties,
-    FragmentBoneTagsGroup,
-    BoneFlagsToSelectedBones,
-    VichoCreateFragmentObjectsPanel,
-    CreateArmatureFromSelection
     
 ]
 
@@ -78,8 +55,6 @@ def register():
 
     bpy.types.Scene.ytd_list = bpy.props.CollectionProperty(type=YtdItem)
     bpy.types.Scene.ytd_active_index = bpy.props.IntProperty()
-    bpy.types.Scene.glass_frag_list = bpy.props.CollectionProperty(type=GlassFragItem)
-    bpy.types.Scene.glass_frag_active_index = bpy.props.IntProperty()
 
 def unregister():
     for _class in vicho_classes:
@@ -87,8 +62,6 @@ def unregister():
 
     del bpy.types.Scene.ytd_list
     del bpy.types.Scene.ytd_active_index
-    del bpy.types.Scene.glass_frag_list
-    del bpy.types.Scene.glass_frag_active_index
 
 if __name__ == '__main__':
     register()

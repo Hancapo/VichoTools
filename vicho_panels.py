@@ -2,7 +2,6 @@ import bpy
 from .ytd.ytd_helper import *
 from .vicho_properties import *
 from .vicho_operators import *
-from .yft.yft_helper import *
 
 
 class VICHO_PT_MISC1_PANEL(bpy.types.Panel):
