@@ -1,22 +1,8 @@
 import bpy
 from .ytd.ytd_helper import *
-from .tools.vicho_funcs import *
+from .vicho_properties import *
 from .vicho_operators import *
-
-
-class VICHO_PT_MAIN_PANEL(bpy.types.Panel):
-    bl_label = "Vicho's Tools"
-    bl_idname = "VICHO_PT_MAIN_PANEL"
-    bl_space_type = "VIEW_3D"
-    bl_region_type = "UI"
-    bl_category = "Vicho's Tools"
-
-    def draw_header(self, context):
-        self.layout.label(text="", icon="TOOL_SETTINGS")
-
-    def draw(self, context):
-        layout = self.layout
-        layout.use_property_split = True
+from .yft.yft_helper import *
 
 
 class VICHO_PT_MISC1_PANEL(bpy.types.Panel):
@@ -25,7 +11,6 @@ class VICHO_PT_MISC1_PANEL(bpy.types.Panel):
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
     bl_category = "Vicho's Misc Tools"
-    bl_parent_id = VICHO_PT_MAIN_PANEL.bl_idname
     bl_options = {'DEFAULT_CLOSED'}
 
     def draw_header(self, context):
@@ -50,7 +35,6 @@ class VichoMloToolsPanel(bpy.types.Panel):
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
     bl_category = "Vicho's Misc Tools"
-    bl_parent_id = VICHO_PT_MAIN_PANEL.bl_idname
     bl_options = {'DEFAULT_CLOSED'}
 
     def draw_header(self, context):
@@ -71,7 +55,6 @@ class VichoObjectToolsPanel(bpy.types.Panel):
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
     bl_category = "Vicho's Misc Tools"
-    bl_parent_id = VICHO_PT_MAIN_PANEL.bl_idname
     bl_options = {'DEFAULT_CLOSED'}
 
     def draw_header(self, context):

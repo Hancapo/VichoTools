@@ -1,15 +1,13 @@
 import bpy
 
-from ..vicho_panels import VICHO_PT_MAIN_PANEL
-
 
 class Vicho_TextureDictionaryPanel(bpy.types.Panel):
     bl_label = "Texture Dictionary Tools"
     bl_idname = "VICHO_PT_texture_dictionary"
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
+    bl_category = "Vicho's Misc Tools"
     bl_options = {'DEFAULT_CLOSED'}
-    bl_parent_id = VICHO_PT_MAIN_PANEL.bl_idname
 
     def draw_header(self, context):
         self.layout.label(text="", icon="TEXTURE")
@@ -52,8 +50,7 @@ class Vicho_TextureDictionaryPanel(bpy.types.Panel):
             row5.prop(scene, "export_mode", text="Export mode")
         list_col.separator()
         list_col.operator("vicho.exportytdfolders",
-                          text="Export folders", icon='FILE_FOLDER')
+                          text="Export list as Folders", icon='FILE_FOLDER')
         list_col.separator()
         list_col.operator("vicho.exportytdfiles",
-                          text="Export YTD Files", icon='FORCE_TEXTURE')
-
+                          text="Export list as YTD Files", icon='FORCE_TEXTURE')

@@ -1,8 +1,6 @@
-import bpy
 import os
 import xml.dom.minidom as md
 from mathutils import Vector
-
 
 def export_milo_ymap_xml(ymapname, object, instance_name):
 
@@ -222,4 +220,3 @@ def get_max_vector_list(vecs):
         y.append(v[1])
         z.append(v[2])
     return Vector((max(x), max(y), max(z)))
-

@@ -2,7 +2,7 @@ import subprocess
 import bpy
 import os
 import shutil
-from ..vicho_useless import get_addon_preferences
+from ..vicho_misc import get_addon_preferences
 
 
 class YtdList(bpy.types.UIList):
@@ -87,7 +87,8 @@ def images_paths_from_objects(objs):
 
 def mesh_list_from_objects(objects, item):
     for obj in objects:
-        item.mesh_list.add().mesh = obj
+        if obj.type == 'MESH':
+            item.mesh_list.add().mesh = obj
 
 
 def add_ytd_to_list(scene, objs, ytd_list, self):
