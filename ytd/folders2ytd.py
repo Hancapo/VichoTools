@@ -13,7 +13,7 @@ class F2YTDGroup(bpy.types.PropertyGroup):
         items=[("fast", "Fast", "Process non-DDS with fast quality"),
                ("balanced", "Balanced", "Process non-DDS with balanced quality"),
                ("hq", "High Quality", "Process non-DDS with high quality")],
-               default="balanced")
+               default="hq")
     bpy.types.Scene.transparency = bpy.props.BoolProperty(
         name="Detect Transparency",
         description="Detect Transparency",

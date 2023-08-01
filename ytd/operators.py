@@ -12,12 +12,12 @@ class ExportYTDFolders(bpy.types.Operator):
 
     @classmethod
     def poll(cls, context):
-        return len(context.scene.ytd_list) > 0 and os.path.exists(context.scene.ytd_export_path)
+        return len(context.scene.ytd_list) > 0 and os.path.exists(bpy.path.abspath(context.scene.ytd_export_path))
 
     def execute(self, context):
         ytds = context.scene.ytd_list
-        ExportYTD_Folders(ytds, context.scene.ytd_export_path)
-        subprocess.Popen('explorer "{}"'.format(context.scene.ytd_export_path))
+        ExportYTD_Folders(ytds, bpy.path.abspath(context.scene.ytd_export_path))
+        subprocess.Popen('explorer "{}"'.format(bpy.path.abspath(context.scene.ytd_export_path)))
         return {'FINISHED'}
 
 
@@ -30,13 +30,13 @@ class ExportYTDFiles(bpy.types.Operator):
     def poll(cls, context):
         preferences = get_addon_preferences(bpy.context)
         f2ytd_loaded: bool = os.path.isfile(preferences.folders2ytd_path + "Folder2YTD.exe") 
-        return len(context.scene.ytd_list) > 0 and os.path.exists(context.scene.ytd_export_path) and context.scene.convert_to_ytd and f2ytd_loaded
+        return len(context.scene.ytd_list) > 0 and os.path.exists(bpy.path.abspath(context.scene.ytd_export_path)) and context.scene.convert_to_ytd and f2ytd_loaded
 
     def execute(self, context):
         scene = context.scene
         ytds = scene.ytd_list
-        ExportYTD_Files(ytds, scene.ytd_export_path, self, scene)
-        subprocess.Popen('explorer "{}"'.format(scene.ytd_export_path))
+        ExportYTD_Files(ytds, bpy.path.abspath(scene.ytd_export_path), self, scene)
+        subprocess.Popen('explorer "{}"'.format(bpy.path.abspath(scene.ytd_export_path)))
         return {'FINISHED'}
 
 

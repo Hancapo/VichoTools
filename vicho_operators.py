@@ -2,7 +2,6 @@ import bpy
 import os
 
 from .misc.misc_funcs import export_milo_ymap_xml
-from .ytd.ytd_helper import ExportYTD_Folders, ExportYTD_Files
 from bpy.props import StringProperty
 from bpy_extras.io_utils import ExportHelper
 

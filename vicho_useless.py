@@ -1,3 +1,4 @@
+import os
 import bpy
 
 class VichoToolsAddonProperties(bpy.types.AddonPreferences):
