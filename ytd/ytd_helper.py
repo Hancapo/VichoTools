@@ -141,10 +141,20 @@ def auto_fill_ytd_field(scene, self):
             if arch.type == 'sollumz_archetype_base' or arch.type == 'sollumz_archetype_time':
                 for ytd in scene.ytd_list:
                     for m in ytd.mesh_list:
-                        if m.mesh.parent.parent.name == arch.asset_name or m.mesh.name == arch.asset_name:
-                            arch.texture_dictionary = ytd.name
-                            self.report(
-                                {'INFO'}, f"Assigned {ytd.name} to {arch.asset_name}")
+                        is_sollumz_yft = False
+                        if m.mesh.sollum_type == 'sollumz_drawable_model' and m.mesh.parent.sollum_type == 'sollumz_drawable':
+                            is_sollumz_yft = True
+                        if is_sollumz_yft:
+                            if m.mesh.parent.name == arch.asset_name:
+                                arch.texture_dictionary = ytd.name
+                                self.report(
+                                    {'INFO'}, f"Assigned {ytd.name} to {arch.asset_name}")
+                        else:
+                            if m.mesh.parent.parent.name == arch.asset_name or m.mesh.name == arch.asset_name:
+                                arch.texture_dictionary = ytd.name
+                                self.report(
+                                    {'INFO'}, f"Assigned {ytd.name} to {arch.asset_name}")
+                            
 
 
 def delete_ini_from_F2YTD():
