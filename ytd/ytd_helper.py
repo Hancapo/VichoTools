@@ -31,35 +31,42 @@ def ExportYTD_Folders(FolderList, ExportPath):
 
 
 def ExportYTD_Files(FolderList, ExportPath, self, scene):
+    print(f'Export path: {ExportPath}')
     preferences = get_addon_preferences(bpy.context)
     f2ytd_path = preferences.folders2ytd_path
-    folders2ytdpath: str = f2ytd_path + "Folder2YTD.exe"
-    f2td_args: str = " -silentmode"
-    if (scene.convert_to_ytd):
-        if (scene.mip_maps):
-            f2td_args += " -mipmaps"
-        f2td_args += f' -quality "{scene.export_mode}"'
-        f2td_args += f' -format "{scene.export_mode}"'
-        f2td_args += f' -folder "{ExportPath[:-1]}"'
-        if (scene.transparency):
-            f2td_args += f' -transparency'
-
-        create_ytd_folders(FolderList, ExportPath)
-        try:
-            salida = subprocess.Popen(folders2ytdpath + f2td_args)
-            while salida.poll() is None:
-                pass
-        finally:
-            salida.terminate()
-            delete_folders(FolderList, ExportPath)
-            delete_ini_from_F2YTD()
-        self.report(
-            {'INFO'}, f"Exported {len(FolderList)} texture dictionaries")
+    folders2ytdpath = f2ytd_path + "Folder2YTD.exe"
+    f2td_args = " -silentmode"
+    if scene.mip_maps:
+        f2td_args += " -mipmaps"
+    f2td_args += f' -quality "{scene.quality_mode}"'
+    f2td_args += f' -format "{scene.export_mode}"'
+    f2td_args += f' -folder "{ExportPath}"'
+    if scene.transparency:
+        f2td_args += " -transparency"
+    create_ytd_folders(FolderList, ExportPath)
+    print(f'Expected command line: {folders2ytdpath} {f2td_args}')
+    try:
+        ps_script = f'''
+        Start-Process -FilePath "{folders2ytdpath}" -ArgumentList "{f2td_args}" -Wait
+        '''
+        process = subprocess.Popen(
+            ["powershell", "-Command", ps_script], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        process.communicate()
+        print(f'Process finished')
+    except Exception as e:
+        print(f"Error running process: {e}")
+    finally:
+        delete_folders(FolderList, ExportPath)
+        delete_ini_from_F2YTD()
+    self.report(
+        {'INFO'}, f"Exported {len(FolderList)} texture dictionaries")
 
 
 def create_ytd_folders(FolderList, ExportPath):
+    print(f'Export Path in create_ytd_folders: {ExportPath}')
     for folder in FolderList:
         folder_path = os.path.join(ExportPath, folder.name)
+        print(f'Added folder {folder_path}')
         os.makedirs(folder_path, exist_ok=True)
         for img in folder.image_list:
             shutil.copy(str(img.filepath), folder_path)
@@ -154,7 +161,6 @@ def auto_fill_ytd_field(scene, self):
                                 arch.texture_dictionary = ytd.name
                                 self.report(
                                     {'INFO'}, f"Assigned {ytd.name} to {arch.asset_name}")
-                            
 
 
 def delete_ini_from_F2YTD():
