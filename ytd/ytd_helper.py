@@ -32,38 +32,43 @@ def ExportYTD_Folders(FolderList, ExportPath):
 
 def ExportYTD_Files(FolderList, ExportPath, self, scene):
     print(f'Export path: {ExportPath}')
+    newExportPath = os.path.join(ExportPath, 'output')
     preferences = get_addon_preferences(bpy.context)
     f2ytd_path = preferences.folders2ytd_path
-    folders2ytdpath = f2ytd_path + "Folder2YTD.exe"
-    f2td_args = " -silentmode"
+    folders2ytdpath = os.path.join(f2ytd_path, "Folder2YTD.exe")
+    f2td_args = "-silentmode -mipmaps"
     if scene.mip_maps:
         f2td_args += " -mipmaps"
-    f2td_args += f' -quality "{scene.quality_mode}"'
-    f2td_args += f' -format "{scene.export_mode}"'
-    f2td_args += f' -folder "{ExportPath}"'
+    f2td_args += f" -quality 'hq'"
+    f2td_args += f" -format 'ytd'"
+    f2td_args += f" -folder '{newExportPath}'"
     if scene.transparency:
         f2td_args += " -transparency"
-    create_ytd_folders(FolderList, ExportPath)
-    print(f'Expected command line: {folders2ytdpath} {f2td_args}')
+    create_ytd_folders(FolderList, newExportPath)
+
     try:
         ps_script = f'''
-        Start-Process -FilePath "{folders2ytdpath}" -ArgumentList "{f2td_args}" -Wait
+        $executablePath = "{folders2ytdpath}"
+        $amiga = "{f2td_args}"
+        Start-Process -FilePath $executablePath -ArgumentList $amiga -Wait
         '''
         process = subprocess.Popen(
             ["powershell", "-Command", ps_script], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        process.communicate()
-        print(f'Process finished')
+        stdout, stderr = process.communicate()
+        print("Standard Output:")
+        print(stdout.decode())
+        print("Standard Error:")
+        print(stderr.decode())
     except Exception as e:
         print(f"Error running process: {e}")
-    finally:
-        delete_folders(FolderList, ExportPath)
-        delete_ini_from_F2YTD()
+    # finally:
+        # delete_folders(FolderList, ExportPath)
+        # delete_ini_from_F2YTD()
     self.report(
         {'INFO'}, f"Exported {len(FolderList)} texture dictionaries")
 
 
 def create_ytd_folders(FolderList, ExportPath):
-    print(f'Export Path in create_ytd_folders: {ExportPath}')
     for folder in FolderList:
         folder_path = os.path.join(ExportPath, folder.name)
         print(f'Added folder {folder_path}')

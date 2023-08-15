@@ -35,7 +35,7 @@ class ExportYTDFiles(bpy.types.Operator):
     def execute(self, context):
         scene = context.scene
         ytds = scene.ytd_list
-        ExportYTD_Files(ytds, bpy.path.abspath(scene.ytd_export_path + 'output'), self, scene)
+        ExportYTD_Files(ytds, bpy.path.abspath(scene.ytd_export_path), self, scene)
         subprocess.Popen('explorer "{}"'.format(bpy.path.abspath(scene.ytd_export_path) + "output"))
         return {'FINISHED'}
 
