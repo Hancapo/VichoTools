@@ -13,7 +13,7 @@ from .vicho_misc import VichoToolsAddonProperties
 bl_info = {
     "name": "Vicho's Misc Tools",
     "author": "MrVicho13",
-    "version": (0, 3, 2),
+    "version": (0, 3, 3),
     "blender": (3, 0, 0),
     "location": "View3D",
     "description": "Some tools by Vicho",
