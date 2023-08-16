@@ -46,24 +46,25 @@ def ExportYTD_Files(FolderList, ExportPath, self, scene):
         f2td_args += " -transparency"
     create_ytd_folders(FolderList, newExportPath)
 
-    try:
-        ps_script = f'''
-        $executablePath = "{folders2ytdpath}"
-        $amiga = "{f2td_args}"
-        Start-Process -FilePath $executablePath -ArgumentList $amiga -Wait
-        '''
-        process = subprocess.Popen(
-            ["powershell", "-Command", ps_script], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        stdout, stderr = process.communicate()
-        print("Standard Output:")
-        print(stdout.decode())
-        print("Standard Error:")
-        print(stderr.decode())
-    except Exception as e:
-        print(f"Error running process: {e}")
-    # finally:
-        # delete_folders(FolderList, ExportPath)
-        # delete_ini_from_F2YTD()
+    ps_script = f'''
+    $executablePath = "{folders2ytdpath}"
+    $amiga = "{f2td_args}"
+    Start-Process -FilePath $executablePath -ArgumentList $amiga -Wait
+    '''
+    process = subprocess.Popen(
+        ["powershell", "-Command", ps_script], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    stdout, stderr = process.communicate()
+    print("Standard Output:")
+    print(stdout.decode())
+    print("Standard Error:")
+    print(stderr.decode())
+
+    while process.poll() is None:
+        print("Waiting for process to finish...")
+        pass
+    delete_folders(FolderList, newExportPath)
+    delete_ini_from_F2YTD()
+
     self.report(
         {'INFO'}, f"Exported {len(FolderList)} texture dictionaries")
 
