@@ -36,11 +36,11 @@ def ExportYTD_Files(FolderList, ExportPath, self, scene):
     preferences = get_addon_preferences(bpy.context)
     f2ytd_path = preferences.folders2ytd_path
     folders2ytdpath = os.path.join(f2ytd_path, "Folder2YTD.exe")
-    f2td_args = "-silentmode -mipmaps"
+    f2td_args = "-silentmode"
     if scene.mip_maps:
         f2td_args += " -mipmaps"
-    f2td_args += f" -quality 'hq'"
-    f2td_args += f" -format 'ytd'"
+    f2td_args += f" -quality '{scene.quality_mode}'"
+    f2td_args += f" -format '{scene.export_mode}'"
     f2td_args += f' -folder "{newExportPath}"'
     if scene.transparency:
         f2td_args += " -transparency"
