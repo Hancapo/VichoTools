@@ -41,18 +41,17 @@ def ExportYTD_Files(FolderList, ExportPath, self, scene):
         f2td_args += " -mipmaps"
     f2td_args += f" -quality 'hq'"
     f2td_args += f" -format 'ytd'"
-    f2td_args += f" -folder '{newExportPath}'"
+    f2td_args += f' -folder "{newExportPath}"'
     if scene.transparency:
         f2td_args += " -transparency"
     create_ytd_folders(FolderList, newExportPath)
 
-    ps_script = f'''
-    $executablePath = "{folders2ytdpath}"
-    $amiga = "{f2td_args}"
-    Start-Process -FilePath $executablePath -ArgumentList $amiga -Wait
-    '''
+    cmd = f'"{folders2ytdpath}" {f2td_args}'
+    
+    print(cmd)
+
     process = subprocess.Popen(
-        ["powershell", "-Command", ps_script], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     stdout, stderr = process.communicate()
     print("Standard Output:")
     print(stdout.decode())
