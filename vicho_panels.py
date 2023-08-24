@@ -50,7 +50,7 @@ class VichoMloToolsPanel(bpy.types.Panel):
 
 class VichoObjectToolsPanel(bpy.types.Panel):
     bl_label = "Object Tools"
-    bl_idname = "VICHOBJECTTOOLS_PT_"
+    bl_idname = "VICHOBJECTTOOLS_PT"
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
     bl_category = "Vicho's Misc Tools"
@@ -62,33 +62,43 @@ class VichoObjectToolsPanel(bpy.types.Panel):
     def draw(self, context):
         layout = self.layout
 
-        row = layout.row()
-        row.label(text="Reset Object(s) transform:", icon='PLAY_REVERSE')
-        row = layout.row()
-        row.prop(context.scene, "location_checkbox", text="Reset Location")
-        row.prop(context.scene, "rotation_checkbox", text="Reset Rotation")
-        row.prop(context.scene, "scale_checkbox", text="Reset Scale")
-        row = layout.row()
-        row.operator("vicho.resetobjtransrot")
+        # Section 1: Reset Object Transform
+        col = layout.column(align=True)
+        col.label(text="Reset Object(s) Transform:", icon='PLAY_REVERSE')
 
-        row = layout.row()
-        row.label(text="Set Object transforms to picked Object",
-                  icon='TRACKING_BACKWARDS')
-        row = layout.row()
+        row = col.row(align=True)
+        row.prop(context.scene, "location_checkbox", text="Location")
+        row.prop(context.scene, "rotation_checkbox", text="Rotation")
+        row.prop(context.scene, "scale_checkbox", text="Scale")
+
+        col.operator("vicho.resetobjtransrot")
+
+        # Section 2: Set Object Transforms to Picked Object
+        col.separator()
+        col.label(text="Set Object Transforms to Picked Object", icon='TRACKING_BACKWARDS')
+
+        row = col.row(align=True)
         row.prop(context.scene, "PasteDataToObject", text="From")
-        row = layout.row()
         row.prop(context.scene, "CopyDataFromObject", text="To")
-        row = layout.row()
+
+        row = col.row(align=True)
         row.prop(context.scene, "locationOb_checkbox", text="Location")
         row.prop(context.scene, "rotationOb_checkbox", text="Rotation")
         row.prop(context.scene, "scaleOb_checkbox", text="Scale")
-        row = layout.row()
-        row.operator("vicho.pasteobjtransfrompickedobject")
 
-        row = layout.row()
-        row.label(text="Delete meshes without data and others", icon='DOT')
-        row = layout.row()
-        row.operator("vicho.deleteemptyobj")
-        row = layout.row()
+        col.operator("vicho.pasteobjtransfrompickedobject")
+
+        # Section 3: Delete Meshes Without Data
+        col.separator()
+        col.label(text="Delete Meshes Without Data and Others", icon='DOT')
+
+        col.operator("vicho.deleteemptyobj")
+
+        # Section 4: Delete All Color Attributes
+        col.operator("vicho.deleteallcolorattributes")
+
+        # Section 5: Delete All Vertex Groups
+        col.operator("vicho.deleteallvertexgroups")
+        
 
 

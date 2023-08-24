@@ -6,13 +6,15 @@ from bpy.props import StringProperty
 from bpy_extras.io_utils import ExportHelper
 
 
-class ExpSelObjsFile(bpy.types.Operator):
-    bl_idname = "vicho.selobjsastext"
-    bl_label = "Save to file"
-
+class ContextSelectionRestrictedHelper:
     @classmethod
     def poll(cls, context):
-        return context.selected_objects is not None
+        return context.active_object is not None
+
+
+class ExpSelObjsFile(bpy.types.Operator, ContextSelectionRestrictedHelper):
+    bl_idname = "vicho.selobjsastext"
+    bl_label = "Save to file"
 
     def execute(self, context):
         objetos = context.selected_objects
@@ -29,20 +31,6 @@ class ExpSelObjsFile(bpy.types.Operator):
             for nombre in nombres:
                 f.write(nombre + "\n")
 
-        return {'FINISHED'}
-
-
-class VichoCreateVC(bpy.types.Operator):
-    bl_idname = "vicho.vertexcolor"
-    bl_label = "Create Vertex Color"
-
-    @classmethod
-    def poll(cls, context):
-        return context.active_object is not None
-
-    def execute(self, context):
-        bpy.ops.geometry.color_attribute_add(
-            name="colour0", domain='CORNER', data_type='BYTE_COLOR')
         return {'FINISHED'}
 
 
@@ -77,13 +65,9 @@ class ResetObjTransRot(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class ExportMLOTransFile(bpy.types.Operator):
+class ExportMLOTransFile(bpy.types.Operator, ContextSelectionRestrictedHelper):
     bl_idname = "vicho.exportmlostransformstofile"
     bl_label = "Export MLO transforms to YMAP"
-
-    @classmethod
-    def poll(cls, context):
-        return context.selected_objects is not None
 
     def execute(self, context):
         objetos = context.selected_objects
@@ -124,13 +108,9 @@ class PasteObjectTransformFromPickedObject(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class DeleteEmptyObj(bpy.types.Operator):
+class DeleteEmptyObj(bpy.types.Operator, ContextSelectionRestrictedHelper):
     bl_idname = "vicho.deleteemptyobj"
     bl_label = "Delete empty objects"
-
-    @classmethod
-    def poll(cls, context):
-        return context.selected_objects is not None
 
     def execute(self, context):
         objects = context.selected_objects
@@ -212,3 +192,37 @@ class MloYmapFileBrowser(bpy.types.Operator, ExportHelper):
             self.report(
                 {'ERROR'}, f"Error exporting {self.filepath} ")
             return {'FINISHED'}
+
+
+class DeleteAllColorAttributes(bpy.types.Operator, ContextSelectionRestrictedHelper):
+    bl_idname = "vicho.deleteallcolorattributes"
+    bl_label = "Delete all color attributes"
+    
+    def execute(self, context):
+        objects = context.selected_objects
+        removed_count = 0
+        for obj in objects:
+            if obj.type == "MESH":
+                if obj.data.color_attributes:
+                    removed_count = removed_count + 1
+                    attrs = obj.data.color_attributes
+                    for r in range(len(obj.data.color_attributes)-1, -1, -1):
+                        attrs.remove(attrs[r])
+        return {'FINISHED'}
+
+
+class DeleteAllVertexGroups(bpy.types.Operator, ContextSelectionRestrictedHelper):
+    bl_idname = "vicho.deleteallvertexgroups"
+    bl_label = "Delete all vertex groups"
+
+    def execute(self, context):
+        objects = context.selected_objects
+
+        for obj in objects:
+            if obj.type == 'MESH':
+                for i in range(len(obj.vertex_groups)):
+                    obj.vertex_groups.remove(obj.vertex_groups[0])
+            else:
+                continue
+
+        return {'FINISHED'}

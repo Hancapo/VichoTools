@@ -13,7 +13,7 @@ from .vicho_misc import VichoToolsAddonProperties
 bl_info = {
     "name": "Vicho's Misc Tools",
     "author": "MrVicho13",
-    "version": (0, 3, 4),
+    "version": (0, 3, 7),
     "blender": (3, 0, 0),
     "location": "View3D",
     "description": "Some tools by Vicho",
@@ -30,9 +30,10 @@ vicho_classes = [
     VICHO_PT_MISC1_PANEL,
     VichoMloToolsPanel,
     VichoObjectToolsPanel,
+    DeleteAllColorAttributes,
+    DeleteAllVertexGroups,
     PasteObjectTransformFromPickedObject,
     MloYmapFileBrowser,
-    VichoCreateVC,
     Vicho_TextureDictionaryPanel,
     MeshGroup,
     ImageString,
@@ -45,8 +46,8 @@ vicho_classes = [
     YTDLIST_OT_add_to_ytd,
     YTDLIST_OT_assign_ytd_field_from_list,
     ExportYTDFolders,
-    ExportYTDFiles,
-    
+    ExportYTDFiles
+
 ]
 
 def register():
