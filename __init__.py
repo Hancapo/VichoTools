@@ -11,15 +11,15 @@ from .ytd.ui import *
 from .vicho_misc import VichoToolsAddonProperties
 
 bl_info = {
-    "name": "Vicho's Misc Tools",
+    "name": "Vicho's Tools",
     "author": "MrVicho13",
-    "version": (0, 4, 2),
+    "version": (0, 4, 3),
     "blender": (3, 0, 0),
     "location": "View3D",
-    "description": "Some tools by Vicho",
+    "description": "Tools designed to help with GTA V modding",
     "warning": "",
     "wiki_url": "",
-    "category": "Vicho Tools",
+    "category": "Vicho's Tools",
 }
 
 vicho_classes = [
