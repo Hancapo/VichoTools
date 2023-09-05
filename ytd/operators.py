@@ -5,6 +5,7 @@ import bpy
 from ..vicho_misc import get_addon_preferences
 from .ytd_helper import ExportYTD_Files, ExportYTD_Folders, add_meshes_to_ytd, add_ytd_to_list, auto_fill_ytd_field, reload_images_from_ytd_list
 
+
 class ExportYTDFolders(bpy.types.Operator):
     """Export the list of texture dictionaries as folders"""
     bl_idname = "vicho.exportytdfolders"
@@ -16,8 +17,10 @@ class ExportYTDFolders(bpy.types.Operator):
 
     def execute(self, context):
         ytds = context.scene.ytd_list
-        ExportYTD_Folders(ytds, bpy.path.abspath(context.scene.ytd_export_path))
-        subprocess.Popen('explorer "{}"'.format(bpy.path.abspath(context.scene.ytd_export_path)))
+        ExportYTD_Folders(ytds, bpy.path.abspath(
+            context.scene.ytd_export_path))
+        subprocess.Popen('explorer "{}"'.format(
+            bpy.path.abspath(context.scene.ytd_export_path)))
         return {'FINISHED'}
 
 
@@ -29,16 +32,18 @@ class ExportYTDFiles(bpy.types.Operator):
     @classmethod
     def poll(cls, context):
         preferences = get_addon_preferences(bpy.context)
-        f2ytd_loaded: bool = os.path.isfile(preferences.folders2ytd_path + "Folder2YTD.exe") 
+        f2ytd_loaded: bool = os.path.isfile(
+            preferences.folders2ytd_path + "Folder2YTD.exe")
         return len(context.scene.ytd_list) > 0 and os.path.exists(bpy.path.abspath(context.scene.ytd_export_path)) and context.scene.convert_to_ytd and f2ytd_loaded
 
     def execute(self, context):
         scene = context.scene
         ytds = scene.ytd_list
-        ExportYTD_Files(ytds, bpy.path.abspath(scene.ytd_export_path), self, scene)
-        subprocess.Popen('explorer "{}"'.format(bpy.path.abspath(scene.ytd_export_path) + "output"))
+        ExportYTD_Files(ytds, bpy.path.abspath(
+            scene.ytd_export_path), self, scene)
+        subprocess.Popen('explorer "{}"'.format(
+            bpy.path.abspath(scene.ytd_export_path) + "output"))
         return {'FINISHED'}
-
 
 
 class YTDLIST_OT_add(bpy.types.Operator):
@@ -48,8 +53,7 @@ class YTDLIST_OT_add(bpy.types.Operator):
 
     @classmethod
     def poll(cls, context):
-        return context.scene.objects is not None and (context.selected_objects and
-                                                      all(obj.type == 'MESH' for obj in context.selected_objects))
+        return context.scene.objects is not None
 
     def execute(self, context):
         scene = context.scene

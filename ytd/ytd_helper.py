@@ -47,7 +47,7 @@ def ExportYTD_Files(FolderList, ExportPath, self, scene):
     create_ytd_folders(FolderList, newExportPath)
 
     cmd = f'"{folders2ytdpath}" {f2td_args}'
-    
+
     print(cmd)
 
     process = subprocess.Popen(
@@ -83,10 +83,10 @@ def delete_folders(FolderList, ExportPath):
         shutil.rmtree(folder_path)
 
 
-def images_paths_from_objects(objs):
+def image_paths_from_objects(objs):
     image_paths = []
     for obj in objs:
-        for slot in obj.material_slots:
+        for slot in obj.mesh.material_slots:
             if slot.material:
                 for node in slot.material.node_tree.nodes:
                     if node.type == 'TEX_IMAGE':
@@ -97,24 +97,48 @@ def images_paths_from_objects(objs):
     return image_paths
 
 
-def mesh_list_from_objects(objects, item):
+def mesh_list_from_objects(objects):
+    new_mesh_list = []
     for obj in objects:
-        if obj.type == 'MESH':
-            item.mesh_list.add().mesh = obj
+        if obj.type == 'MESH' or obj.sollum_type == 'sollumz_drawable_model':
+            new_mesh_list.append(obj)
+        elif obj.sollum_type == 'sollumz_drawable':
+            if obj.children:
+                for child in obj.children:
+                    if child.sollum_type == 'sollumz_drawable_model':
+                        new_mesh_list.append(child)
+        elif obj.sollum_type == 'sollumz_drawable_dictionary':
+            if obj.children:
+                for draw_child in obj.children:
+                    if draw_child.sollum_type == 'sollumz_drawable':
+                        if draw_child.children:
+                            for model_child in draw_child.children:
+                                if model_child.type == 'MESH' or model_child.sollum_type == 'sollumz_drawable_model':
+                                    new_mesh_list.append(model_child)
+        elif obj.sollum_type == 'sollumz_fragment':
+            if obj.children:
+                for draw_child in obj.children:
+                    if draw_child.sollum_type == 'sollumz_drawable':
+                        if draw_child.children:
+                            for model_child in draw_child.children:
+                                if model_child.type == 'MESH' or model_child.sollum_type == 'sollumz_drawable_model':
+                                    new_mesh_list.append(model_child)
+    return new_mesh_list
 
 
-def add_ytd_to_list(scene, objs, ytd_list, self):
+def add_ytd_to_list(scene, objs, ytd_list, self=None):
     if not mesh_exist_in_ytd(scene, objs, self):
         item = scene.ytd_list.add()
         item.name = f"TextureDictionary{len(ytd_list)}"
-        for image_path in images_paths_from_objects(objs):
+        for obj in mesh_list_from_objects(objs):
+            item.mesh_list.add().mesh = obj
+        for image_path in image_paths_from_objects(item.mesh_list):
             item.image_list.add().filepath = image_path
-        mesh_list_from_objects(objs, item)
         self.report({'INFO'}, f"Added {item.name}")
         return True
 
 
-def reload_images_from_ytd_list(ytd_list, self):
+def reload_images_from_ytd_list(ytd_list, self=None):
     for ytd in ytd_list:
         ytd.image_list.clear()
         for mesh in ytd.mesh_list:
@@ -148,15 +172,15 @@ def mesh_exist_in_ytd(scene, objs, self=None):
 
 
 def auto_fill_ytd_field(scene, self):
+    is_sollumz_2_0 = False
     for ytyp in scene.ytyps:
         for arch in ytyp.archetypes:
             if arch.type == 'sollumz_archetype_base' or arch.type == 'sollumz_archetype_time':
                 for ytd in scene.ytd_list:
                     for m in ytd.mesh_list:
-                        is_sollumz_yft = False
                         if m.mesh.sollum_type == 'sollumz_drawable_model' and m.mesh.parent.sollum_type == 'sollumz_drawable':
-                            is_sollumz_yft = True
-                        if is_sollumz_yft:
+                            is_sollumz_2_0 = True
+                        if is_sollumz_2_0:
                             if m.mesh.parent.name == arch.asset_name:
                                 arch.texture_dictionary = ytd.name
                                 self.report(

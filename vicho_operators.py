@@ -226,3 +226,23 @@ class DeleteAllVertexGroups(bpy.types.Operator, ContextSelectionRestrictedHelper
                 continue
 
         return {'FINISHED'}
+
+
+class DetectMeshesWithNoTextures(bpy.types.Operator, ContextSelectionRestrictedHelper):
+    bl_idname = "vicho.detectmesheswithnotextures"
+    bl_label = "Detect meshes with no textures"
+
+    def execute(self, context):
+        objects = context.selected_objects
+
+        for obj in objects:
+            if obj.type == 'MESH':
+                if len(obj.material_slots) < 1:
+                    print(f"{obj.name} has no material slots")
+                else:
+                    for slot in obj.material_slots:
+                        if slot.material.use_nodes:
+                            if not slot.material.node_tree.nodes['Principled BSDF'].inputs['Base Color'].is_linked:
+                                print(f"{obj.name} has no texture")
+        
+        return {'FINISHED'}

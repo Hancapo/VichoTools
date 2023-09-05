@@ -91,14 +91,20 @@ class VichoObjectToolsPanel(bpy.types.Panel):
         # Section 3: Delete Meshes Without Data
         col.separator()
         col.label(text="Delete Meshes Without Data and Others", icon='DOT')
+        col.separator()
 
         col.operator("vicho.deleteemptyobj")
+        col.separator()
 
         # Section 4: Delete All Color Attributes
         col.operator("vicho.deleteallcolorattributes")
+        col.separator()
 
         # Section 5: Delete All Vertex Groups
         col.operator("vicho.deleteallvertexgroups")
+        col.separator()
+
+        col.operator("vicho.detectmesheswithnotextures")
         
 
 
