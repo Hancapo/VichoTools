@@ -109,6 +109,7 @@ class PasteObjectTransformFromPickedObject(bpy.types.Operator):
 
 
 class DeleteEmptyObj(bpy.types.Operator, ContextSelectionRestrictedHelper):
+    """Delete invalid Sollumz objects(OUTDATED, not compatible with Sollumz 2.0)"""
     bl_idname = "vicho.deleteemptyobj"
     bl_label = "Delete empty objects"
 
@@ -169,6 +170,7 @@ class DeleteEmptyObj(bpy.types.Operator, ContextSelectionRestrictedHelper):
 
 
 class MloYmapFileBrowser(bpy.types.Operator, ExportHelper):
+    """Export MLO instance to YMAP"""
     bl_idname = "vicho.mloyampfilebrowser"
     bl_label = "Export MLO transforms to YMAP"
     bl_action = "Export a YMAP MLO"
@@ -195,6 +197,7 @@ class MloYmapFileBrowser(bpy.types.Operator, ExportHelper):
 
 
 class DeleteAllColorAttributes(bpy.types.Operator, ContextSelectionRestrictedHelper):
+    """Delete all color attributes from selected objects"""
     bl_idname = "vicho.deleteallcolorattributes"
     bl_label = "Delete all color attributes"
     
@@ -212,6 +215,7 @@ class DeleteAllColorAttributes(bpy.types.Operator, ContextSelectionRestrictedHel
 
 
 class DeleteAllVertexGroups(bpy.types.Operator, ContextSelectionRestrictedHelper):
+    """Delete all vertex groups from selected objects"""
     bl_idname = "vicho.deleteallvertexgroups"
     bl_label = "Delete all vertex groups"
 
@@ -229,6 +233,7 @@ class DeleteAllVertexGroups(bpy.types.Operator, ContextSelectionRestrictedHelper
 
 
 class DetectMeshesWithNoTextures(bpy.types.Operator, ContextSelectionRestrictedHelper):
+    """Detect meshes with no textures in selected objects and then it print them in the console"""
     bl_idname = "vicho.detectmesheswithnotextures"
     bl_label = "Detect meshes with no textures"
 
