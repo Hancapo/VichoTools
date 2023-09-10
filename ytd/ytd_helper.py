@@ -127,14 +127,14 @@ def mesh_list_from_objects(objects):
 
 
 def add_ytd_to_list(scene, objs, ytd_list, self=None):
-    if not mesh_exist_in_ytd(scene, objs, self):
+    if not mesh_exist_in_ytd(scene, mesh_list_from_objects(objs), self):
         item = scene.ytd_list.add()
         item.name = f"TextureDictionary{len(ytd_list)}"
         for obj in mesh_list_from_objects(objs):
             item.mesh_list.add().mesh = obj
+            self.report({'INFO'}, f"Added {obj.name} to {item.name}")
         for image_path in image_paths_from_objects(item.mesh_list):
             item.image_list.add().filepath = image_path
-        self.report({'INFO'}, f"Added {item.name}")
         return True
 
 
@@ -154,9 +154,10 @@ def reload_images_from_ytd_list(ytd_list, self=None):
 
 
 def add_meshes_to_ytd(index: int, objects, scene, self=None):
-    if not mesh_exist_in_ytd(scene, objects, self):
+    if not mesh_exist_in_ytd(scene, mesh_list_from_objects(objects), self):
         for obj in objects:
             scene.ytd_list[index].mesh_list.add().mesh = obj
+            self.report({'INFO', f'Added {obj.name} to {scene.ytd_list[index].name}'})
             return True
     return False
 

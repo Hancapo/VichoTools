@@ -53,7 +53,15 @@ class YTDLIST_OT_add(bpy.types.Operator):
 
     @classmethod
     def poll(cls, context):
-        return context.scene.objects is not None
+        preferences = get_addon_preferences(bpy.context)
+        compatible_sollum_types = ['sollumz_drawable', 'sollumz_fragment',
+                                   'sollumz_drawable_model', 'sollumz_drawable_dictionary']
+
+        is_compatible_type_selected = all(
+            obj.sollum_type in compatible_sollum_types for obj in context.selected_objects)
+        include_mesh_objects = preferences.add_nonsollumz_to_ytd and all(
+            obj.type == 'MESH' for obj in context.selected_objects)
+        return context.selected_objects and (is_compatible_type_selected or include_mesh_objects)
 
     def execute(self, context):
         scene = context.scene

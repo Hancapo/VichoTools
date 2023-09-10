@@ -13,7 +13,7 @@ from .vicho_misc import VichoToolsAddonProperties
 bl_info = {
     "name": "Vicho's Tools",
     "author": "MrVicho13",
-    "version": (0, 4, 3),
+    "version": (0, 4, 5),
     "blender": (3, 0, 0),
     "location": "View3D",
     "description": "Tools designed to help with GTA V modding",
