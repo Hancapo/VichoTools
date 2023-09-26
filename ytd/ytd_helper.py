@@ -127,10 +127,13 @@ def mesh_list_from_objects(objects):
 
 
 def add_ytd_to_list(scene, objs, ytd_list, self=None):
-    if not mesh_exist_in_ytd(scene, mesh_list_from_objects(objs), self):
+
+    objects = mesh_list_from_objects(objs)
+
+    if not mesh_exist_in_ytd(scene, objects, self):
         item = scene.ytd_list.add()
         item.name = f"TextureDictionary{len(ytd_list)}"
-        for obj in mesh_list_from_objects(objs):
+        for obj in objects:
             item.mesh_list.add().mesh = obj
             self.report({'INFO'}, f"Added {obj.name} to {item.name}")
         for image_path in image_paths_from_objects(item.mesh_list):
@@ -139,6 +142,7 @@ def add_ytd_to_list(scene, objs, ytd_list, self=None):
 
 
 def reload_images_from_ytd_list(ytd_list, self=None):
+    bpy.ops.file.make_paths_absolute()
     for ytd in ytd_list:
         ytd.image_list.clear()
         for mesh in ytd.mesh_list:
@@ -146,7 +150,6 @@ def reload_images_from_ytd_list(ytd_list, self=None):
                 if slot.material:
                     for node in slot.material.node_tree.nodes:
                         if node.type == 'TEX_IMAGE':
-                            bpy.ops.file.make_paths_absolute()
                             if not node.image or not node.image.filepath:
                                 continue
                             ytd.image_list.add().filepath = node.image.filepath
@@ -154,10 +157,12 @@ def reload_images_from_ytd_list(ytd_list, self=None):
 
 
 def add_meshes_to_ytd(index: int, objects, scene, self=None):
-    if not mesh_exist_in_ytd(scene, mesh_list_from_objects(objects), self):
+    objects = mesh_list_from_objects(objects)
+    if not mesh_exist_in_ytd(scene, objects, self):
         for obj in objects:
             scene.ytd_list[index].mesh_list.add().mesh = obj
-            self.report({'INFO', f'Added {obj.name} to {scene.ytd_list[index].name}'})
+            self.report(
+                {'INFO'}, f'Added {obj.name} to {scene.ytd_list[index].name}')
             return True
     return False
 
