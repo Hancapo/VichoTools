@@ -1,11 +1,18 @@
 import bpy
 import itertools
-from .ytd.ytd_helper import *
+
+from .vicho_dependencies import DEPENDENCIES_INSTALLED
+
+if DEPENDENCIES_INSTALLED:
+    from .ytd.ytd_helper import *
+    from .ytd.cw_py.cw_ytd_tools import *
+
+from .ytd.cw_py.cw_py_misc import *
+from .ytd.cw_py.cw_image_tools import *
 from .misc.misc_funcs import *
 from .vicho_operators import *
 from .vicho_properties import *
 from .vicho_panels import *
-from .ytd.folders2ytd import *
 from .ytd.operators import *
 from .ytd.ui import *
 from .vicho_misc import VichoToolsAddonProperties
@@ -25,6 +32,7 @@ bl_info = {
 vicho_classes = [
     VICHO_PT_MISC1_PANEL,
     VichoToolsAddonProperties,
+    VichoToolsInstallDependencies
 ]
 
 ytd_classes = [

@@ -1,5 +1,10 @@
+import subprocess
+import sys
+import typing
 import bpy
 import os
+
+from bpy.types import Context
 
 from .misc.misc_funcs import export_milo_ymap_xml
 from bpy.props import StringProperty
@@ -250,4 +255,23 @@ class DetectMeshesWithNoTextures(bpy.types.Operator, ContextSelectionRestrictedH
                             if not slot.material.node_tree.nodes['Principled BSDF'].inputs['Base Color'].is_linked:
                                 print(f"{obj.name} has no texture")
         
+        return {'FINISHED'}
+
+class VichoToolsInstallDependencies(bpy.types.Operator):
+    bl_idname = "vicho.vichotoolsinstalldependencies"
+    bl_label = "Install dependencies (Python.NET and Wand)"
+    bl_description = "Install dependencies (Python.NET and Wand)"
+
+
+    def execute(self, context):
+        try:
+            subprocess.check_output(
+                [sys.executable, "-m", "pip", "install", "pythonnet"])
+            self.report({'INFO'}, "Python.NET correctly installed")
+            subprocess.check_output(
+                [sys.executable, "-m", "pip", "install", "Wand"])
+            self.report({'INFO'}, "Wand correctly installed")
+        except subprocess.CalledProcessError as e:
+            self.report({'ERROR'}, f"Error installing dependencies: {str(e)}")
+
         return {'FINISHED'}
