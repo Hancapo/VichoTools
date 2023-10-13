@@ -1,7 +1,7 @@
 import bpy
 import itertools
-
-from .vicho_dependencies import depen_installed
+from bpy.app.handlers import persistent
+from .vicho_dependencies import *
 
 if depen_installed():
     from .ytd.ytd_helper import *
@@ -15,6 +15,13 @@ from .vicho_panels import *
 from .ytd.operators import *
 from .ytd.ui import *
 from .vicho_misc import VichoToolsAddonProperties
+
+@persistent
+def update_ui_handler(dummy):
+    for window in bpy.context.window_manager.windows:
+        for area in window.screen.areas:
+            if area.type == 'PREFERENCES':  # o 'PROPERTIES' si estás mostrando el estado en la ventana de propiedades
+                area.tag_redraw()
 
 bl_info = {
     "name": "Vicho's Tools",
@@ -32,7 +39,8 @@ vicho_classes = [
     VICHO_PT_MISC1_PANEL,
     VichoToolsAddonProperties,
     VichoToolsInstallDependencies,
-    VichoToolsMagickInstallCheck
+    VichoToolsMagickInstallCheck,
+    VichoMagickModalOperator
 ]
 
 ytd_classes = [
@@ -72,19 +80,28 @@ obj_classes = [
 
 
 def register():
+    bpy.app.handlers.frame_change_pre.append(update_ui_handler)
     for _class in list(itertools.chain(vicho_classes, misc_classes, obj_classes, mlo_classes, ytd_classes)):
         bpy.utils.register_class(_class)
 
     bpy.types.Scene.ytd_list = bpy.props.CollectionProperty(type=YtdItem)
     bpy.types.Scene.ytd_active_index = bpy.props.IntProperty()
 
+    
+    bpy.types.Scene.magick_install_status = bpy.props.StringProperty(
+        name="ImageMagick Install Status",
+        default="Ready to check installation..."
+    )
+
 
 def unregister():
+    bpy.app.handlers.frame_change_pre.remove(update_ui_handler)  # Correcto
     for _class in list(itertools.chain(vicho_classes, misc_classes, obj_classes, mlo_classes, ytd_classes)):
         bpy.utils.unregister_class(_class)
 
     del bpy.types.Scene.ytd_list
     del bpy.types.Scene.ytd_active_index
+    del bpy.types.Scene.magick_install_status
 
 
 if __name__ == '__main__':

@@ -5,12 +5,10 @@ import bpy
 import os
 import webbrowser
 
-from bpy.types import Context
-
 from .misc.misc_funcs import export_milo_ymap_xml
 from bpy.props import StringProperty
 from bpy_extras.io_utils import ExportHelper
-from .vicho_dependencies import is_imagemagick_installed
+from .vicho_dependencies import check_magick_installation, is_imagemagick_installed
 
 class ContextSelectionRestrictedHelper:
     @classmethod
@@ -286,10 +284,37 @@ class VichoToolsMagickInstallCheck(bpy.types.Operator):
     def execute(self, context):
         try:
             webbrowser.open("https://imagemagick.org/archive/binaries/ImageMagick-7.1.1-20-Q8-x64-dll.exe")
-            #check if ImageMagick was installed each 3 seconds
-            # while not is_imagemagick_installed():
-            #     time.sleep(3)
+            bpy.ops.vicho.vichomagickmodaloperator()  # Inicia el operador modal
         except subprocess.CalledProcessError as e:
             self.report({'ERROR'}, f"Cannot open the download link: {str(e)}")
 
         return {'FINISHED'}
+
+class VichoMagickModalOperator(bpy.types.Operator):
+    bl_idname = "vicho.vichomagickmodaloperator"
+    bl_label = "Vicho Magick Modal Operator"
+
+    _timer = None
+    loading_index = 0  # Inicializa un índice para la animación de carga
+
+    def modal(self, context, event):
+        loading_icons = ["◐", "◓", "◑", "◒"]  # Iconos para la animación de carga
+        
+        if event.type == 'TIMER':
+            if is_imagemagick_installed():
+                context.scene.magick_install_status = "ImageMagick is already installed."
+                self.cancel(context)
+                return {'FINISHED'}
+            else:
+                # Actualiza el estado con una animación de carga si ImageMagick aún no está instalado
+                self.loading_index = (self.loading_index + 1) % 4
+                context.scene.magick_install_status = f"Checking ImageMagick installation {loading_icons[self.loading_index]}"
+        return {'PASS_THROUGH'}
+
+    def execute(self, context):
+        self._timer = context.window_manager.event_timer_add(0.5, window=context.window)
+        context.window_manager.modal_handler_add(self)
+        return {'RUNNING_MODAL'}
+
+    def cancel(self, context):
+        context.window_manager.event_timer_remove(self._timer)
