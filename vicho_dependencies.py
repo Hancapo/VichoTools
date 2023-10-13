@@ -1,8 +1,8 @@
-DEPENDENCIES_INSTALLED = False
+depen_installed = False
 
 try:
     import wand
-    import clr
-    DEPENDENCIES_INSTALLED = True
+    import pythonnet
+    depen_installed = True
 except ImportError:
     pass

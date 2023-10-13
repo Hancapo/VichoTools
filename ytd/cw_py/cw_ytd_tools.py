@@ -1,22 +1,23 @@
 import sys
 import os
-from .cw_image_tools import get_dds
-from ...vicho_dependencies import DEPENDENCIES_INSTALLED
-from .cw_py_misc import jenkhash
+from ...vicho_dependencies import depen_installed
+from .cw_py_misc import jenkhash, calculate_mipmaps, get_dds, has_transparency
 
 sys.path.append(os.path.join(os.path.dirname(__file__), 'libs'))
 
 
-if DEPENDENCIES_INSTALLED:
+if depen_installed:
     import clr
 
     clr.AddReference('CodeWalker.Core')
     clr.AddReference("System.Collections")
     from System.Collections.Generic import List
     from CodeWalker import GameFiles
-    from CodeWalker import Utils 
+    from CodeWalker import Utils
+    from wand.image import Image
 
-    def TextureListFromDDSFiles(ddsFiles: list[str]) -> List[GameFiles.Texture]:
+
+    def texture_list_from_dds_files(ddsFiles: list[str]) -> List[GameFiles.Texture]:
         textureList = List[GameFiles.Texture]()
         for ddsFile in ddsFiles:
             fn = ddsFile
@@ -36,15 +37,27 @@ if DEPENDENCIES_INSTALLED:
                 continue
         return textureList
 
-    def TexturesToYTD(textureList: List[GameFiles.Texture], ytdFile: GameFiles.YtdFile) -> GameFiles.YtdFile:
+    def textures_to_ytd(textureList: List[GameFiles.Texture], ytdFile: GameFiles.YtdFile) -> GameFiles.YtdFile:
         textureDictionary = ytdFile.TextureDict
         textureDictionary.BuildFromTextureList(textureList)
         return ytdFile
 
-    def ConvertFolderToYTD(folder: str) -> GameFiles.YtdFile:
+    def convert_folder_to_ytd(folder: str) -> GameFiles.YtdFile:
         dds_files = get_dds(folder)
         ytd : GameFiles.YtdFile = GameFiles.YtdFile()
         ytd.TextureDict = GameFiles.TextureDictionary()
-        final_ytd = TexturesToYTD(TextureListFromDDSFiles(dds_files), ytd)
+        final_ytd = textures_to_ytd(texture_list_from_dds_files(dds_files), ytd)
         return final_ytd
+
+    def convert_img_to_dds(filepath : str):
+        with Image(filename=filepath) as image:
+            with image.convert('dds') as converted:
+                converted.options['dds:mipmaps'] = str(
+                    calculate_mipmaps(image.width, image.height))
+                transparent = has_transparency(image)
+                if transparent:
+                    converted.options['dds:compression'] = 'dxt5'
+                else:
+                    converted.options['dds:compression'] = 'dxt1'
+                converted.save(filename=f'{os.path.splitext(filepath)[0]}.dds')
 

@@ -1,14 +1,13 @@
 import bpy
 import itertools
 
-from .vicho_dependencies import DEPENDENCIES_INSTALLED
+from .vicho_dependencies import depen_installed
 
-if DEPENDENCIES_INSTALLED:
+if depen_installed:
     from .ytd.ytd_helper import *
     from .ytd.cw_py.cw_ytd_tools import *
 
 from .ytd.cw_py.cw_py_misc import *
-from .ytd.cw_py.cw_image_tools import *
 from .misc.misc_funcs import *
 from .vicho_operators import *
 from .vicho_properties import *

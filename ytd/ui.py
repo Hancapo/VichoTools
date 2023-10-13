@@ -1,6 +1,6 @@
 import bpy
 
-from ..vicho_dependencies import DEPENDENCIES_INSTALLED
+from ..vicho_dependencies import depen_installed
 
 class Vicho_TextureDictionaryPanel(bpy.types.Panel):
     bl_label = "Texture Dictionary Tools"
@@ -43,7 +43,7 @@ class Vicho_TextureDictionaryPanel(bpy.types.Panel):
             
             # Export options
 
-            if DEPENDENCIES_INSTALLED:
+            if depen_installed:
                 list_col.prop(scene, "convert_to_ytd", text="Create YTD file(s)")
             else:
                 list_col.label(text="YTD(s) Export disabled since dependencies not installed, check add-on's properties", icon="ERROR")

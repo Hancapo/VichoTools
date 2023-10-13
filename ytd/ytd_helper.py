@@ -3,15 +3,14 @@ import bpy
 import os
 import shutil
 
-from ..ytd.cw_py.cw_py_misc import get_folder_list_from_dir
-from ..vicho_misc import get_addon_preferences
-from ..vicho_dependencies import DEPENDENCIES_INSTALLED
+
+from ..ytd.cw_py.cw_py_misc import get_folder_list_from_dir, get_non_dds
+from ..vicho_dependencies import depen_installed
 
 
-if DEPENDENCIES_INSTALLED:
-    from ..ytd.cw_py.cw_image_tools import calculate_mipmaps, has_transparency, get_non_dds
-    from ..ytd.cw_py.cw_ytd_tools import ConvertFolderToYTD, TexturesToYTD, TextureListFromDDSFiles
-    from wand.image import Image
+if depen_installed:
+    from ..ytd.cw_py.cw_ytd_tools import convert_folder_to_ytd, convert_img_to_dds
+
 
 class YtdList(bpy.types.UIList):
 
@@ -34,35 +33,20 @@ class YtdItem(bpy.types.PropertyGroup):
     mesh_list: bpy.props.CollectionProperty(type=MeshGroup)
 
 
-def ExportYTD_Folders(FolderList, ExportPath):
-    create_ytd_folders(FolderList, ExportPath)
-
-
-def ExportYTD_Files(FolderList, ExportPath, self, scene):
+def export_ytd_files(FolderList, ExportPath, self, scene):
     print(f'Export path: {ExportPath}')
     newExportPath = os.path.join(ExportPath, 'output')
-    # if scene.transparency:
-    #     transparency = True
 
-    if DEPENDENCIES_INSTALLED:
+    if depen_installed:
 
         create_ytd_folders(FolderList, newExportPath)
         folders = get_folder_list_from_dir(newExportPath)
-            
+
         for folder in folders:
             for img in get_non_dds(folder):
-                with Image(filename=img) as image:
-                    with image.convert('dds') as converted:
-                        converted.options['dds:mipmaps'] = str(
-                            calculate_mipmaps(image.width, image.height))
-                        transparent = has_transparency(image)
-                        if transparent:
-                            converted.options['dds:compression'] = 'dxt5'
-                        else:
-                            converted.options['dds:compression'] = 'dxt1'
-                        converted.save(filename=os.path.splitext(img)[0] + ".dds")
-                os.remove(img)            
-            ytd = ConvertFolderToYTD(folder)
+                convert_img_to_dds(img)
+                os.remove(img)
+            ytd = convert_folder_to_ytd(folder)
             folder_path = Path(folder)
             output_file_path = folder_path.parent / f"{folder_path.name}.ytd"
             with open(f'{output_file_path}', 'wb') as f:
@@ -70,7 +54,7 @@ def ExportYTD_Files(FolderList, ExportPath, self, scene):
                 byte_array = bytearray(list(bytes_data))
                 f.write(byte_array)
                 self.report({'INFO'}, f"Exported {output_file_path}.ytd")
-        
+
         delete_folders(FolderList, newExportPath)
 
         self.report(
