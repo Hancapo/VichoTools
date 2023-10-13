@@ -1,15 +1,16 @@
 import subprocess
 import sys
-import typing
+import time
 import bpy
 import os
+import webbrowser
 
 from bpy.types import Context
 
 from .misc.misc_funcs import export_milo_ymap_xml
 from bpy.props import StringProperty
 from bpy_extras.io_utils import ExportHelper
-
+from .vicho_dependencies import is_imagemagick_installed
 
 class ContextSelectionRestrictedHelper:
     @classmethod
@@ -273,5 +274,22 @@ class VichoToolsInstallDependencies(bpy.types.Operator):
             self.report({'INFO'}, "Wand correctly installed")
         except subprocess.CalledProcessError as e:
             self.report({'ERROR'}, f"Error installing dependencies: {str(e)}")
+
+        return {'FINISHED'}
+
+
+class VichoToolsMagickInstallCheck(bpy.types.Operator):
+    bl_idname = "vicho.vichotoolsmagickinstallcheck"
+    bl_label = "Check if ImageMagick is installed"
+    bl_description = "Check if ImageMagick is installed"
+
+    def execute(self, context):
+        try:
+            webbrowser.open("https://imagemagick.org/archive/binaries/ImageMagick-7.1.1-20-Q8-x64-dll.exe")
+            #check if ImageMagick was installed each 3 seconds
+            # while not is_imagemagick_installed():
+            #     time.sleep(3)
+        except subprocess.CalledProcessError as e:
+            self.report({'ERROR'}, f"Cannot open the download link: {str(e)}")
 
         return {'FINISHED'}

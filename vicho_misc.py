@@ -1,6 +1,6 @@
 import bpy
-from .vicho_dependencies import depen_installed
-from .vicho_operators import VichoToolsInstallDependencies
+from .vicho_dependencies import depen_installed, is_imagemagick_installed
+from .vicho_operators import VichoToolsInstallDependencies, VichoToolsMagickInstallCheck
 
 class VichoToolsAddonProperties(bpy.types.AddonPreferences):
     bl_idname = __package__.split(".")[0]
@@ -10,8 +10,13 @@ class VichoToolsAddonProperties(bpy.types.AddonPreferences):
 
     def draw(self, context):
         layout = self.layout
+
+        if not is_imagemagick_installed():
+            layout.operator(VichoToolsMagickInstallCheck.bl_idname, text="1. Install ImageMagick", icon="SCRIPTPLUGINS")
+        else:
+            layout.label(text="ImageMagick is already installed.")
         if not depen_installed():
-            layout.operator(VichoToolsInstallDependencies.bl_idname, text="Install PythonNET and Wand", icon="SCRIPTPLUGINS")
+            layout.operator(VichoToolsInstallDependencies.bl_idname, text="2. Install PythonNET and Wand", icon="SCRIPTPLUGINS")
         else:
             layout.label(text="PythonNET and Wand are already installed.")
         layout.prop(self, "add_nonsollumz_to_ytd")

@@ -31,7 +31,8 @@ bl_info = {
 vicho_classes = [
     VICHO_PT_MISC1_PANEL,
     VichoToolsAddonProperties,
-    VichoToolsInstallDependencies
+    VichoToolsInstallDependencies,
+    VichoToolsMagickInstallCheck
 ]
 
 ytd_classes = [
