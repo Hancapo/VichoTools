@@ -10,7 +10,7 @@ class VichoToolsAddonProperties(bpy.types.AddonPreferences):
 
     def draw(self, context):
         layout = self.layout
-        if not depen_installed:
+        if not depen_installed():
             layout.operator(VichoToolsInstallDependencies.bl_idname, text="Install PythonNET and Wand", icon="SCRIPTPLUGINS")
         else:
             layout.label(text="PythonNET and Wand are already installed.")

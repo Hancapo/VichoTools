@@ -3,7 +3,7 @@ import itertools
 
 from .vicho_dependencies import depen_installed
 
-if depen_installed:
+if depen_installed():
     from .ytd.ytd_helper import *
     from .ytd.cw_py.cw_ytd_tools import *
 

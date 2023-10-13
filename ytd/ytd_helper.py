@@ -8,7 +8,7 @@ from ..ytd.cw_py.cw_py_misc import get_folder_list_from_dir, get_non_dds
 from ..vicho_dependencies import depen_installed
 
 
-if depen_installed:
+if depen_installed():
     from ..ytd.cw_py.cw_ytd_tools import convert_folder_to_ytd, convert_img_to_dds
 
 
@@ -37,7 +37,7 @@ def export_ytd_files(FolderList, ExportPath, self, scene):
     print(f'Export path: {ExportPath}')
     newExportPath = os.path.join(ExportPath, 'output')
 
-    if depen_installed:
+    if depen_installed():
 
         create_ytd_folders(FolderList, newExportPath)
         folders = get_folder_list_from_dir(newExportPath)

@@ -6,9 +6,8 @@ from .cw_py_misc import jenkhash, calculate_mipmaps, get_dds, has_transparency
 sys.path.append(os.path.join(os.path.dirname(__file__), 'libs'))
 
 
-if depen_installed:
+if depen_installed():
     import clr
-
     clr.AddReference('CodeWalker.Core')
     clr.AddReference("System.Collections")
     from System.Collections.Generic import List
