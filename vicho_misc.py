@@ -1,5 +1,5 @@
 import bpy
-from .vicho_dependencies import depen_installed, is_imagemagick_installed, checking_status
+from .vicho_dependencies import depen_installed, is_imagemagick_installed
 from .vicho_operators import VichoToolsInstallDependencies, VichoToolsMagickInstallCheck
 
 class VichoToolsAddonProperties(bpy.types.AddonPreferences):
@@ -12,8 +12,8 @@ class VichoToolsAddonProperties(bpy.types.AddonPreferences):
         layout = self.layout
 
         if not is_imagemagick_installed():
-            layout.operator(VichoToolsMagickInstallCheck.bl_idname, text="Install ImageMagick", icon="SCRIPTPLUGINS")
-            layout.label(text=checking_status)
+            layout.operator(VichoToolsMagickInstallCheck.bl_idname, text="Install ImageMagick", icon="IMAGE_BACKGROUND")
+            layout.label(text=context.scene.magick_install_status)
         else:
             layout.label(text="ImageMagick is already installed.")
             if not depen_installed():

@@ -8,10 +8,6 @@ from ..ytd.cw_py.cw_py_misc import get_folder_list_from_dir, get_non_dds
 from ..vicho_dependencies import depen_installed
 
 
-if depen_installed():
-    from ..ytd.cw_py.cw_ytd_tools import convert_folder_to_ytd, convert_img_to_dds
-
-
 class YtdList(bpy.types.UIList):
 
     def draw_item(self, context, layout, data, item, icon, active_data, active_propname):
@@ -38,7 +34,7 @@ def export_ytd_files(FolderList, ExportPath, self, scene):
     newExportPath = os.path.join(ExportPath, 'output')
 
     if depen_installed():
-
+        from ..ytd.cw_py.cw_ytd_tools import convert_folder_to_ytd, convert_img_to_dds
         create_ytd_folders(FolderList, newExportPath)
         folders = get_folder_list_from_dir(newExportPath)
 

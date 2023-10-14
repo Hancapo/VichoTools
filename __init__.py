@@ -20,7 +20,7 @@ from .vicho_misc import VichoToolsAddonProperties
 def update_ui_handler(dummy):
     for window in bpy.context.window_manager.windows:
         for area in window.screen.areas:
-            if area.type == 'PREFERENCES':  # o 'PROPERTIES' si estás mostrando el estado en la ventana de propiedades
+            if area.type == 'PREFERENCES':
                 area.tag_redraw()
 
 bl_info = {
@@ -95,7 +95,7 @@ def register():
 
 
 def unregister():
-    bpy.app.handlers.frame_change_pre.remove(update_ui_handler)  # Correcto
+    bpy.app.handlers.frame_change_pre.remove(update_ui_handler)
     for _class in list(itertools.chain(vicho_classes, misc_classes, obj_classes, mlo_classes, ytd_classes)):
         bpy.utils.unregister_class(_class)
 
