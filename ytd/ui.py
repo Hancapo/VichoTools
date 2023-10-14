@@ -41,18 +41,11 @@ class Vicho_TextureDictionaryPanel(bpy.types.Panel):
             list_col.prop(scene, "ytd_export_path", text="Export path")
             list_col.separator()
             
-            # Export options
 
             if depen_installed():
-                list_col.prop(scene, "convert_to_ytd", text="Create YTD file(s)")
-            else:
-                list_col.label(text="YTD(s) Export disabled since dependencies not installed, check add-on's properties", icon="ERROR")
-            if scene.convert_to_ytd:
-                row5 = list_col.row(align=True)
-                #row5.prop(scene, "transparency", text="Detect transparency")
                 list_col.separator()
                 list_col.operator("vicho.exportytdfiles", text="Export list as YTD Files", icon='FORCE_TEXTURE')
-            
-            # Final export options
+            else:
+                list_col.label(text="YTD(s) Export disabled since dependencies not installed, check add-on's properties", icon="ERROR")
             list_col.separator()
             list_col.operator("vicho.exportytdfolders", text="Export list as Folders", icon='FILE_FOLDER')

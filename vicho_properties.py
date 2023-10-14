@@ -45,7 +45,3 @@ class VichoGroup(bpy.types.PropertyGroup):
         description="Path to export the YTD file",
         subtype='DIR_PATH'
     )
-
-    bpy.types.Scene.convert_to_ytd = bpy.props.BoolProperty(
-        name="Convert Folder(s) to YTD(s)",
-        description="Convert Folder(s) to YTD(s)")

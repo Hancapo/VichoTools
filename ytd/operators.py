@@ -3,7 +3,7 @@ import subprocess
 import bpy
 
 from ..vicho_misc import get_addon_preferences
-from .ytd_helper import export_ytd_files, add_meshes_to_ytd, add_ytd_to_list, auto_fill_ytd_field, reload_images_from_ytd_list
+from .ytd_helper import export_ytd_files, add_meshes_to_ytd, add_ytd_to_list, auto_fill_ytd_field, reload_images_from_ytd_list, create_ytd_folders
 
 
 class ExportYTDFolders(bpy.types.Operator):
@@ -17,7 +17,7 @@ class ExportYTDFolders(bpy.types.Operator):
 
     def execute(self, context):
         ytds = context.scene.ytd_list
-        export_ytd_folders(ytds, bpy.path.abspath(
+        create_ytd_folders(ytds, bpy.path.abspath(
             context.scene.ytd_export_path))
         subprocess.Popen('explorer "{}"'.format(
             bpy.path.abspath(context.scene.ytd_export_path)))

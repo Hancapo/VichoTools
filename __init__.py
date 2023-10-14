@@ -26,7 +26,7 @@ def update_ui_handler(dummy):
 bl_info = {
     "name": "Vicho's Tools",
     "author": "MrVicho13",
-    "version": (0, 5, 0),
+    "version": (0, 5, 1),
     "blender": (3, 4, 0),
     "location": "View3D",
     "description": "Tools designed to help with GTA V modding",
