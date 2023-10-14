@@ -31,7 +31,7 @@ class ExportYTDFiles(bpy.types.Operator):
 
     @classmethod
     def poll(cls, context):
-        return len(context.scene.ytd_list) > 0 and os.path.exists(bpy.path.abspath(context.scene.ytd_export_path)) and context.scene.convert_to_ytd
+        return len(context.scene.ytd_list) > 0 and os.path.exists(bpy.path.abspath(context.scene.ytd_export_path))
 
     def execute(self, context):
         scene = context.scene
