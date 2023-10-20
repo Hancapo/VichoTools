@@ -3,8 +3,7 @@ import itertools
 from bpy.app.handlers import persistent
 from .vicho_dependencies import *
 
-if depen_installed():
-    from .ytd.ytd_helper import *
+if is_imagemagick_installed() and depen_installed():
     from .ytd.cw_py.cw_ytd_tools import *
 
 from .ytd.cw_py.cw_py_misc import *
@@ -26,7 +25,7 @@ def update_ui_handler(dummy):
 bl_info = {
     "name": "Vicho's Tools",
     "author": "MrVicho13",
-    "version": (0, 5, 1),
+    "version": (0, 5, 2),
     "blender": (3, 4, 0),
     "location": "View3D",
     "description": "Tools designed to help with GTA V modding",

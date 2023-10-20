@@ -1,17 +1,6 @@
 from pathlib import Path
 import numpy as np
 
-def jenkhash(key: str) -> int:
-    hash_ = 0
-    for char in key:
-        hash_ += ord(char)
-        hash_ += (hash_ << 10)
-        hash_ ^= (hash_ >> 6)
-    hash_ += (hash_ << 3)
-    hash_ ^= (hash_ >> 11)
-    hash_ += (hash_ << 15)
-    return hash_ & 0xFFFFFFFF
-
 
 def get_folder_list_from_dir(dir: str):
     return [str(p) for p in Path(dir).rglob('*') if p.is_dir()]
@@ -37,7 +26,6 @@ def calculate_mipmaps(width: int, height: int) -> int:
 
 def has_transparency(image):
     np_array = np.array(image)
-    if np_array.shape[2] == 4:
-        return np.any(np_array[..., 3] < 255)
-    else:
+    if np_array.shape[-1] != 4:
         return False
+    return np.any(np_array[..., 3] < 255)

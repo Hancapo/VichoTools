@@ -1,7 +1,7 @@
 import sys
 import os
 from ...vicho_dependencies import depen_installed
-from .cw_py_misc import jenkhash, calculate_mipmaps, get_dds, has_transparency
+from .cw_py_misc import calculate_mipmaps, get_dds, has_transparency
 
 sys.path.append(os.path.join(os.path.dirname(__file__), 'libs'))
 
@@ -29,7 +29,8 @@ if depen_installed():
                 byte_array = bytearray(content)
                 tex = Utils.DDSIO.GetTexture(byte_array)
                 tex.Name = os.path.splitext(os.path.basename(ddsFile))[0]
-                tex.NameHash = jenkhash(tex.Name.lower())
+                tex.NameHash = GameFiles.JenkHash.GenHash(str(tex.Name.lower()))
+                GameFiles.JenkIndex.Ensure(tex.Name.lower())
                 textureList.Add(tex)
             except Exception as e:
                 print(f"Error opening file {ddsFile}: {e}")
@@ -45,6 +46,8 @@ if depen_installed():
         dds_files = get_dds(folder)
         ytd : GameFiles.YtdFile = GameFiles.YtdFile()
         ytd.TextureDict = GameFiles.TextureDictionary()
+        ytd.TextureDict.Textures = GameFiles.ResourcePointerList64[GameFiles.Texture]()
+        ytd.TextureDict.TextureNameHashes = GameFiles.ResourceSimpleList64_uint()
         final_ytd = textures_to_ytd(texture_list_from_dds_files(dds_files), ytd)
         return final_ytd
 
