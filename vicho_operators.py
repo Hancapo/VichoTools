@@ -1,10 +1,14 @@
+import subprocess
+import sys
+import time
 import bpy
 import os
+import webbrowser
 
 from .misc.misc_funcs import export_milo_ymap_xml
 from bpy.props import StringProperty
 from bpy_extras.io_utils import ExportHelper
-
+from .vicho_dependencies import is_imagemagick_installed
 
 class ContextSelectionRestrictedHelper:
     @classmethod
@@ -251,3 +255,65 @@ class DetectMeshesWithNoTextures(bpy.types.Operator, ContextSelectionRestrictedH
                                 print(f"{obj.name} has no texture")
         
         return {'FINISHED'}
+
+class VichoToolsInstallDependencies(bpy.types.Operator):
+    bl_idname = "vicho.vichotoolsinstalldependencies"
+    bl_label = "Install dependencies (Python.NET and Wand)"
+    bl_description = "Install dependencies (Python.NET and Wand)"
+
+
+    def execute(self, context):
+        try:
+            subprocess.check_output(
+                [sys.executable, "-m", "pip", "install", "pythonnet"])
+            self.report({'INFO'}, "Python.NET correctly installed")
+            subprocess.check_output(
+                [sys.executable, "-m", "pip", "install", "Wand"])
+            self.report({'INFO'}, "Wand correctly installed")
+        except subprocess.CalledProcessError as e:
+            self.report({'ERROR'}, f"Error installing dependencies: {str(e)}")
+
+        return {'FINISHED'}
+
+
+class VichoToolsMagickInstallCheck(bpy.types.Operator):
+    bl_idname = "vicho.vichotoolsmagickinstallcheck"
+    bl_label = "Check if ImageMagick is installed"
+    bl_description = "Check if ImageMagick is installed"
+
+    def execute(self, context):
+        try:
+            webbrowser.open("https://imagemagick.org/archive/binaries/ImageMagick-7.1.1-20-Q8-x64-dll.exe")
+            bpy.ops.vicho.vichomagickmodaloperator()
+
+        except subprocess.CalledProcessError as e:
+            self.report({'ERROR'}, f"Cannot open the download link: {str(e)}")
+
+        return {'FINISHED'}
+
+class VichoMagickModalOperator(bpy.types.Operator):
+    bl_idname = "vicho.vichomagickmodaloperator"
+    bl_label = "Vicho Magick Modal Operator"
+
+    _timer = None
+    loading_index = 0
+    def modal(self, context, event):
+        loading_icons = ["◐", "◓", "◑", "◒"]
+        
+        if event.type == 'TIMER':
+            if is_imagemagick_installed():
+                context.scene.magick_install_status = "ImageMagick is already installed."
+                self.cancel(context)
+                return {'FINISHED'}
+            else:
+                self.loading_index = (self.loading_index + 1) % 4
+                context.scene.magick_install_status = f"Checking ImageMagick installation {loading_icons[self.loading_index]}"
+        return {'PASS_THROUGH'}
+
+    def execute(self, context):
+        self._timer = context.window_manager.event_timer_add(0.5, window=context.window)
+        context.window_manager.modal_handler_add(self)
+        return {'RUNNING_MODAL'}
+
+    def cancel(self, context):
+        context.window_manager.event_timer_remove(self._timer)

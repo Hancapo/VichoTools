@@ -1,8 +1,11 @@
-import subprocess
+from pathlib import Path
 import bpy
 import os
 import shutil
-from ..vicho_misc import get_addon_preferences
+
+
+from ..ytd.cw_py.cw_py_misc import get_folder_list_from_dir, get_non_dds
+from ..vicho_dependencies import depen_installed
 
 
 class YtdList(bpy.types.UIList):
@@ -26,46 +29,32 @@ class YtdItem(bpy.types.PropertyGroup):
     mesh_list: bpy.props.CollectionProperty(type=MeshGroup)
 
 
-def ExportYTD_Folders(FolderList, ExportPath):
-    create_ytd_folders(FolderList, ExportPath)
-
-
-def ExportYTD_Files(FolderList, ExportPath, self, scene):
+def export_ytd_files(FolderList, ExportPath, self, scene):
     print(f'Export path: {ExportPath}')
     newExportPath = os.path.join(ExportPath, 'output')
-    preferences = get_addon_preferences(bpy.context)
-    f2ytd_path = preferences.folders2ytd_path
-    folders2ytdpath = os.path.join(f2ytd_path, "Folder2YTD.exe")
-    f2td_args = "-silentmode"
-    if scene.mip_maps:
-        f2td_args += " -mipmaps"
-    f2td_args += f" -quality '{scene.quality_mode}'"
-    f2td_args += f" -format '{scene.export_mode}'"
-    f2td_args += f' -folder "{newExportPath}"'
-    if scene.transparency:
-        f2td_args += " -transparency"
-    create_ytd_folders(FolderList, newExportPath)
 
-    cmd = f'"{folders2ytdpath}" {f2td_args}'
+    if depen_installed():
+        from ..ytd.cw_py.cw_ytd_tools import convert_folder_to_ytd, convert_img_to_dds
+        create_ytd_folders(FolderList, newExportPath)
+        folders = get_folder_list_from_dir(newExportPath)
 
-    print(cmd)
+        for folder in folders:
+            for img in get_non_dds(folder):
+                convert_img_to_dds(img)
+                os.remove(img)
+            ytd = convert_folder_to_ytd(folder)
+            folder_path = Path(folder)
+            output_file_path = folder_path.parent / f"{folder_path.name}.ytd"
+            with open(f'{output_file_path}', 'wb') as f:
+                bytes_data = ytd.Save()
+                byte_array = bytearray(list(bytes_data))
+                f.write(byte_array)
+                self.report({'INFO'}, f"Exported {output_file_path}.ytd")
 
-    process = subprocess.Popen(
-        cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    stdout, stderr = process.communicate()
-    print("Standard Output:")
-    print(stdout.decode())
-    print("Standard Error:")
-    print(stderr.decode())
+        delete_folders(FolderList, newExportPath)
 
-    while process.poll() is None:
-        print("Waiting for process to finish...")
-        pass
-    delete_folders(FolderList, newExportPath)
-    delete_ini_from_F2YTD()
-
-    self.report(
-        {'INFO'}, f"Exported {len(FolderList)} texture dictionaries")
+        self.report(
+            {'INFO'}, f"Exported {len(FolderList)} texture dictionaries")
 
 
 def create_ytd_folders(FolderList, ExportPath):
@@ -163,7 +152,7 @@ def add_meshes_to_ytd(index: int, objects, scene, self=None):
             scene.ytd_list[index].mesh_list.add().mesh = obj
             self.report(
                 {'INFO'}, f'Added {obj.name} to {scene.ytd_list[index].name}')
-            return True
+        return True
     return False
 
 
@@ -196,11 +185,3 @@ def auto_fill_ytd_field(scene, self):
                                 arch.texture_dictionary = ytd.name
                                 self.report(
                                     {'INFO'}, f"Assigned {ytd.name} to {arch.asset_name}")
-
-
-def delete_ini_from_F2YTD():
-    preferences = get_addon_preferences(bpy.context)
-    f2ytd_path = preferences.folders2ytd_path
-    ini_path = os.path.join(f2ytd_path, "config.ini")
-    if os.path.exists(ini_path):
-        os.remove(ini_path)
