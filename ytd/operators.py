@@ -2,7 +2,7 @@ import os
 import subprocess
 import bpy
 
-from ..vicho_misc import get_addon_preferences
+from ..vicho_adn_props import get_addon_preferences
 from .ytd_helper import export_ytd_files, add_meshes_to_ytd, add_ytd_to_list, auto_fill_ytd_field, reload_images_from_ytd_list, create_ytd_folders
 
 

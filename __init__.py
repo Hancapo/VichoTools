@@ -13,7 +13,7 @@ from .vicho_properties import *
 from .vicho_panels import *
 from .ytd.operators import *
 from .ytd.ui import *
-from .vicho_misc import VichoToolsAddonProperties
+from .vicho_adn_props import VichoToolsAddonProperties
 
 @persistent
 def update_ui_handler(dummy):
@@ -25,7 +25,7 @@ def update_ui_handler(dummy):
 bl_info = {
     "name": "Vicho's Tools",
     "author": "MrVicho13",
-    "version": (0, 5, 2),
+    "version": (0, 5, 3),
     "blender": (3, 4, 0),
     "location": "View3D",
     "description": "Tools designed to help with GTA V modding",
