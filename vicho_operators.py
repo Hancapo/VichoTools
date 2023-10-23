@@ -283,7 +283,7 @@ class VichoToolsMagickInstallCheck(bpy.types.Operator):
 
     def execute(self, context):
         try:
-            webbrowser.open("https://imagemagick.org/archive/binaries/ImageMagick-7.1.1-20-Q8-x64-dll.exe")
+            webbrowser.open("https://shorturl.at/tY134")
             bpy.ops.vicho.vichomagickmodaloperator()
 
         except subprocess.CalledProcessError as e:
