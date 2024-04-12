@@ -1,7 +1,7 @@
 import sys
 import os
 from ...vicho_dependencies import depen_installed
-from .cw_py_misc import calculate_mipmaps, get_dds, has_transparency
+from .cw_py_misc import calculate_mipmaps, get_dds
 
 sys.path.append(os.path.join(os.path.dirname(__file__), 'libs'))
 
@@ -13,7 +13,6 @@ if depen_installed():
     from System.Collections.Generic import List
     from CodeWalker import GameFiles
     from CodeWalker import Utils
-    from wand.image import Image
 
 
     def texture_list_from_dds_files(ddsFiles: list[str]) -> List[GameFiles.Texture]:
@@ -52,14 +51,5 @@ if depen_installed():
         return final_ytd
 
     def convert_img_to_dds(filepath : str):
-        with Image(filename=filepath) as image:
-            with image.convert('dds') as converted:
-                converted.options['dds:mipmaps'] = str(
-                    calculate_mipmaps(image.width, image.height))
-                transparent = has_transparency(image)
-                if transparent:
-                    converted.options['dds:compression'] = 'dxt5'
-                else:
-                    converted.options['dds:compression'] = 'dxt1'
-                converted.save(filename=f'{os.path.splitext(filepath)[0]}.dds')
+        return None
 

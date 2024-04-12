@@ -3,12 +3,10 @@ import sys
 import time
 import bpy
 import os
-import webbrowser
 
 from .misc.misc_funcs import export_milo_ymap_xml
 from bpy.props import StringProperty
 from bpy_extras.io_utils import ExportHelper
-from .vicho_dependencies import is_imagemagick_installed
 
 class ContextSelectionRestrictedHelper:
     @classmethod
@@ -112,67 +110,6 @@ class PasteObjectTransformFromPickedObject(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class DeleteEmptyObj(bpy.types.Operator, ContextSelectionRestrictedHelper):
-    """Delete invalid Sollumz objects(OUTDATED, not compatible with Sollumz 2.0)"""
-    bl_idname = "vicho.deleteemptyobj"
-    bl_label = "Delete empty objects"
-
-    def execute(self, context):
-        objects = context.selected_objects
-
-        for obj in objects:
-            if obj.type == 'EMPTY':
-                if obj.sollum_type == 'sollumz_drawable':
-                    if len(obj.children) < 1:
-                        bpy.data.objects.remove(obj)
-                    else:
-                        for ochild in obj.children:
-                            if ochild.sollum_type == 'sollumz_drawable_model':
-                                drawmodelchild = ochild.children
-                                if len(drawmodelchild) < 1:
-                                    bpy.data.objects.remove(ochild)
-
-                                else:
-
-                                    for dchild in drawmodelchild:
-                                        if dchild.sollum_type == 'sollumz_drawable_geometry' and dchild.type == 'MESH':
-                                            if len(dchild.data.vertices) < 1:
-                                                bpy.data.objects.remove(dchild)
-                                                if len(ochild.children) < 1:
-                                                    bpy.data.objects.remove(
-                                                        ochild)
-
-                elif obj.sollum_type == 'sollumz_bound_composite':
-                    if len(obj.children) < 1:
-                        bpy.data.objects.remove(obj)
-                    else:
-                        for ochild in obj.children:
-                            if ochild.sollum_type == 'sollumz_bound_geometrybvh':
-                                drawmodelchild = ochild.children
-                                if len(drawmodelchild) < 1:
-                                    bpy.data.objects.remove(ochild)
-
-                                else:
-
-                                    for dchild in drawmodelchild:
-                                        if (dchild.sollum_type == 'sollumz_bound_poly_triangle' or
-                                            dchild.sollum_type == 'sollumz_bound_poly_box' or
-                                            dchild.sollum_type == 'sollumz_bound_poly_sphere' or
-                                            dchild.sollum_type == 'sollumz_bound_poly_cylinder' or
-                                                dchild.sollum_type == 'sollumz_bound_poly_capsule') and dchild.type == 'MESH':
-                                            if len(dchild.data.vertices) < 1:
-                                                bpy.data.objects.remove(dchild)
-                                                if len(ochild.children) < 1:
-                                                    bpy.data.objects.remove(
-                                                        ochild)
-                elif obj.sollum_type == 'sollumz_drawable_dictionary':
-                    print('todo')
-            else:
-                continue
-
-        return {'FINISHED'}
-
-
 class MloYmapFileBrowser(bpy.types.Operator, ExportHelper):
     """Export MLO instance to YMAP"""
     bl_idname = "vicho.mloyampfilebrowser"
@@ -258,8 +195,8 @@ class DetectMeshesWithNoTextures(bpy.types.Operator, ContextSelectionRestrictedH
 
 class VichoToolsInstallDependencies(bpy.types.Operator):
     bl_idname = "vicho.vichotoolsinstalldependencies"
-    bl_label = "Install dependencies (Python.NET and Wand)"
-    bl_description = "Install dependencies (Python.NET and Wand)"
+    bl_label = "Install dependencies (Python.NET)"
+    bl_description = "Install dependencies (Python.NET)"
 
 
     def execute(self, context):
@@ -267,53 +204,7 @@ class VichoToolsInstallDependencies(bpy.types.Operator):
             subprocess.check_output(
                 [sys.executable, "-m", "pip", "install", "pythonnet"])
             self.report({'INFO'}, "Python.NET correctly installed")
-            subprocess.check_output(
-                [sys.executable, "-m", "pip", "install", "Wand"])
-            self.report({'INFO'}, "Wand correctly installed")
         except subprocess.CalledProcessError as e:
             self.report({'ERROR'}, f"Error installing dependencies: {str(e)}")
 
         return {'FINISHED'}
-
-
-class VichoToolsMagickInstallCheck(bpy.types.Operator):
-    bl_idname = "vicho.vichotoolsmagickinstallcheck"
-    bl_label = "Check if ImageMagick is installed"
-    bl_description = "Check if ImageMagick is installed"
-
-    def execute(self, context):
-        try:
-            webbrowser.open("https://shorturl.at/tY134")
-            bpy.ops.vicho.vichomagickmodaloperator()
-
-        except subprocess.CalledProcessError as e:
-            self.report({'ERROR'}, f"Cannot open the download link: {str(e)}")
-
-        return {'FINISHED'}
-
-class VichoMagickModalOperator(bpy.types.Operator):
-    bl_idname = "vicho.vichomagickmodaloperator"
-    bl_label = "Vicho Magick Modal Operator"
-
-    _timer = None
-    loading_index = 0
-    def modal(self, context, event):
-        loading_icons = ["◐", "◓", "◑", "◒"]
-        
-        if event.type == 'TIMER':
-            if is_imagemagick_installed():
-                context.scene.magick_install_status = "ImageMagick is already installed."
-                self.cancel(context)
-                return {'FINISHED'}
-            else:
-                self.loading_index = (self.loading_index + 1) % 4
-                context.scene.magick_install_status = f"Checking ImageMagick installation {loading_icons[self.loading_index]}"
-        return {'PASS_THROUGH'}
-
-    def execute(self, context):
-        self._timer = context.window_manager.event_timer_add(0.5, window=context.window)
-        context.window_manager.modal_handler_add(self)
-        return {'RUNNING_MODAL'}
-
-    def cancel(self, context):
-        context.window_manager.event_timer_remove(self._timer)
