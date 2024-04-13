@@ -15,9 +15,11 @@ def get_dds(path: str) -> list[str]:
 
 
 def calculate_mipmaps(width: int, height: int) -> int:
-    mipLevels = 1
-    while width > 4 or height > 4:
-        width = max(width // 2, 1)
-        height = max(height // 2, 1)
-        mipLevels += 1
-    return mipLevels
+    if width <= 4 or height <= 4:
+        return 1
+    levels = 1
+    while width > 4 and height > 4:
+        width = max(1, width // 2)
+        height = max(1, height // 2)
+        levels += 1
+    return levels
