@@ -5,7 +5,7 @@ Some tools to make V modding easier with some timesaving features.
 
 ## Requirements
 
-- Blender 3.3+
+- Blender 4.0+
 
 - Sollumz (latest available build)
 
