@@ -13,7 +13,7 @@ class YtdList(bpy.types.UIList):
     def draw_item(self, context, layout, data, item, icon, active_data, active_propname):
         if self.layout_type in {'DEFAULT', 'COMPACT'}:
             row = layout.row()
-            row.prop(item, "name", text="", emboss=False, icon='FILE_FOLDER')
+            row.prop(item, "name", text="", emboss=False, icon='IMAGE_BACKGROUND')
 
 
 class ImageString(bpy.types.PropertyGroup):
@@ -32,7 +32,6 @@ class YtdItem(bpy.types.PropertyGroup):
 def export_ytd_files(FolderList, ExportPath, self, scene):
     print(f'Export path: {ExportPath}')
     newExportPath = os.path.join(ExportPath, 'output')
-
     if depen_installed():
         from ..ytd.cw_py.cw_ytd_tools import convert_folder_to_ytd, convert_img_to_dds
         create_ytd_folders(FolderList, newExportPath)
@@ -167,21 +166,13 @@ def mesh_exist_in_ytd(scene, objs, self=None):
 
 
 def auto_fill_ytd_field(scene, self):
-    is_sollumz_2_0 = False
     for ytyp in scene.ytyps:
         for arch in ytyp.archetypes:
             if arch.type == 'sollumz_archetype_base' or arch.type == 'sollumz_archetype_time':
                 for ytd in scene.ytd_list:
                     for m in ytd.mesh_list:
                         if m.mesh.sollum_type == 'sollumz_drawable_model' and m.mesh.parent.sollum_type == 'sollumz_drawable':
-                            is_sollumz_2_0 = True
-                        if is_sollumz_2_0:
                             if m.mesh.parent.name == arch.asset_name:
-                                arch.texture_dictionary = ytd.name
-                                self.report(
-                                    {'INFO'}, f"Assigned {ytd.name} to {arch.asset_name}")
-                        else:
-                            if m.mesh.parent.parent.name == arch.asset_name or m.mesh.name == arch.asset_name:
                                 arch.texture_dictionary = ytd.name
                                 self.report(
                                     {'INFO'}, f"Assigned {ytd.name} to {arch.asset_name}")

@@ -1,3 +1,4 @@
+import math
 import os
 import xml.dom.minidom as md
 from mathutils import Vector
@@ -220,3 +221,8 @@ def get_max_vector_list(vecs):
         y.append(v[1])
         z.append(v[2])
     return Vector((max(x), max(y), max(z)))
+
+def power_of_two_resize(width: int, height: int) -> tuple[int, int]:
+    width = math.pow(2, math.ceil(math.log2(width)))
+    height = math.pow(2, math.ceil(math.log2(height)))
+    return int(width), int(height)

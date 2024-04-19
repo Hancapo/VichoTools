@@ -3,7 +3,7 @@ import itertools
 from bpy.app.handlers import persistent
 from .vicho_dependencies import *
 
-if is_imagemagick_installed() and depen_installed():
+if depen_installed():
     from .ytd.cw_py.cw_ytd_tools import *
 
 from .ytd.cw_py.cw_py_misc import *
@@ -25,8 +25,8 @@ def update_ui_handler(dummy):
 bl_info = {
     "name": "Vicho's Tools",
     "author": "MrVicho13",
-    "version": (0, 5, 3),
-    "blender": (3, 4, 0),
+    "version": (0, 6, 0),
+    "blender": (4, 0, 0),
     "location": "View3D",
     "description": "Tools designed to help with GTA V modding",
     "warning": "",
@@ -38,8 +38,6 @@ vicho_classes = [
     VICHO_PT_MISC1_PANEL,
     VichoToolsAddonProperties,
     VichoToolsInstallDependencies,
-    VichoToolsMagickInstallCheck,
-    VichoMagickModalOperator
 ]
 
 ytd_classes = [
@@ -69,7 +67,6 @@ mlo_classes = [
 
 obj_classes = [
     ResetObjTransRot,
-    DeleteEmptyObj,
     VichoObjectToolsPanel,
     DeleteAllColorAttributes,
     DeleteAllVertexGroups,
