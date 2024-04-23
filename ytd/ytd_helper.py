@@ -7,7 +7,7 @@ class YtdList(bpy.types.UIList):
             row.prop(item, "selected", text="", emboss=False, icon='CHECKBOX_HLT' if item.selected else 'CHECKBOX_DEHLT')
             row.prop(item, "name", text="", emboss=False, icon='IMAGE_BACKGROUND')
             row = layout.row(align=True)
-            row.scale_x = 0.5
+            row.scale_x = 0.7
             row.operator("ytd_list.select_meshes_from_ytd_folder", text=f"Meshes: {len(item.mesh_list)}", icon='RESTRICT_SELECT_OFF')
             row.prop(item, "game_target", text="", emboss=False, icon="MATSHADERBALL")
 
