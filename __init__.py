@@ -71,7 +71,8 @@ obj_classes = [
     DeleteAllColorAttributes,
     DeleteAllVertexGroups,
     PasteObjectTransformFromPickedObject,
-    DetectMeshesWithNoTextures
+    DetectMeshesWithNoTextures,
+    RenameAllUvMaps
 ]
 
 

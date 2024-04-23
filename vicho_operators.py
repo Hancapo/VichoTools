@@ -193,6 +193,20 @@ class DetectMeshesWithNoTextures(bpy.types.Operator, ContextSelectionRestrictedH
         
         return {'FINISHED'}
 
+class RenameAllUvMaps(bpy.types.Operator, ContextSelectionRestrictedHelper):
+    """Rename all UV maps from selected objects to Sollumz' standard"""
+    bl_idname = "vicho.renamealluvmaps"
+    bl_label = "Rename all UV maps"
+
+    def execute(self, context):
+        objects = context.selected_objects
+        for obj in objects:
+            if obj.type == 'MESH':
+                for indx, uvmap in enumerate(obj.data.uv_layers):
+                    uvmap.name = f'UVMap {indx}'
+
+        return {'FINISHED'}
+
 class VichoToolsInstallDependencies(bpy.types.Operator):
     bl_idname = "vicho.vichotoolsinstalldependencies"
     bl_label = "Install dependencies (Python.NET)"

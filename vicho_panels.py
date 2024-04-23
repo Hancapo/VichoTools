@@ -105,6 +105,10 @@ class VichoObjectToolsPanel(bpy.types.Panel):
         col.separator()
 
         col.operator("vicho.detectmesheswithnotextures")
+        col.separator()
+
+        col.operator("vicho.renamealluvmaps")
+        col.separator()
         
 
 
