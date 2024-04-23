@@ -51,6 +51,7 @@ ytd_classes = [
     YTDLIST_OT_reload_all,
     YTDLIST_OT_add_to_ytd,
     YTDLIST_OT_assign_ytd_field_from_list,
+    YTDLIST_OT_select_meshes_from_ytd_folder,
     ExportYTDFolders,
     ExportYTDFiles,
 ]
@@ -82,13 +83,7 @@ def register():
         bpy.utils.register_class(_class)
 
     bpy.types.Scene.ytd_list = bpy.props.CollectionProperty(type=YtdItem)
-    bpy.types.Scene.ytd_active_index = bpy.props.IntProperty()
-
-    
-    bpy.types.Scene.magick_install_status = bpy.props.StringProperty(
-        name="ImageMagick Install Status",
-        default="Ready to check installation..."
-    )
+    bpy.types.Scene.ytd_active_index = bpy.props.IntProperty(name="Active Index")
 
 
 def unregister():

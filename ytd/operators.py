@@ -3,8 +3,8 @@ import subprocess
 import bpy
 
 from ..vicho_adn_props import get_addon_preferences
-from .ytd_helper import export_ytd_files, add_meshes_to_ytd, add_ytd_to_list, auto_fill_ytd_field, reload_images_from_ytd_list, create_ytd_folders
-
+from .ytd_funcs import export_ytd_files, add_meshes_to_ytd, add_ytd_to_list, auto_fill_ytd_field, reload_images_from_ytd_list, create_ytd_folders
+from .ytd_helper import MeshGroup
 
 class ExportYTDFolders(bpy.types.Operator):
     """Export the list of texture dictionaries as folders"""
@@ -16,7 +16,16 @@ class ExportYTDFolders(bpy.types.Operator):
         return len(context.scene.ytd_list) > 0 and os.path.exists(bpy.path.abspath(context.scene.ytd_export_path))
 
     def execute(self, context):
-        ytds = context.scene.ytd_list
+        scene = context.scene
+        export_mode = scene.ytd_enum_process_type
+        ytds = []
+        match export_mode:
+            case 'ALL':
+                ytds = scene.ytd_list
+            case 'CHECKED':
+                ytds = [ytd for ytd in scene.ytd_list if ytd.selected]
+            case 'SELECTED':
+                ytds = [scene.ytd_list[scene.ytd_active_index]]
         create_ytd_folders(ytds, bpy.path.abspath(
             context.scene.ytd_export_path))
         subprocess.Popen('explorer "{}"'.format(
@@ -35,7 +44,16 @@ class ExportYTDFiles(bpy.types.Operator):
 
     def execute(self, context):
         scene = context.scene
-        ytds = scene.ytd_list
+        export_mode = scene.ytd_enum_process_type
+        ytds = []
+        match export_mode:
+            case 'ALL':
+                ytds = scene.ytd_list
+            case 'CHECKED':
+                ytds = [ytd for ytd in scene.ytd_list if ytd.selected]
+            case 'SELECTED':
+                ytds = [scene.ytd_list[scene.ytd_active_index]]
+
         export_ytd_files(ytds, bpy.path.abspath(
             scene.ytd_export_path), self, scene)
         subprocess.Popen('explorer "{}"'.format(
@@ -139,4 +157,27 @@ class YTDLIST_OT_assign_ytd_field_from_list(bpy.types.Operator):
     def execute(self, context):
         scene = context.scene
         auto_fill_ytd_field(scene, self)
+        return {'FINISHED'}
+
+class YTDLIST_OT_select_meshes_from_ytd_folder(bpy.types.Operator):
+    """Select all meshes from the selected texture dictionary folder"""
+    bl_idname = "ytd_list.select_meshes_from_ytd_folder"
+    bl_label = "Select all meshes from the selected texture folder"
+
+    @classmethod
+    def poll(cls, context):
+        return context.scene.ytd_active_index >= 0 and len(context.scene.ytd_list) > 0
+
+ 
+    def execute(self, context):
+        scene = context.scene
+        list = scene.ytd_list
+        index = scene.ytd_active_index
+        mesh_list = [mesh.mesh for mesh in list[index].mesh_list]
+        for obj in scene.objects:
+            if obj.type == 'MESH' and obj in mesh_list:
+                obj.select_set(True)
+            else:
+                obj.select_set(False)
+        
         return {'FINISHED'}

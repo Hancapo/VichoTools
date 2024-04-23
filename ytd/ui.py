@@ -38,14 +38,20 @@ class Vicho_TextureDictionaryPanel(bpy.types.Panel):
             list_col.separator()
             list_col.operator("ytd_list.assign_ytd_field_from_list", icon='CURRENT_FILE', text="Auto-fill Texture Dictionary fields")
             list_col.separator()
-            list_col.prop(scene, "ytd_export_path", text="Export path")
-            list_col.separator()
             
 
             if depen_installed():
                 list_col.separator()
-                list_col.operator("vicho.exportytdfiles", text="Export list as YTD Files", icon='FORCE_TEXTURE')
+                box = list_col.box()
+                box.label(text="Export list", icon="EXPORT")
+                row = box.row()
+                row.prop(scene, "ytd_export_path", text="Path")
+                row = box.row(align=True)
+                row.operator("vicho.exportytdfiles", text="As YTD Files", icon='FORCE_TEXTURE')
+                row.operator("vicho.exportytdfolders", text="As Folders", icon='FILE_FOLDER')
+                row = box.row()
+                row.prop(scene, "ytd_enum_process_type", text="")
+                
             else:
                 list_col.label(text="YTD(s) Export disabled since dependencies not installed, check add-on's properties", icon="ERROR")
             list_col.separator()
-            list_col.operator("vicho.exportytdfolders", text="Export list as Folders", icon='FILE_FOLDER')

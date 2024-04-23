@@ -1,5 +1,7 @@
 import bpy
 
+def update_path(self, context):
+    self.ytd_export_path = bpy.path.abspath(self.ytd_export_path)
 
 class VichoGroup(bpy.types.PropertyGroup):
     bpy.types.Scene.file_name_field = bpy.props.StringProperty(
@@ -43,5 +45,15 @@ class VichoGroup(bpy.types.PropertyGroup):
         name="YTD Export Path",
         default="",
         description="Path to export the YTD file",
-        subtype='DIR_PATH'
+        subtype='DIR_PATH',
+        update=update_path,
+    )
+
+    bpy.types.Scene.ytd_enum_process_type = bpy.props.EnumProperty(
+        items=[('ALL', 'All', 'All the list'),
+               ('CHECKED', 'All checked items', 'All the checked items'),
+               ('SELECTED', 'Selected item', 'The selected item')],
+        name="Process Type",
+        default='ALL',
+        description="Sets the type of export to perform over the list of texture dictionaries",
     )
