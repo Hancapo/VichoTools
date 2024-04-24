@@ -90,11 +90,8 @@ def unregister():
     bpy.app.handlers.frame_change_pre.remove(update_ui_handler)
     for _class in list(itertools.chain(vicho_classes, misc_classes, obj_classes, mlo_classes, ytd_classes)):
         bpy.utils.unregister_class(_class)
-
     del bpy.types.Scene.ytd_list
     del bpy.types.Scene.ytd_active_index
-    del bpy.types.Scene.magick_install_status
-
 
 if __name__ == '__main__':
     register()
