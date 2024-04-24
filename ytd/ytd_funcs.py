@@ -6,7 +6,7 @@ import bpy
 from .cw_py.cw_py_misc import get_folder_list_from_dir, get_non_dds
 from ..vicho_dependencies import depen_installed
 
-if depen_installed():
+if depen_installed:
     from .cw_py.cw_ytd_tools import convert_folder_to_ytd, convert_img_to_dds
 
 
@@ -131,26 +131,28 @@ def auto_fill_ytd_field(scene, self):
                                 self.report(
                                     {'INFO'}, f"Assigned {ytd.name} to {arch.asset_name}")
 
-def export_ytd_files(FolderList, ExportPath, self, scene):
-    print(f'Export path: {ExportPath}')
-    newExportPath = os.path.join(ExportPath, 'output')
-    create_ytd_folders(FolderList, newExportPath)
-    folders = get_folder_list_from_dir(newExportPath)
 
-    for folder in folders:
-        for img in get_non_dds(folder):
-            convert_img_to_dds(img)
-            os.remove(img)
-        ytd = convert_folder_to_ytd(folder)
-        folder_path = Path(folder)
-        output_file_path = folder_path.parent / f"{folder_path.name}.ytd"
-        with open(f'{output_file_path}', 'wb') as f:
-            bytes_data = ytd.Save()
-            byte_array = bytearray(list(bytes_data))
-            f.write(byte_array)
-            self.report({'INFO'}, f"Exported {output_file_path}.ytd")
+if depen_installed:
+    def export_ytd_files(FolderList, ExportPath, self, scene):
+        print(f'Export path: {ExportPath}')
+        newExportPath = os.path.join(ExportPath, 'output')
+        create_ytd_folders(FolderList, newExportPath)
+        folders = get_folder_list_from_dir(newExportPath)
 
-    delete_folders(FolderList, newExportPath)
+        for folder in folders:
+            for img in get_non_dds(folder):
+                convert_img_to_dds(img)
+                os.remove(img)
+            ytd = convert_folder_to_ytd(folder)
+            folder_path = Path(folder)
+            output_file_path = folder_path.parent / f"{folder_path.name}.ytd"
+            with open(f'{output_file_path}', 'wb') as f:
+                bytes_data = ytd.Save()
+                byte_array = bytearray(list(bytes_data))
+                f.write(byte_array)
+                self.report({'INFO'}, f"Exported {output_file_path}.ytd")
 
-    self.report(
-        {'INFO'}, f"Exported {len(FolderList)} texture dictionaries")
+        delete_folders(FolderList, newExportPath)
+
+        self.report(
+            {'INFO'}, f"Exported {len(FolderList)} texture dictionaries")
