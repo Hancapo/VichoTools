@@ -4,7 +4,10 @@ import shutil
 import bpy
 
 from .cw_py.cw_py_misc import get_folder_list_from_dir, get_non_dds
-from .cw_py.cw_ytd_tools import convert_folder_to_ytd, convert_img_to_dds
+from ..vicho_dependencies import depen_installed
+
+if depen_installed():
+    from .cw_py.cw_ytd_tools import convert_folder_to_ytd, convert_img_to_dds
 
 
 def create_ytd_folders(FolderList, ExportPath):
