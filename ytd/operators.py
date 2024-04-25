@@ -4,7 +4,6 @@ import bpy
 
 from ..vicho_adn_props import get_addon_preferences
 from .ytd_funcs import export_ytd_files, add_meshes_to_ytd, add_ytd_to_list, auto_fill_ytd_field, reload_images_from_ytd_list, create_ytd_folders
-from .ytd_helper import MeshGroup
 
 class ExportYTDFolders(bpy.types.Operator):
     """Export the list of texture dictionaries as folders"""
