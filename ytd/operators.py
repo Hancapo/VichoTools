@@ -161,7 +161,7 @@ class YTDLIST_OT_assign_ytd_field_from_list(bpy.types.Operator):
         return {'FINISHED'}
 
 class YTDLIST_OT_select_meshes_from_ytd_folder(bpy.types.Operator):
-    """Select all meshes from the selected texture dictionary folder"""
+    """Select meshes"""
     bl_idname = "ytd_list.select_meshes_from_ytd_folder"
     bl_label = "Select all meshes from the selected texture folder"
 
@@ -175,10 +175,10 @@ class YTDLIST_OT_select_meshes_from_ytd_folder(bpy.types.Operator):
         list = scene.ytd_list
         index = scene.ytd_active_index
         mesh_list = [mesh.mesh for mesh in list[index].mesh_list]
-        for obj in scene.objects:
-            if obj.type == 'MESH' and obj in mesh_list:
-                obj.select_set(True)
-            else:
-                obj.select_set(False)
+        for mesh in mesh_list:
+            if mesh.parent and mesh.parent.sollum_type != 'sollum_none':
+                mesh.parent.select_set(True)
+                continue
+            mesh.select_set(True)
         
         return {'FINISHED'}

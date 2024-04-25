@@ -36,8 +36,9 @@ class Vicho_TextureDictionaryPanel(bpy.types.Panel):
 
         if(len(scene.ytd_list) > 0):
             list_col.separator()
-            list_col.operator("ytd_list.assign_ytd_field_from_list", icon='CURRENT_FILE', text="Auto-fill Texture Dictionary fields")
-            list_col.separator()
+            row = list_col.row(align=True)
+            row.operator("ytd_list.assign_ytd_field_from_list", icon='CURRENT_FILE', text="Auto-fill Texture Dictionary fields")
+            row.operator("ytd_list.select_meshes_from_ytd_folder", icon='RESTRICT_SELECT_OFF', text="Select meshes from folder")
             
 
             if depen_installed():
@@ -48,8 +49,8 @@ class Vicho_TextureDictionaryPanel(bpy.types.Panel):
                 row.prop(scene, "ytd_show_explorer_after_export", text='Show containing folder after export', icon='FOLDER_REDIRECT')
                 row.prop(scene, "ytd_export_path", text="")
                 row = box.row(align=True)
-                row.operator("vicho.exportytdfiles", text="As YTD Files", icon='FORCE_TEXTURE')
-                row.operator("vicho.exportytdfolders", text="As Folders", icon='FILE_FOLDER')
+                row.operator("vicho.exportytdfiles", text="As YTD File(s)", icon='FORCE_TEXTURE')
+                row.operator("vicho.exportytdfolders", text="As Folder(s)", icon='FILE_FOLDER')
                 row = box.row()
                 row.prop(scene, "ytd_enum_process_type", text="")
                 
