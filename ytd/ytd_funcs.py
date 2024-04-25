@@ -132,7 +132,7 @@ def auto_fill_ytd_field(scene, self):
                                     {'INFO'}, f"Assigned {ytd.name} to {arch.asset_name}")
 
 
-if depen_installed:
+if depen_installed():
     def export_ytd_files(FolderList, ExportPath, self, scene):
         print(f'Export path: {ExportPath}')
         newExportPath = os.path.join(ExportPath, 'output')
