@@ -1,6 +1,5 @@
 import bpy
 import itertools
-from bpy.app.handlers import persistent
 from .vicho_dependencies import *
 
 if depen_installed():
@@ -15,17 +14,10 @@ from .ytd.operators import *
 from .ytd.ui import *
 from .vicho_adn_props import VichoToolsAddonProperties
 
-@persistent
-def update_ui_handler(dummy):
-    for window in bpy.context.window_manager.windows:
-        for area in window.screen.areas:
-            if area.type == 'PREFERENCES':
-                area.tag_redraw()
-
 bl_info = {
     "name": "Vicho's Tools",
     "author": "MrVicho13",
-    "version": (0, 6, 3),
+    "version": (0, 6, 5),
     "blender": (4, 0, 0),
     "location": "View3D",
     "description": "Tools designed to help with GTA V modding",
@@ -67,7 +59,6 @@ mlo_classes = [
 ]
 
 obj_classes = [
-    ResetObjTransRot,
     VichoObjectToolsPanel,
     DeleteAllColorAttributes,
     DeleteAllVertexGroups,
@@ -78,7 +69,6 @@ obj_classes = [
 
 
 def register():
-    bpy.app.handlers.frame_change_pre.append(update_ui_handler)
     for _class in list(itertools.chain(vicho_classes, misc_classes, obj_classes, mlo_classes, ytd_classes)):
         bpy.utils.register_class(_class)
 
@@ -87,7 +77,6 @@ def register():
 
 
 def unregister():
-    bpy.app.handlers.frame_change_pre.remove(update_ui_handler)
     for _class in list(itertools.chain(vicho_classes, misc_classes, obj_classes, mlo_classes, ytd_classes)):
         bpy.utils.unregister_class(_class)
     del bpy.types.Scene.ytd_list

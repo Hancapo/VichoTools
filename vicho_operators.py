@@ -36,35 +36,6 @@ class ExpSelObjsFile(bpy.types.Operator, ContextSelectionRestrictedHelper):
         return {'FINISHED'}
 
 
-class ResetObjTransRot(bpy.types.Operator):
-    bl_idname = "vicho.resetobjtransrot"
-    bl_label = "Reset object(s) transforms"
-
-    @classmethod
-    def poll(cls, context):
-        return len(context.selected_objects) > 0 and (context.scene.location_checkbox or context.scene.rotation_checkbox or context.scene.scale_checkbox)
-
-    def execute(self, context):
-        check_loc = context.scene.location_checkbox
-        check_rot = context.scene.rotation_checkbox
-        check_scale = context.scene.scale_checkbox
-
-        objetos = context.selected_objects
-        for objeto in objetos:
-            if check_loc:
-                objeto.location = (0, 0, 0)
-            if check_rot:
-                if objeto.rotation_mode == 'QUATERNION':
-                    objeto.rotation_quaternion = (1, 0, 0, 0)
-                elif objeto.rotation_mode == 'AXIS_ANGLE':
-                    objeto.rotation_axis_angle = (0, 0, 0, 0)
-                else:
-                    objeto.rotation_euler = (0, 0, 0)
-
-            if check_scale:
-                objeto.scale = (1, 1, 1)
-
-        return {'FINISHED'}
 
 
 class ExportMLOTransFile(bpy.types.Operator, ContextSelectionRestrictedHelper):

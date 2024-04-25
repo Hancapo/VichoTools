@@ -26,13 +26,13 @@ def delete_folders(FolderList, ExportPath):
 
 
 def image_paths_from_objects(objs):
+    bpy.ops.file.make_paths_absolute()
     image_paths = []
     for obj in objs:
         for slot in obj.mesh.material_slots:
             if slot.material:
                 for node in slot.material.node_tree.nodes:
                     if node.type == 'TEX_IMAGE':
-                        bpy.ops.file.make_paths_absolute()
                         if not node.image or not node.image.filepath:
                             continue
                         image_paths.append(node.image.filepath)

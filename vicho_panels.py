@@ -61,17 +61,7 @@ class VichoObjectToolsPanel(bpy.types.Panel):
 
     def draw(self, context):
         layout = self.layout
-
-        # Section 1: Reset Object Transform
         col = layout.column(align=True)
-        col.label(text="Reset Object(s) Transform:", icon='PLAY_REVERSE')
-
-        row = col.row(align=True)
-        row.prop(context.scene, "location_checkbox", text="Location")
-        row.prop(context.scene, "rotation_checkbox", text="Rotation")
-        row.prop(context.scene, "scale_checkbox", text="Scale")
-
-        col.operator("vicho.resetobjtransrot")
 
         # Section 2: Set Object Transforms to Picked Object
         col.separator()

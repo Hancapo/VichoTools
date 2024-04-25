@@ -20,15 +20,6 @@ class VichoGroup(bpy.types.PropertyGroup):
         default="",
         description="instance name for the MLO Instance",
         maxlen=50)
-    bpy.types.Scene.location_checkbox = bpy.props.BoolProperty(
-        name="Reset Location",
-        description="Reset location")
-    bpy.types.Scene.rotation_checkbox = bpy.props.BoolProperty(
-        name="Reset Rotation",
-        description="Reset rotation")
-    bpy.types.Scene.scale_checkbox = bpy.props.BoolProperty(
-        name="Reset Scale",
-        description="Reset scale")
     bpy.types.Scene.CopyDataFromObject = bpy.props.PointerProperty(
         name="Copy Data From Object",
         type=bpy.types.Object)
