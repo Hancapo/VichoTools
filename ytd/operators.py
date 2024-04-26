@@ -3,7 +3,12 @@ import subprocess
 import bpy
 
 from ..vicho_adn_props import get_addon_preferences
-from .ytd_funcs import export_ytd_files, add_meshes_to_ytd, add_ytd_to_list, auto_fill_ytd_field, reload_images_from_ytd_list, create_ytd_folders
+from ..vicho_dependencies import depen_installed
+
+if depen_installed():
+    from .ytd_funcs import export_ytd_files
+
+from .ytd_funcs import add_meshes_to_ytd, add_ytd_to_list, auto_fill_ytd_field, reload_images_from_ytd_list, create_ytd_folders
 
 class ExportYTDFolders(bpy.types.Operator):
     """Export the list of texture dictionaries as folders"""
