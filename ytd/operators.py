@@ -90,6 +90,8 @@ class YTDLIST_OT_add(bpy.types.Operator):
         sel_objs = context.selected_objects
         if not (add_ytd_to_list(scene, sel_objs, ytd_list, self)):
             self.report({'ERROR'}, f"Failed to add a new texture dictionary")
+        else:
+            scene.ytd_active_index = len(ytd_list) - 1
         return {'FINISHED'}
 
 
@@ -113,6 +115,8 @@ class YTDLIST_OT_remove(bpy.types.Operator):
             index = index - 1
 
         scene.ytd_active_index = index
+        if len(list) == 0:
+            scene.mesh_list.clear()
         return {'FINISHED'}
 
 
@@ -148,6 +152,8 @@ class YTDLIST_OT_add_to_ytd(bpy.types.Operator):
             reload_images_from_ytd_list(scene.ytd_list, self)
             self.report(
                 {'INFO'}, f"Added selected objects to {scene.ytd_list[scene.ytd_active_index].name}")
+        scene.mesh_list.clear()
+        scene.ytd_active_index = scene.ytd_active_index 
         return {'FINISHED'}
 
 
@@ -186,4 +192,12 @@ class YTDLIST_OT_select_meshes_from_ytd_folder(bpy.types.Operator):
                 continue
             mesh.select_set(True)
         
+        return {'FINISHED'}
+
+class YTDLIST_OT_fake_op(bpy.types.Operator):
+    """Fake operator"""
+    bl_idname = "ytd_list.fake_op"
+    bl_label = "Fake operator"
+
+    def execute(self, context):
         return {'FINISHED'}
