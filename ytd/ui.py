@@ -7,7 +7,7 @@ class Vicho_TextureDictionaryPanel(bpy.types.Panel):
     bl_idname = "VICHO_PT_texture_dictionary"
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
-    bl_category = "Vicho's Misc Tools"
+    bl_category = "Vicho's Tools"
     bl_options = {'DEFAULT_CLOSED'}
     
     def draw_header(self, context):

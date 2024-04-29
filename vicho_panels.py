@@ -9,7 +9,7 @@ class VICHO_PT_MISC1_PANEL(bpy.types.Panel):
     bl_idname = "MAINMISCTOOLS_PT_"
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
-    bl_category = "Vicho's Misc Tools"
+    bl_category = "Vicho's Tools"
     bl_options = {'DEFAULT_CLOSED'}
 
     def draw_header(self, context):
@@ -33,7 +33,7 @@ class VichoMloToolsPanel(bpy.types.Panel):
     bl_idname = "VICMLOTOOLS_PT_"
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
-    bl_category = "Vicho's Misc Tools"
+    bl_category = "Vicho's Tools"
     bl_options = {'DEFAULT_CLOSED'}
 
     def draw_header(self, context):
@@ -53,7 +53,7 @@ class VichoObjectToolsPanel(bpy.types.Panel):
     bl_idname = "VICHOBJECTTOOLS_PT"
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
-    bl_category = "Vicho's Misc Tools"
+    bl_category = "Vicho's Tools"
     bl_options = {'DEFAULT_CLOSED'}
 
     def draw_header(self, context):
