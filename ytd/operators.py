@@ -201,3 +201,53 @@ class YTDLIST_OT_fake_op(bpy.types.Operator):
 
     def execute(self, context):
         return {'FINISHED'}
+
+
+class MESHLIST_OT_confirm_delete_mesh(bpy.types.Operator):
+    """Confirm deletion of the last mesh from the list"""
+    bl_idname = "mesh_list.confirm_delete_mesh"
+    bl_label = "Are you sure you want to delete the last mesh?"
+
+    @classmethod
+    def poll(cls, context):
+        return len(context.scene.mesh_list) > 0 and context.scene.mesh_active_index >= 0
+
+    def execute(self, context):
+        bpy.ops.mesh_list.delete_mesh()
+        return {'FINISHED'}
+
+    def invoke(self, context, event):
+        return context.window_manager.invoke_confirm(self, event)
+
+class MESHLIST_OT_delete_mesh(bpy.types.Operator):
+    """Delete the selected mesh from the list"""
+    bl_idname = "mesh_list.delete_mesh"
+    bl_label = "Delete the selected mesh"
+
+    @classmethod
+    def poll(cls, context):
+        return len(context.scene.mesh_list) > 0 and context.scene.mesh_active_index >= 0
+
+    def execute(self, context):
+        scene = context.scene
+        mesh_list = scene.mesh_list
+        ytd_list = scene.ytd_list
+        mesh_active_index = scene.mesh_active_index
+        ytd_active_index = scene.ytd_active_index
+
+        mesh_list.remove(mesh_active_index)
+        ytd_list[ytd_active_index].mesh_list.remove(mesh_active_index)
+
+        if(len(ytd_list[ytd_active_index].mesh_list) < 1):
+            ytd_list.clear()
+
+        scene.mesh_active_index = max(0, mesh_active_index - 1)
+        bpy.ops.ytd_list.reload_all()
+        return {'FINISHED'}
+
+    def invoke(self, context, event):
+        if len(context.scene.ytd_list[context.scene.ytd_active_index].mesh_list) == 1:
+            return bpy.ops.mesh_list.confirm_delete_mesh('INVOKE_DEFAULT')
+        else:
+            return self.execute(context)
+    

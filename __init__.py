@@ -46,6 +46,8 @@ ytd_classes = [
     YTDLIST_OT_assign_ytd_field_from_list,
     YTDLIST_OT_select_meshes_from_ytd_folder,
     YTDLIST_OT_fake_op,
+    MESHLIST_OT_confirm_delete_mesh,
+    MESHLIST_OT_delete_mesh,
     ExportYTDFolders,
     ExportYTDFiles,
 ]

@@ -27,7 +27,7 @@ class Vicho_TextureDictionaryPanel(bpy.types.Panel):
         col.operator("ytd_list.reload_all", text="", icon="FILE_REFRESH")
         col.operator("ytd_list.add_to_ytd", text="", icon="IMPORT")
         col.separator()
-        col.operator("ytd_list.assign_ytd_field_from_list", text="", icon="GREASEPENCIL")
+        col.operator("ytd_list.assign_ytd_field_from_list", text="", icon="CURRENT_FILE")
 
         row = row.row()
         col = row.column(align=True)
@@ -41,6 +41,7 @@ class Vicho_TextureDictionaryPanel(bpy.types.Panel):
         col = row.column(align=True)
         col.separator(factor=3.5)
         col.operator("ytd_list.select_meshes_from_ytd_folder", text="", icon="RESTRICT_SELECT_OFF")
+        col.operator("mesh_list.delete_mesh", text="", icon="X")
         
         col = layout.column(align=True)
         col.separator()
