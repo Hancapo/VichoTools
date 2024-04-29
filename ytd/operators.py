@@ -242,7 +242,11 @@ class MESHLIST_OT_delete_mesh(bpy.types.Operator):
             ytd_list.clear()
 
         scene.mesh_active_index = max(0, mesh_active_index - 1)
-        bpy.ops.ytd_list.reload_all()
+
+        try:
+            bpy.ops.ytd_list.reload_all()
+        except:
+            pass
         return {'FINISHED'}
 
     def invoke(self, context, event):
