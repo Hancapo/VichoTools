@@ -44,27 +44,14 @@ def mesh_list_from_objects(objects):
     for obj in objects:
         if obj.type == 'MESH' or obj.sollum_type == 'sollumz_drawable_model':
             new_mesh_list.append(obj)
-        elif obj.sollum_type == 'sollumz_drawable':
-            if obj.children:
-                for child in obj.children:
-                    if child.sollum_type == 'sollumz_drawable_model':
-                        new_mesh_list.append(child)
-        elif obj.sollum_type == 'sollumz_drawable_dictionary':
-            if obj.children:
-                for draw_child in obj.children:
-                    if draw_child.sollum_type == 'sollumz_drawable':
-                        if draw_child.children:
-                            for model_child in draw_child.children:
-                                if model_child.type == 'MESH' or model_child.sollum_type == 'sollumz_drawable_model':
-                                    new_mesh_list.append(model_child)
-        elif obj.sollum_type == 'sollumz_fragment':
-            if obj.children:
-                for draw_child in obj.children:
-                    if draw_child.sollum_type == 'sollumz_drawable':
-                        if draw_child.children:
-                            for model_child in draw_child.children:
-                                if model_child.type == 'MESH' or model_child.sollum_type == 'sollumz_drawable_model':
-                                    new_mesh_list.append(model_child)
+        elif obj.sollum_type in ['sollumz_drawable', 'sollumz_drawable_dictionary', 'sollumz_fragment']:
+            for draw_child in obj.children:
+                if draw_child.sollum_type == 'sollumz_drawable':
+                    for model_child in draw_child.children:
+                        if model_child.type == 'MESH' or model_child.sollum_type == 'sollumz_drawable_model':
+                            new_mesh_list.append(model_child)
+                elif draw_child.type == 'MESH' and draw_child.sollum_type == 'sollumz_drawable_model':
+                    new_mesh_list.append(draw_child)
     return new_mesh_list
 
 
@@ -120,16 +107,22 @@ def mesh_exist_in_ytd(scene, objs, self=None):
 
 
 def auto_fill_ytd_field(scene, self):
+    ytd_list = scene.ytd_list
     for ytyp in scene.ytyps:
         for arch in ytyp.archetypes:
-            if arch.type == 'sollumz_archetype_base' or arch.type == 'sollumz_archetype_time':
-                for ytd in scene.ytd_list:
-                    for m in ytd.mesh_list:
-                        if m.mesh.sollum_type == 'sollumz_drawable_model' and m.mesh.parent.sollum_type == 'sollumz_drawable':
-                            if m.mesh.parent.name == arch.asset_name:
-                                arch.texture_dictionary = ytd.name
-                                self.report(
-                                    {'INFO'}, f"Assigned {ytd.name} to {arch.asset_name}")
+            if arch.type not in ['sollumz_archetype_base', 'sollumz_archetype_time']:
+                continue
+            for ytd in ytd_list:
+                for m in ytd.mesh_list:
+                    mesh = m.mesh
+                    if mesh.sollum_type != 'sollumz_drawable_model':
+                        continue
+                    if mesh.parent.sollum_type != 'sollumz_drawable':
+                        continue
+                    if mesh.parent.name != arch.asset_name:
+                        continue
+                    arch.texture_dictionary = ytd.name
+                    self.report({'INFO'}, f"Assigned {ytd.name} to {arch.asset_name}")
 
 
 if depen_installed():
