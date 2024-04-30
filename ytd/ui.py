@@ -1,5 +1,7 @@
 import bpy
 
+from ..vicho_adn_props import get_addon_preferences
+
 from ..vicho_dependencies import depen_installed
 
 class Vicho_TextureDictionaryPanel(bpy.types.Panel):
@@ -14,6 +16,7 @@ class Vicho_TextureDictionaryPanel(bpy.types.Panel):
         self.layout.label(text="", icon="TEXTURE")
 
     def draw(self, context):
+        preferences = get_addon_preferences(bpy.context)
         layout = self.layout
         scene = context.scene
 
@@ -60,7 +63,8 @@ class Vicho_TextureDictionaryPanel(bpy.types.Panel):
 
             col = col.row(align=True)
             col.operator("vicho.exportytdfiles", text="As YTD File(s)", icon='FORCE_TEXTURE')
-            col.operator("vicho.exportytdfolders", text="As Folder(s)", icon='FILE_FOLDER')
+            if(preferences.enable_folder_export):
+                col.operator("vicho.exportytdfolders", text="As Folder(s)", icon='FILE_FOLDER')
         else:
             layout.label(text="Dependencies not installed, please make sure you check the Add-on's preference menu", icon="ERROR")
         
