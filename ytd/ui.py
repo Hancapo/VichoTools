@@ -40,7 +40,9 @@ class Vicho_TextureDictionaryPanel(bpy.types.Panel):
             row = row.row()
             col = row.column(align=True)
             col.separator(factor=3.5)
-            col.operator("ytd_list.select_meshes_from_ytd_folder", text="", icon="RESTRICT_SELECT_OFF")
+            col.operator("ytd_list.select_meshes_from_ytd_folder", text="", icon="ZOOM_ALL")
+            col.operator("ytd_list.select_mesh_from_ytd_folder", text="", icon="ZOOM_SELECTED")
+            col.separator()
             col.operator("mesh_list.delete_mesh", text="", icon="X")
             
             col = layout.column(align=True)

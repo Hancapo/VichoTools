@@ -16,7 +16,7 @@ class MESHLIST_UL_list(bpy.types.UIList):
         if self.layout_type in {'DEFAULT', 'COMPACT'}:
             if len(context.scene.ytd_list) != 0:
                 row = layout.row(align=True)
-                row.label(text=item.mesh.name, icon='MESH_DATA')
+                row.label(text=item.mesh.name, icon='OUTLINER_OB_MESH')
 
 class ImageString(bpy.types.PropertyGroup):
     filepath: bpy.props.StringProperty() # type: ignore
