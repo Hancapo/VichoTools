@@ -17,7 +17,7 @@ from .vicho_adn_props import VichoToolsAddonProperties
 bl_info = {
     "name": "Vicho's Tools",
     "author": "MrVicho13",
-    "version": (0, 6, 5),
+    "version": (0, 7, 0),
     "blender": (4, 0, 0),
     "location": "View3D",
     "description": "Tools designed to help with GTA V modding",
@@ -36,7 +36,8 @@ ytd_classes = [
     Vicho_TextureDictionaryPanel,
     MeshGroup,
     ImageString,
-    YtdList,
+    YTDLIST_UL_list,
+    MESHLIST_UL_list,
     YtdItem,
     YTDLIST_OT_add,
     YTDLIST_OT_remove,
@@ -44,6 +45,10 @@ ytd_classes = [
     YTDLIST_OT_add_to_ytd,
     YTDLIST_OT_assign_ytd_field_from_list,
     YTDLIST_OT_select_meshes_from_ytd_folder,
+    YTDLIST_OT_select_mesh_from_ytd_folder,
+    YTDLIST_OT_fake_op,
+    MESHLIST_OT_confirm_delete_mesh,
+    MESHLIST_OT_delete_mesh,
     ExportYTDFolders,
     ExportYTDFiles,
 ]
@@ -73,14 +78,17 @@ def register():
         bpy.utils.register_class(_class)
 
     bpy.types.Scene.ytd_list = bpy.props.CollectionProperty(type=YtdItem)
-    bpy.types.Scene.ytd_active_index = bpy.props.IntProperty(name="Active Index")
-
+    bpy.types.Scene.ytd_active_index = bpy.props.IntProperty(name="Active Index", update=ytd_index_changed)
+    bpy.types.Scene.mesh_list = bpy.props.CollectionProperty(type=MeshGroup)
+    bpy.types.Scene.mesh_active_index = bpy.props.IntProperty(name="Active Index")
 
 def unregister():
     for _class in list(itertools.chain(vicho_classes, misc_classes, obj_classes, mlo_classes, ytd_classes)):
         bpy.utils.unregister_class(_class)
     del bpy.types.Scene.ytd_list
     del bpy.types.Scene.ytd_active_index
+    del bpy.types.Scene.mesh_list
+    del bpy.types.Scene.mesh_active_index
 
 if __name__ == '__main__':
     register()

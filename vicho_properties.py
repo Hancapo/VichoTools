@@ -56,3 +56,8 @@ class VichoGroup(bpy.types.PropertyGroup):
         name="Show containing folder after export",
         description="Show the containing folder where the YTD file(s) were exported",
         default=True)
+    
+    bpy.types.Scene.ytd_show_mesh_list = bpy.props.BoolProperty(
+        name="Show Mesh List",
+        description="Show the mesh list from the selected YTD item",
+        default=False)

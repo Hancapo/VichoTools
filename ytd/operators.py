@@ -90,6 +90,8 @@ class YTDLIST_OT_add(bpy.types.Operator):
         sel_objs = context.selected_objects
         if not (add_ytd_to_list(scene, sel_objs, ytd_list, self)):
             self.report({'ERROR'}, f"Failed to add a new texture dictionary")
+        else:
+            scene.ytd_active_index = len(ytd_list) - 1
         return {'FINISHED'}
 
 
@@ -113,6 +115,8 @@ class YTDLIST_OT_remove(bpy.types.Operator):
             index = index - 1
 
         scene.ytd_active_index = index
+        if len(list) == 0:
+            scene.mesh_list.clear()
         return {'FINISHED'}
 
 
@@ -148,6 +152,8 @@ class YTDLIST_OT_add_to_ytd(bpy.types.Operator):
             reload_images_from_ytd_list(scene.ytd_list, self)
             self.report(
                 {'INFO'}, f"Added selected objects to {scene.ytd_list[scene.ytd_active_index].name}")
+        scene.mesh_list.clear()
+        scene.ytd_active_index = scene.ytd_active_index 
         return {'FINISHED'}
 
 
@@ -166,7 +172,7 @@ class YTDLIST_OT_assign_ytd_field_from_list(bpy.types.Operator):
         return {'FINISHED'}
 
 class YTDLIST_OT_select_meshes_from_ytd_folder(bpy.types.Operator):
-    """Select meshes"""
+    """Select meshes from the selected texture folder"""
     bl_idname = "ytd_list.select_meshes_from_ytd_folder"
     bl_label = "Select all meshes from the selected texture folder"
 
@@ -187,3 +193,88 @@ class YTDLIST_OT_select_meshes_from_ytd_folder(bpy.types.Operator):
             mesh.select_set(True)
         
         return {'FINISHED'}
+
+class YTDLIST_OT_select_mesh_from_ytd_folder(bpy.types.Operator):
+    """Select mesh from the selected mesh item"""
+    bl_idname = "ytd_list.select_mesh_from_ytd_folder"
+    bl_label = "Select mesh from the selected mesh item"
+
+    @classmethod
+    def poll(cls, context):
+        return context.scene.ytd_active_index >= 0 and len(context.scene.ytd_list) > 0
+
+    def execute(self, context):
+        scene = context.scene
+        list = scene.ytd_list
+        index = scene.ytd_active_index
+        mesh = list[index].mesh_list[scene.mesh_active_index].mesh
+        if mesh.parent and mesh.parent.sollum_type != 'sollum_none':
+            mesh.parent.select_set(True)
+        else:
+            mesh.select_set(True)
+        return {'FINISHED'}
+
+class YTDLIST_OT_fake_op(bpy.types.Operator):
+    """Fake operator"""
+    bl_idname = "ytd_list.fake_op"
+    bl_label = "Fake operator"
+
+    def execute(self, context):
+        return {'FINISHED'}
+
+
+class MESHLIST_OT_confirm_delete_mesh(bpy.types.Operator):
+    """Confirm deletion of the last mesh from the list"""
+    bl_idname = "mesh_list.confirm_delete_mesh"
+    bl_label = "Are you sure you want to delete the last mesh?"
+
+    @classmethod
+    def poll(cls, context):
+        return len(context.scene.mesh_list) > 0 and context.scene.mesh_active_index >= 0
+
+    def execute(self, context):
+        bpy.ops.mesh_list.delete_mesh()
+        return {'FINISHED'}
+
+    def invoke(self, context, event):
+        return context.window_manager.invoke_confirm(self, event)
+
+class MESHLIST_OT_delete_mesh(bpy.types.Operator):
+    """Delete the selected mesh from the list"""
+    bl_idname = "mesh_list.delete_mesh"
+    bl_label = "Delete the selected mesh"
+
+    @classmethod
+    def poll(cls, context):
+        return len(context.scene.mesh_list) > 0 and context.scene.mesh_active_index >= 0
+
+    def execute(self, context):
+        scene = context.scene
+        mesh_list = scene.mesh_list
+        ytd_list = scene.ytd_list
+        mesh_active_index = scene.mesh_active_index
+        ytd_active_index = scene.ytd_active_index
+
+        mesh_list.remove(mesh_active_index)
+        ytd_list[ytd_active_index].mesh_list.remove(mesh_active_index)
+
+        if(len(ytd_list[ytd_active_index].mesh_list) < 1):
+            ytd_list.remove(ytd_active_index)
+            # select any available texture dictionary
+            if len(ytd_list) > 0:
+                scene.ytd_active_index = max(0, ytd_active_index - 1)
+
+        scene.mesh_active_index = max(0, mesh_active_index - 1)
+
+        try:
+            bpy.ops.ytd_list.reload_all()
+        except:
+            pass
+        return {'FINISHED'}
+
+    def invoke(self, context, event):
+        if len(context.scene.ytd_list[context.scene.ytd_active_index].mesh_list) == 1:
+            return bpy.ops.mesh_list.confirm_delete_mesh('INVOKE_DEFAULT')
+        else:
+            return self.execute(context)
+    
