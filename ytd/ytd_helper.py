@@ -18,8 +18,8 @@ class MESHLIST_UL_list(bpy.types.UIList):
                 row = layout.row(align=True)
                 row.label(text=item.mesh.name, icon='OUTLINER_OB_MESH')
 
-class ImageString(bpy.types.PropertyGroup):
-    filepath: bpy.props.StringProperty() # type: ignore
+class MaterialProp(bpy.types.PropertyGroup):
+    material: bpy.props.PointerProperty(type=bpy.types.Material) # type: ignore
 
 
 class MeshGroup(bpy.types.PropertyGroup):
@@ -27,7 +27,7 @@ class MeshGroup(bpy.types.PropertyGroup):
 
 
 class YtdItem(bpy.types.PropertyGroup):
-    image_list: bpy.props.CollectionProperty(type=ImageString)
+    material_list: bpy.props.CollectionProperty(type=MaterialProp)
     mesh_list: bpy.props.CollectionProperty(type=MeshGroup)
     selected: bpy.props.BoolProperty(default=True, name="Selection")
     game_target: bpy.props.EnumProperty(

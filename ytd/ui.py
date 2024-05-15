@@ -27,7 +27,6 @@ class Vicho_TextureDictionaryPanel(bpy.types.Panel):
             col.operator("ytd_list.add_ytd", text="", icon="ADD")
             col.operator("ytd_list.remove_ytd", text="", icon="REMOVE")
             col.separator()
-            col.operator("ytd_list.reload_all", text="", icon="FILE_REFRESH")
             col.operator("ytd_list.add_to_ytd", text="", icon="IMPORT")
             col.separator()
             col.operator("ytd_list.assign_ytd_field_from_list", text="", icon="CURRENT_FILE")
