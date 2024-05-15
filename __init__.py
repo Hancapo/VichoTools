@@ -17,13 +17,12 @@ from .vicho_adn_props import VichoToolsAddonProperties
 bl_info = {
     "name": "Vicho's Tools",
     "author": "MrVicho13",
-    "version": (0, 7, 0),
+    "version": (0, 7, 2),
     "blender": (4, 0, 0),
-    "location": "View3D",
     "description": "Tools designed to help with GTA V modding",
-    "warning": "",
-    "wiki_url": "",
     "category": "Vicho's Tools",
+    "doc_url": "https://sollumz.gitbook.io/sollumz-wiki/",
+    "tracker_url": "https://github.com/Hancapo/VichoTools/issues",
 }
 
 vicho_classes = [
@@ -35,13 +34,12 @@ vicho_classes = [
 ytd_classes = [
     Vicho_TextureDictionaryPanel,
     MeshGroup,
-    ImageString,
+    MaterialProp,
     YTDLIST_UL_list,
     MESHLIST_UL_list,
     YtdItem,
     YTDLIST_OT_add,
     YTDLIST_OT_remove,
-    YTDLIST_OT_reload_all,
     YTDLIST_OT_add_to_ytd,
     YTDLIST_OT_assign_ytd_field_from_list,
     YTDLIST_OT_select_meshes_from_ytd_folder,

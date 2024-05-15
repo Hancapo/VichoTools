@@ -8,7 +8,7 @@ from ..vicho_dependencies import depen_installed
 if depen_installed():
     from .ytd_funcs import export_ytd_files
 
-from .ytd_funcs import add_meshes_to_ytd, add_ytd_to_list, auto_fill_ytd_field, reload_images_from_ytd_list, create_ytd_folders
+from .ytd_funcs import add_meshes_to_ytd, add_ytd_to_list, auto_fill_ytd_field, create_ytd_folders
 
 class ExportYTDFolders(bpy.types.Operator):
     """Export the list of texture dictionaries as folders"""
@@ -118,23 +118,6 @@ class YTDLIST_OT_remove(bpy.types.Operator):
         if len(list) == 0:
             scene.mesh_list.clear()
         return {'FINISHED'}
-
-
-class YTDLIST_OT_reload_all(bpy.types.Operator):
-    """Reload all texture dictionaries from the list to include changes made to the textures"""
-    bl_idname = "ytd_list.reload_all"
-    bl_label = "Reload all texture dictionaries"
-
-    @classmethod
-    def poll(cls, context):
-        return context.scene.ytd_active_index >= 0 and len(context.scene.ytd_list) > 0
-
-    def execute(self, context):
-        scene = context.scene
-        list = scene.ytd_list
-        reload_images_from_ytd_list(list, self)
-        return {'FINISHED'}
-
 
 class YTDLIST_OT_add_to_ytd(bpy.types.Operator):
     """Add selected objects to the selected texture dictionary and reload the textures"""
@@ -265,11 +248,6 @@ class MESHLIST_OT_delete_mesh(bpy.types.Operator):
                 scene.ytd_active_index = max(0, ytd_active_index - 1)
 
         scene.mesh_active_index = max(0, mesh_active_index - 1)
-
-        try:
-            bpy.ops.ytd_list.reload_all()
-        except:
-            pass
         return {'FINISHED'}
 
     def invoke(self, context, event):

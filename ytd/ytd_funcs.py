@@ -9,14 +9,30 @@ from ..vicho_dependencies import depen_installed
 if depen_installed():
     from .cw_py.cw_ytd_tools import convert_folder_to_ytd, convert_img_to_dds
 
+def get_images_from_material(material):
+    images = []
+    if material and material.node_tree:
+        for node in material.node_tree.nodes:
+            if node.type == 'TEX_IMAGE':
+                if not node.image:
+                    continue
+                images.append(node.image)
+    return images
+
 
 def create_ytd_folders(FolderList, ExportPath):
     for folder in FolderList:
+        update_material_list(folder)  # Actualiza la lista de materiales antes de procesar la carpeta
         folder_path = os.path.join(ExportPath, folder.name)
         print(f'Added folder {folder_path}')
         os.makedirs(folder_path, exist_ok=True)
-        for img in folder.image_list:
-            shutil.copy(str(img.filepath), folder_path)
+        for material_prop in folder.material_list:
+            material = material_prop.material
+            images = get_images_from_material(material)
+            for img in images:
+                if img:  # Comprueba si el objeto de imagen existe
+                    image_path = bpy.path.abspath(img.filepath)  # Obtiene la ruta de la imagen
+                    shutil.copy(image_path, folder_path)
 
 
 def delete_folders(FolderList, ExportPath):
@@ -25,21 +41,18 @@ def delete_folders(FolderList, ExportPath):
         shutil.rmtree(folder_path)
 
 
-def image_paths_from_objects(objs):
-    image_paths = set()
+def image_objects_from_objects(objs):
+    image_objects = set()
     for obj in objs:
         if obj.mesh.type != 'MESH':
             continue
-        for slot in obj.mesh.material_slots:
-            if not slot.material or not slot.material.node_tree:
-                continue
-            for node in slot.material.node_tree.nodes:
-                if node.type == 'TEX_IMAGE':
-                    if not node.image or not node.image.filepath:
-                        continue
-                    image_paths.add(node.image.filepath)
-    bpy.ops.file.make_paths_absolute()
-    return list(image_paths)
+        for material_prop in obj.mesh.material_slots:
+            material = material_prop.material
+            images = get_images_from_material(material)
+            for img in images:
+                if img:  # Comprueba si el objeto de imagen existe
+                    image_objects.add(img)  # Añade el objeto de imagen en lugar de la ruta
+    return list(image_objects)
 
 
 def mesh_list_from_objects(objects):
@@ -68,24 +81,11 @@ def add_ytd_to_list(scene, objs, ytd_list, self=None):
         for obj in objects:
             item.mesh_list.add().mesh = obj
             self.report({'INFO'}, f"Added {obj.name} to {item.name}")
-        for image_path in image_paths_from_objects(item.mesh_list):
-            item.image_list.add().filepath = image_path
-        return True
-
-
-def reload_images_from_ytd_list(ytd_list, self=None):
-    bpy.ops.file.make_paths_absolute()
-    for ytd in ytd_list:
-        ytd.image_list.clear()
-        for mesh in ytd.mesh_list:
-            for slot in mesh.mesh.material_slots:
+        for obj in item.mesh_list:
+            for slot in obj.mesh.material_slots:
                 if slot.material:
-                    for node in slot.material.node_tree.nodes:
-                        if node.type == 'TEX_IMAGE':
-                            if not node.image or not node.image.filepath:
-                                continue
-                            ytd.image_list.add().filepath = node.image.filepath
-        self.report({'INFO'}, f"Reloaded all textures in {ytd.name}")
+                    item.material_list.add().material = slot.material
+        return True
 
 
 def add_meshes_to_ytd(index: int, objects, scene, self=None):
@@ -127,6 +127,12 @@ def auto_fill_ytd_field(scene, self):
                     arch.texture_dictionary = ytd.name
                     self.report({'INFO'}, f"Assigned {ytd.name} to {arch.asset_name}")
 
+def update_material_list(item):
+    item.material_list.clear()
+    for obj in item.mesh_list:
+        for slot in obj.mesh.material_slots:
+            if slot.material:
+                item.material_list.add().material = slot.material
 
 if depen_installed():
     def export_ytd_files(FolderList, ExportPath, self, scene):
