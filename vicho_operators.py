@@ -151,16 +151,22 @@ class DetectMeshesWithNoTextures(bpy.types.Operator, ContextSelectionRestrictedH
 
     def execute(self, context):
         objects = context.selected_objects
-
         for obj in objects:
             if obj.type == 'MESH':
                 if len(obj.material_slots) < 1:
                     print(f"{obj.name} has no material slots")
                 else:
-                    for slot in obj.material_slots:
+                    for i in range(len(obj.material_slots)):
+                        slot = obj.material_slots[i]
                         if slot.material.use_nodes:
                             if not slot.material.node_tree.nodes['Principled BSDF'].inputs['Base Color'].is_linked:
                                 print(f"{obj.name} has no texture")
+                                obj.active_material_index = i
+                                with context.temp_override(object = obj):
+                                    bpy.ops.object.material_slot_remove()
+
+                                
+
         
         return {'FINISHED'}
 
@@ -192,4 +198,12 @@ class VichoToolsInstallDependencies(bpy.types.Operator):
         except subprocess.CalledProcessError as e:
             self.report({'ERROR'}, f"Error installing dependencies: {str(e)}")
 
+        return {'FINISHED'}
+
+class VICHO_OT_fake_op(bpy.types.Operator):
+    """Fake operator"""
+    bl_idname = "ytd_list.fake_op"
+    bl_label = "Fake operator"
+
+    def execute(self, context):
         return {'FINISHED'}

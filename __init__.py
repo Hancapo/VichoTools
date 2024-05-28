@@ -12,6 +12,9 @@ from .vicho_properties import *
 from .vicho_panels import *
 from .ytd.operators import *
 from .ytd.ui import *
+from .anims.ui import *
+from .anims.operators import *
+from .anims.properties import *
 from .vicho_adn_props import VichoToolsAddonProperties
 
 bl_info = {
@@ -29,6 +32,7 @@ vicho_classes = [
     VICHO_PT_MISC1_PANEL,
     VichoToolsAddonProperties,
     VichoToolsInstallDependencies,
+    VICHO_OT_fake_op,
 ]
 
 ytd_classes = [
@@ -44,7 +48,6 @@ ytd_classes = [
     YTDLIST_OT_assign_ytd_field_from_list,
     YTDLIST_OT_select_meshes_from_ytd_folder,
     YTDLIST_OT_select_mesh_from_ytd_folder,
-    YTDLIST_OT_fake_op,
     MESHLIST_OT_confirm_delete_mesh,
     MESHLIST_OT_delete_mesh,
     ExportYTDFolders,
@@ -70,9 +73,15 @@ obj_classes = [
     RenameAllUvMaps
 ]
 
+anim_classes = [
+    VichoAnimsToolsPanel,
+    AnimCreateUVAnimsFromSelected,
+    AnimProps,
+]
+
 
 def register():
-    for _class in list(itertools.chain(vicho_classes, misc_classes, obj_classes, mlo_classes, ytd_classes)):
+    for _class in list(itertools.chain(vicho_classes, misc_classes, obj_classes, mlo_classes, ytd_classes, anim_classes)):
         bpy.utils.register_class(_class)
 
     bpy.types.Scene.ytd_list = bpy.props.CollectionProperty(type=YtdItem)
@@ -81,7 +90,7 @@ def register():
     bpy.types.Scene.mesh_active_index = bpy.props.IntProperty(name="Active Index")
 
 def unregister():
-    for _class in list(itertools.chain(vicho_classes, misc_classes, obj_classes, mlo_classes, ytd_classes)):
+    for _class in list(itertools.chain(vicho_classes, misc_classes, obj_classes, mlo_classes, ytd_classes, anim_classes)):
         bpy.utils.unregister_class(_class)
     del bpy.types.Scene.ytd_list
     del bpy.types.Scene.ytd_active_index

@@ -132,7 +132,6 @@ class YTDLIST_OT_add_to_ytd(bpy.types.Operator):
         scene = context.scene
         selec_objs = context.selected_objects
         if add_meshes_to_ytd(scene.ytd_active_index, selec_objs, scene, self):
-            reload_images_from_ytd_list(scene.ytd_list, self)
             self.report(
                 {'INFO'}, f"Added selected objects to {scene.ytd_list[scene.ytd_active_index].name}")
         scene.mesh_list.clear()
@@ -196,15 +195,6 @@ class YTDLIST_OT_select_mesh_from_ytd_folder(bpy.types.Operator):
         else:
             mesh.select_set(True)
         return {'FINISHED'}
-
-class YTDLIST_OT_fake_op(bpy.types.Operator):
-    """Fake operator"""
-    bl_idname = "ytd_list.fake_op"
-    bl_label = "Fake operator"
-
-    def execute(self, context):
-        return {'FINISHED'}
-
 
 class MESHLIST_OT_confirm_delete_mesh(bpy.types.Operator):
     """Confirm deletion of the last mesh from the list"""
