@@ -132,7 +132,6 @@ class YTDLIST_OT_add_to_ytd(bpy.types.Operator):
         scene = context.scene
         selec_objs = context.selected_objects
         if add_meshes_to_ytd(scene.ytd_active_index, selec_objs, scene, self):
-            reload_images_from_ytd_list(scene.ytd_list, self)
             self.report(
                 {'INFO'}, f"Added selected objects to {scene.ytd_list[scene.ytd_active_index].name}")
         scene.mesh_list.clear()
