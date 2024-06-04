@@ -1,10 +1,10 @@
 import bpy
-from .anims_helper import create_anim_tree, create_animations_per_object, order_sollumz_shaders, create_clips_per_object
+from .anims_helper import create_anim_tree, create_clips_per_obj, create_anims_per_obj
 
-class AnimCreateUVAnimsFromSelected(bpy.types.Operator):
-    """Create UV animations from selected objects"""
-    bl_idname = "anim.create_uv_anims_from_selected"
-    bl_label = "Create UV animations from selected objects and its materials"
+class CreateClipDictionaryFromSelected(bpy.types.Operator):
+    """Create YCD from selected objects"""
+    bl_idname = "anim.create_anims_from_selected"
+    bl_label = "Create YCD from selected objects"
 
     @classmethod
     def poll(cls, context):
@@ -12,13 +12,8 @@ class AnimCreateUVAnimsFromSelected(bpy.types.Operator):
 
     def execute(self, context):
         scene = context.scene
-
         sel_objs = bpy.context.selected_objects
-
-        #if order_sollumz_shaders(sel_objs):
-        self.report({'INFO'}, 'Shaders ordered successfully for selected objects')
         anim_ycd: list = create_anim_tree(scene.ycd_name)
-        create_animations_per_object(anim_ycd[0], sel_objs)
-        create_clips_per_object(anim_ycd[0], anim_ycd[1])
-
+        create_anims_per_obj(anim_ycd[0], sel_objs)
+        create_clips_per_obj(anim_ycd[0], anim_ycd[1])
         return {'FINISHED'}

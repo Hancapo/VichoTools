@@ -75,7 +75,7 @@ obj_classes = [
 
 anim_classes = [
     VichoAnimsToolsPanel,
-    AnimCreateUVAnimsFromSelected,
+    CreateClipDictionaryFromSelected,
     AnimProps,
 ]
 
