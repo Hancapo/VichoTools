@@ -14,12 +14,17 @@ def create_anims_per_obj(anim_parent, objs):
     anim_skel_count = 0
 
     for obj in objs:
-        if obj.sollum_type == 'sollumz_drawable' and obj.type == 'EMPTY':
+        if not is_object_in_scene(obj):
+            continue
+        if obj.type == 'EMPTY':
             if obj.children:
                 for child in obj.children:
-                    if child.sollum_type == 'sollumz_drawable_model':
+                    if is_drawable_model(child):
+                        if not is_object_in_scene(child):
+                            continue
                         child_name = child.name.split('.')[0]
                         for mat in child.material_slots:
+                            print(f'Current material: {mat.material.name}')
                             child_mat = mat.material
                             if child_mat.sollum_type == 'sollumz_material_shader' and child_mat.animation_data:
                                 mat_anim = create_child_group_obj(ChildType.ANIMATION, f'{child_name}_uv_{str(anim_mat_count)}')
@@ -27,10 +32,10 @@ def create_anims_per_obj(anim_parent, objs):
                                 set_anim_props(mat_anim, mat_anim.name, child_mat.animation_data.action, child_mat, AnimationType.MATERIAL)
                                 anim_mat_count += 1
                         anim_mat_count = 0
-            elif obj.type == 'ARMATURE': # Skeletal Animation
-                continue #to be implemented
-            else:
-                continue
+        elif obj.type == 'ARMATURE':
+            continue
+        else:
+            continue
                 
 def create_clips_per_obj(anim_parent, clip_parent):
     for anim in anim_parent.children:
@@ -41,7 +46,6 @@ def create_clips_per_obj(anim_parent, clip_parent):
         link_anim.animation = anim
 
 def create_child_group_obj(enum: ChildType, name: str = None):
-    
     child_obj = bpy.data.objects.new('_unk111', None)
     if name:
         child_obj.name = name
@@ -74,16 +78,22 @@ def create_base_ycd_obj(name: str):
 def set_anim_props(obj, hash, action, target_id, enum: AnimationType):
     obj.animation_properties.hash = hash
     obj.animation_properties.action = action
+    obj.animation_properties.target_id = target_id
     match enum:
         case AnimationType.ARMATURE:
             obj.animation_properties.target_id_type = 'ARMATURE'
         case AnimationType.MATERIAL:
-            obj.clip_properties.target_id_type = 'MATERIAL'
+            obj.animation_properties.target_id_type = 'MATERIAL'
         case AnimationType.CAMERA:
-            obj.clip_properties.target_id_type = 'CAMERA'
-    obj.animation_properties.target_id = target_id
+            obj.animation_properties.target_id_type = 'CAMERA'
 
 def set_clip_props(obj, name, anim_duration):
     fps = bpy.context.scene.render.fps
     obj.clip_properties.name = name
     obj.clip_properties.duration = anim_duration / fps
+
+def is_object_in_scene(obj):
+    return obj.name in bpy.context.scene.collection.objects
+
+def is_drawable_model(obj):
+    return obj.sollum_type == 'sollumz_drawable_model'

@@ -14,8 +14,6 @@ class VichoAnimsToolsPanel(bpy.types.Panel):
     def draw(self, context):
         layout = self.layout
         col = layout.column(align=True)
-
-        # Section 1: Set Object Transforms to Picked Object
         col.separator()
         col.operator("anim.create_anims_from_selected", text="Create YCD from Selected Objects", icon="UV")
         col.separator()
