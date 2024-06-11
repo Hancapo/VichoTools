@@ -1,5 +1,6 @@
 import bpy
 from .enums import GroupType, ChildType, AnimationType
+from ..misc.misc_funcs import is_object_in_scene, is_drawable_model
 
 def create_anim_tree(name: str) -> list:
     ycd_parent = create_base_ycd_obj(name)
@@ -91,9 +92,3 @@ def set_clip_props(obj, name, anim_duration):
     fps = bpy.context.scene.render.fps
     obj.clip_properties.name = name
     obj.clip_properties.duration = anim_duration / fps
-
-def is_object_in_scene(obj):
-    return obj.name in bpy.context.scene.collection.objects
-
-def is_drawable_model(obj):
-    return obj.sollum_type == 'sollumz_drawable_model'
