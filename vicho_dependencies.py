@@ -25,7 +25,6 @@ def depen_installed():
             from pythonnet import load
             load("coreclr", runtime_config=runtime_loc)
         import clr
-        pythonnet_installed = True
-        return pythonnet_installed
+        return True
     except ImportError:
         return False

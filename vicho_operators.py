@@ -1,8 +1,8 @@
 import subprocess
 import sys
-import time
 import bpy
 import os
+import webbrowser
 
 from .misc.misc_funcs import export_milo_ymap_xml
 from bpy.props import StringProperty
@@ -202,8 +202,7 @@ class VichoToolsInstallDotnetRuntime(bpy.types.Operator):
     def execute(self, context):
         # download .NET 8 runtime from Microsoft
         try:
-            subprocess.check_output(
-                ["start", "https://dotnet.microsoft.com/download/dotnet/thank-you/runtime-8.0.6-windows-x64-installer"])
+            webbrowser.open("https://dotnet.microsoft.com/download/dotnet/thank-you/runtime-8.0.6-windows-x64-installer")
             self.report(
                 {'INFO'}, "Download .NET 8 runtime from Microsoft's website")
         except subprocess.CalledProcessError as e:
