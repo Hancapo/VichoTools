@@ -15,12 +15,12 @@ class VichoToolsAddonProperties(bpy.types.AddonPreferences):
         layout = self.layout
         if not is_dotnet_installed():
              layout.label(text=".NET 8 x64 runtime is not installed.", icon="APPEND_BLEND")
-             layout.operator(VichoToolsInstallDotnetRuntime.bl_idname, text="Install .NET 8 runtime", icon="SCRIPTPLUGINS")
+             layout.operator(VichoToolsInstallDotnetRuntime.bl_idname, text="Install first: .NET 8 runtime", icon="SCRIPTPLUGINS")
         else:
             layout.label(text=".NET 8 x64 Runtime is already installed.")
              
         if not depen_installed():
-                layout.operator(VichoToolsInstallDependencies.bl_idname, text="Install PythonNET", icon="SCRIPTPLUGINS")
+                layout.operator(VichoToolsInstallDependencies.bl_idname, text="Install second: Install PythonNET", icon="SCRIPTPLUGINS")
         else:
             layout.label(text="PythonNET is already installed.")
         layout.prop(self, "add_nonsollumz_to_ytd")

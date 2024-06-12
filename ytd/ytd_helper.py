@@ -11,7 +11,6 @@ class YTDLIST_UL_list(bpy.types.UIList):
             row.prop(item, "game_target", text="", emboss=False, icon="MATSHADERBALL")
 
 class MESHLIST_UL_list(bpy.types.UIList):
-    
     def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
         if self.layout_type in {'DEFAULT', 'COMPACT'}:
             if len(context.scene.ytd_list) != 0:
