@@ -1,6 +1,6 @@
 import bpy
-from .vicho_dependencies import depen_installed
-from .vicho_operators import VichoToolsInstallDependencies
+from .vicho_dependencies import depen_installed, is_dotnet_installed
+from .vicho_operators import VichoToolsInstallDependencies, VichoToolsInstallDotnetRuntime
 
 class VichoToolsAddonProperties(bpy.types.AddonPreferences):
     bl_idname = __package__.split(".")[0]
@@ -13,7 +13,12 @@ class VichoToolsAddonProperties(bpy.types.AddonPreferences):
 
     def draw(self, context):
         layout = self.layout
-        layout.label(text=".NET 8 x64 Runtime MUST BE installed.", icon="APPEND_BLEND")
+        if not is_dotnet_installed():
+             layout.label(text=".NET 8 x64 runtime is not installed.", icon="APPEND_BLEND")
+             layout.operator(VichoToolsInstallDotnetRuntime.bl_idname, text="Install .NET 8 runtime", icon="SCRIPTPLUGINS")
+        else:
+            layout.label(text=".NET 8 x64 Runtime is already installed.")
+             
         if not depen_installed():
                 layout.operator(VichoToolsInstallDependencies.bl_idname, text="Install PythonNET", icon="SCRIPTPLUGINS")
         else:

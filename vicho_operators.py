@@ -193,3 +193,21 @@ class VichoToolsInstallDependencies(bpy.types.Operator):
             self.report({'ERROR'}, f"Error installing dependencies: {str(e)}")
 
         return {'FINISHED'}
+
+class VichoToolsInstallDotnetRuntime(bpy.types.Operator):
+    bl_idname = "vicho.vichotoolsinstalldotnetruntime"
+    bl_label = "Install .NET 8 runtime"
+    bl_description = "Install .NET 8 runtime"
+
+    def execute(self, context):
+        # download .NET 8 runtime from Microsoft
+        try:
+            subprocess.check_output(
+                ["start", "https://dotnet.microsoft.com/download/dotnet/thank-you/runtime-8.0.6-windows-x64-installer"])
+            self.report(
+                {'INFO'}, "Download .NET 8 runtime from Microsoft's website")
+        except subprocess.CalledProcessError as e:
+            self.report(
+                {'ERROR'}, f"Error downloading .NET 8 runtime: {str(e)}")
+
+        return {'FINISHED'}
