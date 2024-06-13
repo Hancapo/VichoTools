@@ -205,8 +205,8 @@ class VichoToolsInstallDotnetRuntime(bpy.types.Operator):
             webbrowser.open("https://dotnet.microsoft.com/download/dotnet/thank-you/runtime-8.0.6-windows-x64-installer")
             self.report(
                 {'INFO'}, "Download .NET 8 runtime from Microsoft's website")
-        except subprocess.CalledProcessError as e:
+        except:
             self.report(
-                {'ERROR'}, f"Error downloading .NET 8 runtime: {str(e)}")
+                {'ERROR'}, f"Error opening web browser to download .NET 8 runtime from Microsoft's website")
 
         return {'FINISHED'}

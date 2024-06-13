@@ -5,13 +5,24 @@ import os
 
 def is_dotnet_installed():
     path_env = os.getenv('PATH')
-    paths = path_env.split(os.pathsep)
-    for path in paths:
-        dotnet_path = os.path.join(path, 'dotnet')
-        if os.path.isfile(dotnet_path) or os.path.isfile(dotnet_path + '.exe'):
-            print('.NET is installed.')
-            return True
-    print('Error: .NET is not installed')
+    dotnet_sdk_path = None
+    for path in path_env.split(os.pathsep):
+        if os.path.isdir(path) and 'dotnet' in path.lower():
+            sdk_path = os.path.join(path, 'sdk')
+            if os.path.isdir(sdk_path):
+                dotnet_sdk_path = sdk_path
+                break
+    if dotnet_sdk_path:
+        for version in os.listdir(dotnet_sdk_path):
+            if version.startswith("8."):
+                dotnet_dll_path = os.path.join(dotnet_sdk_path, version, 'dotnet.dll')
+                if os.path.isfile(dotnet_dll_path):
+                    print(f".NET SDK version 8 found: {dotnet_dll_path}")
+                    return True
+    else:
+        print("No .NET SDK found in PATH.")
+    
+    print("Please install .NET SDK 8.0 or later from https://dotnet.microsoft.com/download/dotnet/5.0")
     return False
 
 
