@@ -2,30 +2,26 @@ from pathlib import Path
 import sys
 import os
 
-
 def is_dotnet_installed():
     path_env = os.getenv('PATH')
-    dotnet_sdk_path = None
+    dotnet_runtime_path = None
     for path in path_env.split(os.pathsep):
         if os.path.isdir(path) and 'dotnet' in path.lower():
-            sdk_path = os.path.join(path, 'sdk')
-            print(f"Checking {sdk_path}")
-            if os.path.isdir(sdk_path):
-                dotnet_sdk_path = sdk_path
-                print(f".NET SDK found in PATH: {dotnet_sdk_path}")
+            shared_path = os.path.join(path, 'shared', 'Microsoft.NETCore.App')
+            if os.path.isdir(shared_path):
+                dotnet_runtime_path = shared_path
                 break
-    if dotnet_sdk_path:
-        for version in os.listdir(dotnet_sdk_path):
+    if dotnet_runtime_path:
+        for version in os.listdir(dotnet_runtime_path):
             if version.startswith("8."):
-                dotnet_dll_path = os.path.join(dotnet_sdk_path, version, 'dotnet.dll')
-                print(f"Checking {dotnet_dll_path}")
-                if os.path.isfile(dotnet_dll_path):
-                    print(f".NET SDK version 8 found: {dotnet_dll_path}")
+                coreclr_path = os.path.join(dotnet_runtime_path, version, 'coreclr.dll')
+                if os.path.isfile(coreclr_path):
+                    print(f".NET Runtime version 8 found: {coreclr_path}")
                     return True
     else:
-        print("No .NET SDK found in PATH.")
+        print("No .NET Runtime found in PATH.")
     
-    print("Please install .NET SDK 8.0 or later from https://dotnet.microsoft.com/download/dotnet/5.0")
+    print("Please install .NET Runtime 8.0 or later.")
     return False
 
 
