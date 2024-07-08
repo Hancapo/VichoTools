@@ -29,6 +29,7 @@ vicho_classes = [
     VICHO_PT_MISC1_PANEL,
     VichoToolsAddonProperties,
     VichoToolsInstallDependencies,
+    VichoToolsInstallDotnetRuntime
 ]
 
 ytd_classes = [

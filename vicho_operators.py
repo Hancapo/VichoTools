@@ -1,8 +1,8 @@
 import subprocess
 import sys
-import time
 import bpy
 import os
+import webbrowser
 
 from .misc.misc_funcs import export_milo_ymap_xml
 from bpy.props import StringProperty
@@ -191,5 +191,22 @@ class VichoToolsInstallDependencies(bpy.types.Operator):
             self.report({'INFO'}, "Python.NET correctly installed")
         except subprocess.CalledProcessError as e:
             self.report({'ERROR'}, f"Error installing dependencies: {str(e)}")
+
+        return {'FINISHED'}
+
+class VichoToolsInstallDotnetRuntime(bpy.types.Operator):
+    bl_idname = "vicho.vichotoolsinstalldotnetruntime"
+    bl_label = "Install .NET 8 runtime"
+    bl_description = "Install .NET 8 runtime"
+
+    def execute(self, context):
+        # download .NET 8 runtime from Microsoft
+        try:
+            webbrowser.open("https://dotnet.microsoft.com/download/dotnet/thank-you/runtime-8.0.6-windows-x64-installer")
+            self.report(
+                {'INFO'}, "Download .NET 8 runtime from Microsoft's website")
+        except:
+            self.report(
+                {'ERROR'}, f"Error opening web browser to download .NET 8 runtime from Microsoft's website")
 
         return {'FINISHED'}

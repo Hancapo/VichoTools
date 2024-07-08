@@ -65,5 +65,5 @@ class Vicho_TextureDictionaryPanel(bpy.types.Panel):
             if(preferences.enable_folder_export):
                 col.operator("vicho.exportytdfolders", text="As Folder(s)", icon='FILE_FOLDER')
         else:
-            layout.label(text="Dependencies not installed, please make sure you check the Add-on's preference menu", icon="ERROR")
+            layout.label(text="PythonNET or .NET 8 runtime aren't installed, please make sure you check the Add-on's preference menu", icon="ERROR")
         
