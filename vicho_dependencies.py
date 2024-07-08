@@ -16,12 +16,7 @@ def is_dotnet_installed():
             if version.startswith("8."):
                 coreclr_path = os.path.join(dotnet_runtime_path, version, 'coreclr.dll')
                 if os.path.isfile(coreclr_path):
-                    print(f".NET Runtime version 8 found: {coreclr_path}")
                     return True
-    else:
-        print("No .NET Runtime found in PATH.")
-    
-    print("Please install .NET Runtime 8.0 or later.")
     return False
 
 
