@@ -227,3 +227,9 @@ def power_of_two_resize(width: int, height: int) -> tuple[int, int]:
     width = math.pow(2, math.ceil(math.log2(width)))
     height = math.pow(2, math.ceil(math.log2(height)))
     return int(width), int(height)
+
+def is_object_in_scene(obj):
+    return obj.name in bpy.context.scene.collection.objects
+
+def is_drawable_model(obj):
+    return obj.sollum_type == 'sollumz_drawable_model'
