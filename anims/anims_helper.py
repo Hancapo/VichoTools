@@ -104,3 +104,4 @@ def set_clip_props(obj, name, anim_duration, enum: AnimationType):
             obj.clip_properties.name = name.replace('@anim', '')
         case AnimationType.MATERIAL:
             obj.clip_properties.hash = obj.name
+            obj.clip_properties.name = name
