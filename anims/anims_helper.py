@@ -12,8 +12,6 @@ def create_anim_tree(name: str) -> list:
 
 def create_anims_per_obj(anim_parent, objs):
     anim_mat_count = 0
-    anim_skel_count = 0
-
     for obj in objs:
         if not is_object_in_scene(obj):
             continue
@@ -34,15 +32,22 @@ def create_anims_per_obj(anim_parent, objs):
                                 anim_mat_count += 1
                         anim_mat_count = 0
         elif obj.type == 'ARMATURE':
-            continue
+            if obj.sollum_type == 'sollumz_drawable' and obj.animation_data:
+                skel_anim = create_child_group_obj(ChildType.ANIMATION, f'{obj.name}@anim')
+                skel_anim.parent = anim_parent
+                set_anim_props(skel_anim, skel_anim.name, obj.animation_data.action, obj.data, AnimationType.ARMATURE)
         else:
             continue
                 
 def create_clips_per_obj(anim_parent, clip_parent):
     for anim in anim_parent.children:
-        clip_obj = create_child_group_obj(ChildType.CLIP, f'{anim.name}@clip')
+        clip_obj = create_child_group_obj(ChildType.CLIP, f'{anim.name.replace("@anim", "")}@clip')
         clip_obj.parent = clip_parent
-        set_clip_props(clip_obj, f'{anim.name}.clip', anim.animation_properties.action.frame_range[1])
+        match anim.animation_properties.target_id_type:
+            case 'MATERIAL':
+                set_clip_props(clip_obj, f'{anim.name}.clip', anim.animation_properties.action.frame_range[1], AnimationType.MATERIAL)
+            case 'ARMATURE':
+                set_clip_props(clip_obj, f'{anim.name}.clip', anim.animation_properties.action.frame_range[1], AnimationType.ARMATURE)
         link_anim = clip_obj.clip_properties.animations.add()
         link_anim.animation = anim
 
@@ -83,12 +88,19 @@ def set_anim_props(obj, hash, action, target_id, enum: AnimationType):
     match enum:
         case AnimationType.ARMATURE:
             obj.animation_properties.target_id_type = 'ARMATURE'
+            obj.animation_properties.hash = hash.replace('@anim', '')
         case AnimationType.MATERIAL:
             obj.animation_properties.target_id_type = 'MATERIAL'
+            obj.animation_properties.hash = hash
         case AnimationType.CAMERA:
             obj.animation_properties.target_id_type = 'CAMERA'
 
-def set_clip_props(obj, name, anim_duration):
+def set_clip_props(obj, name, anim_duration, enum: AnimationType):
     fps = bpy.context.scene.render.fps
-    obj.clip_properties.name = name
     obj.clip_properties.duration = anim_duration / fps
+    match enum:
+        case AnimationType.ARMATURE:
+            obj.clip_properties.hash = obj.name.replace('@clip', '')
+            obj.clip_properties.name = name.replace('@anim', '')
+        case AnimationType.MATERIAL:
+            obj.clip_properties.hash = obj.name
