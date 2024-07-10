@@ -17,7 +17,7 @@ from .vicho_adn_props import VichoToolsAddonProperties
 bl_info = {
     "name": "Vicho's Tools",
     "author": "MrVicho13",
-    "version": (0, 7, 2),
+    "version": (0, 7, 3),
     "blender": (4, 0, 0),
     "description": "Tools designed to help with GTA V modding",
     "category": "Vicho's Tools",
@@ -75,11 +75,11 @@ obj_classes = [
 def register():
     for _class in list(itertools.chain(vicho_classes, misc_classes, obj_classes, mlo_classes, ytd_classes)):
         bpy.utils.register_class(_class)
-
     bpy.types.Scene.ytd_list = bpy.props.CollectionProperty(type=YtdItem)
     bpy.types.Scene.ytd_active_index = bpy.props.IntProperty(name="Active Index", update=ytd_index_changed)
     bpy.types.Scene.mesh_list = bpy.props.CollectionProperty(type=MeshGroup)
     bpy.types.Scene.mesh_active_index = bpy.props.IntProperty(name="Active Index")
+    bpy.app.handlers.depsgraph_update_post.append(update_mesh_list)
 
 def unregister():
     for _class in list(itertools.chain(vicho_classes, misc_classes, obj_classes, mlo_classes, ytd_classes)):
@@ -88,6 +88,7 @@ def unregister():
     del bpy.types.Scene.ytd_active_index
     del bpy.types.Scene.mesh_list
     del bpy.types.Scene.mesh_active_index
+    bpy.app.handlers.depsgraph_update_post.remove(update_mesh_list)
 
 if __name__ == '__main__':
     register()

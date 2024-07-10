@@ -1,7 +1,6 @@
 import bpy
 
 from ..vicho_adn_props import get_addon_preferences
-
 from ..vicho_dependencies import depen_installed
 
 class Vicho_TextureDictionaryPanel(bpy.types.Panel):

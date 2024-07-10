@@ -2,6 +2,7 @@ import math
 import os
 import xml.dom.minidom as md
 from mathutils import Vector
+import bpy
 
 def export_milo_ymap_xml(ymapname, object, instance_name):
 

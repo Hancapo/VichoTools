@@ -1,4 +1,5 @@
 import bpy
+from bpy.app.handlers import persistent
 class YTDLIST_UL_list(bpy.types.UIList):
 
     def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
@@ -15,7 +16,8 @@ class MESHLIST_UL_list(bpy.types.UIList):
         if self.layout_type in {'DEFAULT', 'COMPACT'}:
             if len(context.scene.ytd_list) != 0:
                 row = layout.row(align=True)
-                row.label(text=item.mesh.name, icon='OUTLINER_OB_MESH')
+                if item is not None and item.mesh is not None:
+                    row.prop(item.mesh, "name", text="", emboss=False, icon='MESH_CUBE')
 
 class MaterialProp(bpy.types.PropertyGroup):
     material: bpy.props.PointerProperty(type=bpy.types.Material) # type: ignore
@@ -23,7 +25,6 @@ class MaterialProp(bpy.types.PropertyGroup):
 
 class MeshGroup(bpy.types.PropertyGroup):
     mesh: bpy.props.PointerProperty(type=bpy.types.Object) # type: ignore
-
 
 class YtdItem(bpy.types.PropertyGroup):
     material_list: bpy.props.CollectionProperty(type=MaterialProp)
@@ -40,5 +41,32 @@ def ytd_index_changed(self, context):
             new_mesh = self.mesh_list.add()
             new_mesh.mesh = mesh.mesh
 
+def is_obj_in_any_collection(obj):
+    return any(obj.name in collection.objects for collection in bpy.data.collections)
 
 
+def remove_invalid_meshes(scene):
+    for ytd_index in reversed(range(len(scene.ytd_list))):
+        ytd = scene.ytd_list[ytd_index]
+        for mesh_index, mesh in reversed(list(enumerate(ytd.mesh_list))):
+            if mesh.mesh is None or (mesh.mesh.name not in bpy.context.view_layer.objects and not is_obj_in_any_collection(mesh.mesh)):
+                if mesh.mesh and mesh.mesh.name not in bpy.context.view_layer.objects and not is_obj_in_any_collection(mesh.mesh):
+                    bpy.data.objects.remove(mesh.mesh, do_unlink=True)
+                ytd.mesh_list.remove(mesh_index)
+                switch_ytd_selected_index(scene)
+                
+        if len(ytd.mesh_list) == 0:
+            scene.ytd_list.remove(ytd_index)
+            switch_ytd_selected_index(scene)
+            
+    
+
+def switch_ytd_selected_index(scene):
+    if len(scene.ytd_list[scene.ytd_active_index].mesh_list) < 1:
+        scene.ytd_active_index = 0 if len(scene.ytd_list) > 0 else -1
+    else:
+        scene.ytd_active_index = scene.ytd_active_index
+
+@persistent
+def update_mesh_list(scene, depsgraph):
+    remove_invalid_meshes(scene)
