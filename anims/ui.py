@@ -1,7 +1,7 @@
 import bpy
 
 class VichoAnimsToolsPanel(bpy.types.Panel):
-    bl_label = "Anims Tools"
+    bl_label = "Anims"
     bl_idname = "VichoAnimsTools_PT"
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
