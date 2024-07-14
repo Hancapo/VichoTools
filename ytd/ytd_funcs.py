@@ -157,7 +157,7 @@ if depen_installed():
                 bytes_data = ytd.Save()
                 byte_array = bytearray(list(bytes_data))
                 f.write(byte_array)
-                self.report({'INFO'}, f"Exported {output_file_path}.ytd")
+                self.report({'INFO'}, f"Exported {output_file_path}")
 
         delete_folders(FolderList, newExportPath)
 
