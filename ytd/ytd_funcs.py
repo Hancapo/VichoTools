@@ -19,9 +19,9 @@ def get_images_from_material(material):
     return images
 
 
-def create_ytd_folders(FolderList, ExportPath):
+def create_ytd_folders(FolderList, ExportPath, self):
     for folder in FolderList:
-        update_material_list(folder)  # Actualiza la lista de materiales antes de procesar la carpeta
+        update_material_list(folder)
         folder_path = os.path.join(ExportPath, folder.name)
         print(f'Added folder {folder_path}')
         os.makedirs(folder_path, exist_ok=True)
@@ -29,9 +29,15 @@ def create_ytd_folders(FolderList, ExportPath):
             material = material_prop.material
             images = get_images_from_material(material)
             for img in images:
-                if img:  # Comprueba si el objeto de imagen existe
-                    image_path = bpy.path.abspath(img.filepath)  # Obtiene la ruta de la imagen
-                    shutil.copy(image_path, folder_path)
+                if img:
+                    image_path = bpy.path.abspath(img.filepath)
+                    image_name = os.path.basename(image_path)
+                    try:
+                        shutil.copy(image_path, folder_path)
+                    except FileNotFoundError:
+                        self.report(
+                            {'ERROR'}, f"Missing image named [{image_name}] from [{material.name}] material")
+                        raise Exception(f"Missing image in [{folder.name}] YTD") from None
 
 
 def delete_folders(FolderList, ExportPath):
@@ -134,10 +140,10 @@ def update_material_list(item):
                 item.material_list.add().material = slot.material
 
 if depen_installed():
-    def export_ytd_files(FolderList, ExportPath, self, scene):
+    def export_ytd_files(FolderList, ExportPath, self):
         print(f'Export path: {ExportPath}')
         newExportPath = os.path.join(ExportPath, 'output')
-        create_ytd_folders(FolderList, newExportPath)
+        create_ytd_folders(FolderList, newExportPath, self)
         folders = get_folder_list_from_dir(newExportPath)
 
         for folder in folders:

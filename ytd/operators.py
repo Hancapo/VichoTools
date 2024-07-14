@@ -60,7 +60,7 @@ class ExportYTDFiles(bpy.types.Operator):
                 ytds = [scene.ytd_list[scene.ytd_active_index]]
 
         export_ytd_files(ytds, bpy.path.abspath(
-            scene.ytd_export_path), self, scene)
+            scene.ytd_export_path), self)
         if scene.ytd_show_explorer_after_export:
             subprocess.Popen('explorer "{}"'.format(
                 bpy.path.abspath(scene.ytd_export_path) + "output"))
