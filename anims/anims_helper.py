@@ -1,6 +1,10 @@
 import bpy
 from .enums import GroupType, ChildType, AnimationType
 from ..misc.misc_funcs import is_object_in_scene, is_drawable_model
+from collections import namedtuple
+
+Target = namedtuple('Targets', ['type', 'target'])
+Sutchi = namedtuple('Sutchi', ['object', 'flags', 'sol_type'])
 
 def create_anim_tree(name: str) -> list:
     ycd_parent = create_base_ycd_obj(name)
@@ -105,3 +109,73 @@ def set_clip_props(obj, name, anim_duration, enum: AnimationType):
         case AnimationType.MATERIAL:
             obj.clip_properties.hash = obj.name
             obj.clip_properties.name = name
+
+def calculate_anim_flags(do_auto_start: bool, sol_type: str, target_flags:str):
+    flags = 0
+    match sol_type:
+        case 'sollumz_drawable':
+            flags += 32 # add static flag idk why?
+            if 'M' in target_flags:
+                flags += 1024
+            if 'S' in target_flags:
+                flags += 512
+        case 'sollumz_fragment':
+            flags += 131072 # dynamic flag
+            if 'M' in target_flags:
+                flags += 1024
+            if 'S' in target_flags:
+                flags += 512
+    if do_auto_start:
+        flags += 524288
+    
+    return flags
+
+def get_object_from_action(action):
+    for obj in bpy.context.scene.objects:
+        if obj.animation_data and obj.animation_data.action == action:
+            return obj
+    return None
+
+def get_object_from_armature(armature):
+    for obj in bpy.context.scene.objects:
+        if obj.type == 'ARMATURE' and obj.data == armature:
+            return obj
+
+def get_targets_from_anim(clip_dict):
+    targets = []
+    for child in clip_dict.children:
+        if child.sollum_type == 'sollumz_animations' and child.children:
+            for child2 in child.children:
+                if child2.sollum_type == 'sollumz_animation':
+                    new_target = Target(child2.animation_properties.target_id_type, child2.animation_properties.target_id)
+                    targets.append(new_target)
+    return targets
+                
+def sutchis_from_tgt(target, scene):
+    for obj in scene.objects:
+        if obj.sollum_type == 'sollumz_drawable' or obj.sollum_type == 'sollumz_fragment':
+            obj_sutchi = Sutchi(obj, 'none', obj.sollum_type)
+            n_flags = ''
+            if target.type == 'MATERIAL':
+                if obj.children:
+                    for child in obj.children:
+                        if child.sollum_type == 'sollumz_drawable_model' and child.type == 'MESH':
+                            for mat in child.material_slots:
+                                material = mat.material
+                                if material.animation_data and material.animation_data.action == target.target:
+                                    n_flags += 'M'
+                                    obj_sutchi = obj_sutchi._replace(flags = n_flags)
+            if target.type == 'ARMATURE':
+                if target.target == obj.data:
+                    n_flags += 'S'
+                    obj_sutchi = obj_sutchi._replace(flags = n_flags)
+    return obj_sutchi
+
+def get_arch_from_ytyps_by_obj(obj, scene):
+    ytyps = scene.ytyps
+    if len(ytyps) == 0:
+        for ytyp in ytyps:
+            if len(ytyp.archetypes) > 0:
+                for archetype in ytyp.archetypes:
+                    if archetype.name == obj.name:
+                        return archetype
