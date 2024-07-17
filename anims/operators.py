@@ -25,14 +25,17 @@ class CreateClipDictionaryFromSelected(bpy.types.Operator):
         if autofill:
             created_ycd = scene.objects[scene.ycd_name]
             targets = get_targets_from_anim(created_ycd)
+            print(f'targets found: {targets}')
             for target in targets:
                 sutchi = sutchis_from_tgt(target, scene)
                 print(f'Found sutchi: {sutchi}')
                 arch = get_arch_from_ytyps_by_obj(sutchi.object, scene)
                 if arch:
-                    arch.clip_dictionary = created_ycd
+                    arch.clip_dictionary = scene.ycd_name
                     if calc_anim_flags:
-                        flags = calculate_anim_flags(auto_start, sutchi.sol_type, sutchi.flags)
-                        arch.flags.total = flags
+                        static_flag = 0
+                        if arch.physics_dictionary != "":
+                            static_flag = 32
+                        arch.flags.total = str(calculate_anim_flags(auto_start, sutchi.sol_type, sutchi.flags) + static_flag)
         
         return {'FINISHED'}

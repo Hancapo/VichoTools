@@ -114,7 +114,6 @@ def calculate_anim_flags(do_auto_start: bool, sol_type: str, target_flags:str):
     flags = 0
     match sol_type:
         case 'sollumz_drawable':
-            flags += 32 # add static flag idk why?
             if 'M' in target_flags:
                 flags += 1024
             if 'S' in target_flags:
@@ -154,7 +153,7 @@ def get_targets_from_anim(clip_dict):
 def sutchis_from_tgt(target, scene):
     for obj in scene.objects:
         if obj.sollum_type == 'sollumz_drawable' or obj.sollum_type == 'sollumz_fragment':
-            obj_sutchi = Sutchi(obj, 'none', obj.sollum_type)
+            obj_sutchi = Sutchi(None, 'none', obj.sollum_type)
             n_flags = ''
             if target.type == 'MATERIAL':
                 if obj.children:
@@ -164,18 +163,19 @@ def sutchis_from_tgt(target, scene):
                                 material = mat.material
                                 if material.animation_data and material.animation_data.action == target.target:
                                     n_flags += 'M'
-                                    obj_sutchi = obj_sutchi._replace(flags = n_flags)
+                                    obj_sutchi = obj_sutchi._replace(flags = n_flags, object = obj)
             if target.type == 'ARMATURE':
                 if target.target == obj.data:
                     n_flags += 'S'
-                    obj_sutchi = obj_sutchi._replace(flags = n_flags)
+                    return obj_sutchi._replace(flags = n_flags, object = obj)
     return obj_sutchi
 
 def get_arch_from_ytyps_by_obj(obj, scene):
     ytyps = scene.ytyps
-    if len(ytyps) == 0:
+    if len(ytyps) > 0:
         for ytyp in ytyps:
             if len(ytyp.archetypes) > 0:
                 for archetype in ytyp.archetypes:
-                    if archetype.name == obj.name:
+                    if archetype.asset == obj:
+                        print(f'Found archetype: {archetype}')
                         return archetype
