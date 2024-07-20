@@ -15,6 +15,8 @@ class VichoAnimsToolsPanel(bpy.types.Panel):
         layout = self.layout
         col = layout.column(align=True)
         col.separator()
+        col.label(text="Warning, this tool is experimental, it currently supports Object(s) and UV Anims.", icon='ERROR')
+        col.separator()
         col.prop(context.scene, "ycd_name", text="YCD Name", icon='ANIM')
         col.separator()
         row = col.row(align=True)
