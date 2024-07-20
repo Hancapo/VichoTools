@@ -129,17 +129,6 @@ def calculate_anim_flags(do_auto_start: bool, sol_type: str, target_flags:str):
     
     return flags
 
-def get_object_from_action(action):
-    for obj in bpy.context.scene.objects:
-        if obj.animation_data and obj.animation_data.action == action:
-            return obj
-    return None
-
-def get_object_from_armature(armature):
-    for obj in bpy.context.scene.objects:
-        if obj.type == 'ARMATURE' and obj.data == armature:
-            return obj
-
 def get_targets_from_anim(clip_dict):
     targets = []
     for child in clip_dict.children:
