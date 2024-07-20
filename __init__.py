@@ -12,6 +12,9 @@ from .vicho_properties import *
 from .vicho_panels import *
 from .ytd.operators import *
 from .ytd.ui import *
+from .anims.ui import *
+from .anims.operators import *
+from .anims.properties import *
 from .vicho_adn_props import VichoToolsAddonProperties
 
 bl_info = {
@@ -71,9 +74,14 @@ obj_classes = [
     RenameAllUvMaps
 ]
 
+anim_classes = [
+    VichoAnimsToolsPanel,
+    CreateClipDictionaryFromSelected,
+    AnimProps,
+]
 
 def register():
-    for _class in list(itertools.chain(vicho_classes, misc_classes, obj_classes, mlo_classes, ytd_classes)):
+    for _class in list(itertools.chain(vicho_classes, misc_classes, obj_classes, mlo_classes, ytd_classes, anim_classes)):
         bpy.utils.register_class(_class)
     bpy.types.Scene.ytd_list = bpy.props.CollectionProperty(type=YtdItem)
     bpy.types.Scene.ytd_active_index = bpy.props.IntProperty(name="Active Index", update=ytd_index_changed)
@@ -82,7 +90,7 @@ def register():
     bpy.app.handlers.depsgraph_update_post.append(update_mesh_list)
 
 def unregister():
-    for _class in list(itertools.chain(vicho_classes, misc_classes, obj_classes, mlo_classes, ytd_classes)):
+    for _class in list(itertools.chain(vicho_classes, misc_classes, obj_classes, mlo_classes, ytd_classes, anim_classes)):
         bpy.utils.unregister_class(_class)
     del bpy.types.Scene.ytd_list
     del bpy.types.Scene.ytd_active_index

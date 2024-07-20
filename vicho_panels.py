@@ -5,7 +5,7 @@ from .vicho_operators import *
 
 
 class VICHO_PT_MISC1_PANEL(bpy.types.Panel):
-    bl_label = "Misc Tools"
+    bl_label = "Misc"
     bl_idname = "MAINMISCTOOLS_PT_"
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
@@ -29,7 +29,7 @@ class VICHO_PT_MISC1_PANEL(bpy.types.Panel):
 
 
 class VichoMloToolsPanel(bpy.types.Panel):
-    bl_label = "MLO Tools"
+    bl_label = "MLO"
     bl_idname = "VICMLOTOOLS_PT_"
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
@@ -37,7 +37,7 @@ class VichoMloToolsPanel(bpy.types.Panel):
     bl_options = {'DEFAULT_CLOSED'}
 
     def draw_header(self, context):
-        self.layout.label(text="", icon="WORLD")
+        self.layout.label(text="", icon="HOME")
 
     def draw(self, context):
         layout = self.layout
@@ -49,7 +49,7 @@ class VichoMloToolsPanel(bpy.types.Panel):
 
 
 class VichoObjectToolsPanel(bpy.types.Panel):
-    bl_label = "Object Tools"
+    bl_label = "Objects"
     bl_idname = "VICHOBJECTTOOLS_PT"
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
