@@ -10,14 +10,24 @@ if depen_installed():
 
 def get_images_from_material(material):
     images = []
-    if material and material.node_tree:
-        for node in material.node_tree.nodes:
-            if node.type == 'TEX_IMAGE':
-                if not node.image:
-                    continue
-                images.append(node.image)
+    if material != None and material.use_nodes:
+        material_nodes = material.node_tree.nodes
+        match material.sollum_type:
+            case 'sollumz_material_shader':
+                for node in material_nodes:
+                    if node_is_image(node) and not is_sampler_embedded(node):
+                        images.append(node.image)
+            case 'sollumz_material_none':
+                for node in material_nodes:
+                    if node_is_image(node):
+                        images.append(node.image)
     return images
 
+def node_is_image(node):
+    return node.type == 'TEX_IMAGE'
+
+def is_sampler_embedded(node):
+    return node.texture_properties.embedded
 
 def create_ytd_folders(FolderList, ExportPath, self):
     for folder in FolderList:
@@ -55,8 +65,8 @@ def image_objects_from_objects(objs):
             material = material_prop.material
             images = get_images_from_material(material)
             for img in images:
-                if img:  # Comprueba si el objeto de imagen existe
-                    image_objects.add(img)  # Añade el objeto de imagen en lugar de la ruta
+                if img:
+                    image_objects.add(img)
     return list(image_objects)
 
 
