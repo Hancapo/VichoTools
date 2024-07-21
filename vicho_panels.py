@@ -1,36 +1,7 @@
 import bpy
-from .ytd.ytd_helper import *
-from .vicho_properties import *
-from .vicho_operators import *
-
-
-class VICHO_PT_MISC1_PANEL(bpy.types.Panel):
-    bl_label = "Misc"
-    bl_idname = "MAINMISCTOOLS_PT_"
-    bl_space_type = 'VIEW_3D'
-    bl_region_type = 'UI'
-    bl_category = "Vicho's Tools"
-    bl_options = {'DEFAULT_CLOSED'}
-
-    def draw_header(self, context):
-        self.layout.label(text="", icon="ALIGN_RIGHT")
-
-    def draw(self, context):
-        layout = self.layout
-        # Create category
-        row = layout.row()
-        row.label(
-            text="Save selected object(s) as unique list to file:", icon='ALIGN_RIGHT')
-        row = layout.row()
-        row.prop(context.scene, "file_name_field", text="File name")
-        row = layout.row()
-        row.operator("vicho.selobjsastext")
-        row = layout.row()
-
-
-class VichoMloToolsPanel(bpy.types.Panel):
+class VichoMloTools_PT_Panel(bpy.types.Panel):
     bl_label = "MLO"
-    bl_idname = "VICMLOTOOLS_PT_"
+    bl_idname = "VICHOTOOLS_PT_Mlo"
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
     bl_category = "Vicho's Tools"
@@ -46,11 +17,9 @@ class VichoMloToolsPanel(bpy.types.Panel):
                  text="Instance name")
         row = layout.row()
         row.operator("vicho.mloyampfilebrowser")
-
-
-class VichoObjectToolsPanel(bpy.types.Panel):
+class VichoObjectTools_PT_Panel(bpy.types.Panel):
     bl_label = "Objects"
-    bl_idname = "VICHOBJECTTOOLS_PT"
+    bl_idname = "VICHOTOOLS_PT_Object"
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
     bl_category = "Vicho's Tools"
@@ -96,6 +65,4 @@ class VichoObjectToolsPanel(bpy.types.Panel):
 
         col.operator("vicho.renamealluvmaps")
         col.separator()
-        
-
 

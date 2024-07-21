@@ -1,5 +1,5 @@
 import bpy
-from .anims_helper import create_anim_tree, create_clips_per_obj, create_anims_per_obj, get_targets_from_anim, sutchis_from_tgt, get_arch_from_ytyps_by_obj, calculate_anim_flags
+from .anims_helper import create_anim_tree, create_clips_per_obj, create_anims_from_objs, get_targets_from_anim, sutchis_from_target, get_arch_from_ytyps_by_obj, calculate_anim_flags
 
 class CreateClipDictionaryFromSelected(bpy.types.Operator):
     """Create YCD from selected objects"""
@@ -19,7 +19,7 @@ class CreateClipDictionaryFromSelected(bpy.types.Operator):
         
         sel_objs = bpy.context.selected_objects
         anim_ycd: list = create_anim_tree(scene.ycd_name)
-        create_anims_per_obj(anim_ycd[0], sel_objs)
+        create_anims_from_objs(anim_ycd[0], sel_objs)
         create_clips_per_obj(anim_ycd[0], anim_ycd[1])
         
         if autofill:
@@ -27,7 +27,7 @@ class CreateClipDictionaryFromSelected(bpy.types.Operator):
             targets = get_targets_from_anim(created_ycd)
             print(f'targets found: {targets}')
             for target in targets:
-                sutchi = sutchis_from_tgt(target, scene)
+                sutchi = sutchis_from_target(target, scene)
                 print(f'Found sutchi: {sutchi}')
                 arch = get_arch_from_ytyps_by_obj(sutchi.object, scene)
                 if arch:

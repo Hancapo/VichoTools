@@ -1,7 +1,6 @@
 import bpy
 from bpy.app.handlers import persistent
 class YTDLIST_UL_list(bpy.types.UIList):
-
     def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
         if self.layout_type in {'DEFAULT', 'COMPACT'}:
             row = layout.row(align=True)
@@ -18,20 +17,6 @@ class MESHLIST_UL_list(bpy.types.UIList):
                 row = layout.row(align=True)
                 if item is not None and item.mesh is not None:
                     row.prop(item.mesh, "name", text="", emboss=False, icon='MESH_CUBE')
-
-class MaterialProp(bpy.types.PropertyGroup):
-    material: bpy.props.PointerProperty(type=bpy.types.Material) # type: ignore
-
-
-class MeshGroup(bpy.types.PropertyGroup):
-    mesh: bpy.props.PointerProperty(type=bpy.types.Object) # type: ignore
-
-class YtdItem(bpy.types.PropertyGroup):
-    material_list: bpy.props.CollectionProperty(type=MaterialProp)
-    mesh_list: bpy.props.CollectionProperty(type=MeshGroup)
-    selected: bpy.props.BoolProperty(default=True, name="Selection")
-    game_target: bpy.props.EnumProperty(
-        items=[('GTA5', 'GTA 5', 'Grand Theft Auto V ITD')], default='GTA5', name='Game Target') # type: ignore
     
 def ytd_index_changed(self, context):
     if len(self.ytd_list) != 0:
@@ -43,7 +28,6 @@ def ytd_index_changed(self, context):
 
 def is_obj_in_any_collection(obj):
     return any(obj.name in collection.objects for collection in bpy.data.collections)
-
 
 def remove_invalid_meshes(scene):
     for ytd_index in reversed(range(len(scene.ytd_list))):
@@ -58,8 +42,6 @@ def remove_invalid_meshes(scene):
         if len(ytd.mesh_list) == 0:
             scene.ytd_list.remove(ytd_index)
             switch_ytd_selected_index(scene)
-            
-    
 
 def switch_ytd_selected_index(scene):
     if len(scene.ytd_list[scene.ytd_active_index].mesh_list) < 1:
@@ -68,5 +50,9 @@ def switch_ytd_selected_index(scene):
         scene.ytd_active_index = scene.ytd_active_index
 
 @persistent
-def update_mesh_list(scene, depsgraph):
+def update_post(scene, depsgraph):
     remove_invalid_meshes(scene)
+    
+
+    
+

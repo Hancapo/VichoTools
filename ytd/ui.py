@@ -3,9 +3,9 @@ import bpy
 from ..vicho_adn_props import get_addon_preferences
 from ..vicho_dependencies import depen_installed
 
-class Vicho_TextureDictionaryPanel(bpy.types.Panel):
+class VichoTextureTools_PT_Panel(bpy.types.Panel):
     bl_label = "Texture Dictionary"
-    bl_idname = "VICHO_PT_texture_dictionary"
+    bl_idname = "VICHOTOOLS_PT_Texture"
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
     bl_category = "Vicho's Tools"
@@ -15,7 +15,7 @@ class Vicho_TextureDictionaryPanel(bpy.types.Panel):
         self.layout.label(text="", icon="NODE_TEXTURE")
 
     def draw(self, context):
-        preferences = get_addon_preferences(bpy.context)
+        preferences = get_addon_preferences()
         layout = self.layout
         scene = context.scene
 

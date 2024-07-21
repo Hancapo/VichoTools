@@ -7,14 +7,14 @@ Target = namedtuple('Targets', ['type', 'target'])
 Sutchi = namedtuple('Sutchi', ['object', 'flags', 'sol_type'])
 
 def create_anim_tree(name: str) -> list:
-    ycd_parent = create_base_ycd_obj(name)
+    ycd_parent = create_ycd_obj(name)
     animations_parent = create_ycd_groups(GroupType.ANIMATIONS)
     animations_parent.parent = ycd_parent
     clips_parent = create_ycd_groups(GroupType.CLIPS)
     clips_parent.parent = ycd_parent
     return [animations_parent, clips_parent]     
 
-def create_anims_per_obj(anim_parent, objs):
+def create_anims_from_objs(anim_parent, objs):
     anim_mat_count = 0
     for obj in objs:
         if not is_object_in_scene(obj):
@@ -30,14 +30,14 @@ def create_anims_per_obj(anim_parent, objs):
                             print(f'Current material: {mat.material.name}')
                             child_mat = mat.material
                             if child_mat.sollum_type == 'sollumz_material_shader' and child_mat.animation_data:
-                                mat_anim = create_child_group_obj(ChildType.ANIMATION, f'{child_name}_uv_{str(anim_mat_count)}')
+                                mat_anim = create_child(ChildType.ANIMATION, f'{child_name}_uv_{str(anim_mat_count)}')
                                 mat_anim.parent = anim_parent
                                 set_anim_props(mat_anim, mat_anim.name, child_mat.animation_data.action, child_mat, AnimationType.MATERIAL)
                                 anim_mat_count += 1
                         anim_mat_count = 0
         elif obj.type == 'ARMATURE':
             if obj.sollum_type == 'sollumz_drawable' and obj.animation_data:
-                skel_anim = create_child_group_obj(ChildType.ANIMATION, f'{obj.name}@anim')
+                skel_anim = create_child(ChildType.ANIMATION, f'{obj.name}@anim')
                 skel_anim.parent = anim_parent
                 set_anim_props(skel_anim, skel_anim.name, obj.animation_data.action, obj.data, AnimationType.ARMATURE)
         else:
@@ -45,7 +45,7 @@ def create_anims_per_obj(anim_parent, objs):
                 
 def create_clips_per_obj(anim_parent, clip_parent):
     for anim in anim_parent.children:
-        clip_obj = create_child_group_obj(ChildType.CLIP, f'{anim.name.replace("@anim", "")}@clip')
+        clip_obj = create_child(ChildType.CLIP, f'{anim.name.replace("@anim", "")}@clip')
         clip_obj.parent = clip_parent
         match anim.animation_properties.target_id_type:
             case 'MATERIAL':
@@ -55,7 +55,7 @@ def create_clips_per_obj(anim_parent, clip_parent):
         link_anim = clip_obj.clip_properties.animations.add()
         link_anim.animation = anim
 
-def create_child_group_obj(enum: ChildType, name: str = None):
+def create_child(enum: ChildType, name: str = None):
     child_obj = bpy.data.objects.new('_unk111', None)
     if name:
         child_obj.name = name
@@ -79,7 +79,7 @@ def create_ycd_groups(enum: GroupType):
             unk_parent.name = 'Clips'
     return unk_parent
 
-def create_base_ycd_obj(name: str):
+def create_ycd_obj(name: str):
     ycd_parent = bpy.data.objects.new(name, None)
     bpy.context.scene.collection.objects.link(ycd_parent)
     ycd_parent.sollum_type = 'sollumz_clip_dictionary'
@@ -139,7 +139,7 @@ def get_targets_from_anim(clip_dict):
                     targets.append(new_target)
     return targets
                 
-def sutchis_from_tgt(target, scene):
+def sutchis_from_target(target, scene):
     for obj in scene.objects:
         if obj.sollum_type == 'sollumz_drawable' or obj.sollum_type == 'sollumz_fragment':
             obj_sutchi = Sutchi(None, 'none', obj.sollum_type)
