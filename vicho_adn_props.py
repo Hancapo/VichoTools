@@ -13,16 +13,18 @@ class VichoToolsAddonProperties(bpy.types.AddonPreferences):
 
     def draw(self, context):
         layout = self.layout
-        row = layout.row()
+        col = layout.column(align=True)
         if not is_dotnet_installed():
-             layout.operator(VichoToolsInstallDotnetRuntime.bl_idname, text="Install first: .NET 8 runtime", icon="SCRIPTPLUGINS")
+             col.operator(VichoToolsInstallDotnetRuntime.bl_idname, text="Install first: .NET 8 runtime", icon="SCRIPTPLUGINS")
         else:
-            layout.label(text=".NET 8 x64 Runtime is already installed.")
-             
+            col.label(text=".NET 8 x64 Runtime is already installed.")
+        col.separator()
         if not depen_installed():
-                layout.operator(VichoToolsInstallDependencies.bl_idname, text="Install second: Install PythonNET", icon="SCRIPTPLUGINS")
+                col.operator(VichoToolsInstallDependencies.bl_idname, text="Install second: Install PythonNET", icon="SCRIPTPLUGINS")
         else:
-            layout.label(text="PythonNET is already installed.")
+            col.label(text="PythonNET is already installed.")
+        row = layout.row()
+        col.separator()
         row.prop(self, "add_nonsollumz_to_ytd", icon="MESH_CUBE")
         row.prop(self, "enable_folder_export", icon="FILE_FOLDER")
 
