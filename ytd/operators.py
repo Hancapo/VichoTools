@@ -74,7 +74,7 @@ class YTDLIST_OT_add(bpy.types.Operator):
 
     @classmethod
     def poll(cls, context):
-        preferences = get_addon_preferences(bpy.context)
+        preferences = get_addon_preferences()
         compatible_sollum_types = ['sollumz_drawable', 'sollumz_fragment',
                                    'sollumz_drawable_model', 'sollumz_drawable_dictionary']
 

@@ -13,6 +13,7 @@ class VichoToolsAddonProperties(bpy.types.AddonPreferences):
 
     def draw(self, context):
         layout = self.layout
+        row = layout.row()
         if not is_dotnet_installed():
              layout.operator(VichoToolsInstallDotnetRuntime.bl_idname, text="Install first: .NET 8 runtime", icon="SCRIPTPLUGINS")
         else:
@@ -22,10 +23,16 @@ class VichoToolsAddonProperties(bpy.types.AddonPreferences):
                 layout.operator(VichoToolsInstallDependencies.bl_idname, text="Install second: Install PythonNET", icon="SCRIPTPLUGINS")
         else:
             layout.label(text="PythonNET is already installed.")
-        layout.prop(self, "add_nonsollumz_to_ytd")
-        layout.prop(self, "enable_folder_export")
+        row.prop(self, "add_nonsollumz_to_ytd", icon="MESH_CUBE")
+        row.prop(self, "enable_folder_export", icon="FILE_FOLDER")
 
 
-def get_addon_preferences(context: bpy.types.Context) -> VichoToolsAddonProperties:
-    return context.preferences.addons[__package__.split(".")[0]].preferences
-    
+def get_addon_preferences() -> VichoToolsAddonProperties:
+    return bpy.context.preferences.addons[__package__.split(".")[0]].preferences
+
+
+def register():
+    bpy.utils.register_class(VichoToolsAddonProperties)
+
+def unregister():
+    bpy.utils.unregister_class(VichoToolsAddonProperties)

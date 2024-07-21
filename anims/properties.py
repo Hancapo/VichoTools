@@ -21,3 +21,9 @@ class AnimProps(bpy.types.PropertyGroup):
         default=False,
         description="Sets the auto start flag for the selected objects and then applies in objects' YTYP"
     )
+
+def register():
+    bpy.types.Scene.anim_props = bpy.props.PointerProperty(type=AnimProps)
+
+def unregister():
+    del bpy.types.Scene.anim_props
