@@ -11,8 +11,6 @@ valid_exts = [".png", ".jpg", ".bmp", ".tiff", ".tif", ".jpeg", ".dds"]
 
 
 def texture_list_from_dds_files(ddsFiles: list[str]):
-    if not d.available:
-        return None
     textureList = d.List[d.GameFiles.Texture]()
     for ddsFile in ddsFiles:
         fn = ddsFile
@@ -34,15 +32,11 @@ def texture_list_from_dds_files(ddsFiles: list[str]):
     return textureList
 
 def textures_to_ytd(textureList, ytdFile):
-    if not d.available:
-        return None
     textureDictionary = ytdFile.TextureDict
     textureDictionary.BuildFromTextureList(textureList)
     return ytdFile
 
 def resize_image(image):
-    if not d.available:
-        return None
     imageHeight: int = image.GetMetadata().Height
     imageWidth: int = image.GetMetadata().Width
     log2Width: float = math.log2(imageWidth)
@@ -55,13 +49,9 @@ def resize_image(image):
     return resized_image
     
 def is_transparent(image) -> bool:
-    if not d.available:
-        return None
     return not image.IsAlphaAllOpaque()
     
 def convert_folder_to_ytd(folder: str):
-    if not d.available:
-        return None
     dds_files = get_dds(folder)
     ytd = d.GameFiles.YtdFile()
     ytd.TextureDict = d.GameFiles.TextureDictionary()
@@ -71,8 +61,6 @@ def convert_folder_to_ytd(folder: str):
     return final_ytd
 
 def convert_img_to_dds(filepath : str):
-    if not d.available:
-        return None
     image = None
     fileExt = Path(filepath).suffix
     fileName = Path(filepath).stem

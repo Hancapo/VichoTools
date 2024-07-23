@@ -149,8 +149,6 @@ def update_material_list(item):
                 item.material_list.add().material = slot.material
 
 def export_ytd_files(FolderList, ExportPath, self):
-    if not d.available:
-        return None
     print(f'Export path: {ExportPath}')
     newExportPath = os.path.join(ExportPath, 'output')
     create_ytd_folders(FolderList, newExportPath, self)

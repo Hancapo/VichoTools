@@ -30,7 +30,6 @@ class DependenciesManager:
     def load_dependencies(self):
         try:
             print("Iniciando carga de dependencias...")
-            
             p = Path(__file__).resolve().parent
             runtime_loc = p / 'ytd' / 'cw_py' / 'libs' / 'runtimeconfig.json'
             sys.path.append(str(p / 'ytd' / 'cw_py' / 'libs'))
