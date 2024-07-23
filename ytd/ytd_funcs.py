@@ -3,10 +3,9 @@ from pathlib import Path
 import shutil
 import bpy
 from .cw_py.cw_py_misc import get_folder_list_from_dir, get_non_dds
-from ..vicho_dependencies import depen_installed
+from ..vicho_dependencies import dependencies_manager as d
 
-if depen_installed():
-    from .cw_py.cw_ytd_tools import convert_folder_to_ytd, convert_img_to_dds
+from .cw_py.cw_ytd_tools import convert_folder_to_ytd, convert_img_to_dds
 
 def get_images_from_material(material):
     images = []
@@ -149,27 +148,25 @@ def update_material_list(item):
             if slot.material:
                 item.material_list.add().material = slot.material
 
-if depen_installed():
-    def export_ytd_files(FolderList, ExportPath, self):
-        print(f'Export path: {ExportPath}')
-        newExportPath = os.path.join(ExportPath, 'output')
-        create_ytd_folders(FolderList, newExportPath, self)
-        folders = get_folder_list_from_dir(newExportPath)
-
-        for folder in folders:
-            for img in get_non_dds(folder):
-                convert_img_to_dds(img)
-                os.remove(img)
-            ytd = convert_folder_to_ytd(folder)
-            folder_path = Path(folder)
-            output_file_path = folder_path.parent / f"{folder_path.name}.ytd"
-            with open(f'{output_file_path}', 'wb') as f:
-                bytes_data = ytd.Save()
-                byte_array = bytearray(list(bytes_data))
-                f.write(byte_array)
-                self.report({'INFO'}, f"Exported {output_file_path}")
-
-        delete_folders(FolderList, newExportPath)
-
-        self.report(
-            {'INFO'}, f"Exported {len(FolderList)} texture dictionaries")
+def export_ytd_files(FolderList, ExportPath, self):
+    if not d.available:
+        return None
+    print(f'Export path: {ExportPath}')
+    newExportPath = os.path.join(ExportPath, 'output')
+    create_ytd_folders(FolderList, newExportPath, self)
+    folders = get_folder_list_from_dir(newExportPath)
+    for folder in folders:
+        for img in get_non_dds(folder):
+            convert_img_to_dds(img)
+            os.remove(img)
+        ytd = convert_folder_to_ytd(folder)
+        folder_path = Path(folder)
+        output_file_path = folder_path.parent / f"{folder_path.name}.ytd"
+        with open(f'{output_file_path}', 'wb') as f:
+            bytes_data = ytd.Save()
+            byte_array = bytearray(list(bytes_data))
+            f.write(byte_array)
+            self.report({'INFO'}, f"Exported {output_file_path}")
+    delete_folders(FolderList, newExportPath)
+    self.report(
+        {'INFO'}, f"Exported {len(FolderList)} texture dictionaries")

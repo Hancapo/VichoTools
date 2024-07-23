@@ -1,7 +1,7 @@
 import bpy
 
 from ..vicho_adn_props import get_addon_preferences
-from ..vicho_dependencies import depen_installed
+from ..vicho_dependencies import dependencies_manager as d
 
 class VichoTextureTools_PT_Panel(bpy.types.Panel):
     bl_label = "Texture Dictionary"
@@ -19,7 +19,7 @@ class VichoTextureTools_PT_Panel(bpy.types.Panel):
         layout = self.layout
         scene = context.scene
 
-        if(depen_installed()):
+        if d.available:
             row = layout.row()
             col = row.column(align=True)
             col.separator(factor=3.5)

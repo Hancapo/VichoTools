@@ -1,6 +1,90 @@
 from pathlib import Path
 import sys
 import os
+class DependenciesManager:
+    _instance = None
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super(DependenciesManager, cls).__new__(cls)
+            cls._instance.initialize()
+        return cls._instance
+
+    def initialize(self):
+        self.clr = None
+        self.List = None
+        self.GameFiles = None
+        self.Utils = None
+        self.ScratchImage = None
+        self.TexHelper = None
+        self.WIC_FLAGS = None
+        self.DXGI_FORMAT = None
+        self.TEX_COMPRESS_FLAGS = None
+        self.DDS_FLAGS = None
+        self.TEX_FILTER_FLAGS = None
+
+    @property
+    def available(self):
+        return all([self.clr, self.List, self.GameFiles, self.Utils])
+
+    def load_dependencies(self):
+        try:
+            print("Iniciando carga de dependencias...")
+            
+            p = Path(__file__).resolve().parent
+            runtime_loc = p / 'ytd' / 'cw_py' / 'libs' / 'runtimeconfig.json'
+            sys.path.append(str(p / 'ytd' / 'cw_py' / 'libs'))
+            
+            if runtime_loc.exists():
+                print(f"Archivo runtimeconfig.json encontrado en: {runtime_loc}")
+                import pythonnet
+                pythonnet.load("coreclr", runtime_config=str(runtime_loc))
+                print("PythonNET cargado correctamente")
+            else:
+                print(f"Archivo runtimeconfig.json no encontrado en: {runtime_loc}")
+                return False
+
+            import clr
+            print("CLR importado correctamente")
+
+            clr.AddReference('CodeWalker.Core')
+            clr.AddReference("System.Collections")
+            clr.AddReference("DirectXTexNet")
+            print("Referencias añadidas correctamente")
+
+            from System.Collections.Generic import List
+            import CodeWalker.GameFiles as GameFiles
+            import CodeWalker.Utils as Utils
+            import DirectXTexNet
+            print("Módulos importados correctamente")
+
+            self.clr = clr
+            self.List = List
+            self.GameFiles = GameFiles
+            self.Utils = Utils
+            self.ScratchImage = DirectXTexNet.ScratchImage
+            self.TexHelper = DirectXTexNet.TexHelper
+            self.WIC_FLAGS = DirectXTexNet.WIC_FLAGS
+            self.DXGI_FORMAT = DirectXTexNet.DXGI_FORMAT
+            self.TEX_COMPRESS_FLAGS = DirectXTexNet.TEX_COMPRESS_FLAGS
+            self.DDS_FLAGS = DirectXTexNet.DDS_FLAGS
+            self.TEX_FILTER_FLAGS = DirectXTexNet.TEX_FILTER_FLAGS
+
+            print("Dependencias cargadas correctamente")
+            print(f"dependencies.available: {self.available}")
+            print(f"clr: {self.clr}")
+            print(f"List: {self.List}")
+            print(f"GameFiles: {self.GameFiles}")
+            print(f"Utils: {self.Utils}")
+
+            return True
+        except Exception as e:
+            print(f"Error detallado al cargar dependencias: {e}")
+            import traceback
+            traceback.print_exc()
+            return False
+
+dependencies_manager = DependenciesManager()
 
 def is_dotnet_installed():
     path_env = os.getenv('PATH')
@@ -18,17 +102,3 @@ def is_dotnet_installed():
                 if os.path.isfile(coreclr_path):
                     return True
     return False
-
-
-def depen_installed():
-    try:
-        p = Path(__file__).resolve().parent
-        runtime_loc = f'{p}/ytd/cw_py/libs/runtimeconfig.json'
-        sys.path.append(f'{p}/ytd/cw_py/libs')
-        if Path(runtime_loc).exists():
-            from pythonnet import load
-            load("coreclr", runtime_config=runtime_loc)
-        import clr
-        return True
-    except ImportError:
-        return False

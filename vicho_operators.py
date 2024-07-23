@@ -7,7 +7,7 @@ import webbrowser
 from .misc.misc_funcs import export_milo_ymap_xml
 from bpy.props import StringProperty
 from bpy_extras.io_utils import ExportHelper
-
+from .vicho_dependencies import dependencies_manager, is_dotnet_installed
 class ContextSelectionRestrictedHelper:
     @classmethod
     def poll(cls, context):
@@ -34,8 +34,6 @@ class ExpSelObjsFile(bpy.types.Operator, ContextSelectionRestrictedHelper):
                 f.write(nombre + "\n")
 
         return {'FINISHED'}
-
-
 
 
 class ExportMLOTransFile(bpy.types.Operator, ContextSelectionRestrictedHelper):
@@ -182,15 +180,44 @@ class VichoToolsInstallDependencies(bpy.types.Operator):
     bl_idname = "vicho.vichotoolsinstalldependencies"
     bl_label = "Install dependencies (Python.NET)"
     bl_description = "Install dependencies (Python.NET)"
-
-
+    
     def execute(self, context):
         try:
-            subprocess.check_output(
-                [sys.executable, "-m", "pip", "install", "pythonnet"])
-            self.report({'INFO'}, "Python.NET correctly installed")
+            if not is_dotnet_installed():
+                self.report({'ERROR'}, ".NET Core 8.0 or later is not installed. Please install it first.")
+                return {'CANCELLED'}
+
+            try:
+                import pythonnet
+                self.report({'INFO'}, "Python.NET is already installed")
+            except ImportError:
+                self.report({'INFO'}, "Installing Python.NET...")
+                subprocess.check_call([sys.executable, "-m", "pip", "install", "pythonnet"])
+                self.report({'INFO'}, "Python.NET installed successfully")
+
+            if dependencies_manager.load_dependencies():
+                self.report({'INFO'}, "Dependencies loaded successfully")
+                print(f"dependencies.available: {dependencies_manager.available}")
+                print(f"clr: {dependencies_manager.clr}")
+                print(f"List: {dependencies_manager.List}")
+                print(f"GameFiles: {dependencies_manager.GameFiles}")
+                print(f"Utils: {dependencies_manager.Utils}")
+            else:
+                self.report({'ERROR'}, "Failed to load dependencies")
+                return {'CANCELLED'}
+
+            if dependencies_manager.available:
+                self.report({'INFO'}, "All dependencies are now available and ready to use")
+            else:
+                self.report({'ERROR'}, "Dependencies are still not available after loading")
+                return {'CANCELLED'}
+
         except subprocess.CalledProcessError as e:
-            self.report({'ERROR'}, f"Error installing dependencies: {str(e)}")
+            self.report({'ERROR'}, f"Error installing Python.NET: {str(e)}")
+            return {'CANCELLED'}
+        except Exception as e:
+            self.report({'ERROR'}, f"Unexpected error: {str(e)}")
+            return {'CANCELLED'}
 
         return {'FINISHED'}
 

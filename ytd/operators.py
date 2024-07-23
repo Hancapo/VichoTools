@@ -3,10 +3,9 @@ import subprocess
 import bpy
 
 from ..vicho_adn_props import get_addon_preferences
-from ..vicho_dependencies import depen_installed
+from ..vicho_dependencies import dependencies_manager as d
 
-if depen_installed():
-    from .ytd_funcs import export_ytd_files
+from .ytd_funcs import export_ytd_files
 
 from .ytd_funcs import add_meshes_to_ytd, add_ytd_to_list, auto_fill_ytd_field, create_ytd_folders
 
@@ -20,6 +19,8 @@ class ExportYTDFolders(bpy.types.Operator):
         return len(context.scene.ytd_list) > 0 and os.path.exists(bpy.path.abspath(context.scene.ytd_export_path))
 
     def execute(self, context):
+        if not d.available:
+            return {'CANCELLED'}
         scene = context.scene
         export_mode = scene.ytd_enum_process_type
         ytds = []
@@ -48,6 +49,8 @@ class ExportYTDFiles(bpy.types.Operator):
         return len(context.scene.ytd_list) > 0 and os.path.exists(bpy.path.abspath(context.scene.ytd_export_path))
 
     def execute(self, context):
+        if not d.available:
+            return {'CANCELLED'}
         scene = context.scene
         export_mode = scene.ytd_enum_process_type
         ytds = []
