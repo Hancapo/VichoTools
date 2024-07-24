@@ -13,7 +13,7 @@ class MeshGroup(bpy.types.PropertyGroup):
 class YtdItem(bpy.types.PropertyGroup):
     material_list: bpy.props.CollectionProperty(type=MaterialProp)
     mesh_list: bpy.props.CollectionProperty(type=MeshGroup)
-    selected: bpy.props.BoolProperty(default=True, name="Selection")
+    selected: bpy.props.BoolProperty(default=True, name="Check")
     game_target: bpy.props.EnumProperty(
         items=[("GTA5", "GTA 5", "Grand Theft Auto V ITD")],
         default="GTA5",

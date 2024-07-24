@@ -40,22 +40,17 @@ class VichoObjectTools_PT_Panel(bpy.types.Panel):
         layout = self.layout
         col = layout.column(align=True)
 
-        # Section 2: Set Object Transforms to Picked Object
+        row = col.row(align=True)
+        col = row.column(align=True)
+        col.prop(context.scene, "PasteDataToObject", text="From")
+        col.prop(context.scene, "CopyDataFromObject", text="To")
         col.separator()
-        col.label(
-            text="Set Object Transforms to Picked Object", icon="TRACKING_BACKWARDS"
-        )
-
         row = col.row(align=True)
-        row.prop(context.scene, "PasteDataToObject", text="From")
-        row.prop(context.scene, "CopyDataFromObject", text="To")
+        row.prop(context.scene, "locationOb_checkbox", text="Location",icon="ORIENTATION_VIEW")
+        row.prop(context.scene, "rotationOb_checkbox", text="Rotation", icon="ORIENTATION_GIMBAL")
+        row.prop(context.scene, "scaleOb_checkbox", text="Scale", icon="OBJECT_ORIGIN")
 
-        row = col.row(align=True)
-        row.prop(context.scene, "locationOb_checkbox", text="Location")
-        row.prop(context.scene, "rotationOb_checkbox", text="Rotation")
-        row.prop(context.scene, "scaleOb_checkbox", text="Scale")
-
-        col.operator(PasteObjectTransformFromPickedObject.bl_idname)
+        col.operator(PasteObjectTransformFromPickedObject.bl_idname, icon="MOD_SIMPLIFY")
 
         # Section 3: Delete Meshes Without Data
         col.separator()

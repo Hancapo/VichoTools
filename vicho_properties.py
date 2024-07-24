@@ -26,10 +26,10 @@ class VichoGroup(bpy.types.PropertyGroup):
         maxlen=50,
     )
     bpy.types.Scene.CopyDataFromObject = bpy.props.PointerProperty(
-        name="Copy Data From Object", type=bpy.types.Object
+        name="Target Object", type=bpy.types.Object
     )
     bpy.types.Scene.PasteDataToObject = bpy.props.PointerProperty(
-        name="Paste Data To Object", type=bpy.types.Object
+        name="Source Object", type=bpy.types.Object
     )
 
     bpy.types.Scene.locationOb_checkbox = bpy.props.BoolProperty(
