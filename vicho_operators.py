@@ -13,29 +13,6 @@ class ContextSelectionRestrictedHelper:
     def poll(cls, context):
         return context.active_object is not None
 
-
-class ExpSelObjsFile(bpy.types.Operator, ContextSelectionRestrictedHelper):
-    bl_idname = "vicho.selobjsastext"
-    bl_label = "Save to file"
-
-    def execute(self, context):
-        objetos = context.selected_objects
-        nombres = []
-        for objeto in objetos:
-            nombres.append(objeto.name)
-        # filter name with a dot and just get the string before the dot
-        nombres = [nombre.split(".")[0] for nombre in nombres]
-        nombres = list(set(nombres))
-        # get user's desktop path
-        desktop_path = os.path.expanduser("~/Desktop")
-        # export list to file with name from scene
-        with open(desktop_path + "/" + context.scene.file_name_field + ".txt", "w") as f:
-            for nombre in nombres:
-                f.write(nombre + "\n")
-
-        return {'FINISHED'}
-
-
 class ExportMLOTransFile(bpy.types.Operator, ContextSelectionRestrictedHelper):
     bl_idname = "vicho.exportmlostransformstofile"
     bl_label = "Export MLO transforms to YMAP"
