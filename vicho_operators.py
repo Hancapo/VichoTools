@@ -184,7 +184,7 @@ class VichoToolsInstallDependencies(bpy.types.Operator):
     def execute(self, context):
         try:
             if not is_dotnet_installed():
-                self.report({'ERROR'}, ".NET Core 8.0 or later is not installed. Please install it first.")
+                self.report({'ERROR'}, ".NET 8.0 or later is not installed. Please install it first.")
                 return {'CANCELLED'}
 
             try:

@@ -1,4 +1,5 @@
 from . import auto_load
+from .vicho_dependencies import dependencies_manager as d, is_pythonnet_loaded, is_dotnet_installed
 
 bl_info = {
     "name": "Vicho's Tools",
@@ -15,6 +16,8 @@ auto_load.init()
 
 def register():
     auto_load.register()
+    if is_pythonnet_loaded() and is_dotnet_installed():
+        d.load_dependencies()
 
 def unregister():
     auto_load.unregister()

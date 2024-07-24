@@ -26,36 +26,33 @@ class DependenciesManager:
     @property
     def available(self):
         return all([self.clr, self.List, self.GameFiles, self.Utils])
-
+    
     def load_dependencies(self):
         try:
-            print("Iniciando carga de dependencias...")
+            print("Initializing dependencies...")
             p = Path(__file__).resolve().parent
             runtime_loc = p / 'ytd' / 'cw_py' / 'libs' / 'runtimeconfig.json'
             sys.path.append(str(p / 'ytd' / 'cw_py' / 'libs'))
             
             if runtime_loc.exists():
-                print(f"Archivo runtimeconfig.json encontrado en: {runtime_loc}")
                 import pythonnet
                 pythonnet.load("coreclr", runtime_config=str(runtime_loc))
-                print("PythonNET cargado correctamente")
             else:
-                print(f"Archivo runtimeconfig.json no encontrado en: {runtime_loc}")
                 return False
 
             import clr
-            print("CLR importado correctamente")
+            print("CLR correctly loaded")
 
             clr.AddReference('CodeWalker.Core')
             clr.AddReference("System.Collections")
             clr.AddReference("DirectXTexNet")
-            print("Referencias añadidas correctamente")
+            print("References added correctly")
 
             from System.Collections.Generic import List
             import CodeWalker.GameFiles as GameFiles
             import CodeWalker.Utils as Utils
             import DirectXTexNet
-            print("Módulos importados correctamente")
+            print("Modules imported correctly")
 
             self.clr = clr
             self.List = List
@@ -69,7 +66,7 @@ class DependenciesManager:
             self.DDS_FLAGS = DirectXTexNet.DDS_FLAGS
             self.TEX_FILTER_FLAGS = DirectXTexNet.TEX_FILTER_FLAGS
 
-            print("Dependencias cargadas correctamente")
+            print("Dependencies loaded correctly")
             print(f"dependencies.available: {self.available}")
             print(f"clr: {self.clr}")
             print(f"List: {self.List}")
@@ -78,7 +75,7 @@ class DependenciesManager:
 
             return True
         except Exception as e:
-            print(f"Error detallado al cargar dependencias: {e}")
+            print(f"Error detail: {e}")
             import traceback
             traceback.print_exc()
             return False
@@ -101,3 +98,10 @@ def is_dotnet_installed():
                 if os.path.isfile(coreclr_path):
                     return True
     return False
+
+def is_pythonnet_loaded():
+    try:
+        import pythonnet
+        return True
+    except ImportError:
+        return False

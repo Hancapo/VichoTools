@@ -1,5 +1,5 @@
 import bpy
-from .vicho_dependencies import is_dotnet_installed, dependencies_manager as d
+from .vicho_dependencies import is_dotnet_installed, dependencies_manager as d, is_pythonnet_loaded
 from .vicho_operators import VichoToolsInstallDependencies, VichoToolsInstallDotnetRuntime
 
 class VichoToolsAddonProperties(bpy.types.AddonPreferences):
@@ -19,10 +19,12 @@ class VichoToolsAddonProperties(bpy.types.AddonPreferences):
         else:
             col.label(text=".NET 8 x64 Runtime is already installed.")
         col.separator()
-        if not d.available:
-            col.operator(VichoToolsInstallDependencies.bl_idname, text="Install second: Install PythonNET", icon="SCRIPTPLUGINS")
-        else:
+        print(f"PythonNET loaded: {is_pythonnet_loaded()}")
+        print(f"Dependencies available: {d.available}")
+        if d.available:
             col.label(text="PythonNET is already installed.")
+        else:
+            col.operator(VichoToolsInstallDependencies.bl_idname, text="Install second: Install PythonNET", icon="SCRIPTPLUGINS")
         row = layout.row()
         col.separator()
         row.prop(self, "add_nonsollumz_to_ytd", icon="MESH_CUBE")
