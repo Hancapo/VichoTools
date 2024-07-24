@@ -5,9 +5,11 @@ import os
 from ...vicho_dependencies import dependencies_manager as d
 from .misc import calculate_mipmaps, get_dds
 from ...misc.funcs import power_of_two_resize
-sys.path.append(os.path.join(os.path.dirname(__file__), 'libs'))
+
+sys.path.append(os.path.join(os.path.dirname(__file__), "libs"))
 
 valid_exts = [".png", ".jpg", ".bmp", ".tiff", ".tif", ".jpeg", ".dds"]
+
 
 def texture_list_from_dds_files(ddsFiles: list[str]):
     textureList = d.List[d.GameFiles.Texture]()
@@ -30,10 +32,12 @@ def texture_list_from_dds_files(ddsFiles: list[str]):
             continue
     return textureList
 
+
 def textures_to_ytd(textureList, ytdFile):
     textureDictionary = ytdFile.TextureDict
     textureDictionary.BuildFromTextureList(textureList)
     return ytdFile
+
 
 def resize_image(image):
     imageHeight: int = image.GetMetadata().Height
@@ -42,14 +46,18 @@ def resize_image(image):
     log2Height: float = math.log2(imageHeight)
     if log2Width % 1 == 0 and log2Height % 1 == 0:
         return image
-    
+
     image_new_size = power_of_two_resize(imageWidth, imageHeight)
-    resized_image = image.Resize(0, image_new_size[0], image_new_size[1], d.TEX_FILTER_FLAGS.LINEAR)
+    resized_image = image.Resize(
+        0, image_new_size[0], image_new_size[1], d.TEX_FILTER_FLAGS.LINEAR
+    )
     return resized_image
-    
+
+
 def is_transparent(image) -> bool:
     return not image.IsAlphaAllOpaque()
-    
+
+
 def convert_folder_to_ytd(folder: str):
     dds_files = get_dds(folder)
     ytd = d.GameFiles.YtdFile()
@@ -59,7 +67,8 @@ def convert_folder_to_ytd(folder: str):
     final_ytd = textures_to_ytd(texture_list_from_dds_files(dds_files), ytd)
     return final_ytd
 
-def convert_img_to_dds(filepath : str):
+
+def convert_img_to_dds(filepath: str):
     image = None
     fileExt = Path(filepath).suffix
     fileName = Path(filepath).stem
@@ -82,8 +91,17 @@ def convert_img_to_dds(filepath : str):
     height = resized_image.GetMetadata().Height
     width = resized_image.GetMetadata().Width
     mip_maps_levels = calculate_mipmaps(width, height)
-    mipmapped_image = resized_image.GenerateMipMaps(d.TEX_FILTER_FLAGS.BOX, mip_maps_levels) if mip_maps_levels > 1 else resized_image
-    compressed_image = mipmapped_image.Compress(d.DXGI_FORMAT.BC3_UNORM, d.TEX_COMPRESS_FLAGS.SRGB, 0) if is_transparent(mipmapped_image) else mipmapped_image.Compress(d.DXGI_FORMAT.BC1_UNORM, d.TEX_COMPRESS_FLAGS.SRGB, 0.5)
+    mipmapped_image = (
+        resized_image.GenerateMipMaps(d.TEX_FILTER_FLAGS.BOX, mip_maps_levels)
+        if mip_maps_levels > 1
+        else resized_image
+    )
+    compressed_image = (
+        mipmapped_image.Compress(d.DXGI_FORMAT.BC3_UNORM, d.TEX_COMPRESS_FLAGS.SRGB, 0)
+        if is_transparent(mipmapped_image)
+        else mipmapped_image.Compress(
+            d.DXGI_FORMAT.BC1_UNORM, d.TEX_COMPRESS_FLAGS.SRGB, 0.5
+        )
+    )
     output_path = os.path.join(os.path.dirname(filepath), f"{fileName}.dds")
     compressed_image.SaveToDDSFile(d.DDS_FLAGS.NONE, output_path)
-
