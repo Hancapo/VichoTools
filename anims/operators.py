@@ -1,5 +1,5 @@
 import bpy
-from .anims_helper import create_anim_tree, create_clips_per_obj, create_anims_from_objs, get_targets_from_anim, sutchis_from_target, get_arch_from_ytyps_by_obj, calculate_anim_flags
+from .helper import create_anim_tree, create_clips_per_obj, create_anims_from_objs, get_targets_from_anim, sutchis_from_target, get_arch_from_ytyps_by_obj, calculate_anim_flags
 
 class CreateClipDictionaryFromSelected(bpy.types.Operator):
     """Create YCD from selected objects"""

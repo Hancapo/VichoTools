@@ -1,5 +1,5 @@
 import bpy
-from .ytd_helper import ytd_index_changed, update_post
+from .helper import ytd_index_changed, update_post
 
 class MaterialProp(bpy.types.PropertyGroup):
     material: bpy.props.PointerProperty(type=bpy.types.Material) # type: ignore

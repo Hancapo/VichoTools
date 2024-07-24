@@ -1,6 +1,6 @@
 import bpy
 from .enums import GroupType, ChildType, AnimationType
-from ..misc.misc_funcs import is_object_in_scene, is_drawable_model
+from ..misc.funcs import is_object_in_scene, is_drawable_model
 from collections import namedtuple
 
 Target = namedtuple('Targets', ['type', 'target'])

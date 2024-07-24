@@ -3,12 +3,11 @@ from pathlib import Path
 import sys
 import os
 from ...vicho_dependencies import dependencies_manager as d
-from .cw_py_misc import calculate_mipmaps, get_dds
-from ...misc.misc_funcs import power_of_two_resize
+from .misc import calculate_mipmaps, get_dds
+from ...misc.funcs import power_of_two_resize
 sys.path.append(os.path.join(os.path.dirname(__file__), 'libs'))
 
 valid_exts = [".png", ".jpg", ".bmp", ".tiff", ".tif", ".jpeg", ".dds"]
-
 
 def texture_list_from_dds_files(ddsFiles: list[str]):
     textureList = d.List[d.GameFiles.Texture]()

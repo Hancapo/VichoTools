@@ -2,10 +2,10 @@ import os
 from pathlib import Path
 import shutil
 import bpy
-from .cw_py.cw_py_misc import get_folder_list_from_dir, get_non_dds
+from .cw_py.misc import get_folder_list_from_dir, get_non_dds
 from ..vicho_dependencies import dependencies_manager as d
 
-from .cw_py.cw_ytd_tools import convert_folder_to_ytd, convert_img_to_dds
+from .cw_py.helper import convert_folder_to_ytd, convert_img_to_dds
 
 def get_images_from_material(material):
     images = []

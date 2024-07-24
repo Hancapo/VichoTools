@@ -4,7 +4,7 @@ import bpy
 import os
 import webbrowser
 
-from .misc.misc_funcs import export_milo_ymap_xml
+from .misc.funcs import export_milo_ymap_xml
 from bpy.props import StringProperty
 from bpy_extras.io_utils import ExportHelper
 from .vicho_dependencies import dependencies_manager, is_dotnet_installed

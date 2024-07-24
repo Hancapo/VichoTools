@@ -1,6 +1,6 @@
 import bpy
 
-from ..vicho_adn_props import get_addon_preferences
+from ..vicho_addon_prefs import get_addon_preferences
 from ..vicho_dependencies import dependencies_manager as d
 
 class VichoTextureTools_PT_Panel(bpy.types.Panel):
