@@ -19,8 +19,6 @@ class VichoToolsAddonProperties(bpy.types.AddonPreferences):
         else:
             col.label(text=".NET 8 x64 Runtime is already installed.")
         col.separator()
-        print(f"PythonNET loaded: {is_pythonnet_loaded()}")
-        print(f"Dependencies available: {d.available}")
         if d.available:
             col.label(text="PythonNET is already installed.")
         else:

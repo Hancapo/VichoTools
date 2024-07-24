@@ -41,7 +41,7 @@ class DependenciesManager:
                 return False
 
             import clr
-            print("CLR correctly loaded")
+            print("CLR OK")
 
             clr.AddReference('CodeWalker.Core')
             clr.AddReference("System.Collections")
@@ -52,7 +52,7 @@ class DependenciesManager:
             import CodeWalker.GameFiles as GameFiles
             import CodeWalker.Utils as Utils
             import DirectXTexNet
-            print("Modules imported correctly")
+            print("Modules OK")
 
             self.clr = clr
             self.List = List
@@ -66,7 +66,7 @@ class DependenciesManager:
             self.DDS_FLAGS = DirectXTexNet.DDS_FLAGS
             self.TEX_FILTER_FLAGS = DirectXTexNet.TEX_FILTER_FLAGS
 
-            print("Dependencies loaded correctly")
+            print("Dependencies loaded OK")
             print(f"dependencies.available: {self.available}")
             print(f"clr: {self.clr}")
             print(f"List: {self.List}")
