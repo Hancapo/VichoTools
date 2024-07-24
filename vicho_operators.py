@@ -97,7 +97,7 @@ class DeleteAllColorAttributes(bpy.types.Operator, ContextSelectionRestrictedHel
     """Delete all color attributes from selected objects"""
 
     bl_idname = "vicho.deleteallcolorattributes"
-    bl_label = "Delete all color attributes"
+    bl_label = "Color Attributes"
 
     def execute(self, context):
         objects = context.selected_objects
@@ -116,7 +116,7 @@ class DeleteAllVertexGroups(bpy.types.Operator, ContextSelectionRestrictedHelper
     """Delete all vertex groups from selected objects"""
 
     bl_idname = "vicho.deleteallvertexgroups"
-    bl_label = "Delete all vertex groups"
+    bl_label = "Vertex Groups"
 
     def execute(self, context):
         objects = context.selected_objects
@@ -161,7 +161,7 @@ class RenameAllUvMaps(bpy.types.Operator, ContextSelectionRestrictedHelper):
     """Rename all UV maps from selected objects to Sollumz' standard"""
 
     bl_idname = "vicho.renamealluvmaps"
-    bl_label = "Rename all UV maps"
+    bl_label = "UV Maps"
 
     def execute(self, context):
         objects = context.selected_objects

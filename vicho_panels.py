@@ -54,19 +54,21 @@ class VichoObjectTools_PT_Panel(bpy.types.Panel):
 
         # Section 3: Delete Meshes Without Data
         col.separator()
-        col.label(text="Delete Meshes Without Data and Others", icon="DOT")
+        col.label(text="Delete", icon="TRASH")
         col.separator()
-
         # Section 4: Delete All Color Attributes
-        col.operator(DeleteAllColorAttributes.bl_idname)
+        col.operator(DeleteAllColorAttributes.bl_idname, icon="COLOR")
         col.separator()
-
         # Section 5: Delete All Vertex Groups
-        col.operator(DeleteAllVertexGroups.bl_idname)
+        col.operator(DeleteAllVertexGroups.bl_idname, icon="GROUP_VERTEX")
         col.separator()
 
+        col.label(text="Misc", icon="MESH_GRID")
+        col.separator()
         col.operator(DetectMeshesWithNoTextures.bl_idname)
         col.separator()
 
-        col.operator(RenameAllUvMaps.bl_idname)
+        col.label(text="Rename", icon="GREASEPENCIL")
+        col.separator()
+        col.operator(RenameAllUvMaps.bl_idname, icon="UV_DATA")
         col.separator()
