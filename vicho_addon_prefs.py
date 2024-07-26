@@ -1,5 +1,5 @@
 import bpy
-from .vicho_dependencies import is_dotnet_installed, dependencies_manager as d, is_pythonnet_loaded
+from .vicho_dependencies import is_dotnet_installed, dependencies_manager as d
 from .vicho_operators import VichoToolsInstallDependencies, VichoToolsInstallDotnetRuntime
 
 class VichoToolsAddonProperties(bpy.types.AddonPreferences):
