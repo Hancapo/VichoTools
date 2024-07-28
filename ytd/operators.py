@@ -2,7 +2,7 @@ import os
 import subprocess
 import bpy
 
-from ..vicho_addon_prefs import get_addon_preferences
+from ..vicho_preferences import get_addon_preferences
 from ..vicho_dependencies import dependencies_manager as d
 
 from .funcs import export_ytd_files
@@ -16,10 +16,10 @@ from .funcs import (
 
 
 class ExportYTDFolders(bpy.types.Operator):
-    """Export the list of texture dictionaries as folders"""
+    """Export the list of texture folders as folders"""
 
     bl_idname = "vicho.exportytdfolders"
-    bl_label = "Export YTD folders"
+    bl_label = ""
 
     @classmethod
     def poll(cls, context):
@@ -49,10 +49,10 @@ class ExportYTDFolders(bpy.types.Operator):
 
 
 class ExportYTDFiles(bpy.types.Operator):
-    """Export the list of texture dictionaries as YTD files"""
+    """Export the list of texture folders as YTD files"""
 
     bl_idname = "vicho.exportytdfiles"
-    bl_label = "Export YTD files"
+    bl_label = ""
 
     @classmethod
     def poll(cls, context):
@@ -85,10 +85,10 @@ class ExportYTDFiles(bpy.types.Operator):
 
 
 class YTDLIST_OT_add(bpy.types.Operator):
-    """Add a new texture dictionary to the list"""
+    """Creates a new texture folder from the selected objects"""
 
     bl_idname = "ytd_list.add_ytd"
-    bl_label = "Add a new texture dictionary"
+    bl_label = ""
 
     @classmethod
     def poll(cls, context):
@@ -116,17 +116,17 @@ class YTDLIST_OT_add(bpy.types.Operator):
         ytd_list = scene.ytd_list
         sel_objs = context.selected_objects
         if not (add_ytd_to_list(scene, sel_objs, ytd_list, self)):
-            self.report({"ERROR"}, f"Failed to add a new texture dictionary")
+            self.report({"ERROR"}, "Failed to add a new texture dictionary")
         else:
             scene.ytd_active_index = len(ytd_list) - 1
         return {"FINISHED"}
 
 
 class YTDLIST_OT_remove(bpy.types.Operator):
-    """Remove the selected texture dictionary from the list"""
+    """Removes the selected texture folder from the list"""
 
     bl_idname = "ytd_list.remove_ytd"
-    bl_label = "Remove the selected texture dictionary"
+    bl_label = ""
 
     @classmethod
     def poll(cls, context):
@@ -149,10 +149,10 @@ class YTDLIST_OT_remove(bpy.types.Operator):
 
 
 class YTDLIST_OT_add_to_ytd(bpy.types.Operator):
-    """Add selected objects to the selected texture dictionary and reload the textures"""
+    """Add selected objects to the selected texture folder"""
 
     bl_idname = "ytd_list.add_to_ytd"
-    bl_label = "Add selected objects to the selected texture dictionary"
+    bl_label = ""
 
     @classmethod
     def poll(cls, context):
@@ -175,7 +175,7 @@ class YTDLIST_OT_assign_ytd_field_from_list(bpy.types.Operator):
     """Auto-fill Texture Dictionary field in all YTYPs"""
 
     bl_idname = "ytd_list.assign_ytd_field_from_list"
-    bl_label = "Auto-fill Texture Dictionary field"
+    bl_label = ""
 
     @classmethod
     def poll(cls, context):
@@ -192,10 +192,10 @@ class YTDLIST_OT_assign_ytd_field_from_list(bpy.types.Operator):
 
 
 class YTDLIST_OT_select_meshes_from_ytd_folder(bpy.types.Operator):
-    """Select meshes from the selected texture folder"""
+    """Select meshes' parent from the selected texture folder"""
 
     bl_idname = "ytd_list.select_meshes_from_ytd_folder"
-    bl_label = "Select all meshes from the selected texture folder"
+    bl_label = ""
 
     @classmethod
     def poll(cls, context):
@@ -216,10 +216,10 @@ class YTDLIST_OT_select_meshes_from_ytd_folder(bpy.types.Operator):
 
 
 class YTDLIST_OT_select_mesh_from_ytd_folder(bpy.types.Operator):
-    """Select mesh from the selected mesh item"""
+    """Select mesh' parent from the selected mesh item"""
 
     bl_idname = "ytd_list.select_mesh_from_ytd_folder"
-    bl_label = "Select mesh from the selected mesh item"
+    bl_label = ""
 
     @classmethod
     def poll(cls, context):
@@ -237,14 +237,7 @@ class YTDLIST_OT_select_mesh_from_ytd_folder(bpy.types.Operator):
         return {"FINISHED"}
 
 
-class YTDLIST_OT_fake_op(bpy.types.Operator):
-    """Fake operator"""
 
-    bl_idname = "ytd_list.fake_op"
-    bl_label = "Fake operator"
-
-    def execute(self, context):
-        return {"FINISHED"}
 
 
 class MESHLIST_OT_confirm_delete_mesh(bpy.types.Operator):
@@ -269,7 +262,7 @@ class MESHLIST_OT_delete_mesh(bpy.types.Operator):
     """Delete the selected mesh from the list"""
 
     bl_idname = "mesh_list.delete_mesh"
-    bl_label = "Delete the selected mesh"
+    bl_label = ""
 
     @classmethod
     def poll(cls, context):

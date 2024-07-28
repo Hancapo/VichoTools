@@ -1,7 +1,6 @@
 import subprocess
 import sys
 import bpy
-import os
 import webbrowser
 
 from .misc.funcs import export_milo_ymap_xml
@@ -174,7 +173,7 @@ class RenameAllUvMaps(bpy.types.Operator, ContextSelectionRestrictedHelper):
 
 
 class VichoToolsInstallDependencies(bpy.types.Operator):
-    bl_idname = "vicho.vichotoolsinstalldependencies"
+    bl_idname = "vicho.installdependencies"
     bl_label = "Install dependencies (Python.NET)"
     bl_description = "Install dependencies (Python.NET)"
 
@@ -230,7 +229,7 @@ class VichoToolsInstallDependencies(bpy.types.Operator):
 
 
 class VichoToolsInstallDotnetRuntime(bpy.types.Operator):
-    bl_idname = "vicho.vichotoolsinstalldotnetruntime"
+    bl_idname = "vicho.installdotnetruntime"
     bl_label = "Install .NET 8 runtime"
     bl_description = "Install .NET 8 runtime"
 
@@ -241,10 +240,19 @@ class VichoToolsInstallDotnetRuntime(bpy.types.Operator):
                 "https://dotnet.microsoft.com/download/dotnet/thank-you/runtime-8.0.6-windows-x64-installer"
             )
             self.report({"INFO"}, "Download .NET 8 runtime from Microsoft's website")
-        except:
+        except Exception:
             self.report(
                 {"ERROR"},
                 f"Error opening web browser to download .NET 8 runtime from Microsoft's website",
             )
 
+        return {"FINISHED"}
+
+class YTDLIST_OT_fake_op(bpy.types.Operator):
+    """Fake operator"""
+
+    bl_idname = "vicho.fake_op"
+    bl_label = ""
+
+    def execute(self, context):
         return {"FINISHED"}

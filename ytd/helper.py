@@ -17,7 +17,7 @@ class YTDLIST_UL_list(bpy.types.UIList):
                 emboss=False,
                 icon="CHECKBOX_HLT" if item.selected else "CHECKBOX_DEHLT",
             )
-            row.prop(item, "name", text="", emboss=False, icon="IMAGE_BACKGROUND")
+            row.prop(item, "name", text="", emboss=False, icon="RENDERLAYERS")
             row = layout.row(align=True)
             row.scale_x = 0.7
             row.prop(item, "game_target", text="", emboss=False, icon="MATSHADERBALL")

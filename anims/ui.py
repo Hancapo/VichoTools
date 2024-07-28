@@ -17,37 +17,37 @@ class VichoAnimTools_PT_Panel(bpy.types.Panel):
     def draw(self, context):
         layout = self.layout
         col = layout.column(align=True)
+        ycd_name = context.scene.ycd_name
         col.label(
-            text="Warning, this tool is experimental, it currently supports Object(s) and UV Anims.",
+            text="This tool is experimental, it currently supports Object(s) and UV Anims.",
             icon="ERROR",
         )
         col.separator()
         col.prop(context.scene, "ycd_name", text="YCD Name", icon="ANIM")
         col.separator()
         row = col.row(align=True)
-        row.separator()
-        row.prop(
-            context.scene,
-            "autofill_clipdict",
-            text="Autofill Clip Dictionary",
-            icon="GREASEPENCIL",
-        )
-        row.prop(
-            context.scene,
-            "calculate_anim_flags",
-            text="Calculate Anim Flags",
-            icon="EXPERIMENTAL",
-        )
-        row.prop(
-            context.scene,
-            "auto_start_anim_flag",
-            text="Auto-start Anim",
-            icon="SOLO_ON",
-        )
-        col.separator()
-        row = col.row(align=True)
-        row.operator(
-            CreateClipDictionaryFromSelected.bl_idname,
-            text="Create YCD from Selected Objects",
-            icon="UV",
-        )
+        if ycd_name != "":
+            row.prop(
+                context.scene,
+                "autofill_clipdict",
+                text="Autofill Clip Dictionary",
+                icon="GREASEPENCIL",
+            )
+            row.prop(
+                context.scene,
+                "calculate_anim_flags",
+                text="Calculate Anim Flags",
+                icon="EXPERIMENTAL",
+            )
+            row.prop(
+                context.scene,
+                "auto_start_anim_flag",
+                text="Auto-start Anim",
+                icon="SOLO_ON",
+            )
+            row = col.row(align=True)
+            row.operator(
+                CreateClipDictionaryFromSelected.bl_idname,
+                text="Create YCD from Selected Objects",
+                icon="UV",
+            )
