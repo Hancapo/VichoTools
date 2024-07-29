@@ -1,19 +1,3 @@
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful, but
-# WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTIBILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-# General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program. If not, see <http://www.gnu.org/licenses/>.
-#
-# Code from Sollumz GTA V Tools: https://github.com/Skylumz/Sollumz 
-# Thank you for making it available and under the GNU General Public License
-
 import bpy
 import typing
 import inspect
@@ -27,8 +11,6 @@ __all__ = (
     "unregister",
 )
 
-blender_version = bpy.app.version
-
 modules = None
 ordered_classes = None
 
@@ -37,12 +19,8 @@ def init():
     global modules
     global ordered_classes
 
-    modules = get_all_submodules(Path(__file__).parent)
+    modules = get_all_submodules(Path(__file__).parent, __package__)
     ordered_classes = get_ordered_classes_to_register(modules)
-
-    # print("INIT")
-    # for module in ordered_classes:
-    #     print(module)
 
 
 def register():
@@ -57,15 +35,15 @@ def register():
 
 
 def unregister():
-    called = []
+    called = set()
     for module in modules:
         if module.__name__ == __name__:
             continue
         if hasattr(module, "unregister"):
             # Check if unregister method has already been called
-            if not module.unregister in called:
+            if module.unregister not in called:
                 module.unregister()
-                called.append(module.unregister)
+                called.add(module.unregister)
 
     for cls in reversed(ordered_classes):
         bpy.utils.unregister_class(cls)
@@ -74,8 +52,8 @@ def unregister():
 # Import modules
 #################################################
 
-def get_all_submodules(directory):
-    return list(iter_submodules(directory, directory.name))
+def get_all_submodules(directory, package_name):
+    return list(iter_submodules(directory, package_name))
 
 
 def iter_submodules(path, package_name):
@@ -103,13 +81,11 @@ def get_ordered_classes_to_register(modules):
 
 def get_register_deps_dict(modules):
     my_classes = set(iter_my_classes(modules))
-    my_classes_by_idname = {
-        cls.bl_idname: cls for cls in my_classes if hasattr(cls, "bl_idname")}
+    my_classes_by_idname = {cls.bl_idname: cls for cls in my_classes if hasattr(cls, "bl_idname")}
 
     deps_dict = {}
     for cls in my_classes:
-        deps_dict[cls] = set(iter_my_register_deps(
-            cls, my_classes, my_classes_by_idname))
+        deps_dict[cls] = set(iter_my_register_deps(cls, my_classes, my_classes_by_idname))
     return deps_dict
 
 
@@ -127,13 +103,8 @@ def iter_my_deps_from_annotations(cls, my_classes):
 
 
 def get_dependency_from_annotation(value):
-    if blender_version >= (2, 93):
-        if isinstance(value, bpy.props._PropertyDeferred):
-            return value.keywords.get("type")
-    else:
-        if isinstance(value, tuple) and len(value) == 2:
-            if value[0] in (bpy.props.PointerProperty, bpy.props.CollectionProperty):
-                return value[1]["type"]
+    if isinstance(value, bpy.props._PropertyDeferred):
+        return value.keywords.get("type")
     return None
 
 
@@ -169,13 +140,17 @@ def iter_classes_in_module(module):
 
 
 def get_register_base_types():
-    return set(getattr(bpy.types, name) for name in [
+    type_names = [
         "Panel", "Operator", "PropertyGroup",
         "Header", "Menu",
         "Node", "NodeSocket", "NodeTree",
         "UIList", "RenderEngine",
-        "Gizmo", "GizmoGroup"
-    ])
+        "Gizmo", "GizmoGroup",
+    ]
+    if bpy.app.version >= (4, 1, 0):
+        type_names.append("FileHandler")
+
+    return set(getattr(bpy.types, name) for name in type_names)
 
 
 # Find order to register to solve dependencies

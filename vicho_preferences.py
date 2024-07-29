@@ -3,7 +3,7 @@ from .vicho_dependencies import is_dotnet_installed, dependencies_manager as d
 from .vicho_operators import VichoToolsInstallDependencies, VichoToolsInstallDotnetRuntime
 
 class VichoToolsAddonProperties(bpy.types.AddonPreferences):
-    bl_idname = __package__.split(".")[0]
+    bl_idname = __package__
     add_nonsollumz_to_ytd: bpy.props.BoolProperty(
         name="Add Non-Sollumz objects in YTD/Texture folder(s)", default=False, description="Non-Sollumz objects will be able to be added to YTD/Texture folder(s) as long as they are meshes."
     )
@@ -30,7 +30,7 @@ class VichoToolsAddonProperties(bpy.types.AddonPreferences):
 
 
 def get_addon_preferences() -> VichoToolsAddonProperties:
-    return bpy.context.preferences.addons[__package__.split(".")[0]].preferences
+    return bpy.context.preferences.addons[__package__].preferences
 
 
 def register():
