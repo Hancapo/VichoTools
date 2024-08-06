@@ -15,7 +15,7 @@ license = ["SPDX:MIT",]
 platforms = ["windows-x64",]
 
 wheels = [
-    "./wheel/pythonnet-3.0.3-py3-none-any.whl",
+    "./wheels/pythonnet-3.0.3-py3-none-any.whl",
 ]
 
 [permissions]
