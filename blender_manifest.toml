@@ -15,10 +15,10 @@ license = ["SPDX:MIT",]
 platforms = ["windows-x64",]
 
 wheels = [
-    "./wheels/pythonnet-3.0.3-py3-none-any.whl",
+    "./wheels/cffi-1.16.0-cp311-cp311-win_amd64.whl",
     "./wheels/clr_loader-0.2.6-py3-none-any.whl",
     "./wheels/pycparser-2.22-py3-none-any.whl",
-    "./wheels/cffi-1.16.0-cp312-cp312-win_amd64.whl"
+    "./wheels/pythonnet-3.0.3-py3-none-any.whl"
 ]
 
 [permissions]
