@@ -4,7 +4,7 @@ from .vicho_dependencies import dependencies_manager as d, is_pythonnet_loaded, 
 bl_info = {
     "name": "Vicho's Tools",
     "author": "MrVicho13",
-    "version": (0, 7, 3),
+    "version": (1, 0, 0),
     "blender": (4, 0, 0),
     "description": "Tools designed to help with GTA V modding",
     "category": "Vicho's Tools",
