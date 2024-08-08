@@ -5,7 +5,7 @@ name = "Vicho's Tools"
 tagline = "A collection of tools for GTA V modding"
 maintainer = "MrVicho13 <vicho0202@gmail.com>"
 type = "add-on"
-website = "https://vichomodding.gitbook.io/"
+website = "https://vichomodding.gitbook.io/main/blender-stuff/recommended-add-ons/modding/vichos-tools"
 tags = ["Animation", "Import-Export", "3D View", "Object", "Mesh", "Material"]
 blender_version_min = "4.2.0"
 

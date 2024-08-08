@@ -8,7 +8,7 @@ bl_info = {
     "blender": (4, 0, 0),
     "description": "Tools designed to help with GTA V modding",
     "category": "Vicho's Tools",
-    "doc_url": "https://sollumz.gitbook.io/sollumz-wiki/",
+    "doc_url": "https://vichomodding.gitbook.io/main/blender-stuff/recommended-add-ons/modding/vichos-tools",
     "tracker_url": "https://github.com/Hancapo/VichoTools/issues",
 }
 
