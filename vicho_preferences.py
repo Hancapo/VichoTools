@@ -23,10 +23,14 @@ class VichoToolsAddonProperties(bpy.types.AddonPreferences):
             col.label(text="PythonNET is already installed.")
         else:
             col.operator(VichoToolsInstallDependencies.bl_idname, text="Install second: Install PythonNET", icon="SCRIPTPLUGINS")
-        row = layout.row()
         col.separator()
-        row.prop(self, "add_nonsollumz_to_ytd", icon="MESH_CUBE")
-        row.prop(self, "enable_folder_export", icon="FILE_FOLDER")
+        box = col.box()
+        col = box.column(align=True)
+        col.label(text="Texture(s) Settings", icon="TEXTURE")
+        col.separator()
+        col.prop(self, "add_nonsollumz_to_ytd")
+        col.separator()
+        col.prop(self, "enable_folder_export")
 
 
 def get_addon_preferences() -> VichoToolsAddonProperties:
