@@ -1,6 +1,3 @@
-from . import auto_load
-from .vicho_dependencies import dependencies_manager as d, is_pythonnet_loaded, is_dotnet_installed
-
 bl_info = {
     "name": "Vicho's Tools",
     "author": "MrVicho13",
@@ -12,6 +9,26 @@ bl_info = {
     "tracker_url": "https://github.com/Hancapo/VichoTools/issues",
 }
 
+def reload_vicho_tools():
+    import sys
+    print("Reloading Vicho's Tools")
+    global auto_load
+    del auto_load
+    vicho_module_prefix = f"{__package__}."
+    module_names = list(sys.modules.keys())
+    for name in module_names:
+        if name.startswith(vicho_module_prefix):
+            del sys.modules[name]
+            
+if "auto_load" in locals():
+    reload_vicho_tools()
+    from .vicho_dependencies import dependencies_manager as d, is_pythonnet_loaded, is_dotnet_installed
+    if is_pythonnet_loaded() and is_dotnet_installed():
+        d.load_dependencies()
+
+from . import auto_load
+from .vicho_dependencies import dependencies_manager as d, is_pythonnet_loaded, is_dotnet_installed
+
 auto_load.init()
 
 def register():
@@ -21,6 +38,3 @@ def register():
 
 def unregister():
     auto_load.unregister()
-
-if __name__ == '__main__':
-    register()
