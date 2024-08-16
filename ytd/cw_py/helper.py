@@ -70,7 +70,7 @@ def convert_img_to_dds(filepath: str):
     fileName = Path(filepath).stem
     if fileExt in SUPPORTED_FORMATS:
         try:
-            image = d.Surface.LoadFromFile(filepath)
+            image = d.Surface.LoadFromFile(filepath, True)
         except Exception:
             print(f"Error loading image {filepath}")
             return None
@@ -79,7 +79,6 @@ def convert_img_to_dds(filepath: str):
         return None
     
     resized_image = resize_image(image)
-    resized_image.FlipVertically()
     height = resized_image.Height
     width = resized_image.Width
     mip_levels = calculate_mipmaps_lvls(width, height)
