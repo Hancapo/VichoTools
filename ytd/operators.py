@@ -65,6 +65,7 @@ class ExportYTDFiles(bpy.types.Operator):
             return {"CANCELLED"}
         scene = context.scene
         export_mode = scene.ytd_enum_process_type
+        quality = scene.dds_conv_quality
         ytds = []
         match export_mode:
             case "ALL":
@@ -74,7 +75,7 @@ class ExportYTDFiles(bpy.types.Operator):
             case "SELECTED":
                 ytds = [scene.ytd_list[scene.ytd_active_index]]
 
-        export_ytd_files(ytds, bpy.path.abspath(scene.ytd_export_path), self)
+        export_ytd_files(ytds, bpy.path.abspath(scene.ytd_export_path), self, quality)
         if scene.ytd_show_explorer_after_export:
             subprocess.Popen(
                 'explorer "{}"'.format(

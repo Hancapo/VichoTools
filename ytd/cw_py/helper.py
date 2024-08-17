@@ -63,7 +63,7 @@ def convert_folder_to_ytd(folder: str):
     return final_ytd
 
 
-def convert_img_to_dds(filepath: str):
+def convert_img_to_dds(filepath: str, quality: str):
     image = None
     compressor = d.Compressor()
     fileExt = Path(filepath).suffix
@@ -87,8 +87,8 @@ def convert_img_to_dds(filepath: str):
     compressor.Input.SetMipmapGeneration(True, mip_levels)
     compressor.Input.MipmapFilter = d.MipmapFilter.Box
     compressor.Output.OutputFileFormat = d.OutputFileFormat.DDS
-    compressor.Compression.Quality = d.CompressionQuality.Normal
-    
+    compressor.Compression.Quality = get_quality(quality)
+    print(f"Quality: {compressor.Compression.Quality}")
     compressor.Compression.Format = d.CompressionFormat.DXT5 if is_transparent(resized_image) else d.CompressionFormat.DXT1
     
     output_path = os.path.join(os.path.dirname(filepath), f"{fileName}.dds")
@@ -100,3 +100,15 @@ def convert_img_to_dds(filepath: str):
     compressor.Dispose()
     
     
+def get_quality(quality: str):
+    match quality:
+        case "FASTEST":
+            return d.CompressionQuality.Fastest
+        case "NORMAL":
+            return d.CompressionQuality.Normal
+        case "PRODUCTION":
+            return d.CompressionQuality.Production
+        case "HIGHEST":
+            return d.CompressionQuality.Highest
+        case _:
+            return d.CompressionQuality.Normal

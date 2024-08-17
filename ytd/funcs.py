@@ -165,14 +165,14 @@ def update_material_list(item):
                 item.material_list.add().material = slot.material
 
 
-def export_ytd_files(FolderList, ExportPath, self):
+def export_ytd_files(FolderList, ExportPath, self, quality = None):
     print(f"Export path: {ExportPath}")
     newExportPath = os.path.join(ExportPath, "output")
     create_ytd_folders(FolderList, newExportPath, self)
     folders = get_folder_list_from_dir(newExportPath)
     for folder in folders:
         for img in get_non_dds(folder):
-            convert_img_to_dds(img)
+            convert_img_to_dds(img, quality)
             os.remove(img)
         ytd = convert_folder_to_ytd(folder)
         folder_path = Path(folder)
