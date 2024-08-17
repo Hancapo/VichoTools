@@ -1,6 +1,6 @@
 from pathlib import Path
 
-SUPPORTED_FORMATS = [".png", ".jpg", ".bmp", ".tiff", ".tif", ".jpeg", ".dds", ".psd", ".gif", ".webp"]
+SUPPORTED_FORMATS = [".png", ".jpg", ".bmp", ".tiff", ".tif", ".jpeg", ".psd", ".gif", ".webp"]
 
 
 def get_folder_list_from_dir(dir: str):
