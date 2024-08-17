@@ -68,7 +68,7 @@ def convert_img_to_dds(filepath: str):
     compressor = d.Compressor()
     fileExt = Path(filepath).suffix
     fileName = Path(filepath).stem
-    if fileExt in SUPPORTED_FORMATS:
+    if fileExt in filter(lambda x: x != ".dds", SUPPORTED_FORMATS):
         try:
             image = d.Surface.LoadFromFile(filepath, True)
         except Exception:
