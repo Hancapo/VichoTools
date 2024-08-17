@@ -79,6 +79,8 @@ class VichoTextureTools_PT_Panel(bpy.types.Panel):
                 col.label(text="Export Options", icon="EXPORT")
                 box = col.box()
                 row = box.row()
+                row.prop(scene, "dds_conv_quality", text="Quality", icon="MODIFIER")
+                row = box.row()
                 row.prop(scene, "ytd_export_path", text="", icon="FOLDER_REDIRECT")
                 row.prop(
                     scene,
