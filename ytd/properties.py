@@ -7,6 +7,13 @@ process_type = [
     ("SELECTED", "Selected item", "Selected item"),
 ]
 
+quality_settings = [
+    ("FASTEST", "Fastest", "Fastest processing time. Results may be reasonable, but is not considered to be real-time either"),
+    ("NORMAL", "Normal", "Balanced in terms of quality / speed"),
+    ("PRODUCTION", "Production", "Generally produces similar results to normal, but it may double or triple the time to obtain minor quality improvements"),
+    ("HIGHEST", "Highest", "Slowest processing time. May be extremely slow as it brute force compressor and should generally only be used for testing purposes"),
+]
+
 def update_path(self, context):
     self.ytd_export_path = bpy.path.abspath(self.ytd_export_path)
 
@@ -54,6 +61,13 @@ class YtdGroupProps(bpy.types.PropertyGroup):
         name="Show Mesh List",
         description="Show the mesh list from the selected YTD item",
         default=False,
+    )
+    
+    bpy.types.Scene.dds_conv_quality = bpy.props.EnumProperty(
+        items=quality_settings,
+        name="Quality",
+        default="NORMAL",
+        description="Image to DDS conversion quality",
     )
 
 def register():

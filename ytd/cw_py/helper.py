@@ -1,14 +1,12 @@
 import math
 from pathlib import Path
-import sys
 import os
 from ...vicho_dependencies import dependencies_manager as d
-from .misc import calculate_mipmaps, get_dds
+from .misc import calculate_mipmaps_lvls, get_dds
 from ...misc.funcs import power_of_two_resize
 
-sys.path.append(os.path.join(os.path.dirname(__file__), "libs"))
-
-valid_exts = [".png", ".jpg", ".bmp", ".tiff", ".tif", ".jpeg", ".dds"]
+#sys.path.append(os.path.join(os.path.dirname(__file__), "libs"))
+SUPPORTED_FORMATS = [".png", ".jpg", ".bmp", ".tiff", ".tif", ".jpeg", ".dds", ".psd", ".gif", ".webp"]
 
 
 def texture_list_from_dds_files(ddsFiles: list[str]):
@@ -40,22 +38,19 @@ def textures_to_ytd(textureList, ytdFile):
 
 
 def resize_image(image):
-    imageHeight: int = image.GetMetadata().Height
-    imageWidth: int = image.GetMetadata().Width
+    imageHeight: int = image.Height
+    imageWidth: int = image.Width
     log2Width: float = math.log2(imageWidth)
     log2Height: float = math.log2(imageHeight)
     if log2Width % 1 == 0 and log2Height % 1 == 0:
         return image
-
     image_new_size = power_of_two_resize(imageWidth, imageHeight)
-    resized_image = image.Resize(
-        0, image_new_size[0], image_new_size[1], d.TEX_FILTER_FLAGS.LINEAR
-    )
-    return resized_image
+    image.Resize(image_new_size[0], image_new_size[1], d.ImageFilter.Lanczos3)
+    return image
 
 
 def is_transparent(image) -> bool:
-    return not image.IsAlphaAllOpaque()
+    return image.IsTransparent
 
 
 def convert_folder_to_ytd(folder: str):
@@ -68,40 +63,51 @@ def convert_folder_to_ytd(folder: str):
     return final_ytd
 
 
-def convert_img_to_dds(filepath: str):
+def convert_img_to_dds(filepath: str, quality: str):
     image = None
+    compressor = d.Compressor()
     fileExt = Path(filepath).suffix
     fileName = Path(filepath).stem
-    if fileExt in valid_exts:
+    if fileExt in filter(lambda x: x != ".dds", SUPPORTED_FORMATS):
         try:
-            image = d.TexHelper.Instance.LoadFromWICFile(filepath, d.WIC_FLAGS.NONE)
-        except:
-            print(f"Error loading image {filepath}")
-            return None
-    elif fileExt == ".tga":
-        try:
-            image = d.TexHelper.Instance.LoadFromTGAFile(filepath)
-        except:
+            image = d.Surface.LoadFromFile(filepath, True)
+        except Exception:
             print(f"Error loading image {filepath}")
             return None
     else:
         print(f"Invalid file extension {fileExt}")
         return None
+    
     resized_image = resize_image(image)
-    height = resized_image.GetMetadata().Height
-    width = resized_image.GetMetadata().Width
-    mip_maps_levels = calculate_mipmaps(width, height)
-    mipmapped_image = (
-        resized_image.GenerateMipMaps(d.TEX_FILTER_FLAGS.BOX, mip_maps_levels)
-        if mip_maps_levels > 1
-        else resized_image
-    )
-    compressed_image = (
-        mipmapped_image.Compress(d.DXGI_FORMAT.BC3_UNORM, d.TEX_COMPRESS_FLAGS.SRGB, 0)
-        if is_transparent(mipmapped_image)
-        else mipmapped_image.Compress(
-            d.DXGI_FORMAT.BC1_UNORM, d.TEX_COMPRESS_FLAGS.SRGB, 0.5
-        )
-    )
+    height = resized_image.Height
+    width = resized_image.Width
+    mip_levels = calculate_mipmaps_lvls(width, height)
+    
+    compressor.Input.SetData(resized_image)
+    compressor.Input.SetMipmapGeneration(True, mip_levels)
+    compressor.Input.MipmapFilter = d.MipmapFilter.Box
+    compressor.Output.OutputFileFormat = d.OutputFileFormat.DDS
+    compressor.Compression.Quality = get_quality(quality)
+    compressor.Compression.Format = d.CompressionFormat.DXT5 if is_transparent(resized_image) else d.CompressionFormat.DXT1
+    
     output_path = os.path.join(os.path.dirname(filepath), f"{fileName}.dds")
-    compressed_image.SaveToDDSFile(d.DDS_FLAGS.NONE, output_path)
+    
+    compressor.Process(output_path)
+    
+    image.Dispose()
+    resized_image.Dispose()
+    compressor.Dispose()
+    
+    
+def get_quality(quality: str):
+    match quality:
+        case "FASTEST":
+            return d.CompressionQuality.Fastest
+        case "NORMAL":
+            return d.CompressionQuality.Normal
+        case "PRODUCTION":
+            return d.CompressionQuality.Production
+        case "HIGHEST":
+            return d.CompressionQuality.Highest
+        case _:
+            return d.CompressionQuality.Normal

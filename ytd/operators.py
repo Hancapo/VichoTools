@@ -1,6 +1,7 @@
 import os
 import subprocess
 import bpy
+import time
 
 from ..vicho_preferences import get_addon_preferences
 from ..vicho_dependencies import dependencies_manager as d
@@ -63,24 +64,29 @@ class ExportYTDFiles(bpy.types.Operator):
     def execute(self, context):
         if not d.available:
             return {"CANCELLED"}
+        
+        start = time.time() 
         scene = context.scene
+        ytd_list = scene.ytd_list
         export_mode = scene.ytd_enum_process_type
+        quality = scene.dds_conv_quality
         ytds = []
         match export_mode:
             case "ALL":
-                ytds = scene.ytd_list
+                ytds = ytd_list
             case "CHECKED":
-                ytds = [ytd for ytd in scene.ytd_list if ytd.selected]
+                ytds = [ytd for ytd in ytd_list if ytd.selected]
             case "SELECTED":
-                ytds = [scene.ytd_list[scene.ytd_active_index]]
+                ytds = [ytd_list[scene.ytd_active_index]]
 
-        export_ytd_files(ytds, bpy.path.abspath(scene.ytd_export_path), self)
+        export_ytd_files(ytds, bpy.path.abspath(scene.ytd_export_path), self, quality)
         if scene.ytd_show_explorer_after_export:
             subprocess.Popen(
                 'explorer "{}"'.format(
                     bpy.path.abspath(scene.ytd_export_path) + "output"
                 )
             )
+        self.report({"INFO"}, f"Exported {len(ytds)} YTD files in {round(time.time() - start, 4)} seconds")
         return {"FINISHED"}
 
 
