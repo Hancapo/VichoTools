@@ -183,4 +183,3 @@ def export_ytd_files(FolderList, ExportPath, self, quality = None):
             f.write(byte_array)
             self.report({"INFO"}, f"Exported {output_file_path}")
     delete_folders(FolderList, newExportPath)
-    self.report({"INFO"}, f"Exported {len(FolderList)} texture dictionaries")

@@ -88,7 +88,6 @@ def convert_img_to_dds(filepath: str, quality: str):
     compressor.Input.MipmapFilter = d.MipmapFilter.Box
     compressor.Output.OutputFileFormat = d.OutputFileFormat.DDS
     compressor.Compression.Quality = get_quality(quality)
-    print(f"Quality: {compressor.Compression.Quality}")
     compressor.Compression.Format = d.CompressionFormat.DXT5 if is_transparent(resized_image) else d.CompressionFormat.DXT1
     
     output_path = os.path.join(os.path.dirname(filepath), f"{fileName}.dds")
