@@ -5,9 +5,7 @@ from ...vicho_dependencies import dependencies_manager as d
 from .misc import calculate_mipmaps_lvls, get_dds
 from ...misc.funcs import power_of_two_resize
 
-#sys.path.append(os.path.join(os.path.dirname(__file__), "libs"))
 SUPPORTED_FORMATS = [".png", ".jpg", ".bmp", ".tiff", ".tif", ".jpeg", ".dds", ".psd", ".gif", ".webp"]
-
 
 def texture_list_from_dds_files(ddsFiles: list[str]):
     textureList = d.List[d.GameFiles.Texture]()
