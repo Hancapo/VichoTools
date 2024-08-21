@@ -24,3 +24,13 @@ def calculate_mipmaps_lvls(width: int, height: int) -> int:
         height = max(1, height // 2)
         levels += 1
     return levels
+
+def resize_dimensions(image_width: int, image_height: int, max_size: int):
+    while image_width > max_size or image_height > max_size:
+        image_width //= 2
+        image_height //= 2
+
+    if image_width < 4 or image_height < 4:
+        return image_width * 2, image_height * 2
+
+    return image_width, image_height
