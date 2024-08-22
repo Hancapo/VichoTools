@@ -62,14 +62,18 @@ class ExportYTDFiles(bpy.types.Operator):
         )
 
     def execute(self, context):
+        start = time.time()
+        scene = context.scene
         if not d.available:
             return {"CANCELLED"}
         
-        start = time.time() 
-        scene = context.scene
         ytd_list = scene.ytd_list
         export_mode = scene.ytd_enum_process_type
-        quality = scene.dds_conv_quality
+        
+        quality: str = scene.dds_conv_quality
+        do_max_res: bool = scene.max_pixel_size
+        max_res: int = int(scene.max_pixel_size_list)
+        half_res: bool = scene.divide_textures_size
         ytds = []
         match export_mode:
             case "ALL":
@@ -79,7 +83,7 @@ class ExportYTDFiles(bpy.types.Operator):
             case "SELECTED":
                 ytds = [ytd_list[scene.ytd_active_index]]
 
-        export_ytd_files(ytds, bpy.path.abspath(scene.ytd_export_path), self, quality)
+        export_ytd_files(ytds, bpy.path.abspath(scene.ytd_export_path), self, quality, half_res, max_res, do_max_res)
         if scene.ytd_show_explorer_after_export:
             subprocess.Popen(
                 'explorer "{}"'.format(

@@ -25,12 +25,19 @@ def calculate_mipmaps_lvls(width: int, height: int) -> int:
         levels += 1
     return levels
 
-def resize_dimensions(image_width: int, image_height: int, max_size: int):
-    while image_width > max_size or image_height > max_size:
-        image_width //= 2
-        image_height //= 2
+def closest_power_of_two(value, max_dimension):
+    lower_power = 1
 
-    if image_width < 4 or image_height < 4:
-        return image_width * 2, image_height * 2
+    while lower_power * 2 <= value:
+        lower_power *= 2
 
-    return image_width, image_height
+    higher_power = lower_power * 2
+
+    if max_dimension > 0 and higher_power > max_dimension:
+        higher_power = max_dimension
+
+    return lower_power if (value - lower_power < higher_power - value) else higher_power
+
+
+def closest_pow2_dims(width: int, height: int, max_dimension: int) -> tuple[int, int]:
+    return (closest_power_of_two(width, max_dimension), closest_power_of_two(height, max_dimension))
