@@ -56,7 +56,7 @@ class DependenciesManager:
             libs_loc = str(p / "ytd" / "cw_py" / "libs")
             
             if libs_loc not in sys.path:
-                sys.path.append()
+                sys.path.append(libs_loc)
 
             if runtime_loc.exists():
                 import pythonnet
