@@ -41,7 +41,7 @@ class VichoTextureTools_PT_Panel(bpy.types.Panel):
             col.operator(YTDLIST_OT_add.bl_idname, text="", icon="ADD")
             col.operator(YTDLIST_OT_remove.bl_idname, text="", icon="REMOVE")
             col.separator()
-            col.operator(YTDLIST_OT_add_to_ytd.bl_idname, text="", icon="IMPORT")
+            col.operator(YTDLIST_OT_add_to_ytd.bl_idname, text="", icon="TRANSFORM_ORIGINS")
             col.separator()
             col.operator(
                 YTDLIST_OT_assign_ytd_field_from_list.bl_idname,
@@ -91,6 +91,7 @@ class VichoTextureTools_PT_Panel(bpy.types.Panel):
                     col2.label(text="Resizing Settings", icon="IMAGE")
                     col2.separator()
                     col2.prop(scene, "divide_textures_size", text="Disable Half Texture Size" if dts else "Enable Half Texture Size", icon="IMAGE_REFERENCE" if dts else "IMAGE_PLANE")
+                    col2.separator()
                     col2.prop(scene, "max_pixel_size", text="Disable Limit to" if mps else "Enable Limit to" ,icon="MODIFIER_ON" if mps else "MODIFIER_OFF" )
                     col2.prop(scene, "max_pixel_size_list", text="", icon="IMAGE_DATA")
                 row.prop(scene, "dds_conv_quality", text="Quality", icon="MODIFIER")

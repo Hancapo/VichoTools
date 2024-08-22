@@ -17,7 +17,7 @@ from .funcs import (
 
 
 class ExportYTDFolders(bpy.types.Operator):
-    """Export the list of texture folders as folders"""
+    """Export the list of texture package(s) as folder(s)"""
 
     bl_idname = "vicho.exportytdfolders"
     bl_label = ""
@@ -50,7 +50,7 @@ class ExportYTDFolders(bpy.types.Operator):
 
 
 class ExportYTDFiles(bpy.types.Operator):
-    """Export the list of texture folders as YTD files"""
+    """Export the list of texture package(s) as YTD file(s)"""
 
     bl_idname = "vicho.exportytdfiles"
     bl_label = ""
@@ -95,7 +95,7 @@ class ExportYTDFiles(bpy.types.Operator):
 
 
 class YTDLIST_OT_add(bpy.types.Operator):
-    """Creates a new texture folder from the selected objects"""
+    """Creates a new texture package from the selected objects"""
 
     bl_idname = "ytd_list.add_ytd"
     bl_label = ""
@@ -133,7 +133,7 @@ class YTDLIST_OT_add(bpy.types.Operator):
 
 
 class YTDLIST_OT_remove(bpy.types.Operator):
-    """Removes the selected texture folder from the list"""
+    """Removes the selected texture package from the list"""
 
     bl_idname = "ytd_list.remove_ytd"
     bl_label = ""
@@ -159,7 +159,7 @@ class YTDLIST_OT_remove(bpy.types.Operator):
 
 
 class YTDLIST_OT_add_to_ytd(bpy.types.Operator):
-    """Add selected objects to the selected texture folder"""
+    """Add selected objects to the selected texture package"""
 
     bl_idname = "ytd_list.add_to_ytd"
     bl_label = ""
@@ -202,7 +202,7 @@ class YTDLIST_OT_assign_ytd_field_from_list(bpy.types.Operator):
 
 
 class YTDLIST_OT_select_meshes_from_ytd_folder(bpy.types.Operator):
-    """Select meshes' parent from the selected texture folder"""
+    """Select meshes' parent from the selected texture package"""
 
     bl_idname = "ytd_list.select_meshes_from_ytd_folder"
     bl_label = ""
@@ -245,8 +245,6 @@ class YTDLIST_OT_select_mesh_from_ytd_folder(bpy.types.Operator):
         else:
             mesh.select_set(True)
         return {"FINISHED"}
-
-
 
 
 
