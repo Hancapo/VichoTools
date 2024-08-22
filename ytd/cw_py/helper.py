@@ -112,7 +112,7 @@ def convert_img_to_dds(filepath: str, quality: str, do_max_dimension: bool, half
     compressor.Compression.Format = (
         d.CompressionFormat.DXT5
         if is_transparent(surface)
-        else d.CompressionFormat.DXT1
+        else d.CompressionFormat.DXT1a
     )
 
     output_path = os.path.join(os.path.dirname(filepath), f"{fileName}.dds")

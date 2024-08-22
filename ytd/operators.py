@@ -201,10 +201,10 @@ class YTDLIST_OT_assign_ytd_field_from_list(bpy.types.Operator):
         return {"FINISHED"}
 
 
-class YTDLIST_OT_select_meshes_from_ytd_folder(bpy.types.Operator):
+class YTDLIST_OT_select_meshes_parent_from_ytd_folder(bpy.types.Operator):
     """Select meshes' parent from the selected texture package"""
 
-    bl_idname = "ytd_list.select_meshes_from_ytd_folder"
+    bl_idname = "ytd_list.select_meshes_parent_from_ytd_folder"
     bl_label = ""
 
     @classmethod
@@ -225,10 +225,10 @@ class YTDLIST_OT_select_meshes_from_ytd_folder(bpy.types.Operator):
         return {"FINISHED"}
 
 
-class YTDLIST_OT_select_mesh_from_ytd_folder(bpy.types.Operator):
+class YTDLIST_OT_select_mesh_parent_from_ytd_folder(bpy.types.Operator):
     """Select mesh' parent from the selected mesh item"""
 
-    bl_idname = "ytd_list.select_mesh_from_ytd_folder"
+    bl_idname = "ytd_list.select_mesh_parent_from_ytd_folder"
     bl_label = ""
 
     @classmethod

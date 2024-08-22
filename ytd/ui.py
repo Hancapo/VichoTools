@@ -7,8 +7,8 @@ from ..ytd.operators import (
     YTDLIST_OT_remove,
     YTDLIST_OT_add_to_ytd,
     YTDLIST_OT_assign_ytd_field_from_list,
-    YTDLIST_OT_select_mesh_from_ytd_folder,
-    YTDLIST_OT_select_meshes_from_ytd_folder,
+    YTDLIST_OT_select_mesh_parent_from_ytd_folder,
+    YTDLIST_OT_select_meshes_parent_from_ytd_folder,
 )
 from ..ytd.operators import MESHLIST_OT_delete_mesh, ExportYTDFiles, ExportYTDFolders
 from ..ytd.helper import YTDLIST_UL_list, MESHLIST_UL_list
@@ -64,12 +64,12 @@ class VichoTextureTools_PT_Panel(bpy.types.Panel):
             col = row.column(align=True)
             col.separator(factor=3.5)
             col.operator(
-                YTDLIST_OT_select_meshes_from_ytd_folder.bl_idname,
+                YTDLIST_OT_select_meshes_parent_from_ytd_folder.bl_idname,
                 text="",
                 icon="ZOOM_ALL",
             )
             col.operator(
-                YTDLIST_OT_select_mesh_from_ytd_folder.bl_idname,
+                YTDLIST_OT_select_mesh_parent_from_ytd_folder.bl_idname,
                 text="",
                 icon="ZOOM_SELECTED",
             )
