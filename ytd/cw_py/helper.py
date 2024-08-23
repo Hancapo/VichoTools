@@ -2,7 +2,7 @@ import math
 from pathlib import Path
 import os
 from ...vicho_dependencies import dependencies_manager as d
-from .misc import calculate_mipmaps_lvls, get_dds, closest_pow2_dims
+from .misc import calculate_mipmaps_lvls, get_dds, closest_pow2_dims, closest_pow2
 from ...misc.funcs import power_of_two_resize
 import bpy
 
@@ -94,14 +94,12 @@ def convert_img_to_dds(filepath: str, quality: str, do_max_dimension: bool, half
     width, height = surface.Width, surface.Height
     if adv:
         if do_max_dimension:
-            width, height = closest_pow2_dims(width, height, max_res)
+            width, height = closest_pow2_dims(width, height, max_res, False)
         if half_res:
-            width, height = closest_pow2_dims(width, height, 0)
-            width //= 2
-            height //= 2
+            width, height = closest_pow2_dims(width, height, 0, True)
         surface.Resize(width, height, d.ImageFilter.Lanczos3)
     else:
-        width, height = closest_pow2_dims(width, height, 0)
+        width, height = closest_pow2(width), closest_pow2(height)
     mip_levels = calculate_mipmaps_lvls(width, height)
     compressor.Input.SetData(surface)
     compressor.Input.RoundMode = d.RoundMode.ToNearestPowerOfTwo
