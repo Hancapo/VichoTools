@@ -2,10 +2,23 @@ import math
 from pathlib import Path
 import os
 from ...vicho_dependencies import dependencies_manager as d
-from .misc import calculate_mipmaps_lvls, get_dds
+from .misc import calculate_mipmaps_lvls, get_dds, closest_pow2_dims, closest_pow2
 from ...misc.funcs import power_of_two_resize
+import bpy
 
-SUPPORTED_FORMATS = [".png", ".jpg", ".bmp", ".tiff", ".tif", ".jpeg", ".dds", ".psd", ".gif", ".webp"]
+SUPPORTED_FORMATS = [
+    ".png",
+    ".jpg",
+    ".bmp",
+    ".tiff",
+    ".tif",
+    ".jpeg",
+    ".dds",
+    ".psd",
+    ".gif",
+    ".webp",
+]
+
 
 def texture_list_from_dds_files(ddsFiles: list[str]):
     textureList = d.List[d.GameFiles.Texture]()
@@ -61,42 +74,53 @@ def convert_folder_to_ytd(folder: str):
     return final_ytd
 
 
-def convert_img_to_dds(filepath: str, quality: str):
-    image = None
+def convert_img_to_dds(filepath: str, quality: str, do_max_dimension: bool, half_res: bool, max_res: int):
+    adv = bpy.context.scene.ytd_advanced_mode
+
+    surface = None
     compressor = d.Compressor()
     fileExt = Path(filepath).suffix
     fileName = Path(filepath).stem
     if fileExt in filter(lambda x: x != ".dds", SUPPORTED_FORMATS):
         try:
-            image = d.Surface.LoadFromFile(filepath, True)
+            surface = d.Surface.LoadFromFile(filepath, True)
         except Exception:
             print(f"Error loading image {filepath}")
             return None
     else:
         print(f"Invalid file extension {fileExt}")
         return None
-    
-    resized_image = resize_image(image)
-    height = resized_image.Height
-    width = resized_image.Width
+
+    width, height = surface.Width, surface.Height
+    if adv:
+        if do_max_dimension:
+            width, height = closest_pow2_dims(width, height, max_res, False)
+        if half_res:
+            width, height = closest_pow2_dims(width, height, 0, True)
+        surface.Resize(width, height, d.ImageFilter.Lanczos3)
+    else:
+        width, height = closest_pow2(width), closest_pow2(height)
     mip_levels = calculate_mipmaps_lvls(width, height)
-    
-    compressor.Input.SetData(resized_image)
+    compressor.Input.SetData(surface)
+    compressor.Input.RoundMode = d.RoundMode.ToNearestPowerOfTwo
     compressor.Input.SetMipmapGeneration(True, mip_levels)
     compressor.Input.MipmapFilter = d.MipmapFilter.Box
     compressor.Output.OutputFileFormat = d.OutputFileFormat.DDS
     compressor.Compression.Quality = get_quality(quality)
-    compressor.Compression.Format = d.CompressionFormat.DXT5 if is_transparent(resized_image) else d.CompressionFormat.DXT1
-    
+    compressor.Compression.Format = (
+        d.CompressionFormat.DXT5
+        if is_transparent(surface)
+        else d.CompressionFormat.DXT1a
+    )
+
     output_path = os.path.join(os.path.dirname(filepath), f"{fileName}.dds")
-    
+
     compressor.Process(output_path)
-    
-    image.Dispose()
-    resized_image.Dispose()
+
+    surface.Dispose()
     compressor.Dispose()
-    
-    
+
+
 def get_quality(quality: str):
     match quality:
         case "FASTEST":

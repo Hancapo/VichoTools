@@ -17,7 +17,7 @@ from .funcs import (
 
 
 class ExportYTDFolders(bpy.types.Operator):
-    """Export the list of texture folders as folders"""
+    """Export the list of texture package(s) as folder(s)"""
 
     bl_idname = "vicho.exportytdfolders"
     bl_label = ""
@@ -50,7 +50,7 @@ class ExportYTDFolders(bpy.types.Operator):
 
 
 class ExportYTDFiles(bpy.types.Operator):
-    """Export the list of texture folders as YTD files"""
+    """Export the list of texture package(s) as YTD file(s)"""
 
     bl_idname = "vicho.exportytdfiles"
     bl_label = ""
@@ -62,14 +62,18 @@ class ExportYTDFiles(bpy.types.Operator):
         )
 
     def execute(self, context):
+        start = time.time()
+        scene = context.scene
         if not d.available:
             return {"CANCELLED"}
         
-        start = time.time() 
-        scene = context.scene
         ytd_list = scene.ytd_list
         export_mode = scene.ytd_enum_process_type
-        quality = scene.dds_conv_quality
+        
+        quality: str = scene.dds_conv_quality
+        do_max_res: bool = scene.max_pixel_size
+        max_res: int = int(scene.max_pixel_size_list)
+        half_res: bool = scene.divide_textures_size
         ytds = []
         match export_mode:
             case "ALL":
@@ -79,7 +83,7 @@ class ExportYTDFiles(bpy.types.Operator):
             case "SELECTED":
                 ytds = [ytd_list[scene.ytd_active_index]]
 
-        export_ytd_files(ytds, bpy.path.abspath(scene.ytd_export_path), self, quality)
+        export_ytd_files(ytds, bpy.path.abspath(scene.ytd_export_path), self, quality, half_res, max_res, do_max_res)
         if scene.ytd_show_explorer_after_export:
             subprocess.Popen(
                 'explorer "{}"'.format(
@@ -91,7 +95,7 @@ class ExportYTDFiles(bpy.types.Operator):
 
 
 class YTDLIST_OT_add(bpy.types.Operator):
-    """Creates a new texture folder from the selected objects"""
+    """Creates a new texture package from the selected objects"""
 
     bl_idname = "ytd_list.add_ytd"
     bl_label = ""
@@ -129,7 +133,7 @@ class YTDLIST_OT_add(bpy.types.Operator):
 
 
 class YTDLIST_OT_remove(bpy.types.Operator):
-    """Removes the selected texture folder from the list"""
+    """Removes the selected texture package from the list"""
 
     bl_idname = "ytd_list.remove_ytd"
     bl_label = ""
@@ -155,7 +159,7 @@ class YTDLIST_OT_remove(bpy.types.Operator):
 
 
 class YTDLIST_OT_add_to_ytd(bpy.types.Operator):
-    """Add selected objects to the selected texture folder"""
+    """Add selected objects to the selected texture package"""
 
     bl_idname = "ytd_list.add_to_ytd"
     bl_label = ""
@@ -197,10 +201,10 @@ class YTDLIST_OT_assign_ytd_field_from_list(bpy.types.Operator):
         return {"FINISHED"}
 
 
-class YTDLIST_OT_select_meshes_from_ytd_folder(bpy.types.Operator):
-    """Select meshes' parent from the selected texture folder"""
+class YTDLIST_OT_select_meshes_parent_from_ytd_folder(bpy.types.Operator):
+    """Select meshes' parent from the selected texture package"""
 
-    bl_idname = "ytd_list.select_meshes_from_ytd_folder"
+    bl_idname = "ytd_list.select_meshes_parent_from_ytd_folder"
     bl_label = ""
 
     @classmethod
@@ -221,10 +225,10 @@ class YTDLIST_OT_select_meshes_from_ytd_folder(bpy.types.Operator):
         return {"FINISHED"}
 
 
-class YTDLIST_OT_select_mesh_from_ytd_folder(bpy.types.Operator):
+class YTDLIST_OT_select_mesh_parent_from_ytd_folder(bpy.types.Operator):
     """Select mesh' parent from the selected mesh item"""
 
-    bl_idname = "ytd_list.select_mesh_from_ytd_folder"
+    bl_idname = "ytd_list.select_mesh_parent_from_ytd_folder"
     bl_label = ""
 
     @classmethod
@@ -241,8 +245,6 @@ class YTDLIST_OT_select_mesh_from_ytd_folder(bpy.types.Operator):
         else:
             mesh.select_set(True)
         return {"FINISHED"}
-
-
 
 
 

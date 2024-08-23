@@ -7,8 +7,8 @@ from ..ytd.operators import (
     YTDLIST_OT_remove,
     YTDLIST_OT_add_to_ytd,
     YTDLIST_OT_assign_ytd_field_from_list,
-    YTDLIST_OT_select_mesh_from_ytd_folder,
-    YTDLIST_OT_select_meshes_from_ytd_folder,
+    YTDLIST_OT_select_mesh_parent_from_ytd_folder,
+    YTDLIST_OT_select_meshes_parent_from_ytd_folder,
 )
 from ..ytd.operators import MESHLIST_OT_delete_mesh, ExportYTDFiles, ExportYTDFolders
 from ..ytd.helper import YTDLIST_UL_list, MESHLIST_UL_list
@@ -32,13 +32,16 @@ class VichoTextureTools_PT_Panel(bpy.types.Panel):
         export_available = len(scene.ytd_list) > 0 and any([item.selected for item in scene.ytd_list])
 
         if d.available:
+            am = scene.ytd_advanced_mode
+            dts = scene.divide_textures_size
+            mps = scene.max_pixel_size
             row = layout.row()
             col = row.column(align=True)
             col.separator(factor=3.5)
             col.operator(YTDLIST_OT_add.bl_idname, text="", icon="ADD")
             col.operator(YTDLIST_OT_remove.bl_idname, text="", icon="REMOVE")
             col.separator()
-            col.operator(YTDLIST_OT_add_to_ytd.bl_idname, text="", icon="IMPORT")
+            col.operator(YTDLIST_OT_add_to_ytd.bl_idname, text="", icon="TRANSFORM_ORIGINS")
             col.separator()
             col.operator(
                 YTDLIST_OT_assign_ytd_field_from_list.bl_idname,
@@ -61,12 +64,12 @@ class VichoTextureTools_PT_Panel(bpy.types.Panel):
             col = row.column(align=True)
             col.separator(factor=3.5)
             col.operator(
-                YTDLIST_OT_select_meshes_from_ytd_folder.bl_idname,
+                YTDLIST_OT_select_meshes_parent_from_ytd_folder.bl_idname,
                 text="",
                 icon="ZOOM_ALL",
             )
             col.operator(
-                YTDLIST_OT_select_mesh_from_ytd_folder.bl_idname,
+                YTDLIST_OT_select_mesh_parent_from_ytd_folder.bl_idname,
                 text="",
                 icon="ZOOM_SELECTED",
             )
@@ -78,7 +81,19 @@ class VichoTextureTools_PT_Panel(bpy.types.Panel):
             if export_available:
                 col.label(text="Export Options", icon="EXPORT")
                 box = col.box()
+                col = box.column(align=True)
                 row = box.row()
+                col.separator()
+                col.prop(scene, "ytd_advanced_mode", icon="DOWNARROW_HLT" if scene.ytd_advanced_mode else "RIGHTARROW")
+                if am:
+                    box2 = col.box()
+                    col2 = box2.column(align=True)
+                    col2.label(text="Resizing Settings", icon="IMAGE")
+                    col2.separator()
+                    col2.prop(scene, "divide_textures_size", text="Disable Half Texture Size" if dts else "Enable Half Texture Size", icon="IMAGE_REFERENCE" if dts else "IMAGE_PLANE")
+                    col2.separator()
+                    col2.prop(scene, "max_pixel_size", text="Disable Limit to" if mps else "Enable Limit to" ,icon="MODIFIER_ON" if mps else "MODIFIER_OFF" )
+                    col2.prop(scene, "max_pixel_size_list", text="", icon="IMAGE_DATA")
                 row.prop(scene, "dds_conv_quality", text="Quality", icon="MODIFIER")
                 row = box.row()
                 row.prop(scene, "ytd_export_path", text="", icon="FOLDER_REDIRECT")
@@ -99,6 +114,7 @@ class VichoTextureTools_PT_Panel(bpy.types.Panel):
                     row.operator(
                         ExportYTDFolders.bl_idname, text="Folder(s)", icon="FILE_FOLDER"
                     )
+                col.separator()
                 
         else:
             layout.label(

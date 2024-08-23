@@ -25,6 +25,7 @@ class DependenciesManager:
         self.OutputFileFormat = None
         self.MipmapFilter = None
         self.ImageFilter = None
+        self.RoundMode = None
 
         # CodeWalker stuff
         self.GameFiles = None
@@ -43,6 +44,7 @@ class DependenciesManager:
                 self.OutputFileFormat,
                 self.MipmapFilter,
                 self.ImageFilter,
+                self.RoundMode,
                 self.GameFiles,
                 self.Utils,
             ]
@@ -84,6 +86,7 @@ class DependenciesManager:
                 CompressionQuality,
                 OutputFileFormat,
                 MipmapFilter,
+                RoundMode
             )
 
             print("Modules OK")
@@ -102,6 +105,7 @@ class DependenciesManager:
             self.OutputFileFormat = OutputFileFormat
             self.MipmapFilter = MipmapFilter
             self.ImageFilter = ImageFilter
+            self.RoundMode = RoundMode
 
             print("Dependencies loaded OK")
             print(f"dependencies.available: {self.available}")

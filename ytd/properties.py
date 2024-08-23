@@ -8,14 +8,33 @@ process_type = [
 ]
 
 quality_settings = [
-    ("FASTEST", "Fastest", "Fastest processing time. Results may be reasonable, but is not considered to be real-time either"),
+    (
+        "FASTEST",
+        "Fastest",
+        "Fastest processing time. Results may be reasonable, but is not considered to be real-time either",
+    ),
     ("NORMAL", "Normal", "Balanced in terms of quality / speed"),
-    ("PRODUCTION", "Production", "Generally produces similar results to normal, but it may double or triple the time to obtain minor quality improvements"),
-    ("HIGHEST", "Highest", "Slowest processing time. May be extremely slow as it brute force compressor and should generally only be used for testing purposes"),
+    (
+        "PRODUCTION",
+        "Production",
+        "Generally produces similar results to normal, but it may double or triple the time to obtain minor quality improvements",
+    ),
+    (
+        "HIGHEST",
+        "Highest",
+        "Slowest processing time. May be extremely slow as it brute force compressor and should generally only be used for testing purposes",
+    ),
 ]
+
+def generate_power_of_two_enum(max_power):
+    return [(str(2**i), str(2**i), str(2**i)) for i in range(2, max_power + 1)]
+
+power_of_two_enum = generate_power_of_two_enum(12)
+
 
 def update_path(self, context):
     self.ytd_export_path = bpy.path.abspath(self.ytd_export_path)
+
 
 class MaterialProp(bpy.types.PropertyGroup):
     material: bpy.props.PointerProperty(type=bpy.types.Material)  # type: ignore
@@ -34,6 +53,7 @@ class YtdItem(bpy.types.PropertyGroup):
         default="GTA5",
         name="Game Target",
     )  # type: ignore
+
 
 class YtdGroupProps(bpy.types.PropertyGroup):
     bpy.types.Scene.ytd_export_path = bpy.props.StringProperty(
@@ -62,13 +82,34 @@ class YtdGroupProps(bpy.types.PropertyGroup):
         description="Show the mesh list from the selected YTD item",
         default=False,
     )
-    
+
     bpy.types.Scene.dds_conv_quality = bpy.props.EnumProperty(
         items=quality_settings,
         name="Quality",
         default="NORMAL",
         description="Image to DDS conversion quality",
     )
+
+    bpy.types.Scene.ytd_advanced_mode = bpy.props.BoolProperty(
+        name="Advanced Mode",
+        default=False,
+        description="Enable advanced options for resizing textures",
+    )
+
+    bpy.types.Scene.max_pixel_size_list = bpy.props.EnumProperty(
+        items=power_of_two_enum, name="Size", default="1024"
+    )
+    bpy.types.Scene.max_pixel_size = bpy.props.BoolProperty(
+        name="Max Pixel",
+        default=False,
+        description="Limit all textures' dimensions to the selected value",
+    )
+    bpy.types.Scene.divide_textures_size = bpy.props.BoolProperty(
+        name="Half Texture Size",
+        default=False,
+        description="Divide all textures' dimensions by 2",
+    )
+
 
 def register():
     bpy.types.Scene.ytd_list = bpy.props.CollectionProperty(type=YtdItem)

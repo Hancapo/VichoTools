@@ -33,7 +33,7 @@ class MESHLIST_UL_list(bpy.types.UIList):
             if len(context.scene.ytd_list) != 0:
                 row = layout.row(align=True)
                 if item is not None and item.mesh is not None:
-                    row.prop(item.mesh, "name", text="", emboss=False, icon="MESH_CUBE")
+                    row.prop(item.mesh, "name", text="", emboss=False, icon="FILE_3D")
 
 
 def ytd_index_changed(self, context):
