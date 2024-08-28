@@ -47,19 +47,6 @@ def textures_to_ytd(textureList, ytdFile):
     textureDictionary.BuildFromTextureList(textureList)
     return ytdFile
 
-
-def resize_image(image):
-    imageHeight: int = image.Height
-    imageWidth: int = image.Width
-    log2Width: float = math.log2(imageWidth)
-    log2Height: float = math.log2(imageHeight)
-    if log2Width % 1 == 0 and log2Height % 1 == 0:
-        return image
-    image_new_size = power_of_two_resize(imageWidth, imageHeight)
-    image.Resize(image_new_size[0], image_new_size[1], d.ImageFilter.Lanczos3)
-    return image
-
-
 def is_transparent(image) -> bool:
     return image.IsTransparent
 

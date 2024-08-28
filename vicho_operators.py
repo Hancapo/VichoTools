@@ -2,7 +2,7 @@ import subprocess
 import sys
 import bpy
 import webbrowser
-
+import os
 from .misc.funcs import export_milo_ymap_xml
 from bpy.props import StringProperty
 from bpy_extras.io_utils import ExportHelper
@@ -192,9 +192,11 @@ class VichoToolsInstallDependencies(bpy.types.Operator):
                 self.report({"INFO"}, "Python.NET is already installed")
             except ImportError:
                 self.report({"INFO"}, "Installing Python.NET...")
-                subprocess.check_call(
-                    [sys.executable, "-m", "pip", "install", "pythonnet"]
-                )
+                python_exe = os.path.join(sys.prefix, "bin", "python.exe")
+                target = os.path.join(sys.prefix, "lib", "site-packages")
+                subprocess.call([python_exe, "-m", "ensurepip"])
+                subprocess.call([python_exe, '-m', 'pip', 'install', '--upgrade', 'pip'])
+                subprocess.call([python_exe, '-m', 'pip', 'install', '--upgrade', 'pythonnet', '-t', target])
                 self.report({"INFO"}, "Python.NET installed successfully")
 
             if dependencies_manager.load_dependencies():
