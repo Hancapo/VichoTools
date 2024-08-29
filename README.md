@@ -1,4 +1,8 @@
-# VichoTools
+# Archived
+### Paused development indefinitely, use it if it works for you, the Textures tool won't work under unknown system configs.
+
+
+# Vicho's Tools
 
 Some tools to make V modding easier with some timesaving features.
 
