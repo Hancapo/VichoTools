@@ -52,18 +52,13 @@ class DependenciesManager:
 
     def load_dependencies(self):
         try:
-            print("Initializing dependencies...")
-            p = Path(__file__).resolve().parent
-            runtime_loc = p / "ytd" / "cw_py" / "libs" / "vichotools.json"
-            libs_loc = str(p / "ytd" / "cw_py" / "libs")
-            
-            if libs_loc not in sys.path:
-                sys.path.append(libs_loc)
-
-            if runtime_loc.exists():
+            p = os.path.dirname(__file__)
+            runtime_loc = fr"{p}\libs\vichotools.json"
+            libs_loc = fr"{p}\libs"
+            os.environ["PATH"] = libs_loc + os.pathsep + os.environ["PATH"]
+            if os.path.exists(runtime_loc):
                 import pythonnet
-
-                pythonnet.load("coreclr", runtime_config=str(runtime_loc))
+                pythonnet.load("coreclr", runtime_config=runtime_loc)
             else:
                 return False
 
@@ -71,9 +66,9 @@ class DependenciesManager:
 
             print("CLR OK")
 
-            clr.AddReference("CodeWalker.Core")
+            clr.AddReference(fr'{libs_loc}\CodeWalker.Core.dll')
             clr.AddReference("System.Collections")
-            clr.AddReference("TeximpNet")
+            clr.AddReference(fr'{libs_loc}\TeximpNet.dll')
             print("References added correctly")
 
             from System.Collections.Generic import List
