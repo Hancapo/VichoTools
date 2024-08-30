@@ -2,17 +2,14 @@ import os
 import subprocess
 import bpy
 import time
-
 from ..vicho_preferences import get_addon_preferences
 from ..vicho_dependencies import dependencies_manager as d
-
-from .funcs import export_ytd_files
-
 from .funcs import (
     add_meshes_to_ytd,
     add_ytd_to_list,
     auto_fill_ytd_field,
     create_ytd_folders,
+    export_ytd_files
 )
 
 

@@ -1,9 +1,7 @@
-import math
 from pathlib import Path
 import os
 from ...vicho_dependencies import dependencies_manager as d
 from .misc import calculate_mipmaps_lvls, get_dds, closest_pow2_dims, closest_pow2
-from ...misc.funcs import power_of_two_resize
 import bpy
 
 SUPPORTED_FORMATS = [
