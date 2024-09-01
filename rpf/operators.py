@@ -28,6 +28,7 @@ class RPFLoadGTA5(bpy.types.Operator):
     def execute(self, context):
         if load_gta_cache(self.directory):
             get_file_folder_list(context.scene.file_list, self.directory)
+            context.scene.file_list_current_path = self.directory
             self.report({'INFO'}, "GTA5 Files loaded successfully")
         else:
             self.report({'ERROR'}, "Error loading GTA5 Files")
@@ -68,6 +69,11 @@ class RPFBackFolder(bpy.types.Operator):
 
     bl_idname = "rpf.backfolder"
     bl_label = ""
+    
+    @classmethod
+    def poll(cls, context):
+        flcp = context.scene.file_list_current_path
+        return pathlib.Path(flcp).name != 'Grand Theft Auto V'
 
     def execute(self, context):
         scene = context.scene
