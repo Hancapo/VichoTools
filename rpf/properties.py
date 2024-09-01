@@ -37,6 +37,7 @@ RPF_ENTRY_FILE_TYPES  = [
     ('TXT', 'TXT', 'Text file'),
     ('BMP', 'BMP', 'Bitmap file'),
     ('FOLDER', 'FOLDER', 'Folder'),
+    ('NONE', 'NONE', 'None')
 ]
     
 

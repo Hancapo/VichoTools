@@ -33,6 +33,7 @@ def get_file_folder_list(filefolder_list, path):
             filefolder.id = generate_path_hash(str(entry))
             filefolder.name = entry.name
             filefolder.path = str(entry)
+            #filefolder.rpf_entry_type = 'NONE'
             filefolder.rpf_path = ''
             if entry.is_file():
                 match entry.suffix:
