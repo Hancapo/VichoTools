@@ -1,5 +1,3 @@
-from pathlib import Path
-import sys
 import os
 
 
@@ -14,7 +12,7 @@ class DependenciesManager:
 
     def initialize(self):
         self.clr = None
-        
+        self.Action = None
         self.List = None
 
         # TeximpNet stuff
@@ -30,6 +28,17 @@ class DependenciesManager:
         # CodeWalker stuff
         self.GameFiles = None
         self.Utils = None
+        self.GTA5Keys = None
+        self.GameFileCache = None
+        self.gamecache = None
+    
+    @property
+    def gamecache(self):
+        return self._gamecache
+    
+    @gamecache.setter
+    def gamecache(self, value):
+        self._gamecache = value
 
     @property
     def available(self):
@@ -47,6 +56,9 @@ class DependenciesManager:
                 self.RoundMode,
                 self.GameFiles,
                 self.Utils,
+                self.GTA5Keys,
+                self.GameFileCache,
+                self.Action,
             ]
         )
 
@@ -74,6 +86,8 @@ class DependenciesManager:
             from System.Collections.Generic import List
             import CodeWalker.GameFiles as GameFiles
             import CodeWalker.Utils as Utils
+            from CodeWalker.GameFiles import GTA5Keys, GameFileCache
+            from System import Action
             from TeximpNet import Surface as Surface, ImageFilter as ImageFilter
             from TeximpNet.Compression import (
                 Compressor,
@@ -90,6 +104,9 @@ class DependenciesManager:
 
             self.GameFiles = GameFiles
             self.Utils = Utils
+            self.GTA5Keys = GTA5Keys
+            self.GameFileCache = GameFileCache
+            self.Action = Action
             
             self.List = List
 
