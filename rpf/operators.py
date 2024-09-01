@@ -49,13 +49,17 @@ class RPFOpenFolder(bpy.types.Operator):
         scene = context.scene
         for _, item in enumerate(scene.file_list):
             if item.id == self.item_id:
-                item_copy = item
-                folder_path = pathlib.Path(item_copy.path)
-                print(f"Opening folder: {folder_path}")
-                context.scene.file_list.clear()
-                get_file_folder_list(scene.file_list, str(folder_path))
-                scene.file_list_current_path = str(folder_path)
-                break
+                if item.file_type == "FOLDER":
+                    item_copy = item
+                    folder_path = pathlib.Path(item_copy.path)
+                    print(f"Opening folder: {folder_path}")
+                    context.scene.file_list.clear()
+                    get_file_folder_list(scene.file_list, str(folder_path))
+                    scene.file_list_current_path = str(folder_path)
+                    break
+                if item.file_type == "RPF":
+                    print(f"Opening RPF: {item.name}")
+                    break
         
         return {"FINISHED"}
     
