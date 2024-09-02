@@ -30,7 +30,12 @@ class DependenciesManager:
         self.Utils = None
         self.GTA5Keys = None
         self.GameFileCache = None
+        self.RpfFile = None
+        self.RpfEntry = None
+        self.RpfFileEntry = None
+        
         self.gamecache = None
+        
     
     @property
     def gamecache(self):
@@ -59,6 +64,9 @@ class DependenciesManager:
                 self.GTA5Keys,
                 self.GameFileCache,
                 self.Action,
+                self.RpfFile,
+                self.RpfEntry,
+                self.RpfFileEntry,
             ]
         )
 
@@ -86,7 +94,12 @@ class DependenciesManager:
             from System.Collections.Generic import List
             import CodeWalker.GameFiles as GameFiles
             import CodeWalker.Utils as Utils
-            from CodeWalker.GameFiles import GTA5Keys, GameFileCache
+            from CodeWalker.GameFiles import (
+                GTA5Keys, 
+                GameFileCache,
+                RpfFile,
+                RpfEntry,
+                RpfFileEntry)
             from System import Action
             from TeximpNet import Surface as Surface, ImageFilter as ImageFilter
             from TeximpNet.Compression import (
@@ -106,8 +119,11 @@ class DependenciesManager:
             self.Utils = Utils
             self.GTA5Keys = GTA5Keys
             self.GameFileCache = GameFileCache
-            self.Action = Action
+            self.RpfFile = RpfFile
+            self.RpfEntry = RpfEntry
+            self.RpfFileEntry = RpfFileEntry
             
+            self.Action = Action
             self.List = List
 
             self.Surface = Surface

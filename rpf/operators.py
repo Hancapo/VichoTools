@@ -1,5 +1,5 @@
 import bpy
-from .helper import load_gta_cache, get_file_folder_list
+from .helper import load_gta_cache, get_file_folder_list, get_rpf_file_folder_list
 from ..vicho_dependencies import dependencies_manager as d
 import pathlib
 import os
@@ -54,12 +54,15 @@ class RPFOpenFolder(bpy.types.Operator):
                     item_copy = item
                     folder_path = pathlib.Path(item_copy.path)
                     print(f"Opening folder: {folder_path}")
-                    context.scene.file_list.clear()
+                    scene.file_list.clear()
                     get_file_folder_list(scene.file_list, str(folder_path))
                     scene.file_list_current_path = str(folder_path)
                     break
                 if item.file_type == "RPF":
-                    print(f"Opening RPF: {item.name}")
+                    print(f"Opening RPF: {item.path}")
+                    scene.file_list_current_rpf = item.path
+                    scene.file_list.clear()
+                    get_rpf_file_folder_list(scene.file_list, scene.file_list_current_rpf)
                     break
         
         return {"FINISHED"}
@@ -70,14 +73,19 @@ class RPFBackFolder(bpy.types.Operator):
     bl_idname = "rpf.backfolder"
     bl_label = ""
     
-    @classmethod
-    def poll(cls, context):
-        flcp = context.scene.file_list_current_path
-        return pathlib.Path(flcp).name != 'Grand Theft Auto V'
+    # @classmethod
+    # def poll(cls, context):
+    #     flcp = context.scene.file_list_current_path
+    #     return pathlib.Path(flcp).name != 'Grand Theft Auto V' and d.gamecache
 
     def execute(self, context):
         scene = context.scene
         scene.file_list.clear()
+        if scene.file_list_current_rpf:
+            scene.file_list_current_rpf = ""
+            get_file_folder_list(scene.file_list, pathlib.Path(scene.file_list_current_path))
+            scene.file_list_current_path = str(pathlib.Path(scene.file_list_current_path))
+            return {"FINISHED"}
         get_file_folder_list(scene.file_list, pathlib.Path(scene.file_list_current_path).parent)
         scene.file_list_current_path = str(pathlib.Path(scene.file_list_current_path).parent)
         return {"FINISHED"}
