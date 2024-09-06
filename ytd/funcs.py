@@ -4,9 +4,7 @@ import shutil
 import bpy
 from .cw_py.misc import get_folder_list_from_dir, get_non_dds
 from .cw_py.helper import convert_folder_to_ytd, convert_img_to_dds
-from ..vicho_preferences import get_addon_preferences
-
-prefs = get_addon_preferences()
+from ..vicho_preferences import get_addon_preferences as prefs
 
 environment_textures =[
     "env_bark",
@@ -34,8 +32,8 @@ def get_images_from_material(material):
                     if node_is_image(node):
                         images.append(node.image)
     
-    if prefs.skip_environment_textures:
-        images = [img for img in images if get_texture_filename(img).lower not in environment_textures]                    
+    if prefs().skip_environment_textures:
+        images = [img for img in images if get_texture_filename(img).lower() not in environment_textures]                    
     return images
 
 
@@ -46,6 +44,7 @@ def is_sampler_embedded(node) -> bool:
     return node.texture_properties.embedded
 
 def get_texture_filename(image) -> str:
+    print(Path(image.filepath).stem)
     return Path(image.filepath).stem
 
 def create_ytd_folders(FolderList, ExportPath, self):
