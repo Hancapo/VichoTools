@@ -44,7 +44,6 @@ def is_sampler_embedded(node) -> bool:
     return node.texture_properties.embedded
 
 def get_texture_filename(image) -> str:
-    print(Path(image.filepath).stem)
     return Path(image.filepath).stem
 
 def create_ytd_folders(FolderList, ExportPath, self):
