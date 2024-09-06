@@ -99,9 +99,7 @@ def convert_img_to_dds(filepath: str, quality: str, do_max_dimension: bool, half
     )
 
     output_path = os.path.join(os.path.dirname(filepath), f"{fileName}.dds")
-
     compressor.Process(output_path)
-
     surface.Dispose()
     compressor.Dispose()
 

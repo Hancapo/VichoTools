@@ -5,33 +5,41 @@ from .vicho_operators import VichoToolsInstallDependencies, VichoToolsInstallDot
 class VichoToolsAddonProperties(bpy.types.AddonPreferences):
     bl_idname = __package__
     add_nonsollumz_to_ytd: bpy.props.BoolProperty(
-        name="Add Non-Sollumz objects in YTD/Texture folder(s)", default=False, description="Non-Sollumz objects will be able to be added to YTD/Texture folder(s) as long as they are meshes."
+        name="Add Non-Sollumz objects in texture package(s)", default=False, description="Non-Sollumz objects will be able to be added to texture package(s) as long as they are meshes"
     )
     enable_folder_export: bpy.props.BoolProperty(
-        name="Enable folders export", default=False, description="If enabled, the export of folders will be available."
+        name="Enable folders export", default=False, description="If enabled, the export of folders will be available"
     )
-
+    
+    skip_environment_textures: bpy.props.BoolProperty(
+        name="Skip environment textures", default=True, description="If enabled, environment textures will be skipped"
+    )
+    resize_dds: bpy.props.BoolProperty(
+        name="Resize DDS textures", default=False, description="If enabled, DDS Textures will be affected by the resize settings"
+    )
+        
     def draw(self, context):
         layout = self.layout
         col = layout.column(align=True)
+        box_col = col.box()
+        box_col.label(text="Dependencies", icon="SETTINGS")
         if not is_dotnet_installed():
-             col.operator(VichoToolsInstallDotnetRuntime.bl_idname, text="Install first: .NET 8 runtime", icon="SCRIPTPLUGINS")
+             box_col.operator(VichoToolsInstallDotnetRuntime.bl_idname, text="Install first: .NET 8 runtime", icon="SCRIPTPLUGINS")
         else:
-            col.label(text=".NET 8 x64 Runtime is already installed.")
-        col.separator()
+            box_col.label(text=".NET 8 x64 Runtime is already installed.")
         if d.available:
-            col.label(text="PythonNET is already installed.")
+            box_col.label(text="PythonNET is already installed.")
         else:
-            col.operator(VichoToolsInstallDependencies.bl_idname, text="Install second: Install PythonNET", icon="SCRIPTPLUGINS")
+            box_col.operator(VichoToolsInstallDependencies.bl_idname, text="Install second: Install PythonNET", icon="SCRIPTPLUGINS")
         col.separator()
         box = col.box()
         col = box.column(align=True)
         col.label(text="Texture(s) Settings", icon="TEXTURE")
-        col.separator()
-        col.prop(self, "add_nonsollumz_to_ytd")
-        col.separator()
-        col.prop(self, "enable_folder_export")
-
+        col.prop(self, "add_nonsollumz_to_ytd", icon="STICKY_UVS_LOC")
+        col.prop(self, "enable_folder_export", icon="NEWFOLDER")
+        col.prop(self, "skip_environment_textures", icon="SHADING_RENDERED")
+        col.prop(self, "resize_dds", icon="UV_DATA")
+        
 
 def get_addon_preferences() -> VichoToolsAddonProperties:
     return bpy.context.preferences.addons[__package__].preferences
