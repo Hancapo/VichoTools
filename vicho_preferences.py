@@ -35,6 +35,7 @@ class VichoToolsAddonProperties(bpy.types.AddonPreferences):
         box = col.box()
         col = box.column(align=True)
         col.label(text="Texture(s) Settings", icon="TEXTURE")
+        col.separator()
         col.prop(self, "add_nonsollumz_to_ytd", icon="STICKY_UVS_LOC")
         col.prop(self, "enable_folder_export", icon="NEWFOLDER")
         col.prop(self, "skip_environment_textures", icon="SHADING_RENDERED")

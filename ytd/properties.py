@@ -11,18 +11,22 @@ quality_settings = [
     (
         "FASTEST",
         "Fastest",
-        "Fastest processing time. Results may be reasonable, but is not considered to be real-time either",
+        "Fastest processing time. Results may be reasonable, but is not considered to be real-time either"
     ),
-    ("NORMAL", "Normal", "Balanced in terms of quality / speed"),
+    (
+        "NORMAL", 
+        "Normal", 
+        "Balanced in terms of quality / speed"
+    ),
     (
         "PRODUCTION",
         "Production",
-        "Generally produces similar results to normal, but it may double or triple the time to obtain minor quality improvements",
+        "Generally produces similar results to normal, but it may double or triple the time to obtain minor quality improvements"
     ),
     (
         "HIGHEST",
         "Highest",
-        "Slowest processing time. May be extremely slow as it brute force compressor and should generally only be used for testing purposes",
+        "Slowest processing time. May be extremely slow as it brute force compressor and should generally only be used for testing purposes"
     ),
 ]
 

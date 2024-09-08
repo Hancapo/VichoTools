@@ -44,8 +44,8 @@ def closest_pow2_dims(width: int, height: int, max_dimension: int, make_half: bo
     if max_dimension == 0:
         max_dimension = max(width, height)
     
-    use_width = True if width % max_dimension == 0 else False
-    use_height = True if height % max_dimension == 0 else False
+    use_width = width % max_dimension == 0
+    use_height = height % max_dimension == 0
     
     if(use_width and use_height):
         if( width / max_dimension < height / max_dimension):
