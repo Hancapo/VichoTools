@@ -1,8 +1,8 @@
-from pathlib import Path
 import os
 from ...vicho_dependencies import dependencies_manager as d
 from .misc import calculate_mipmaps_lvls, get_dds, closest_pow2_dims, closest_pow2
 import bpy
+from pathlib import Path
 
 SUPPORTED_FORMATS = [
     ".png",
@@ -59,21 +59,22 @@ def convert_folder_to_ytd(folder: str):
     return final_ytd
 
 
-def convert_img_to_dds(filepath: str, quality: str, do_max_dimension: bool, half_res: bool, max_res: int):
+def convert_img_to_dds(filepath: str, file_ext: str, quality: str, do_max_dimension: bool, half_res: bool, max_res: int, output_path: str, is_tint: bool, resize_dds: bool):
     adv = bpy.context.scene.ytd_advanced_mode
-
     surface = None
     compressor = d.Compressor()
-    fileExt = Path(filepath).suffix
-    fileName = Path(filepath).stem
-    if fileExt in filter(lambda x: x != ".dds", SUPPORTED_FORMATS):
+    
+    img_filter = filter(lambda x: x != ".dds", SUPPORTED_FORMATS) if not resize_dds else SUPPORTED_FORMATS
+    
+    if file_ext in img_filter:
         try:
+            print(f"Trying to load image {filepath}")
             surface = d.Surface.LoadFromFile(filepath, True)
         except Exception:
             print(f"Error loading image {filepath}")
             return None
     else:
-        print(f"Invalid file extension {fileExt}")
+        print(f"Invalid file extension {file_ext}")
         return None
 
     width, height = surface.Width, surface.Height
@@ -88,18 +89,22 @@ def convert_img_to_dds(filepath: str, quality: str, do_max_dimension: bool, half
     mip_levels = calculate_mipmaps_lvls(width, height)
     compressor.Input.SetData(surface)
     compressor.Input.RoundMode = d.RoundMode.ToNearestPowerOfTwo
-    compressor.Input.SetMipmapGeneration(True, mip_levels)
-    compressor.Input.MipmapFilter = d.MipmapFilter.Box
-    compressor.Output.OutputFileFormat = d.OutputFileFormat.DDS
-    compressor.Compression.Quality = get_quality(quality)
-    compressor.Compression.Format = (
-        d.CompressionFormat.DXT5
-        if is_transparent(surface)
-        else d.CompressionFormat.DXT1a
-    )
+    print(f"Is tint: {is_tint} from {filepath}")
+    if is_tint:
+        compressor.Input.SetMipmapGeneration(False, 1)
+        compressor.Compression.Format = d.CompressionFormat.BGRA
+        
+    else:
+        compressor.Input.SetMipmapGeneration(True, mip_levels)
+        compressor.Compression.Format = (
+            d.CompressionFormat.DXT5
+            if is_transparent(surface)
+            else d.CompressionFormat.DXT1a
+        )
 
-    output_path = os.path.join(os.path.dirname(filepath), f"{fileName}.dds")
-    compressor.Process(output_path)
+    compressor.Compression.Quality = get_quality(quality)
+    dds_name = os.path.join(output_path, Path(filepath).stem + ".dds")
+    compressor.Process(dds_name)
     surface.Dispose()
     compressor.Dispose()
 

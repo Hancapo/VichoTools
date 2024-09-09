@@ -2,38 +2,12 @@ import bpy
 from bpy.app.handlers import persistent
 
 
-class YTDLIST_UL_list(bpy.types.UIList):
-    bl_idname = "YTDLIST_UL_list"
-
-    def draw_item(
-        self, context, layout, data, item, icon, active_data, active_propname, index
-    ):
-        if self.layout_type in {"DEFAULT", "COMPACT"}:
-            row = layout.row(align=True)
-            row.prop(
-                item,
-                "selected",
-                text="",
-                emboss=False,
-                icon="CHECKBOX_HLT" if item.selected else "CHECKBOX_DEHLT",
-            )
-            row.prop(item, "name", text="", emboss=False, icon="RENDERLAYERS")
-            row = layout.row(align=True)
-            row.scale_x = 0.7
-            row.prop(item, "game_target", text="", emboss=False, icon="MATSHADERBALL")
-
-
-class MESHLIST_UL_list(bpy.types.UIList):
-    bl_idname = "MESHLIST_UL_list"
-
-    def draw_item(
-        self, context, layout, data, item, icon, active_data, active_propname, index
-    ):
-        if self.layout_type in {"DEFAULT", "COMPACT"}:
-            if len(context.scene.ytd_list) != 0:
-                row = layout.row(align=True)
-                if item is not None and item.mesh is not None:
-                    row.prop(item.mesh, "name", text="", emboss=False, icon="FILE_3D")
+COMPAT_SOLL: list[str] = [
+            "sollumz_drawable",
+            "sollumz_fragment",
+            "sollumz_drawable_model",
+            "sollumz_drawable_dictionary",
+        ]
 
 
 def ytd_index_changed(self, context):
@@ -72,10 +46,9 @@ def remove_invalid_meshes(scene):
 
 
 def switch_ytd_selected_index(scene):
-    if len(scene.ytd_list[scene.ytd_active_index].mesh_list) < 1:
-        scene.ytd_active_index = 0 if len(scene.ytd_list) > 0 else -1
-    else:
-        scene.ytd_active_index = scene.ytd_active_index
+    if len(scene.ytd_list) != 0:
+        if len(scene.ytd_list[scene.ytd_active_index].mesh_list) < 1:
+            scene.ytd_active_index = 0 if len(scene.ytd_list) > 0 else -1
 
 
 @persistent
