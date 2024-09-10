@@ -8,9 +8,9 @@ from .funcs import (
     add_meshes_to_ytd,
     add_ytd_to_list,
     auto_fill_ytd_field,
-    export_ytd_files
+    export_img_packages
 )
-from .helper import COMPAT_SOLL
+from .constants import COMPAT_SOLL
 
 
 class ExportYTDFolders(bpy.types.Operator):
@@ -81,7 +81,7 @@ class ExportYTDFiles(bpy.types.Operator):
             case "SELECTED":
                 ytds = [ytd_list[scene.ytd_active_index]]
 
-        export_ytd_files(ytds, bpy.path.abspath(scene.ytd_export_path), self, quality, half_res, max_res, do_max_res, resize_dds)
+        export_img_packages(ytds, bpy.path.abspath(scene.ytd_export_path), self, quality, half_res, max_res, do_max_res, resize_dds)
         if scene.ytd_show_explorer_after_export:
             subprocess.Popen(
                 'explorer "{}"'.format(

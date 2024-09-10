@@ -1,24 +1,11 @@
 import os
 from pathlib import Path
 import shutil
-from .cw_py.misc import get_folder_list_from_dir
-from .cw_py.helper import convert_folder_to_ytd, convert_img_to_dds
 from ..vicho_preferences import get_addon_preferences as prefs
-from .helper import COMPAT_SOLL
+from .constants import COMPAT_SOLL, ENV_TEXTURES
+from .helper import convert_folder_to_ytd, convert_img_to_dds
 from .image_info import ImageInfo
 import bpy
-
-ENV_TEXTURES = [
-    "env_bark",
-    "env_cloth",
-    "env_crusty",
-    "env_noise_concrete",
-    "env_noise_heavy",
-    "env_smooth_concrete2",
-    "env_stucco",
-    "env_woodgrain",
-    "env_woodgrain_2",
-]
 
 
 def get_images_info_from_mat(mat, self = None) -> list[ImageInfo]:
@@ -73,11 +60,8 @@ def create_ytd_folder(ytd, ExportPath, self=None):
     return folder_path
 
 
-def delete_folders(FolderList, ExportPath):
-    for folder in FolderList:
-        folder_path = os.path.join(ExportPath, folder.name)
-        shutil.rmtree(folder_path)
-
+def delete_folder(path):
+    shutil.rmtree(path)
 
 def mesh_list_from_objs(objects):
     new_mesh_list = []
@@ -167,14 +151,14 @@ def update_img_data_list(item, self = None):
                         img_data.flag_1 = img.flag_1
         
         
-def export_ytd_files(FolderList, ExportPath, self, quality, half_res, max_res, do_max_res, resize_dds):
+def export_img_packages(folder_list, export_path, self, quality, half_res, max_res, do_max_res, resize_dds):
     scene = bpy.context.scene
     actually_resize: bool = scene.max_pixel_size or scene.divide_textures_size and scene.ytd_advanced_mode
-    newExportPath = os.path.join(ExportPath, "output")
-    for ytd_item in FolderList:
+    new_export_path = os.path.join(export_path, "output")
+    for ytd_item in folder_list:
         update_img_data_list(ytd_item, self)
         print(f"YTD Item: {len(ytd_item.img_data_list)}")
-        ytd_folder = create_ytd_folder(ytd_item, newExportPath)
+        ytd_folder = create_ytd_folder(ytd_item, new_export_path)
         for img in ytd_item.img_data_list:
             image_format = Path(img.img_texture.filepath).suffix
             image_path = bpy.path.abspath(img.img_texture.filepath)
@@ -188,11 +172,12 @@ def export_ytd_files(FolderList, ExportPath, self, quality, half_res, max_res, d
         ytd_file = convert_folder_to_ytd(ytd_folder)
         folder_path = Path(ytd_folder)
         print(f"Folder Path: {folder_path.name}")
-        output_file_path = Path(newExportPath) / f"{folder_path.name}.ytd"
+        output_file_path = Path(export_path) / f"{folder_path.name}.ytd"
         print(f"Output File Path: {output_file_path}")
         with open(f"{output_file_path}", "wb") as f:
             bytes_data = ytd_file.Save()
             byte_array = bytearray(list(bytes_data))
             f.write(byte_array)
-        delete_folders(FolderList, newExportPath)
+    
+    delete_folder(new_export_path)
         
