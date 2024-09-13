@@ -1,20 +1,13 @@
 from pathlib import Path
 import math
 
-SUPPORTED_FORMATS = [".png", ".jpg", ".bmp", ".tiff", ".tif", ".jpeg", ".psd", ".gif", ".webp"]
 
 
 def get_folder_list_from_dir(dir: str):
     return [str(p) for p in Path(dir).rglob("*") if p.is_dir()]
 
-
-def get_non_dds(path: str) -> list[str]:
-    return [str(p) for p in Path(path).rglob("*") if p.suffix in SUPPORTED_FORMATS]
-
-
 def get_dds(path: str) -> list[str]:
     return [str(p) for p in Path(path).rglob("*.dds")]
-
 
 def calculate_mipmaps_lvls(width: int, height: int) -> int:
     if width <= 4 or height <= 4:
@@ -48,7 +41,7 @@ def closest_pow2_dims(width: int, height: int, max_dimension: int, make_half: bo
     use_height = height % max_dimension == 0
     
     if(use_width and use_height):
-        if( width / max_dimension < height / max_dimension):
+        if( width / max_dimension > height / max_dimension):
             num = width
         else:
             num = height
