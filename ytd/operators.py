@@ -8,7 +8,8 @@ from .funcs import (
     add_meshes_to_ytd,
     add_ytd_to_list,
     auto_fill_ytd_field,
-    export_img_packages
+    export_img_packages,
+    export_img_folders
 )
 from .constants import COMPAT_SOLL
 
@@ -38,10 +39,11 @@ class ExportYTDFolders(bpy.types.Operator):
                 ytds = [ytd for ytd in scene.ytd_list if ytd.selected]
             case "SELECTED":
                 ytds = [scene.ytd_list[scene.ytd_active_index]]
-        #create_ytd_folders(ytds, bpy.path.abspath(scene.ytd_export_path), self)
+        output_folder = export_img_folders(ytds, bpy.path.abspath(scene.ytd_export_path), self)
         if scene.ytd_show_explorer_after_export:
+            print(f"Opening in explorer: {scene.ytd_export_path}")
             subprocess.Popen(
-                'explorer "{}"'.format(bpy.path.abspath(scene.ytd_export_path))
+                'explorer "{}"'.format(os.path.join(scene.ytd_export_path, output_folder))
             )
         return {"FINISHED"}
 
@@ -85,7 +87,7 @@ class ExportYTDFiles(bpy.types.Operator):
         if scene.ytd_show_explorer_after_export:
             subprocess.Popen(
                 'explorer "{}"'.format(
-                    bpy.path.abspath(scene.ytd_export_path) + "output"
+                    bpy.path.abspath(scene.ytd_export_path)
                 )
             )
         self.report({"INFO"}, f"Exported {len(ytds)} YTD files in {round(time.time() - start, 4)} seconds")

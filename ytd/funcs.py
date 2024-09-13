@@ -6,6 +6,7 @@ from .constants import COMPAT_SOLL, ENV_TEXTURES
 from .helper import convert_folder_to_ytd, convert_img_to_dds
 from .image_info import ImageInfo
 import bpy
+from ..misc.funcs import is_drawable_model, is_mesh, is_drawable, gen_rdm_str
 
 
 def get_images_info_from_mat(mat, self = None) -> list[ImageInfo]:
@@ -30,7 +31,6 @@ def get_images_info_from_mat(mat, self = None) -> list[ImageInfo]:
 
 def check_if_images_exists(img_list, self = None) -> bool:
     for img_info in img_list:
-        print(Path(img_info.image_path))
         if Path(img_info.image_path).is_file():
             continue
         else:
@@ -47,15 +47,11 @@ def is_sampler_embedded(node) -> bool:
 def is_tint_shader(node) -> bool:
     return node.name == "TintPaletteSampler"
 
-def is_sollum_draw_model(obj) -> bool:
-    return obj.sollum_type == "sollumz_drawable_model"
-
 def is_obj_type(obj, obj_type) -> bool:
     return obj.type == obj_type
 
-def create_ytd_folder(ytd, ExportPath, self=None):
+def create_texture_package_folder(ytd, ExportPath, self=None):
     folder_path = os.path.join(ExportPath, ytd.name)
-    print(f"Added folder {folder_path}")
     os.makedirs(folder_path, exist_ok=True)
     return folder_path
 
@@ -66,20 +62,20 @@ def delete_folder(path):
 def mesh_list_from_objs(objects):
     new_mesh_list = []
     for obj in objects:
-        if obj.type == "MESH" or obj.sollum_type == "sollumz_drawable_model":
+        if is_mesh(obj) or is_drawable_model(obj):
             new_mesh_list.append(obj)
         elif obj.sollum_type in filter(lambda x: x != "sollumz_drawable_model", COMPAT_SOLL):
             for draw_child in obj.children:
-                if draw_child.sollum_type == "sollumz_drawable":
+                if is_drawable(draw_child):
                     for model_child in draw_child.children:
                         if (
-                            model_child.type == "MESH"
-                            or model_child.sollum_type == "sollumz_drawable_model"
+                            is_mesh(model_child)
+                            or is_drawable_model(model_child)
                         ):
                             new_mesh_list.append(model_child)
                 elif (
-                    draw_child.type == "MESH"
-                    and draw_child.sollum_type == "sollumz_drawable_model"
+                    is_mesh(draw_child)
+                    and is_drawable_model(draw_child)
                 ):
                     new_mesh_list.append(draw_child)
     return new_mesh_list
@@ -126,11 +122,7 @@ def auto_fill_ytd_field(scene, self):
             for ytd in ytd_list:
                 for m in ytd.mesh_list:
                     mesh = m.mesh
-                    if mesh.sollum_type != "sollumz_drawable_model":
-                        continue
-                    if mesh.parent.sollum_type != "sollumz_drawable":
-                        continue
-                    if mesh.parent.name != arch.asset_name:
+                    if not is_drawable_model(mesh) or not is_drawable(mesh.parent) or mesh.parent.name != arch.asset_name:
                         continue
                     arch.texture_dictionary = ytd.name
                     self.report({"INFO"}, f"Assigned {ytd.name} to {arch.asset_name}")
@@ -142,7 +134,6 @@ def update_img_data_list(item, self = None):
             for mat in mesh_obj.mesh.material_slots:
                 if mat.material:
                     images = get_images_info_from_mat(mat.material, self)
-                    print(f"Images: {images}")
                     for img in images:
                         img_data = item.img_data_list.add()
                         img_data.img_texture = img.image
@@ -151,15 +142,15 @@ def update_img_data_list(item, self = None):
                         img_data.flag_1 = img.flag_1
         
         
-def export_img_packages(folder_list, export_path, self, quality, half_res, max_res, do_max_res, resize_dds):
+def export_img_packages(package_list, export_path, self, quality, half_res, max_res, do_max_res, resize_dds):
     scene = bpy.context.scene
     actually_resize: bool = scene.max_pixel_size or scene.divide_textures_size and scene.ytd_advanced_mode
-    new_export_path = os.path.join(export_path, "output")
-    for ytd_item in folder_list:
-        update_img_data_list(ytd_item, self)
-        print(f"YTD Item: {len(ytd_item.img_data_list)}")
-        ytd_folder = create_ytd_folder(ytd_item, new_export_path)
-        for img in ytd_item.img_data_list:
+    new_export_path = os.path.join(export_path, gen_rdm_str())
+    for pak in package_list:
+        update_img_data_list(pak, self)
+        print(f"YTD Item: {len(pak.img_data_list)}")
+        ytd_folder = create_texture_package_folder(pak, new_export_path)
+        for img in pak.img_data_list:
             image_format = Path(img.img_texture.filepath).suffix
             image_path = bpy.path.abspath(img.img_texture.filepath)
             if image_format == ".dds":
@@ -178,6 +169,16 @@ def export_img_packages(folder_list, export_path, self, quality, half_res, max_r
             bytes_data = ytd_file.Save()
             byte_array = bytearray(list(bytes_data))
             f.write(byte_array)
-    
     delete_folder(new_export_path)
-        
+
+def export_img_folders(package_list, export_path, self):
+    rdm_folder = gen_rdm_str()
+    new_export_path = os.path.join(export_path, rdm_folder)
+    for pak in package_list:
+        update_img_data_list(pak, self)
+        package_folder = create_texture_package_folder(pak, new_export_path)
+        for img in pak.img_data_list:
+            image_path = bpy.path.abspath(img.img_texture.filepath)
+            shutil.copy(image_path, package_folder)
+    
+    return rdm_folder
