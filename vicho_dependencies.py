@@ -1,8 +1,4 @@
-from pathlib import Path
-import sys
 import os
-
-
 class DependenciesManager:
     _instance = None
 
