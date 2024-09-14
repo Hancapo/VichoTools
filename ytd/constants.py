@@ -29,3 +29,8 @@ SUPPORTED_FORMATS: list[str] = [
     ".gif",
     ".webp",
 ]
+
+ARCH_TYPES: list[str] = [
+    "sollumz_archetype_base",
+    "sollumz_archetype_time",
+]

@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 import shutil
 from ..vicho_preferences import get_addon_preferences as prefs
-from .constants import COMPAT_SOLL, ENV_TEXTURES
+from .constants import COMPAT_SOLL, ENV_TEXTURES, ARCH_TYPES
 from .helper import convert_folder_to_ytd, convert_img_to_dds
 from .image_info import ImageInfo
 import bpy
@@ -113,19 +113,38 @@ def mesh_exist_in_ytd(scene, objs, self=None):
     return False
 
 
+def get_parent_from_sollumz_obj(obj):
+    if obj.parent:
+        obj_parent = obj.parent
+        soll_type = obj_parent.sollum_type
+        if soll_type == 'sollumz_drawable':
+            if obj_parent.parent:
+                lvl2_parent = obj_parent.parent
+                if lvl2_parent.sollum_type in ['sollumz_drawable_dictionary', 'sollumz_fragment']:
+                    return lvl2_parent
+            else:
+                return obj_parent
+        
+            
+
 def auto_fill_ytd_field(scene, self):
     ytd_list = scene.ytd_list
+    parents = []
+    for ytd in ytd_list:
+        for m in ytd.mesh_list:
+            parent = get_parent_from_sollumz_obj(m.mesh)
+            if parent:
+                parents.append((parent, ytd.name))
+                
+    parents = set(parents)
+    
     for ytyp in scene.ytyps:
         for arch in ytyp.archetypes:
-            if arch.type not in ["sollumz_archetype_base", "sollumz_archetype_time"]:
-                continue
-            for ytd in ytd_list:
-                for m in ytd.mesh_list:
-                    mesh = m.mesh
-                    if not is_drawable_model(mesh) or not is_drawable(mesh.parent) or mesh.parent.name != arch.asset_name:
-                        continue
-                    arch.texture_dictionary = ytd.name
-                    self.report({"INFO"}, f"Assigned {ytd.name} to {arch.asset_name}")
+            for p in parents:
+                if arch.name == p[0].name:
+                    arch.texture_dictionary = p[1]
+                    self.report({"INFO"}, f"Auto-filled {arch.name} with {p[1]}")
+                    continue
 
 
 def update_img_data_list(item, self = None):
