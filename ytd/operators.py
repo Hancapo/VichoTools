@@ -14,10 +14,10 @@ from .funcs import (
 from .constants import COMPAT_SOLL
 
 
-class ExportYTDFolders(bpy.types.Operator):
+class ExportPackagesAsFolders(bpy.types.Operator):
     """Export the list of texture package(s) as folder(s)"""
 
-    bl_idname = "vicho.exportytdfolders"
+    bl_idname = "textures.exportpkgsasytds"
     bl_label = ""
 
     @classmethod
@@ -48,10 +48,10 @@ class ExportYTDFolders(bpy.types.Operator):
         return {"FINISHED"}
 
 
-class ExportYTDFiles(bpy.types.Operator):
+class ExportPackagesAsYTDS(bpy.types.Operator):
     """Export the list of texture package(s) as YTD file(s)"""
 
-    bl_idname = "vicho.exportytdfiles"
+    bl_idname = "textures.exportpkgsasytd"
     bl_label = ""
 
     @classmethod
