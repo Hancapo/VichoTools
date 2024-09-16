@@ -16,11 +16,11 @@ def get_images_info_from_mat(mat, self = None) -> list[ImageInfo]:
         match mat.sollum_type:
             case "sollumz_material_shader":
                 for node in mat_nodes:
-                    if node_is_image(node) and not is_sampler_embedded(node):
+                    if node_is_image(node) and not is_sampler_embedded(node) and is_valid_image(node.image):
                         images_info.append(ImageInfo(node.image, mat.name, is_tint_shader(node)))
             case "sollumz_material_none":
                 for node in mat_nodes:
-                    if node_is_image(node):
+                    if node_is_image(node) and is_valid_image(node.image):
                         images_info.append(ImageInfo(node.image, mat.name))
     
     if prefs().skip_environment_textures:
@@ -29,9 +29,13 @@ def get_images_info_from_mat(mat, self = None) -> list[ImageInfo]:
     if(check_if_images_exists(images_info, self)):
         return images_info
 
+def is_valid_image(image) -> bool:
+    if image and image.has_data:
+        return True
+
 def check_if_images_exists(img_list, self = None) -> bool:
     for img_info in img_list:
-        if Path(img_info.image_path).is_file():
+        if is_valid_image(img_info.image):
             continue
         else:
             self.report({"ERROR"}, f"Missing image named [{img_info.image_name}] from [{img_info.material}] material")
