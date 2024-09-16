@@ -12,6 +12,7 @@ class DependenciesManager:
         self.clr = None
         
         self.List = None
+        self.File = None
 
         # TeximpNet stuff
         self.Surface = None
@@ -26,6 +27,16 @@ class DependenciesManager:
         # CodeWalker stuff
         self.GameFiles = None
         self.Utils = None
+        self.YnvFile = None
+        self.YnvPoly = None
+        self.YnvEdge = None
+        self.YnvPoint = None
+        self.YnvPortal = None
+        self.NavMeshFlags = None
+        
+        # SharpDX stuff
+        self.Vector3 = None
+        self.Vector4 = None
 
     @property
     def available(self):
@@ -33,6 +44,7 @@ class DependenciesManager:
             [
                 self.clr,
                 self.List,
+                self.File,
                 self.Surface,
                 self.Compressor,
                 self.CompressionFormat,
@@ -43,6 +55,14 @@ class DependenciesManager:
                 self.RoundMode,
                 self.GameFiles,
                 self.Utils,
+                self.YnvFile,
+                self.YnvPoly,
+                self.YnvEdge,
+                self.YnvPoint,
+                self.YnvPortal,
+                self.NavMeshFlags,
+                self.Vector3,
+                self.Vector4,
             ]
         )
 
@@ -68,8 +88,11 @@ class DependenciesManager:
             print("References added correctly")
 
             from System.Collections.Generic import List
+            from System.IO import File
             import CodeWalker.GameFiles as GameFiles
             import CodeWalker.Utils as Utils
+            from SharpDX import Vector3, Vector4
+            from CodeWalker.GameFiles import YnvFile, YnvPoly, YnvEdge, YnvPoint, YnvPortal, NavMeshFlags
             from TeximpNet import Surface as Surface, ImageFilter as ImageFilter
             from TeximpNet.Compression import (
                 Compressor,
@@ -86,6 +109,18 @@ class DependenciesManager:
 
             self.GameFiles = GameFiles
             self.Utils = Utils
+            self.File = File
+            
+            
+            self.YnvFile = YnvFile
+            self.YnvPoly = YnvPoly
+            self.YnvEdge = YnvEdge
+            self.YnvPoint = YnvPoint
+            self.YnvPortal = YnvPortal
+            self.NavMeshFlags = NavMeshFlags
+            
+            self.Vector3 = Vector3
+            self.Vector4 = Vector4
             
             self.List = List
 
@@ -104,8 +139,15 @@ class DependenciesManager:
             print(f"GameFiles: {self.GameFiles}")
             print(f"List: {self.List}")
             print(f"Utils: {self.Utils}")
+            print(f"File: {self.File}")
             print(f"Surface: {self.Surface}")
             print(f"Compressor: {self.Compressor}")
+            print(f"CompressionFormat: {self.CompressionFormat}")
+            print(f"CompressionQuality: {self.CompressionQuality}")
+            print(f"YnvFile: {self.YnvFile}")
+            print(f"YnvPoly: {self.YnvPoly}")
+            print(f"Vector3: {self.Vector3}")
+            print(f"Vector4: {self.Vector4}")
 
             return True
         except Exception as e:
