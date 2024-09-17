@@ -220,37 +220,35 @@ def get_material(flags):
         flags4 = (flags >> 25) & 0xFF
         
         # Set color based on flags1
-        if flags1 & (1 << 0):
-            r += 0.01  # avoid? loiter?
-        if flags1 & (1 << 1):
-            r += 0.01  # avoid?
         if flags1 & (1 << 2):
-            g += 0.25  # ped/footpath
+            g += 0.25            # IsPavement
         if flags1 & (1 << 3):
-            g += 0.02  # underground?
+            g += 0.02            # IsUnderground
         if flags1 & (1 << 6):
-            r += 0.25  # steep slope
+            r += 0.25            # IsTooSteepToWalk
         if flags1 & (1 << 7):
-            b += 0.25  # water
+            b += 0.25            # IsWater
 
         # Set color based on flags2
-        if flags2 & (1 << 0):
-            b += 0.1  # is interior?
-        if flags2 & (1 << 1):
-            g += 0.1  # is flat ground? ped-navigable?
-        if flags2 & (1 << 2):
-            b += 0.03  # is a road
-        if flags2 & (1 << 3):
-            g += 0.75  # is a train track
-        if flags2 & (1 << 4):
-            b += 0.75  # shallow water/moving water
-        if flags2 & (1 << 5):
-            r += 0.2  # footpaths/beach - peds walking?
         if flags2 & (1 << 6):
-            b += 0.2  # footpaths - special?
-        if flags2 & (1 << 7):
-            g = 0.2  # footpaths - mall areas? eg mall, vinewood blvd
+            b += 0.2             # IsInterior
 
+
+        # Set color based on flags3
+        if flags3 & (1 << 1):
+            g += 0.1             # CanSpawnPeds
+        if flags3 & (1 << 2):
+            b += 0.1             # IsRoad
+        if flags3 & (1 << 4):
+            g += 0.1             # IsTraintrack
+        if flags3 & (1 << 5):
+            b += 0.1             # IsShallowWater
+        if flags3 & (1 << 6):
+            r += 0.1             # PedDensity1
+        if flags3 & (1 << 7):
+            g += 0.1             # PedDensity2
+        if flags3 & (1 << 8):
+            b += 0.1             # PedDensity3
 
 
         bsdf = mat.node_tree.nodes.get("Principled BSDF")
