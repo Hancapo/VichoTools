@@ -1,6 +1,13 @@
 import bpy
 from bpy_extras.io_utils import ImportHelper
-from .helper import open_ynv_file, build_mesh, get_mesh_data_from_ynv, create_navmesh_parent, set_nav_mesh_content_flags
+from .helper import (open_ynv_file, 
+                     build_mesh, 
+                     get_mesh_data_from_ynv, 
+                     create_navmesh_parent, 
+                     set_nav_mesh_content_flags,
+                     create_point_group,
+                     read_points
+                     )
 from pathlib import Path
 
 class Import_YNV(bpy.types.Operator, ImportHelper):
@@ -37,4 +44,10 @@ class Import_YNV(bpy.types.Operator, ImportHelper):
             new_parent.navmesh_properties.UnkHash = str(ynv.Nav.VersionUnk2.Hash)
             new_parent.navmesh_properties.AreaID = ynv.Nav.AreaID
             set_nav_mesh_content_flags(ynv, new_parent)
+            if ynv.Points:
+                point_group = create_point_group()
+                point_group.parent = new_parent
+                all_p = read_points(ynv)
+                for p in all_p:
+                    p.parent = point_group
         return {"FINISHED"}

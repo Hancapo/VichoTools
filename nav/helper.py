@@ -1,5 +1,6 @@
 from ..vicho_dependencies import dependencies_manager as d
 import bpy
+from math import pi
 
 def set_nav_mesh_content_flags(ynv, obj):
     """Set the NavMeshContentFlags based on the given NavMeshFlags."""
@@ -13,13 +14,43 @@ def set_nav_mesh_content_flags(ynv, obj):
         obj.navmesh_properties.ContentFlags.Unknown8 = True
     if ynv.Nav.ContentFlags.HasFlag(d.NavMeshFlags.Unknown16):
         obj.navmesh_properties.ContentFlags.Unknown16 = True
-    
+
+def create_point_group(name="PointGroup"):
+    point_grp = bpy.data.objects.new(name, None)
+    point_grp.empty_display_size = 0
+    bpy.context.collection.objects.link(point_grp)
+    point_grp.vicho_type = "vicho_nav_point_group"
+    return point_grp
+
+def create_portal_group(name="PortalGroup"):
+    portal_grp = bpy.data.objects.new(name, None)
+    portal_grp.empty_display_size = 0
+    bpy.context.collection.objects.link(portal_grp)
+    return portal_grp       
 
 def open_ynv_file(file_path):
     """Open a YNV file and return the data as a dictionary."""
     ynv = d.YnvFile()
     ynv.Load(d.File.ReadAllBytes(file_path))
     return ynv
+
+def read_points(ynv):
+    all_points = []
+    if ynv.Points.Count > 0:
+        for point in ynv.Points:
+            print(f"Point: {point.Position.X}, {point.Position.Y}, {point.Position.Z}")
+            point_obj = bpy.data.objects.new("NavPoint", None)
+            point_obj.empty_display_size = 0.2
+            point_obj.empty_display_type = "CUBE"
+            point_obj.location = (point.Position.X, point.Position.Y, point.Position.Z)
+            point_obj.rotation_euler.z = (point.Angle * 360 / 255) * (pi / 180)
+            bpy.context.collection.objects.link(point_obj)
+            point_obj.vicho_type = "vicho_nav_point"
+            point_obj.navpoint_properties.Type = point.Type
+            all_points.append(point_obj)
+        return all_points
+    else:
+        return None
 
 def create_navmesh_parent(name):
     """Create a parent object for the navmesh objects."""
@@ -48,10 +79,6 @@ def build_mesh(vertices_list, indices_list, flags_list, name):
                 offset += 1
             indices[i] = vertex_map[vertex]
         combined_indices.append(indices)
-    
-    # Mensajes de depuración
-    print(f"Combined vertices: {combined_vertices}")
-    print(f"Combined indices: {combined_indices}")
     
     try:
         mesh.from_pydata(combined_vertices, [], combined_indices)

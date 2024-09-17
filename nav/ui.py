@@ -49,3 +49,5 @@ class VichoTypeObject_PT_Panel(bpy.types.Panel):
             col.prop(context.object.navmesh_properties.ContentFlags, "Vehicle")
             col.prop(context.object.navmesh_properties.ContentFlags, "Unknown8")
             col.prop(context.object.navmesh_properties.ContentFlags, "Unknown16")
+        if context.object.vicho_type == "vicho_nav_point":
+            col.prop(context.object.navpoint_properties, "Type")

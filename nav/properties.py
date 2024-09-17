@@ -6,8 +6,19 @@ vicho_type = [
     ("vicho_none", "None", "None"),
     ("vicho_nav_mesh", "Nav Mesh", "Nav Mesh"),
     ("vicho_nav_mesh_geometry", "Nav Mesh Geometry", "Nav Mesh Geometry"),
-    ("vicho_nav_poly", "Nav Poly", "Nav Poly")]
+    ("vicho_nav_poly", "Nav Poly", "Nav Poly"),
+    ("vicho_nav_point_group", "Nav Point Group", "Nav Point Group"),
+    ("vicho_nav_point", "Nav Point", "Nav Point"),
+    ("vicho_nav_portal_group", "Nav Portal Group", "Nav Portal Group"),
+    ("vicho_nav_portal", "Nav Portal", "Nav Portal"),]
 
+
+class NavMeshContentFlags(bpy.types.PropertyGroup):
+    Polygons: bpy.props.BoolProperty(name="Polygons", default=False)
+    Portals: bpy.props.BoolProperty(name="Portals", default=False)
+    Vehicle: bpy.props.BoolProperty(name="Vehicles", default=False)
+    Unknown8: bpy.props.BoolProperty(name="Unknown 8", default=False)
+    Unknown16: bpy.props.BoolProperty(name="Unknown 10", default=False)
 
 class NavPolyFlagsA(bpy.types.PropertyGroup):
     SmallPoly: bpy.props.BoolProperty(name="Small Poly", default=False)
@@ -19,12 +30,6 @@ class NavPolyFlagsA(bpy.types.PropertyGroup):
     IsTooSteepToWalk: bpy.props.BoolProperty(name="Is Too Steep To Walk", default=False)
     IsWater: bpy.props.BoolProperty(name="Is Water", default=False)
     
-class NavMeshContentFlags(bpy.types.PropertyGroup):
-    Polygons: bpy.props.BoolProperty(name="Polygons", default=False)
-    Portals: bpy.props.BoolProperty(name="Portals", default=False)
-    Vehicle: bpy.props.BoolProperty(name="Vehicles", default=False)
-    Unknown8: bpy.props.BoolProperty(name="Unknown 8", default=False)
-    Unknown16: bpy.props.BoolProperty(name="Unknown 10", default=False)
     
 class NavPolyFlagsB(bpy.types.PropertyGroup):
     AudioProperties1: bpy.props.BoolProperty(name="Audio Properties 1", default=False)
@@ -66,6 +71,25 @@ class NavMeshProperties(bpy.types.PropertyGroup):
     UnkHash: bpy.props.StringProperty(name="Unk Hash", default="0")
     ContentFlags: bpy.props.PointerProperty(type=NavMeshContentFlags)
 
+class NavPointProperties(bpy.types.PropertyGroup):
+    Type: bpy.props.IntProperty(name="Type", default=0, min=0, max=255)
+    
+class NavPortalFromProperties(bpy.types.PropertyGroup):
+    FromAreaID: bpy.props.IntProperty(name="From Area ID", default=0, min=0, max=9999)
+    FromPolyID1: bpy.props.IntProperty(name="From Poly ID", default=0, min=0, max=9999)
+    FromPolyID2: bpy.props.IntProperty(name="From Poly ID", default=0, min=0, max=9999)
+    Unk1: bpy.props.IntProperty(name="Unk 1", default=0, min=0, max=9999)
+    
+class NavPortalToProperties(bpy.types.PropertyGroup):
+    ToAreaID: bpy.props.IntProperty(name="To Area ID", default=0, min=0, max=9999)
+    ToPolyID1: bpy.props.IntProperty(name="To Poly ID", default=0, min=0, max=9999)
+    ToPolyID2: bpy.props.IntProperty(name="To Poly ID", default=0, min=0, max=9999)
+    Unk2: bpy.props.IntProperty(name="Unk 2", default=0, min=0, max=9999)
+    
+class NavPortalProperties(bpy.types.PropertyGroup):
+    From: bpy.props.PointerProperty(type=NavPortalFromProperties)
+    To: bpy.props.PointerProperty(type=NavPortalToProperties)
+
 def register():
     bpy.types.Object.vicho_type = bpy.props.EnumProperty(
         items=vicho_type,
@@ -74,7 +98,11 @@ def register():
         description="Type of object",
     )
     bpy.types.Object.navmesh_properties = bpy.props.PointerProperty(type=NavMeshProperties)
+    bpy.types.Object.navpoint_properties = bpy.props.PointerProperty(type=NavPointProperties)
+    bpy.types.Object.navportal_properties = bpy.props.PointerProperty(type=NavPortalProperties)
     
 def unregister():
     del bpy.types.Object.vicho_type
     del bpy.types.Object.navmesh_properties
+    del bpy.types.Object.navpoint_properties
+    del bpy.types.Object.navportal_properties
