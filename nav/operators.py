@@ -6,7 +6,8 @@ from .helper import (open_ynv_file,
                      create_navmesh_parent, 
                      set_nav_mesh_content_flags,
                      create_point_group,
-                     read_points
+                     read_points,
+                     set_nav_poly_flags
                      )
 from pathlib import Path
 
@@ -50,4 +51,5 @@ class Import_YNV(bpy.types.Operator, ImportHelper):
                 all_p = read_points(ynv)
                 for p in all_p:
                     p.parent = point_group
+            set_nav_poly_flags(nav_mesh)
         return {"FINISHED"}

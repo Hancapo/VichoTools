@@ -15,6 +15,80 @@ def set_nav_mesh_content_flags(ynv, obj):
     if ynv.Nav.ContentFlags.HasFlag(d.NavMeshFlags.Unknown16):
         obj.navmesh_properties.ContentFlags.Unknown16 = True
 
+def set_nav_poly_flags(obj):
+    for mat in obj.material_slots:
+        if mat:
+            material = mat.material
+            flags = int(material.name)
+            if flags & 1:
+                material.NavPolyFlagsA.SmallPoly = True
+            if flags & 2:
+                material.NavPolyFlagsA.LargePoly = True
+            if flags & 4:
+                material.NavPolyFlagsA.IsPavement = True
+            if flags & 8:
+                material.NavPolyFlagsA.IsUnderground = True
+            if flags & 16:
+                material.NavPolyFlagsA.Unused1 = True
+            if flags & 32:
+                material.NavPolyFlagsA.Unused2 = True
+            if flags & 64:
+                material.NavPolyFlagsA.IsTooSteepToWalk = True
+            if flags & 128:
+                material.NavPolyFlagsA.IsWater = True
+                
+            if flags & 256:
+                material.NavPolyFlagsB.AudioProperties1 = True
+            if flags & 512:
+                material.NavPolyFlagsB.AudioProperties2 = True
+            if flags & 1024:
+                material.NavPolyFlagsB.AudioProperties3 = True
+            if flags & 2048:
+                material.NavPolyFlagsB.AudioProperties4 = True
+            if flags & 4096:
+                material.NavPolyFlagsB.Unused3 = True
+            if flags & 8192:
+                material.NavPolyFlagsB.NearCarNode = True
+            if flags & 16384:
+                material.NavPolyFlagsB.IsInterior = True
+            if flags & 32768:
+                material.NavPolyFlagsB.IsIsolated = True
+                
+            if flags & 65536:
+                material.NavPolyFlagsC.ZeroAreaStitchPoly = True
+            if flags & 131072:
+                material.NavPolyFlagsC.CanSpawnPeds = True
+            if flags & 262144:
+                material.NavPolyFlagsC.IsRoad = True
+            if flags & 524288:
+                material.NavPolyFlagsC.LiesAlongEdgeOfMesh = True
+            if flags & 1048576:
+                material.NavPolyFlagsC.IsTraintrack = True
+            if flags & 2097152:
+                material.NavPolyFlagsC.IsShallowWater = True
+            if flags & 4194304:
+                material.NavPolyFlagsC.PedDensity1 = True
+            if flags & 8388608:
+                material.NavPolyFlagsC.PedDensity2 = True
+            if flags & 16777216:
+                material.NavPolyFlagsC.PedDensity3 = True
+                
+            if flags & 33554432:
+                material.NavPolyFlagsD.CoverSouth = True
+            if flags & 67108864:
+                material.NavPolyFlagsD.CoverSouthEast = True
+            if flags & 134217728:
+                material.NavPolyFlagsD.CoverEast = True
+            if flags & 268435456:
+                material.NavPolyFlagsD.CoverNorthEast = True
+            if flags & 536870912:
+                material.NavPolyFlagsD.CoverNorth = True
+            if flags & 1073741824:
+                material.NavPolyFlagsD.CoverNorthWest = True
+            if flags & 2147483648:
+                material.NavPolyFlagsD.CoverWest = True
+            if flags & 4294967296:
+                material.NavPolyFlagsD.CoverSouthWest = True
 def create_point_group(name="PointGroup"):
     point_grp = bpy.data.objects.new(name, None)
     point_grp.empty_display_size = 0
@@ -115,8 +189,8 @@ def get_mesh_data_from_ynv(ynv):
         # poly.Indices es una lista de ushort
         indices = [int(i) for i in poly.Indices]
         
-        # Combinar los flags del polígono
-        flags = poly.Flags1 | poly.Flags2
+        # Combine bitmask flags into a single integer for Flags1, Flags2, Flags3 and Flags4
+        flags = poly.Flags1 | (poly.Flags2 << 8) | (poly.Flags3 << 17) | (poly.Flags4 << 25)
         
         vertices_list.append(vertices)
         indices_list.append(indices)
@@ -139,37 +213,45 @@ def get_material(flags):
         mat.use_nodes = True
         r, g, b = 0, 0, 0
 
-        # PolyFlags0
-        if flags & 1 > 0:
+        # Isolate flags1 from the bitmask
+        flags1 = flags & 0xFF
+        flags2 = (flags >> 8) & 0xFF
+        flags3 = (flags >> 17) & 0xFF
+        flags4 = (flags >> 25) & 0xFF
+        
+        # Set color based on flags1
+        if flags1 & (1 << 0):
             r += 0.01  # avoid? loiter?
-        if flags & 2 > 0:
+        if flags1 & (1 << 1):
             r += 0.01  # avoid?
-        if flags & 4 > 0:
+        if flags1 & (1 << 2):
             g += 0.25  # ped/footpath
-        if flags & 8 > 0:
+        if flags1 & (1 << 3):
             g += 0.02  # underground?
-        if flags & 64 > 0:
+        if flags1 & (1 << 6):
             r += 0.25  # steep slope
-        if flags & 128 > 0:
+        if flags1 & (1 << 7):
             b += 0.25  # water
 
-        # PolyFlags1
-        if flags & 64 > 0:
+        # Set color based on flags2
+        if flags2 & (1 << 0):
             b += 0.1  # is interior?
-        if flags & 512 > 0:
+        if flags2 & (1 << 1):
             g += 0.1  # is flat ground? ped-navigable?
-        if flags & 1024 > 0:
+        if flags2 & (1 << 2):
             b += 0.03  # is a road
-        if flags & 4096 > 0:
+        if flags2 & (1 << 3):
             g += 0.75  # is a train track
-        if flags & 8192 > 0:
+        if flags2 & (1 << 4):
             b += 0.75  # shallow water/moving water
-        if flags & 16384 > 0:
+        if flags2 & (1 << 5):
             r += 0.2  # footpaths/beach - peds walking?
-        if flags & 32768 > 0:
+        if flags2 & (1 << 6):
             b += 0.2  # footpaths - special?
-        if flags & 65536 > 0:
+        if flags2 & (1 << 7):
             g = 0.2  # footpaths - mall areas? eg mall, vinewood blvd
+
+
 
         bsdf = mat.node_tree.nodes.get("Principled BSDF")
         if bsdf:

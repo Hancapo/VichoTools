@@ -101,8 +101,18 @@ def register():
     bpy.types.Object.navpoint_properties = bpy.props.PointerProperty(type=NavPointProperties)
     bpy.types.Object.navportal_properties = bpy.props.PointerProperty(type=NavPortalProperties)
     
+    bpy.types.Material.NavPolyFlagsA = bpy.props.PointerProperty(type=NavPolyFlagsA)
+    bpy.types.Material.NavPolyFlagsB = bpy.props.PointerProperty(type=NavPolyFlagsB)
+    bpy.types.Material.NavPolyFlagsC = bpy.props.PointerProperty(type=NavPolyFlagsC)
+    bpy.types.Material.NavPolyFlagsD = bpy.props.PointerProperty(type=NavPolyFlagsD)
+    
 def unregister():
     del bpy.types.Object.vicho_type
     del bpy.types.Object.navmesh_properties
     del bpy.types.Object.navpoint_properties
     del bpy.types.Object.navportal_properties
+    
+    del bpy.types.Material.NavPolyFlagsA
+    del bpy.types.Material.NavPolyFlagsB
+    del bpy.types.Material.NavPolyFlagsC
+    del bpy.types.Material.NavPolyFlagsD
