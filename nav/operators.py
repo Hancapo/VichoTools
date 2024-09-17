@@ -30,8 +30,8 @@ class Import_YNV(bpy.types.Operator, ImportHelper):
         for file in filepaths:
             ynv = open_ynv_file(file)
             ynv_name = Path(file).stem
-            vertices_list, indices_list = get_mesh_data_from_ynv(ynv)
-            nav_mesh = build_mesh(vertices_list, indices_list, "nav_mesh")
+            vertices_list, indices_list, flags_list = get_mesh_data_from_ynv(ynv)
+            nav_mesh = build_mesh(vertices_list, indices_list, flags_list, "nav_mesh")
             new_parent = create_navmesh_parent(ynv_name)
             nav_mesh.parent = new_parent
             new_parent.navmesh_properties.UnkHash = str(ynv.Nav.VersionUnk2.Hash)
