@@ -85,7 +85,7 @@ def build_mesh(vertices_list, indices_list, flags_list, name):
         mesh.update(calc_edges=True)
         mesh.validate(verbose=True)
         
-        # Asignar materiales
+        # Assign materials based on flags
         material_map = {}
         for flags in set(flags_list):
             mat = get_material(flags)
@@ -96,7 +96,7 @@ def build_mesh(vertices_list, indices_list, flags_list, name):
             poly.material_index = material_map[flags]
         
     except Exception as e:
-        print(f"Error al crear la malla: {e}")
+        print(f"Error creating the mesh: {e}")
         return None
     
     obj.vicho_type = "vicho_nav_mesh_geometry"
@@ -124,16 +124,20 @@ def get_mesh_data_from_ynv(ynv):
     
     return vertices_list, indices_list, flags_list
 
+material_cache = {}
+
 def get_material(flags):
-    """Generate a material based on the given flags."""
+    """Generate or retrieve a material based on the given flags."""
+    # Check if material already exists in the cache
+    if flags in material_cache:
+        return material_cache[flags]
+    
     mat_name = str(flags)
     mat = bpy.data.materials.get(mat_name)
     if mat is None:
         mat = bpy.data.materials.new(name=mat_name)
         mat.use_nodes = True
-        r = 0
-        g = 0
-        b = 0
+        r, g, b = 0, 0, 0
 
         # PolyFlags0
         if flags & 1 > 0:
@@ -170,4 +174,7 @@ def get_material(flags):
         bsdf = mat.node_tree.nodes.get("Principled BSDF")
         if bsdf:
             bsdf.inputs[0].default_value = (r, g, b, 0.75)
+    
+    # Store material in cache for future use
+    material_cache[flags] = mat
     return mat
