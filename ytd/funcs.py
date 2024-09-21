@@ -174,8 +174,8 @@ def export_img_packages(package_list, export_path, self, quality, half_res, max_
         print(f"YTD Item: {len(pak.img_data_list)}")
         ytd_folder = create_texture_package_folder(pak, new_export_path)
         for img in pak.img_data_list:
-            image_format = Path(img.img_texture.filepath).suffix
             image_path = bpy.path.abspath(img.img_texture.filepath)
+            image_format = Path(image_path).suffix
             if image_format == ".dds":
                 if resize_dds and actually_resize:
                     convert_img_to_dds(image_path, image_format, quality, do_max_res, half_res, max_res, ytd_folder, img.flag_tint, resize_dds)
