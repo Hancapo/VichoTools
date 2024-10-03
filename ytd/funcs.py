@@ -2,45 +2,42 @@ import os
 from pathlib import Path
 import shutil
 from ..vicho_preferences import get_addon_preferences as prefs
-from .constants import COMPAT_SOLL, ENV_TEXTURES, ARCH_TYPES
+from .constants import COMPAT_SOLL, ENV_TEXTURES
 from .helper import convert_folder_to_ytd, convert_img_to_dds
 from .image_info import ImageInfo
 import bpy
-from ..misc.funcs import is_drawable_model, is_mesh, is_drawable, gen_rdm_str
+from ..misc.funcs import is_drawable_model, is_mesh, is_drawable, gen_rdm_str, abs_path
+from threading import Thread
 
 
-def get_images_info_from_mat(mat, self = None) -> list[ImageInfo]:
+def get_images_info_from_mat(mat: bpy.types.Material, self = None) -> list[ImageInfo]:
     images_info: list[ImageInfo] = []
     if mat.use_nodes:
         mat_nodes = mat.node_tree.nodes
         match mat.sollum_type:
             case "sollumz_material_shader":
                 for node in mat_nodes:
-                    if node_is_image(node) and not is_sampler_embedded(node) and is_valid_image(node.image):
-                        images_info.append(ImageInfo(node.image, mat.name, is_tint_shader(node)))
+                    if node_is_image(node) and not is_sampler_embedded(node):
+                        if is_img_valid(node.image):
+                            images_info.append(ImageInfo(abs_path(node.image.filepath), mat.name, is_tint_shader(node)))
+                        else:
+                            self.report({"ERROR"}, f"Missing image?: {node.image} in material: {mat.name}")
             case "sollumz_material_none":
                 for node in mat_nodes:
-                    if node_is_image(node) and is_valid_image(node.image):
-                        images_info.append(ImageInfo(node.image, mat.name))
+                    if node_is_image(node):
+                        if is_img_valid(node.image):
+                            images_info.append(ImageInfo(abs_path(node.image.filepath), mat.name))
+                        else:
+                            self.report({"ERROR"}, f"Missing image?: {node.image} in material: {mat.name}")
     
     if prefs().skip_environment_textures:
-        images_info = [img_inf for img_inf in images_info if img_inf.image_name.lower() not in ENV_TEXTURES]
+        images_info = [img_inf for img_inf in images_info if img_inf.img_name.lower() not in ENV_TEXTURES]
         
-    if(check_if_images_exists(images_info, self)):
-        return images_info
+    return images_info
 
-def is_valid_image(image) -> bool:
-    if image and image.has_data:
+def is_img_valid(image: bpy.types.Image) -> bool:
+    if image and os.path.exists(abs_path(image.filepath)):
         return True
-
-def check_if_images_exists(img_list, self = None) -> bool:
-    for img_info in img_list:
-        if is_valid_image(img_info.image):
-            continue
-        else:
-            self.report({"ERROR"}, f"Missing image named [{img_info.image_name}] from [{img_info.material}] material")
-            return False
-    return True
 
 def node_is_image(node) -> bool:
     return node.type == "TEX_IMAGE"
@@ -54,7 +51,7 @@ def is_tint_shader(node) -> bool:
 def is_obj_type(obj, obj_type) -> bool:
     return obj.type == obj_type
 
-def create_texture_package_folder(ytd, ExportPath, self=None):
+def create_texture_package_folder(ytd, ExportPath):
     folder_path = os.path.join(ExportPath, ytd.name)
     os.makedirs(folder_path, exist_ok=True)
     return folder_path
@@ -63,7 +60,7 @@ def create_texture_package_folder(ytd, ExportPath, self=None):
 def delete_folder(path):
     shutil.rmtree(path)
 
-def mesh_list_from_objs(objects):
+def mesh_list_from_objs(objects: list[bpy.types.Object]) -> list[bpy.types.Object]:
     new_mesh_list = []
     for obj in objects:
         if is_mesh(obj) or is_drawable_model(obj):
@@ -156,16 +153,22 @@ def update_img_data_list(item, self = None):
     for mesh_obj in item.mesh_list:
             for mat in mesh_obj.mesh.material_slots:
                 if mat.material:
-                    images = get_images_info_from_mat(mat.material, self)
+                    images: list[ImageInfo] = get_images_info_from_mat(mat.material, self)
                     for img in images:
-                        img_data = item.img_data_list.add()
-                        img_data.img_texture = img.image
-                        img_data.flag_tint = img.flag_tint
-                        img_data.flag_0 = img.flag_0
-                        img_data.flag_1 = img.flag_1
+                        if img:
+                            if img.img_name_full in [img_data.img_name_full for img_data in item.img_data_list]:
+                                continue
+                            img_data = item.img_data_list.add()
+                            img_data.img_path = img.img_path
+                            img_data.img_ext = img.img_ext
+                            img_data.img_name = img.img_name
+                            img_data.img_name_full = img.img_name_full
+                            img_data.flag_tint = img.flag_tint
+                            img_data.flag_0 = img.flag_0
+                            img_data.flag_1 = img.flag_1
         
         
-def export_img_packages(package_list, export_path, self, quality, half_res, max_res, do_max_res, resize_dds):
+def export_img_packages(package_list, export_path, quality, half_res, max_res, do_max_res, resize_dds, self):
     scene = bpy.context.scene
     actually_resize: bool = scene.max_pixel_size or scene.divide_textures_size and scene.ytd_advanced_mode
     new_export_path = os.path.join(export_path, gen_rdm_str())
@@ -173,16 +176,20 @@ def export_img_packages(package_list, export_path, self, quality, half_res, max_
         update_img_data_list(pak, self)
         print(f"YTD Item: {len(pak.img_data_list)}")
         ytd_folder = create_texture_package_folder(pak, new_export_path)
+        threads = []
         for img in pak.img_data_list:
-            image_path = bpy.path.abspath(img.img_texture.filepath)
-            image_format = Path(image_path).suffix
-            if image_format == ".dds":
+            if img.img_ext == ".dds":
                 if resize_dds and actually_resize:
-                    convert_img_to_dds(image_path, image_format, quality, do_max_res, half_res, max_res, ytd_folder, img.flag_tint, resize_dds)
+                    threads.append(Thread(target=convert_img_to_dds, args=(img.img_path, img.img_ext, quality, do_max_res, half_res, max_res, ytd_folder, img.flag_tint, resize_dds)))
+                    threads[-1].start()
                 else:
-                    shutil.copy(image_path, ytd_folder)
+                    threads.append(Thread(target=shutil.copy, args=(img.img_path, ytd_folder)))
+                    threads[-1].start()
             else:
-                convert_img_to_dds(image_path, image_format, quality, do_max_res, half_res, max_res, ytd_folder, img.flag_tint, False)
+                threads.append(Thread(target=convert_img_to_dds, args=(img.img_path, img.img_ext, quality, do_max_res, half_res, max_res, ytd_folder, img.flag_tint, False)))
+                threads[-1].start()
+        for thread in threads:
+            thread.join()
         ytd_file = convert_folder_to_ytd(ytd_folder)
         folder_path = Path(ytd_folder)
         print(f"Folder Path: {folder_path.name}")
@@ -201,7 +208,6 @@ def export_img_folders(package_list, export_path, self):
         update_img_data_list(pak, self)
         package_folder = create_texture_package_folder(pak, new_export_path)
         for img in pak.img_data_list:
-            image_path = bpy.path.abspath(img.img_texture.filepath)
-            shutil.copy(image_path, package_folder)
+            shutil.copy(img.img_path, package_folder)
     
     return rdm_folder

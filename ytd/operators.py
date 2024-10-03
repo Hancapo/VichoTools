@@ -12,6 +12,7 @@ from .funcs import (
     export_img_folders
 )
 from .constants import COMPAT_SOLL
+from ..misc.funcs import abs_path
 
 
 class ExportPackagesAsFolders(bpy.types.Operator):
@@ -29,6 +30,7 @@ class ExportPackagesAsFolders(bpy.types.Operator):
     def execute(self, context):
         if not d.available:
             return {"CANCELLED"}
+        start = time.time()        
         scene = context.scene
         export_mode = scene.ytd_enum_process_type
         ytds = []
@@ -39,12 +41,13 @@ class ExportPackagesAsFolders(bpy.types.Operator):
                 ytds = [ytd for ytd in scene.ytd_list if ytd.selected]
             case "SELECTED":
                 ytds = [scene.ytd_list[scene.ytd_active_index]]
-        output_folder = export_img_folders(ytds, bpy.path.abspath(scene.ytd_export_path), self)
+        output_folder = export_img_folders(ytds, abs_path(scene.ytd_export_path), self)
         if scene.ytd_show_explorer_after_export:
             print(f"Opening in explorer: {scene.ytd_export_path}")
             subprocess.Popen(
                 'explorer "{}"'.format(os.path.join(scene.ytd_export_path, output_folder))
             )
+        self.report({"INFO"}, f"Exported {len(ytds)} folder(s) in {round(time.time() - start, 4)} seconds")
         return {"FINISHED"}
 
 
@@ -61,10 +64,11 @@ class ExportPackagesAsYTDS(bpy.types.Operator):
         )
 
     def execute(self, context):
-        start = time.time()
-        scene = context.scene
         if not d.available:
             return {"CANCELLED"}
+        
+        start = time.time()
+        scene = context.scene
         
         ytd_list = scene.ytd_list
         export_mode = scene.ytd_enum_process_type
@@ -74,6 +78,7 @@ class ExportPackagesAsYTDS(bpy.types.Operator):
         max_res: int = int(scene.max_pixel_size_list)
         half_res: bool = scene.divide_textures_size
         resize_dds: bool = prefs().resize_dds
+        output_folder = abs_path(scene.ytd_export_path)
         ytds = []
         match export_mode:
             case "ALL":
@@ -83,14 +88,14 @@ class ExportPackagesAsYTDS(bpy.types.Operator):
             case "SELECTED":
                 ytds = [ytd_list[scene.ytd_active_index]]
 
-        export_img_packages(ytds, bpy.path.abspath(scene.ytd_export_path), self, quality, half_res, max_res, do_max_res, resize_dds)
+        export_img_packages(ytds, output_folder, quality, half_res, max_res, do_max_res, resize_dds, self)
         if scene.ytd_show_explorer_after_export:
             subprocess.Popen(
                 'explorer "{}"'.format(
-                    bpy.path.abspath(scene.ytd_export_path)
+                    output_folder
                 )
             )
-        self.report({"INFO"}, f"Exported {len(ytds)} YTD files in {round(time.time() - start, 4)} seconds")
+        self.report({"INFO"}, f"Exported {len(ytds)} YTD(s) in {round(time.time() - start, 4)} seconds")
         return {"FINISHED"}
 
 

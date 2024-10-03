@@ -42,7 +42,11 @@ def update_path(self, context):
 
 class ImageProp(bpy.types.PropertyGroup):
     """Group of properties for each image in the YTD item, including the image itself and some flags"""
-    img_texture: bpy.props.PointerProperty(type=bpy.types.Image)
+    img_path: bpy.props.StringProperty(name="Image Path", default="")
+    img_ext: bpy.props.StringProperty(name="Image Extension", default="")
+    img_name: bpy.props.StringProperty(name="Image Name", default="")
+    img_name_full: bpy.props.StringProperty(name="Image Name Full", default="")
+    
     flag_tint: bpy.props.BoolProperty(default=False, name="Is Tint?")
     flag_0: bpy.props.BoolProperty(default=False, name="Reserved 1")
     flag_1: bpy.props.BoolProperty(default=False, name="Reserved 2")

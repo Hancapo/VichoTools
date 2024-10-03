@@ -245,3 +245,6 @@ def gen_rdm_str(length=8):
     uuid_str = str(uuid.uuid4()).replace('-', '')[:4]
     rdm_str = f"{rd_part}{ts}{uuid_str}"
     return rdm_str
+
+def abs_path(path: str) -> str:
+    return bpy.path.abspath(path)
