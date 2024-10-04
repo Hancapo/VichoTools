@@ -45,6 +45,7 @@ class VichoAnimTools_PT_Panel(bpy.types.Panel):
                 text="Auto-start Anim",
                 icon="SOLO_ON",
             )
+            col.separator()
             row = col.row(align=True)
             row.operator(
                 CreateClipDictionaryFromSelected.bl_idname,

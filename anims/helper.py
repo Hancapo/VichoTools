@@ -6,6 +6,8 @@ from collections import namedtuple
 Target = namedtuple('Targets', ['type', 'target'])
 Sutchi = namedtuple('Sutchi', ['object', 'flags', 'sol_type'])
 
+SOLL_TYPES = ['sollumz_drawable', 'sollumz_fragment']
+
 def create_anim_tree(name: str) -> list:
     ycd_parent = create_ycd_obj(name)
     animations_parent = create_ycd_groups(GroupType.ANIMATIONS)
@@ -36,7 +38,7 @@ def create_anims_from_objs(anim_parent, objs):
                                 anim_mat_count += 1
                         anim_mat_count = 0
         elif obj.type == 'ARMATURE':
-            if obj.sollum_type == 'sollumz_drawable' and obj.animation_data:
+            if obj.sollum_type in SOLL_TYPES and obj.animation_data:
                 skel_anim = create_child(ChildType.ANIMATION, f'{obj.name}@anim')
                 skel_anim.parent = anim_parent
                 set_anim_props(skel_anim, skel_anim.name, obj.animation_data.action, obj.data, AnimationType.ARMATURE)
