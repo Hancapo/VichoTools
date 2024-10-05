@@ -171,6 +171,20 @@ class RenameAllUvMaps(bpy.types.Operator, ContextSelectionRestrictedHelper):
 
         return {"FINISHED"}
 
+class RenameAllColorAttributes(bpy.types.Operator, ContextSelectionRestrictedHelper):
+    """Rename all color attributes from selected objects to Sollumz' standard"""
+
+    bl_idname = "vicho.renameallcolorattributes"
+    bl_label = "Color Attributes"
+
+    def execute(self, context):
+        objects = context.selected_objects
+        for obj in objects:
+            if obj.type == "MESH":
+                for indx, color_attr in enumerate(obj.data.color_attributes):
+                    color_attr.name = f"Color {indx + 1}"
+
+        return {"FINISHED"}
 
 class VichoToolsInstallDependencies(bpy.types.Operator):
     bl_idname = "vicho.installdependencies"
