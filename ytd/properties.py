@@ -11,33 +11,45 @@ quality_settings = [
     (
         "FASTEST",
         "Fastest",
-        "Fastest processing time. Results may be reasonable, but is not considered to be real-time either",
+        "Fastest processing time. Results may be reasonable, but is not considered to be real-time either"
     ),
-    ("NORMAL", "Normal", "Balanced in terms of quality / speed"),
+    (
+        "NORMAL", 
+        "Normal", 
+        "Balanced in terms of quality / speed"
+    ),
     (
         "PRODUCTION",
         "Production",
-        "Generally produces similar results to normal, but it may double or triple the time to obtain minor quality improvements",
+        "Generally produces similar results to normal, but it may double or triple the time to obtain minor quality improvements"
     ),
     (
         "HIGHEST",
         "Highest",
-        "Slowest processing time. May be extremely slow as it brute force compressor and should generally only be used for testing purposes",
+        "Slowest processing time. May be extremely slow as it brute force compressor and should generally only be used for testing purposes"
     ),
 ]
 
 def generate_power_of_two_enum(max_power):
     return [(str(2**i), str(2**i), str(2**i)) for i in range(2, max_power + 1)]
 
-power_of_two_enum = generate_power_of_two_enum(12)
 
 
 def update_path(self, context):
-    self.ytd_export_path = bpy.path.abspath(self.ytd_export_path)
+    if self.ytd_export_path != '':
+        self.ytd_export_path = bpy.path.abspath(self.ytd_export_path)
 
 
-class MaterialProp(bpy.types.PropertyGroup):
-    material: bpy.props.PointerProperty(type=bpy.types.Material)  # type: ignore
+class ImageProp(bpy.types.PropertyGroup):
+    """Group of properties for each image in the YTD item, including the image itself and some flags"""
+    img_path: bpy.props.StringProperty(name="Image Path", default="")
+    img_ext: bpy.props.StringProperty(name="Image Extension", default="")
+    img_name: bpy.props.StringProperty(name="Image Name", default="")
+    img_name_full: bpy.props.StringProperty(name="Image Name Full", default="")
+    
+    flag_tint: bpy.props.BoolProperty(default=False, name="Is Tint?")
+    flag_0: bpy.props.BoolProperty(default=False, name="Reserved 1")
+    flag_1: bpy.props.BoolProperty(default=False, name="Reserved 2")
 
 
 class MeshGroup(bpy.types.PropertyGroup):
@@ -45,7 +57,7 @@ class MeshGroup(bpy.types.PropertyGroup):
 
 
 class YtdItem(bpy.types.PropertyGroup):
-    material_list: bpy.props.CollectionProperty(type=MaterialProp)
+    img_data_list: bpy.props.CollectionProperty(type=ImageProp)
     mesh_list: bpy.props.CollectionProperty(type=MeshGroup)
     selected: bpy.props.BoolProperty(default=True, name="Check")
     game_target: bpy.props.EnumProperty(
@@ -97,7 +109,7 @@ class YtdGroupProps(bpy.types.PropertyGroup):
     )
 
     bpy.types.Scene.max_pixel_size_list = bpy.props.EnumProperty(
-        items=power_of_two_enum, name="Size", default="1024"
+        items=generate_power_of_two_enum(12), name="Size", default="1024"
     )
     bpy.types.Scene.max_pixel_size = bpy.props.BoolProperty(
         name="Max Pixel",

@@ -2,21 +2,23 @@ import os
 import subprocess
 import bpy
 import time
-from ..vicho_preferences import get_addon_preferences
+from ..vicho_preferences import get_addon_preferences as prefs
 from ..vicho_dependencies import dependencies_manager as d
 from .funcs import (
     add_meshes_to_ytd,
     add_ytd_to_list,
     auto_fill_ytd_field,
-    create_ytd_folders,
-    export_ytd_files
+    export_img_packages,
+    export_img_folders
 )
+from .constants import COMPAT_SOLL
+from ..misc.funcs import abs_path
 
 
-class ExportYTDFolders(bpy.types.Operator):
+class ExportPackagesAsFolders(bpy.types.Operator):
     """Export the list of texture package(s) as folder(s)"""
 
-    bl_idname = "vicho.exportytdfolders"
+    bl_idname = "textures.exportpkgsasytds"
     bl_label = ""
 
     @classmethod
@@ -28,6 +30,7 @@ class ExportYTDFolders(bpy.types.Operator):
     def execute(self, context):
         if not d.available:
             return {"CANCELLED"}
+        start = time.time()        
         scene = context.scene
         export_mode = scene.ytd_enum_process_type
         ytds = []
@@ -38,18 +41,20 @@ class ExportYTDFolders(bpy.types.Operator):
                 ytds = [ytd for ytd in scene.ytd_list if ytd.selected]
             case "SELECTED":
                 ytds = [scene.ytd_list[scene.ytd_active_index]]
-        create_ytd_folders(ytds, bpy.path.abspath(scene.ytd_export_path), self)
+        output_folder = export_img_folders(ytds, abs_path(scene.ytd_export_path), self)
         if scene.ytd_show_explorer_after_export:
+            print(f"Opening in explorer: {scene.ytd_export_path}")
             subprocess.Popen(
-                'explorer "{}"'.format(bpy.path.abspath(scene.ytd_export_path))
+                'explorer "{}"'.format(os.path.join(scene.ytd_export_path, output_folder))
             )
+        self.report({"INFO"}, f"Exported {len(ytds)} folder(s) in {round(time.time() - start, 4)} seconds")
         return {"FINISHED"}
 
 
-class ExportYTDFiles(bpy.types.Operator):
+class ExportPackagesAsYTDS(bpy.types.Operator):
     """Export the list of texture package(s) as YTD file(s)"""
 
-    bl_idname = "vicho.exportytdfiles"
+    bl_idname = "textures.exportpkgsasytd"
     bl_label = ""
 
     @classmethod
@@ -59,10 +64,11 @@ class ExportYTDFiles(bpy.types.Operator):
         )
 
     def execute(self, context):
-        start = time.time()
-        scene = context.scene
         if not d.available:
             return {"CANCELLED"}
+        
+        start = time.time()
+        scene = context.scene
         
         ytd_list = scene.ytd_list
         export_mode = scene.ytd_enum_process_type
@@ -71,6 +77,8 @@ class ExportYTDFiles(bpy.types.Operator):
         do_max_res: bool = scene.max_pixel_size
         max_res: int = int(scene.max_pixel_size_list)
         half_res: bool = scene.divide_textures_size
+        resize_dds: bool = prefs().resize_dds
+        output_folder = abs_path(scene.ytd_export_path)
         ytds = []
         match export_mode:
             case "ALL":
@@ -80,14 +88,14 @@ class ExportYTDFiles(bpy.types.Operator):
             case "SELECTED":
                 ytds = [ytd_list[scene.ytd_active_index]]
 
-        export_ytd_files(ytds, bpy.path.abspath(scene.ytd_export_path), self, quality, half_res, max_res, do_max_res)
+        export_img_packages(ytds, output_folder, quality, half_res, max_res, do_max_res, resize_dds, self)
         if scene.ytd_show_explorer_after_export:
             subprocess.Popen(
                 'explorer "{}"'.format(
-                    bpy.path.abspath(scene.ytd_export_path) + "output"
+                    output_folder
                 )
             )
-        self.report({"INFO"}, f"Exported {len(ytds)} YTD files in {round(time.time() - start, 4)} seconds")
+        self.report({"INFO"}, f"Exported {len(ytds)} YTD(s) in {round(time.time() - start, 4)} seconds")
         return {"FINISHED"}
 
 
@@ -99,19 +107,11 @@ class YTDLIST_OT_add(bpy.types.Operator):
 
     @classmethod
     def poll(cls, context):
-        preferences = get_addon_preferences()
-        compatible_sollum_types = [
-            "sollumz_drawable",
-            "sollumz_fragment",
-            "sollumz_drawable_model",
-            "sollumz_drawable_dictionary",
-        ]
-
         is_compatible_type_selected = all(
-            obj.sollum_type in compatible_sollum_types
+            obj.sollum_type in COMPAT_SOLL
             for obj in context.selected_objects
         )
-        include_mesh_objects = preferences.add_nonsollumz_to_ytd and all(
+        include_mesh_objects = prefs().add_nonsollumz_to_ytd and all(
             obj.type == "MESH" for obj in context.selected_objects
         )
         return context.selected_objects and (

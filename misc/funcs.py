@@ -1,8 +1,11 @@
-import math
 import os
 import xml.dom.minidom as md
 from mathutils import Vector
 import bpy
+import string
+import time
+import uuid
+import random
 
 def export_milo_ymap_xml(ymapname, object, instance_name):
 
@@ -223,13 +226,25 @@ def get_max_vector_list(vecs):
         z.append(v[2])
     return Vector((max(x), max(y), max(z)))
 
-def power_of_two_resize(width: int, height: int) -> tuple[int, int]:
-    width = math.pow(2, math.ceil(math.log2(width)))
-    height = math.pow(2, math.ceil(math.log2(height)))
-    return int(width), int(height)
-
 def is_object_in_scene(obj):
     return obj.name in bpy.context.scene.collection.objects
 
 def is_drawable_model(obj):
     return obj.sollum_type == 'sollumz_drawable_model'
+
+def is_mesh(obj):
+    return obj.type == 'MESH'
+
+def is_drawable(obj):
+    return obj.sollum_type == 'sollumz_drawable'
+
+def gen_rdm_str(length=8):
+    chars = string.ascii_letters + string.digits
+    rd_part = ''.join(random.choice(chars) for _ in range(length))
+    ts = str(int(time.time()))[-4:]
+    uuid_str = str(uuid.uuid4()).replace('-', '')[:4]
+    rdm_str = f"{rd_part}{ts}{uuid_str}"
+    return rdm_str
+
+def abs_path(path: str) -> str:
+    return bpy.path.abspath(path)

@@ -1,5 +1,7 @@
 import os
-
+import subprocess
+import shutil
+import traceback
 
 class DependenciesManager:
     _instance = None
@@ -157,21 +159,25 @@ dependencies_manager = DependenciesManager()
 
 
 def is_dotnet_installed():
-    path_env = os.getenv("PATH")
-    dotnet_runtime_path = None
-    for path in path_env.split(os.pathsep):
-        if os.path.isdir(path) and "dotnet" in path.lower():
-            shared_path = os.path.join(path, "shared", "Microsoft.NETCore.App")
-            if os.path.isdir(shared_path):
-                dotnet_runtime_path = shared_path
-                break
-    if dotnet_runtime_path:
-        for version in os.listdir(dotnet_runtime_path):
-            if version.startswith("8."):
-                coreclr_path = os.path.join(dotnet_runtime_path, version, "coreclr.dll")
-                if os.path.isfile(coreclr_path):
-                    return True
-    return False
+    try:
+        # Find the dotnet executable in the system's PATH
+        dotnet_path = shutil.which("dotnet")
+        if dotnet_path is None:
+            print("The 'dotnet' command was not found. Please ensure .NET is installed and the PATH environment variable is set correctly.")
+            return False
+
+        result = subprocess.run([dotnet_path, "--list-runtimes"], capture_output=True, text=True)
+        if result.returncode != 0:
+            return False
+
+        for line in result.stdout.splitlines():
+            if "Microsoft.NETCore.App 8" in line:
+                return True
+        return False
+    except Exception as e:
+        print(f"Error checking .NET installation: {e}")
+        traceback.print_exc()
+        return False
 
 
 def is_pythonnet_loaded():

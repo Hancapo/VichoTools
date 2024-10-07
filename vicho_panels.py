@@ -4,7 +4,8 @@ from .vicho_operators import (MloYmapFileBrowser,
                               DeleteAllColorAttributes, 
                               DeleteAllVertexGroups, 
                               DetectMeshesWithNoTextures, 
-                              RenameAllUvMaps)
+                              RenameAllUvMaps,
+                              RenameAllColorAttributes)
 
 class VichoMloTools_PT_Panel(bpy.types.Panel):
     bl_label = "MLO"
@@ -58,7 +59,6 @@ class VichoObjectTools_PT_Panel(bpy.types.Panel):
         col.separator()
         # Section 4: Delete All Color Attributes
         col.operator(DeleteAllColorAttributes.bl_idname, icon="COLOR")
-        col.separator()
         # Section 5: Delete All Vertex Groups
         col.operator(DeleteAllVertexGroups.bl_idname, icon="GROUP_VERTEX")
         col.separator()
@@ -71,4 +71,5 @@ class VichoObjectTools_PT_Panel(bpy.types.Panel):
         col.label(text="Rename", icon="GREASEPENCIL")
         col.separator()
         col.operator(RenameAllUvMaps.bl_idname, icon="UV_DATA")
+        col.operator(RenameAllColorAttributes.bl_idname, icon="COLOR")
         col.separator()
