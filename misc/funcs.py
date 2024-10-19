@@ -248,3 +248,6 @@ def gen_rdm_str(length=8):
 
 def abs_path(path: str) -> str:
     return bpy.path.abspath(path)
+
+def is_obj_in_any_collection(obj):
+    return any(obj.name in collection.objects for collection in bpy.data.collections)
