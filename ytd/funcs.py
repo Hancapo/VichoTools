@@ -2,11 +2,12 @@ import os
 from pathlib import Path
 import shutil
 from ..vicho_preferences import get_addon_preferences as prefs
-from .constants import COMPAT_SOLL, ENV_TEXTURES
+from .constants import ENV_TEXTURES
 from .helper import convert_folder_to_ytd, convert_img_to_dds
 from .image_info import ImageInfo
 import bpy
 from ..misc.funcs import is_drawable_model, is_mesh, is_drawable, gen_rdm_str, abs_path
+from ..misc.constants import YTD_SOLLUM_TYPES
 from threading import Thread
 
 
@@ -65,7 +66,7 @@ def mesh_list_from_objs(objects: list[bpy.types.Object]) -> list[bpy.types.Objec
     for obj in objects:
         if is_mesh(obj) or is_drawable_model(obj):
             new_mesh_list.append(obj)
-        elif obj.sollum_type in filter(lambda x: x != "sollumz_drawable_model", COMPAT_SOLL):
+        elif obj.sollum_type in filter(lambda x: x != "sollumz_drawable_model", YTD_SOLLUM_TYPES):
             for draw_child in obj.children:
                 if is_drawable(draw_child):
                     for model_child in draw_child.children:

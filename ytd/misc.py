@@ -1,8 +1,6 @@
 from pathlib import Path
 import math
 
-
-
 def get_folder_list_from_dir(dir: str):
     return [str(p) for p in Path(dir).rglob("*") if p.is_dir()]
 

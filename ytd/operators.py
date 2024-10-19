@@ -11,7 +11,7 @@ from .funcs import (
     export_img_packages,
     export_img_folders
 )
-from .constants import COMPAT_SOLL
+from ..misc.constants import YTD_SOLLUM_TYPES
 from ..misc.funcs import abs_path
 
 
@@ -108,7 +108,7 @@ class YTDLIST_OT_add(bpy.types.Operator):
     @classmethod
     def poll(cls, context):
         is_compatible_type_selected = all(
-            obj.sollum_type in COMPAT_SOLL
+            obj.sollum_type in YTD_SOLLUM_TYPES
             for obj in context.selected_objects
         )
         include_mesh_objects = prefs().add_nonsollumz_to_ytd and all(

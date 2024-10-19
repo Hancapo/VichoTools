@@ -1,11 +1,6 @@
-COMPAT_SOLL: list[str] = [
-            "sollumz_drawable",
-            "sollumz_fragment",
-            "sollumz_drawable_model",
-            "sollumz_drawable_dictionary",
-        ]
+from typing import List
 
-ENV_TEXTURES: list[str] = [
+ENV_TEXTURES: List[str] = [
     "env_bark",
     "env_cloth",
     "env_crusty",
@@ -17,7 +12,7 @@ ENV_TEXTURES: list[str] = [
     "env_woodgrain_2",
 ]
 
-SUPPORTED_FORMATS: list[str] = [
+SUPPORTED_FORMATS: List[str] = [
     ".png",
     ".jpg",
     ".bmp",
@@ -30,7 +25,7 @@ SUPPORTED_FORMATS: list[str] = [
     ".webp",
 ]
 
-ARCH_TYPES: list[str] = [
+ARCH_TYPES: List[str] = [
     "sollumz_archetype_base",
     "sollumz_archetype_time",
 ]
