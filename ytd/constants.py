@@ -18,6 +18,7 @@ SUPPORTED_FORMATS: List[str] = [
     ".bmp",
     ".tiff",
     ".tif",
+    ".tga",
     ".jpeg",
     ".dds",
     ".psd",
