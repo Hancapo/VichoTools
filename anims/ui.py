@@ -47,8 +47,11 @@ class VichoAnimTools_PT_Panel(bpy.types.Panel):
             )
             col.separator()
             row = col.row(align=True)
+            row.prop(context.scene.render, "fps", text="FPS")
+            row = col.row(align=True)
             row.operator(
                 CreateClipDictionaryFromSelected.bl_idname,
                 text="Create YCD from Selected Objects",
                 icon="UV",
             )
+            

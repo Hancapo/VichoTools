@@ -5,6 +5,7 @@ import os
 from .constants import SUPPORTED_FORMATS
 from pathlib import Path
 from .misc import get_dds, closest_pow2, closest_pow2_dims, calculate_mipmaps_lvls
+from ..misc.funcs import is_obj_in_any_collection
 
 def ytd_index_changed(self, context):
     if len(self.ytd_list) != 0:
@@ -15,8 +16,7 @@ def ytd_index_changed(self, context):
             new_mesh.mesh = mesh.mesh
 
 
-def is_obj_in_any_collection(obj):
-    return any(obj.name in collection.objects for collection in bpy.data.collections)
+
 
 
 def remove_invalid_meshes(scene):

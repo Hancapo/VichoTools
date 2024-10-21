@@ -1,14 +1,22 @@
 import bpy
-from .helper import create_anim_tree, create_clips_per_obj, create_anims_from_objs, get_targets_from_anim, sutchis_from_target, get_arch_from_ytyps_by_obj, calculate_anim_flags
+from .helper import (get_anim_objs_from_sel, 
+                         create_anim_tree, 
+                         create_child, 
+                         set_anim_properties, 
+                         set_clip_properties,
+                         get_arch_from_ytyps_by_obj)
+
+from ..misc.constants import ANIM_SOLLUM_TYPES
+from .enums import ChildType, AnimationType
 
 class CreateClipDictionaryFromSelected(bpy.types.Operator):
-    """Create YCD from selected objects"""
+    """Create a YCD from selected objects"""
     bl_idname = "anim.create_anims_from_selected"
-    bl_label = "Create YCD from selected objects"
+    bl_label = "Create a YCD from selected objects"
 
     @classmethod
     def poll(cls, context):
-        return any(obj.sollum_type == 'sollumz_drawable' or 'sollumz_fragment' for obj in bpy.context.selected_objects) and bpy.context.scene.ycd_name != ""
+        return any(obj.sollum_type in ANIM_SOLLUM_TYPES for obj in context.selected_objects) and context.scene.ycd_name != ""
 
     def execute(self, context):
         scene = context.scene
@@ -16,26 +24,46 @@ class CreateClipDictionaryFromSelected(bpy.types.Operator):
         autofill: bool = scene.autofill_clipdict
         calc_anim_flags: bool = scene.calculate_anim_flags
         auto_start: bool = scene.auto_start_anim_flag
+        ycd_name: str = scene.ycd_name
         
         sel_objs = bpy.context.selected_objects
-        anim_ycd: list = create_anim_tree(scene.ycd_name)
-        create_anims_from_objs(anim_ycd[0], sel_objs)
-        create_clips_per_obj(anim_ycd[0], anim_ycd[1])
+        anim_list = get_anim_objs_from_sel(sel_objs)
+        print(anim_list)
         
-        if autofill:
-            created_ycd = scene.objects[scene.ycd_name]
-            targets = get_targets_from_anim(created_ycd)
-            print(f'targets found: {targets}')
-            for target in targets:
-                sutchi = sutchis_from_target(target, scene)
-                print(f'Found sutchi: {sutchi}')
-                arch = get_arch_from_ytyps_by_obj(sutchi.object, scene)
+        if not anim_list:
+            self.report({'ERROR'}, "No animated objects found")
+            return {'FINISHED'}
+        else:
+            self.report({'INFO'}, f"Found {len(anim_list)} animated objects")
+            anim_group, clip_group = create_anim_tree(ycd_name)
+            for anim_obj in anim_list:
+                for i, target in enumerate(anim_obj.targets):
+                    match target.target_id_type:
+                        case AnimationType.ARMATURE:
+                            anim_naming = f"{anim_obj.obj.name}@skel_anim_{i}"
+                            clip_naming = f"{anim_obj.obj.name}@skel_clip_{i}"
+                        case AnimationType.MATERIAL:
+                            anim_naming = f"{anim_obj.obj.name}@uv_anim_{target.material_idx}"
+                            clip_naming = f"{anim_obj.obj.name}@uv_clip_{target.material_idx}"
+                    # Create Animation
+                    new_anim = create_child(ChildType.ANIMATION, anim_naming)
+                    new_anim.parent = anim_group
+                    set_anim_properties(target, new_anim, anim_obj.obj)
+                    # Create Clip
+                    new_clip = create_child(ChildType.CLIP, clip_naming)
+                    new_clip.parent = clip_group
+                    set_clip_properties(target, new_clip, new_anim, anim_obj.obj)
+                
+                arch = get_arch_from_ytyps_by_obj(anim_obj.obj, scene)
                 if arch:
-                    arch.clip_dictionary = scene.ycd_name
+                    if autofill:
+                        arch.clip_dictionary = ycd_name
                     if calc_anim_flags:
-                        static_flag = 0
-                        if arch.physics_dictionary != "":
-                            static_flag = 32
-                        arch.flags.total = str(calculate_anim_flags(auto_start, sutchi.sol_type, sutchi.flags) + static_flag)
+                        arch.flags.total = str(anim_obj.flags)
+                    if auto_start:
+                        arch.flags.total = str(int(arch.flags.total) + 524288)
+                    
+            self.report({'INFO'}, f"Created {len(anim_obj.targets)} Animation(s)/Clip(s)")
+            
         
         return {'FINISHED'}
