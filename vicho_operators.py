@@ -253,7 +253,7 @@ class VichoToolsInstallDotnetRuntime(bpy.types.Operator):
         # download .NET 8 runtime from Microsoft
         try:
             webbrowser.open(
-                "https://dotnet.microsoft.com/download/dotnet/thank-you/runtime-8.0.8-windows-x64-installer"
+                "https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-desktop-8.0.10-windows-x64-installer"
             )
             self.report({"INFO"}, "Download .NET 8 runtime from Microsoft's website")
         except Exception:
