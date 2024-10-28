@@ -10,7 +10,7 @@ from ..ytd.operators import (
     YTDLIST_OT_select_mesh_parent_from_ytd_folder,
     YTDLIST_OT_select_meshes_parent_from_ytd_folder,
 )
-from ..ytd.operators import MESHLIST_OT_delete_mesh, ExportPackagesAsYTDS, ExportPackagesAsFolders
+from ..ytd.operators import MESHLIST_OT_delete_mesh, VICHO_OT_export_pkgs_as_ytds, VICHO_OT_export_pkgs_as_folders
 
 class YTDLIST_UL_list(bpy.types.UIList):
     bl_idname = "YTDLIST_UL_list"
@@ -139,11 +139,11 @@ class VichoTextureTools_PT_Panel(bpy.types.Panel):
                 col.prop(scene, "ytd_enum_process_type", text="Item(s) to export", icon="PRESET")
                 row.label(text="Export as:", icon="WORKSPACE")  
                 row.operator(
-                    ExportPackagesAsYTDS.bl_idname, text="YTD File(s)", icon="FORCE_TEXTURE"
+                    VICHO_OT_export_pkgs_as_ytds.bl_idname, text="YTD File(s)", icon="FORCE_TEXTURE"
                 )
                 if preferences.enable_folder_export:
                     row.operator(
-                        ExportPackagesAsFolders.bl_idname, text="Folder(s)", icon="FILE_FOLDER"
+                        VICHO_OT_export_pkgs_as_folders.bl_idname, text="Folder(s)", icon="FILE_FOLDER"
                     )
                 col.separator()
                 

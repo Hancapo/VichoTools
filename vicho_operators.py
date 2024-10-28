@@ -15,7 +15,7 @@ class ContextSelectionRestrictedHelper:
         return context.active_object is not None
 
 
-class ExportMLOTransFile(bpy.types.Operator, ContextSelectionRestrictedHelper):
+class VICHO_OT_export_mlo_file(bpy.types.Operator, ContextSelectionRestrictedHelper):
     bl_idname = "vicho.exportmlostransformstofile"
     bl_label = "Export MLO transforms to YMAP"
 
@@ -39,7 +39,7 @@ class ExportMLOTransFile(bpy.types.Operator, ContextSelectionRestrictedHelper):
         return {"FINISHED"}
 
 
-class PasteObjectTransformFromPickedObject(bpy.types.Operator):
+class VICHO_OT_paste_obj_trans_from_pick_obj(bpy.types.Operator):
     bl_idname = "vicho.pasteobjtransfrompickedobject"
     bl_label = "Set transforms"
 
@@ -65,12 +65,12 @@ class PasteObjectTransformFromPickedObject(bpy.types.Operator):
         return {"FINISHED"}
 
 
-class MloYmapFileBrowser(bpy.types.Operator, ExportHelper):
+class VICHO_OT_mlo_ymap_file_browser(bpy.types.Operator, ExportHelper):
     """Export MLO instance to YMAP"""
 
     bl_idname = "vicho.mloyampfilebrowser"
     bl_label = "Export MLO transforms to YMAP"
-    bl_action = "Export a YMAP MLO"
+    bl_action = "Export a YMAP MLO" 
     bl_showtime = True
 
     filename_ext = ".ymap"
@@ -92,7 +92,7 @@ class MloYmapFileBrowser(bpy.types.Operator, ExportHelper):
             return {"FINISHED"}
 
 
-class DeleteAllColorAttributes(bpy.types.Operator, ContextSelectionRestrictedHelper):
+class VICHO_OT_del_all_cols_attrs(bpy.types.Operator, ContextSelectionRestrictedHelper):
     """Delete all color attributes from selected objects"""
 
     bl_idname = "vicho.deleteallcolorattributes"
@@ -111,7 +111,7 @@ class DeleteAllColorAttributes(bpy.types.Operator, ContextSelectionRestrictedHel
         return {"FINISHED"}
 
 
-class DeleteAllVertexGroups(bpy.types.Operator, ContextSelectionRestrictedHelper):
+class VICHO_OT_del_all_vgs(bpy.types.Operator, ContextSelectionRestrictedHelper):
     """Delete all vertex groups from selected objects"""
 
     bl_idname = "vicho.deleteallvertexgroups"
@@ -130,7 +130,7 @@ class DeleteAllVertexGroups(bpy.types.Operator, ContextSelectionRestrictedHelper
         return {"FINISHED"}
 
 
-class DetectMeshesWithNoTextures(bpy.types.Operator, ContextSelectionRestrictedHelper):
+class VICHO_OT_detect_meshes_no_textures(bpy.types.Operator, ContextSelectionRestrictedHelper):
     """Detect meshes with no textures in selected objects and then it print them in the console"""
 
     bl_idname = "vicho.detectmesheswithnotextures"
@@ -156,7 +156,7 @@ class DetectMeshesWithNoTextures(bpy.types.Operator, ContextSelectionRestrictedH
         return {"FINISHED"}
 
 
-class RenameAllUvMaps(bpy.types.Operator, ContextSelectionRestrictedHelper):
+class VICHO_OT_rename_all_uvs(bpy.types.Operator, ContextSelectionRestrictedHelper):
     """Rename all UV maps from selected objects to Sollumz' standard"""
 
     bl_idname = "vicho.renamealluvmaps"
@@ -171,7 +171,7 @@ class RenameAllUvMaps(bpy.types.Operator, ContextSelectionRestrictedHelper):
 
         return {"FINISHED"}
 
-class RenameAllColorAttributes(bpy.types.Operator, ContextSelectionRestrictedHelper):
+class VICHO_OT_rename_all_cas(bpy.types.Operator, ContextSelectionRestrictedHelper):
     """Rename all color attributes from selected objects to Sollumz' standard"""
 
     bl_idname = "vicho.renameallcolorattributes"
@@ -186,7 +186,7 @@ class RenameAllColorAttributes(bpy.types.Operator, ContextSelectionRestrictedHel
 
         return {"FINISHED"}
 
-class VichoToolsInstallDependencies(bpy.types.Operator):
+class VICHO_OT_install_depens(bpy.types.Operator):
     bl_idname = "vicho.installdependencies"
     bl_label = "Install dependencies (Python.NET)"
     bl_description = "Install dependencies (Python.NET)"
@@ -244,7 +244,7 @@ class VichoToolsInstallDependencies(bpy.types.Operator):
         return {"FINISHED"}
 
 
-class VichoToolsInstallDotnetRuntime(bpy.types.Operator):
+class VICHO_OT_install_dotnet(bpy.types.Operator):
     bl_idname = "vicho.installdotnetruntime"
     bl_label = "Install .NET 8 runtime"
     bl_description = "Install .NET 8 runtime"
@@ -264,7 +264,7 @@ class VichoToolsInstallDotnetRuntime(bpy.types.Operator):
 
         return {"FINISHED"}
 
-class YTDLIST_OT_fake_op(bpy.types.Operator):
+class VICHO_OT_fake_op(bpy.types.Operator):
     """Fake operator"""
 
     bl_idname = "vicho.fake_op"

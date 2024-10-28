@@ -15,10 +15,10 @@ from ..misc.constants import YTD_SOLLUM_TYPES
 from ..misc.funcs import abs_path
 
 
-class ExportPackagesAsFolders(bpy.types.Operator):
+class VICHO_OT_export_pkgs_as_folders(bpy.types.Operator):
     """Export the list of texture package(s) as folder(s)"""
 
-    bl_idname = "textures.exportpkgsasytds"
+    bl_idname = "textures.exportpkgsasfolders"
     bl_label = ""
 
     @classmethod
@@ -51,7 +51,7 @@ class ExportPackagesAsFolders(bpy.types.Operator):
         return {"FINISHED"}
 
 
-class ExportPackagesAsYTDS(bpy.types.Operator):
+class VICHO_OT_export_pkgs_as_ytds(bpy.types.Operator):
     """Export the list of texture package(s) as YTD file(s)"""
 
     bl_idname = "textures.exportpkgsasytd"
@@ -242,7 +242,6 @@ class YTDLIST_OT_select_mesh_parent_from_ytd_folder(bpy.types.Operator):
         else:
             mesh.select_set(True)
         return {"FINISHED"}
-
 
 
 class MESHLIST_OT_confirm_delete_mesh(bpy.types.Operator):

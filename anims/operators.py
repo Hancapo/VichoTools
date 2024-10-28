@@ -9,7 +9,7 @@ from .helper import (get_anim_objs_from_sel,
 from ..misc.constants import ANIM_SOLLUM_TYPES
 from .enums import ChildType, AnimationType
 
-class CreateClipDictionaryFromSelected(bpy.types.Operator):
+class VICHO_OT_anim_create_ycd_from_selec(bpy.types.Operator):
     """Create a YCD from selected objects"""
     bl_idname = "anim.create_anims_from_selected"
     bl_label = "Create a YCD from selected objects"

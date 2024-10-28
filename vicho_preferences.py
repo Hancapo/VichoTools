@@ -1,6 +1,6 @@
 import bpy
 from .vicho_dependencies import is_dotnet_installed, dependencies_manager as d
-from .vicho_operators import VichoToolsInstallDependencies, VichoToolsInstallDotnetRuntime
+from .vicho_operators import VICHO_OT_install_depens, VICHO_OT_install_dotnet
 
 class VichoToolsAddonProperties(bpy.types.AddonPreferences):
     bl_idname = __package__
@@ -24,13 +24,13 @@ class VichoToolsAddonProperties(bpy.types.AddonPreferences):
         box_col = col.box()
         box_col.label(text="Dependencies", icon="SETTINGS")
         if not is_dotnet_installed():
-             box_col.operator(VichoToolsInstallDotnetRuntime.bl_idname, text="Install first: .NET 8 runtime", icon="SCRIPTPLUGINS")
+             box_col.operator(VICHO_OT_install_dotnet.bl_idname, text="Install first: .NET 8 runtime", icon="SCRIPTPLUGINS")
         else:
             box_col.label(text=".NET 8 x64 Runtime is already installed.")
         if d.available:
             box_col.label(text="PythonNET is already installed.")
         else:
-            box_col.operator(VichoToolsInstallDependencies.bl_idname, text="Install second: Install PythonNET", icon="SCRIPTPLUGINS")
+            box_col.operator(VICHO_OT_install_depens.bl_idname, text="Install second: Install PythonNET", icon="SCRIPTPLUGINS")
         col.separator()
         box = col.box()
         col = box.column(align=True)

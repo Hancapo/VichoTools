@@ -1,6 +1,6 @@
 import bpy
 
-from .operators import CreateClipDictionaryFromSelected
+from .operators import VICHO_OT_anim_create_ycd_from_selec
 
 
 class VichoAnimTools_PT_Panel(bpy.types.Panel):
@@ -50,7 +50,7 @@ class VichoAnimTools_PT_Panel(bpy.types.Panel):
             row.prop(context.scene.render, "fps", text="FPS")
             row = col.row(align=True)
             row.operator(
-                CreateClipDictionaryFromSelected.bl_idname,
+                VICHO_OT_anim_create_ycd_from_selec.bl_idname,
                 text="Create YCD from Selected Objects",
                 icon="UV",
             )
