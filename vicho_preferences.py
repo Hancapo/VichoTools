@@ -15,7 +15,7 @@ class VichoToolsAddonProperties(bpy.types.AddonPreferences):
         name="Skip environment textures", default=True, description="If enabled, environment textures will be skipped"
     )
     resize_dds: bpy.props.BoolProperty(
-        name="Resize DDS textures", default=False, description="If enabled, DDS Textures will be affected by the resize settings"
+        name="Resize DDS textures", default=True, description="If enabled, DDS Textures will be affected by the resize settings"
     )
         
     def draw(self, context):
