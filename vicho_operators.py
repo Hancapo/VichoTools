@@ -201,11 +201,11 @@ class VICHO_OT_install_depens(bpy.types.Operator):
                 )
                 return {"CANCELLED"}
 
-            try:
-                find_pythonnet: machinery.ModuleSpec = util.find_spec("pythonnet")
-                if find_pythonnet is not None:
-                    self.report({"INFO"}, "Python.NET is already installed")
-            except ImportError:
+            find_pythonnet: machinery.ModuleSpec = util.find_spec("pythonnet")
+            
+            if find_pythonnet is not None:
+                self.report({"INFO"}, "Python.NET is already installed")
+            else:
                 self.report({"INFO"}, "Installing Python.NET...")
                 python_exe = os.path.join(sys.prefix, "bin", "python.exe")
                 target = os.path.join(sys.prefix, "lib", "site-packages")
