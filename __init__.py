@@ -1,7 +1,7 @@
 bl_info = {
     "name": "Vicho's Tools",
     "author": "MrVicho13",
-    "version": (1, 0, 0),
+    "version": (1, 0, 1),
     "blender": (4, 0, 0),
     "description": "A collection of tools for GTA V modding ranging from Textures, Animations, YMAP(S) and more.",
     "category": "Vicho's Tools",
