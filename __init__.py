@@ -3,7 +3,7 @@ bl_info = {
     "author": "MrVicho13",
     "version": (1, 0, 0),
     "blender": (4, 0, 0),
-    "description": "Tools designed to help with GTA V modding",
+    "description": "A collection of tools for GTA V modding ranging from Textures, Animations, YMAP(S) and more.",
     "category": "Vicho's Tools",
     "doc_url": "https://vichomodding.gitbook.io/main/blender-stuff/recommended-add-ons/modding/vichos-tools",
     "tracker_url": "https://github.com/Hancapo/VichoTools/issues",
