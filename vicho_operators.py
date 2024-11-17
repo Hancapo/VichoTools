@@ -6,7 +6,8 @@ import os
 from .misc.funcs import export_milo_ymap_xml
 from bpy.props import StringProperty
 from bpy_extras.io_utils import ExportHelper
-from .vicho_dependencies import dependencies_manager, is_dotnet_installed
+from .vicho_dependencies import dependencies_manager, is_dotnet_installed, dotnet_link
+from importlib import util, machinery
 
 
 class ContextSelectionRestrictedHelper:
@@ -201,9 +202,9 @@ class VICHO_OT_install_depens(bpy.types.Operator):
                 return {"CANCELLED"}
 
             try:
-                import pythonnet
-
-                self.report({"INFO"}, "Python.NET is already installed")
+                find_pythonnet: machinery.ModuleSpec = util.find_spec("pythonnet")
+                if find_pythonnet is not None:
+                    self.report({"INFO"}, "Python.NET is already installed")
             except ImportError:
                 self.report({"INFO"}, "Installing Python.NET...")
                 python_exe = os.path.join(sys.prefix, "bin", "python.exe")
@@ -252,14 +253,12 @@ class VICHO_OT_install_dotnet(bpy.types.Operator):
     def execute(self, context):
         # download .NET 8 runtime from Microsoft
         try:
-            webbrowser.open(
-                "https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-desktop-8.0.10-windows-x64-installer"
-            )
+            webbrowser.open(dotnet_link)
             self.report({"INFO"}, "Download .NET 8 runtime from Microsoft's website")
         except Exception:
             self.report(
                 {"ERROR"},
-                f"Error opening web browser to download .NET 8 runtime from Microsoft's website",
+                "Error opening web browser to download .NET 8 runtime from Microsoft's website",
             )
 
         return {"FINISHED"}

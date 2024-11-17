@@ -2,6 +2,9 @@ import os
 import subprocess
 import shutil
 import traceback
+import importlib.util
+
+dotnet_link = "https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-desktop-8.0.11-windows-x64-installer"
 
 class DependenciesManager:
     _instance = None
@@ -146,9 +149,4 @@ def is_dotnet_installed():
 
 
 def is_pythonnet_loaded():
-    try:
-        import pythonnet
-
-        return True
-    except ImportError:
-        return False
+    return importlib.util.find_spec("pythonnet") is not None
