@@ -24,13 +24,16 @@ class VichoToolsAddonProperties(bpy.types.AddonPreferences):
         box_col = col.box()
         box_col.label(text="Dependencies", icon="SETTINGS")
         if not is_dotnet_installed():
-             box_col.operator(VICHO_OT_install_dotnet.bl_idname, text="Install first: .NET 8 runtime", icon="SCRIPTPLUGINS")
+            box_col.operator(VICHO_OT_install_dotnet.bl_idname, text="Install first: .NET 8 runtime", icon="SCRIPTPLUGINS")
         else:
             box_col.label(text=".NET 8 x64 Runtime is already installed.")
         if d.available:
             box_col.label(text="PythonNET is already installed.")
         else:
-            box_col.operator(VICHO_OT_install_depens.bl_idname, text="Install second: Install PythonNET", icon="SCRIPTPLUGINS")
+            if bpy.app.version < (4, 2, 0):
+                box_col.operator(VICHO_OT_install_depens.bl_idname, text="Install second: Install PythonNET", icon="SCRIPTPLUGINS")
+            else:
+                box_col.label(text="No need to install PythonNET, it's already included in wheels, you shouldn't be seeing this, report it as soon as possible.")
         col.separator()
         box = col.box()
         col = box.column(align=True)
