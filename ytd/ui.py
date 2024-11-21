@@ -45,7 +45,7 @@ class MESHLIST_UL_list(bpy.types.UIList):
                 if item is not None and item.mesh is not None:
                     row.prop(item.mesh, "name", text="", emboss=False, icon="FILE_3D")
 
-class VichoTextureTools_PT_Panel(bpy.types.Panel):
+class TextureTools_PT_Panel(bpy.types.Panel):
     bl_label = "Textures"
     bl_idname = "VICHOTOOLS_PT_Texture"
     bl_space_type = "VIEW_3D"

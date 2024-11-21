@@ -3,7 +3,7 @@ import bpy
 from .operators import VICHO_OT_anim_create_ycd_from_selec
 
 
-class VichoAnimTools_PT_Panel(bpy.types.Panel):
+class AnimTools_PT_Panel(bpy.types.Panel):
     bl_label = "Anims"
     bl_idname = "VICHOTOOLS_PT_Anim"
     bl_space_type = "VIEW_3D"
