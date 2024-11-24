@@ -1,5 +1,6 @@
-from enum import Enum
+from dataclasses import dataclass
 
-class ItemType(Enum):
-    ENTITYDEF = 0
-    MLOINST = 1
+@dataclass
+class Ymap:
+    ymapFile: bytes
+    enabled: bool

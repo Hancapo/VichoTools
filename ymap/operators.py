@@ -5,9 +5,9 @@ from .funcs import add_ymap_to_scene
 import os
 
 class VICHO_OT_import_ymap(bpy.types.Operator, ImportHelper):
-    """Import a YMAP file"""
+    """Import YMAP file(s)"""
     bl_idname = "ymap.import_ymap"
-    bl_label = "Import a YMAP file"
+    bl_label = "Import YMAP file(s)"
 
     filename_ext = ".ymap"
     
@@ -28,9 +28,10 @@ class VICHO_OT_import_ymap(bpy.types.Operator, ImportHelper):
     import_car_generators: BoolProperty(name="Car Generators", default=True, description="Import car generators from the YMAP file(s)")
 
     def execute(self, context):
+        scene = context.scene
         for file in self.files:
-            filepath = os.path.join(self.directory, file.name)
-            add_ymap_to_scene(filepath, self)
+            filepath: str = os.path.join(self.directory, file.name)
+            add_ymap_to_scene(scene, filepath, self)
         return {'FINISHED'}
 
     def invoke(self, context, event):
@@ -46,8 +47,8 @@ class VICHO_OT_import_ymap(bpy.types.Operator, ImportHelper):
         
         if self.show_import:
             col = box.column(align=True)
-            col.prop(self, "import_entities")
-            col.prop(self, "import_occluders")
-            col.prop(self, "import_extensions")
-            col.prop(self, "import_timecycle_mods")
-            col.prop(self, "import_car_generators")
+            col.prop(self, "import_entities", icon="OUTLINER_OB_GROUP_INSTANCE")
+            col.prop(self, "import_occluders", icon="GP_CAPS_ROUND")
+            col.prop(self, "import_extensions", icon="MODIFIER")
+            col.prop(self, "import_timecycle_mods", icon="TIME")
+            col.prop(self, "import_car_generators", icon="AUTO")
