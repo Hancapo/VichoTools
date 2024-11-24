@@ -1,7 +1,8 @@
 import bpy
 from bpy_extras.io_utils import ImportHelper
 from bpy.props import StringProperty, BoolProperty
-from .funcs import add_ymap_to_list
+from .funcs import add_ymap_to_scene
+import os
 
 class VICHO_OT_import_ymap(bpy.types.Operator, ImportHelper):
     """Import a YMAP file"""
@@ -16,6 +17,8 @@ class VICHO_OT_import_ymap(bpy.types.Operator, ImportHelper):
     )
     files: bpy.props.CollectionProperty(type=bpy.types.OperatorFileListElement)
     
+    directory: StringProperty(maxlen=1024, default="", subtype='DIR_PATH')
+    
     show_import: BoolProperty(name="Show Include", default=True)
     
     import_entities: BoolProperty(name="Entities", default=True, description="Import entities from the YMAP file(s)")
@@ -26,7 +29,8 @@ class VICHO_OT_import_ymap(bpy.types.Operator, ImportHelper):
 
     def execute(self, context):
         for file in self.files:
-            add_ymap_to_list(context.scene, file, self)
+            filepath = os.path.join(self.directory, file.name)
+            add_ymap_to_scene(filepath, self)
         return {'FINISHED'}
 
     def invoke(self, context, event):
@@ -44,6 +48,6 @@ class VICHO_OT_import_ymap(bpy.types.Operator, ImportHelper):
             col = box.column(align=True)
             col.prop(self, "import_entities")
             col.prop(self, "import_occluders")
-            col.prop(self, "import_entity_extensions")
-            col.prop(self, "import_timecycle_modifiers")
+            col.prop(self, "import_extensions")
+            col.prop(self, "import_timecycle_mods")
             col.prop(self, "import_car_generators")

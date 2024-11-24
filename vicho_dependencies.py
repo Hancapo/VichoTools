@@ -1,10 +1,15 @@
 import os
+import bpy
 import subprocess
 import shutil
 import traceback
 import importlib.util
+from typing import List
+from pathlib import Path
+
 
 dotnet_link = "https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-desktop-8.0.11-windows-x64-installer"
+
 
 class DependenciesManager:
     _instance = None
@@ -17,8 +22,9 @@ class DependenciesManager:
 
     def initialize(self):
         self.clr = None
-        
+
         self.List = None
+        self.File = None
 
         # TeximpNet stuff
         self.Surface = None
@@ -34,12 +40,63 @@ class DependenciesManager:
         self.GameFiles = None
         self.Utils = None
 
+        # SharpDX stuff
+        self.Vector3 = None
+        self.Vector4 = None
+
+        # Ymap stuff
+        self.YmapFile = None
+        self.YmapEntityDef = None
+        self.rage__eLodType = None
+        self.rage__ePriorityLevel = None
+        self.MloInstanceData = None
+        self.MloArchetype = None
+        self.CMloArchetypeDefData = None
+        self.CEntityDef = None
+        self.MetaHash = None
+        self.JenkHash = None
+
+    @property
+    def ymap_list(self) -> List["YmapFile"]:
+        """Returns the list of YMAPs in the scene as YmapFile objects"""
+        scene = bpy.context.scene
+        ymap_bytes_list: List[bytes] = scene.get("ymap_list", [])
+        actual_ymap_list: List["YmapFile"] = []
+        for ymap_bytes in ymap_bytes_list:
+            ymap = self.YmapFile()
+            ymap.Load(ymap_bytes)
+            actual_ymap_list.append(ymap)
+        return actual_ymap_list
+    
+    @ymap_list.setter
+    def ymap_list(self, value: List["YmapFile"]):
+        scene = bpy.context.scene
+        scene["ymap_list"] = value
+    
+    def add_ymap(self, ymap_path: str) -> bool:
+        """Adds a YMAP to the scene as bytes"""
+        scene = bpy.context.scene
+        ymap_bytes: bytes = bytes(self.File.ReadAllBytes(ymap_path))
+        ymap_bytes_list: List[bytes] = scene.get("ymap_list", [])
+        try:
+            ymap_bytes_list.append(ymap_bytes)
+            self.ymap_list = ymap_bytes_list
+            return True
+        except Exception as e:
+            print(f"Error adding ymap: {e}")
+            return False
+
+    def get_ymap(self, index: int) -> "YmapFile":
+        """Returns the YmapFile object at the specified index"""
+        return self.ymap_list[index]
+
     @property
     def available(self):
         return all(
             [
                 self.clr,
                 self.List,
+                self.File,
                 self.Surface,
                 self.Compressor,
                 self.CompressionFormat,
@@ -50,17 +107,30 @@ class DependenciesManager:
                 self.RoundMode,
                 self.GameFiles,
                 self.Utils,
+                self.Vector3,
+                self.Vector4,
+                self.YmapFile,
+                self.YmapEntityDef,
+                self.rage__eLodType,
+                self.rage__ePriorityLevel,
+                self.MloInstanceData,
+                self.MloArchetype,
+                self.CMloArchetypeDefData,
+                self.CEntityDef,
+                self.MetaHash,
+                self.JenkHash,
             ]
         )
 
     def load_dependencies(self):
         try:
             p = os.path.dirname(__file__)
-            runtime_loc = fr"{p}\libs\vichotools.json"
-            libs_loc = fr"{p}\libs"
+            runtime_loc = rf"{p}\libs\vichotools.json"
+            libs_loc = rf"{p}\libs"
             os.environ["PATH"] = libs_loc + os.pathsep + os.environ["PATH"]
             if os.path.exists(runtime_loc):
                 import pythonnet
+
                 pythonnet.load("coreclr", runtime_config=runtime_loc)
             else:
                 return False
@@ -69,13 +139,26 @@ class DependenciesManager:
 
             print("CLR OK")
 
-            clr.AddReference(fr'{libs_loc}\CodeWalker.Core.dll')
+            clr.AddReference(rf"{libs_loc}\CodeWalker.Core.dll")
             clr.AddReference("System.Collections")
-            clr.AddReference(fr'{libs_loc}\TeximpNet.dll')
+            clr.AddReference(rf"{libs_loc}\TeximpNet.dll")
             print("References added correctly")
 
             from System.Collections.Generic import List
             import CodeWalker.GameFiles as GameFiles
+            from System.IO import File
+            from CodeWalker.GameFiles import (
+                YmapFile,
+                YmapEntityDef,
+                rage__eLodType,
+                rage__ePriorityLevel,
+                MloInstanceData,
+                MloArchetype,
+                CMloArchetypeDefData,
+                CEntityDef,
+                MetaHash,
+                JenkHash,
+            )
             import CodeWalker.Utils as Utils
             from TeximpNet import Surface as Surface, ImageFilter as ImageFilter
             from TeximpNet.Compression import (
@@ -84,8 +167,10 @@ class DependenciesManager:
                 CompressionQuality,
                 OutputFileFormat,
                 MipmapFilter,
-                RoundMode
+                RoundMode,
             )
+
+            from SharpDX import Vector3, Vector4
 
             print("Modules OK")
 
@@ -93,8 +178,23 @@ class DependenciesManager:
 
             self.GameFiles = GameFiles
             self.Utils = Utils
-            
+
+            self.Vector3 = Vector3
+            self.Vector4 = Vector4
+
+            self.YmapFile = YmapFile
+            self.YmapEntityDef = YmapEntityDef
+            self.rage__eLodType = rage__eLodType
+            self.rage__ePriorityLevel = rage__ePriorityLevel
+            self.MloInstanceData = MloInstanceData
+            self.MloArchetype = MloArchetype
+            self.CMloArchetypeDefData = CMloArchetypeDefData
+            self.CEntityDef = CEntityDef
+            self.MetaHash = MetaHash
+            self.JenkHash = JenkHash
+
             self.List = List
+            self.File = File
 
             self.Surface = Surface
             self.Compressor = Compressor
@@ -131,10 +231,14 @@ def is_dotnet_installed():
         # Find the dotnet executable in the system's PATH
         dotnet_path = shutil.which("dotnet")
         if dotnet_path is None:
-            print("The 'dotnet' command was not found. Please ensure .NET is installed and the PATH environment variable is set correctly.")
+            print(
+                "The 'dotnet' command was not found. Please ensure .NET is installed and the PATH environment variable is set correctly."
+            )
             return False
 
-        result = subprocess.run([dotnet_path, "--list-runtimes"], capture_output=True, text=True)
+        result = subprocess.run(
+            [dotnet_path, "--list-runtimes"], capture_output=True, text=True
+        )
         if result.returncode != 0:
             return False
 
