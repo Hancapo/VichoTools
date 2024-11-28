@@ -100,6 +100,73 @@ class YmapMapDataFlags(bpy.types.PropertyGroup):
         description="LOD",
         update=update_flags)
 
+class EntityProps(bpy.types.PropertyGroup):
+    archetype_name: bpy.props.StringProperty(
+        name="Archetype Name",
+        default="",
+        description="Archetype Name")
+    flags: bpy.props.IntProperty(
+        name="Flags",
+        default=0)
+    
+    guid: bpy.props.StringProperty(
+        name="GUID",
+        default="",
+        description="GUID")
+    
+    position: bpy.props.FloatVectorProperty(
+        name="Position",
+        default=(0.0, 0.0, 0.0))
+    
+    rotation: bpy.props.FloatVectorProperty(
+        name="Rotation",
+        default=(0.0, 0.0, 0.0))
+    
+    scale_xy: bpy.props.FloatProperty(
+        name="Scale XY",
+        default=0.0)
+    
+    scale_z: bpy.props.FloatProperty(
+        name="Scale Z",
+        default=0.0)
+    
+    parent_index: bpy.props.IntProperty(
+        name="Parent Index",
+        default=-1)
+    
+    lod_distance: bpy.props.FloatProperty(
+        name="LOD Distance",
+        default=0.0)
+    
+    child_lod_distance: bpy.props.FloatProperty(
+        name="Child LOD Distance",
+        default=0.0)
+    
+    num_children: bpy.props.IntProperty(
+        name="Num Children",
+        default=0)
+    
+    lod_level: bpy.props.StringProperty(
+        name="LOD Level",
+        default="")
+    
+    priority_level: bpy.props.StringProperty(
+        name="Priority Level",
+        default=""
+    )
+    
+    ambient_occlusion_multiplier: bpy.props.IntProperty(
+        name="Ambient Occlusion Multiplier",
+        default=0)
+    
+    artificial_ambient_occlusion: bpy.props.IntProperty(
+        name="Artificial Ambient Occlusion",
+        default=0)
+    
+    tintValue: bpy.props.IntProperty(
+        name="Tint Value",
+        default=0)
+
 class YmapProps(bpy.types.PropertyGroup):
     enabled: bpy.props.BoolProperty(
         name="Enabled",
@@ -154,6 +221,15 @@ class YmapProps(bpy.types.PropertyGroup):
         name="Hash",
         default="",
         description="Hash")
+    
+    any_entities: bpy.props.BoolProperty(
+        name="Any Entities",
+        default=False,
+        description="Any entities in the YMAP")
+    
+    entities: bpy.props.CollectionProperty(
+        name="Entities",
+        type=EntityProps)
 
 def register():
     bpy.types.Scene.ymap_assets_path = bpy.props.StringProperty(
@@ -167,6 +243,9 @@ def register():
         name="Ymaps",
         type=YmapProps)
     bpy.types.Scene.ymap_list_index = bpy.props.IntProperty(
+        name="Index",
+        default=0)
+    bpy.types.Scene.entity_list_index = bpy.props.IntProperty(
         name="Index",
         default=0)
     bpy.types.Scene.data_type_toggle = bpy.props.EnumProperty(

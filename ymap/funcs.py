@@ -82,6 +82,16 @@ def fill_data_from_ymap(scene, index: int) -> None:
     scene.fake_ymap_list[index].entities_extents_min = get_ymap_entities_extents_min(dm.get_ymap(index))
     scene.fake_ymap_list[index].entities_extents_max = get_ymap_entities_extents_max(dm.get_ymap(index))
     scene.fake_ymap_list[index].hash = get_hash_from_bytes(dm.get_ymap_bytes(index))
+    if any_entity_exist_in_ymap(dm.get_ymap(index)):
+        scene.fake_ymap_list[index].any_entities = any_entity_exist_in_ymap(dm.get_ymap(index))
+        for ent in get_all_entities_from_ymap(dm.get_ymap(index)):
+            new_entity = scene.fake_ymap_list[index].entities.add()
+            new_entity.archetype_name = ent._CEntityDef.archetypeName.ToString()
+            new_entity.flags = ent._CEntityDef.flags
+            new_entity.guid = str(ent._CEntityDef.guid)
+            new_entity.position = (ent._CEntityDef.position.X, ent._CEntityDef.position.Y, ent._CEntityDef.position.Z)
+            new_entity.rotation = (ent._CEntityDef.rotation.X, ent._CEntityDef.rotation.Y, ent._CEntityDef.rotation.Z)
+            
     
 def get_icon_and_name_from_toggle(item_list, scene) -> tuple[str, str]:
     """Returns the icon and name of the toggle"""
@@ -89,3 +99,11 @@ def get_icon_and_name_from_toggle(item_list, scene) -> tuple[str, str]:
     for item in item_list:
         if item[0] == get_selected_str:
             return item[2], item[3]
+        
+def any_entity_exist_in_ymap(ymap) -> bool:
+    """Checks if any entity exists in the YMAP"""
+    return ymap.AllEntities is not None
+
+def get_all_entities_from_ymap(ymap) -> list:
+    """Returns all the entities from the YMAP"""
+    return ymap.AllEntities

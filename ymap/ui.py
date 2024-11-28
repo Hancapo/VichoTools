@@ -16,6 +16,21 @@ class YMAPLIST_UL_list(bpy.types.UIList):
                 ymap = ymap_list[index]
                 layout.prop(item, "enabled", text="", emboss=False, icon="CHECKBOX_HLT" if item.enabled else "CHECKBOX_DEHLT")
                 layout.label(text=ymap.name, icon="OUTLINER_OB_GROUP_INSTANCE")
+
+
+class ENTITYLIST_UL_list(bpy.types.UIList):
+    bl_idname = "ENTITYLIST_UL_list"
+    
+    def draw_item(
+        self, context, layout, data, item, icon, active_data, active_propname, index
+    ):
+        scene = context.scene
+        ymap_list = scene.fake_ymap_list
+        if self.layout_type in {"DEFAULT", "COMPACT"}:
+            if ymap_list:
+                ymap = ymap_list[scene.ymap_list_index]
+                entity = ymap.entities[index]
+                layout.label(text=entity.archetype_name, icon="FILE_3D")
                 
 class YmapTools_PT_Panel(bpy.types.Panel):
     bl_label = "Map Data"
@@ -100,7 +115,12 @@ class YmapTools_PT_Panel(bpy.types.Panel):
                         case "ENTITIES":
                             box = col.box()
                             row = box.row(align=True)
-                            row.label(text="Entities Work in Progress")
+                            if ymap.entities:
+                                row.template_list(ENTITYLIST_UL_list.bl_idname, "", ymap, "entities", scene, "entity_list_index")
+                                pass
+                            else:
+                                row.label(text="No entities found")
+                                
                         case "OCCLUDERS":
                             box = col.box()
                             row = box.row(align=True)
