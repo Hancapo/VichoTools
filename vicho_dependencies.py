@@ -86,8 +86,9 @@ class DependenciesManager:
         ymap_bytes: bytes = bytes(self.File.ReadAllBytes(ymap_path))
         ymap_bytes_list: List[bytes] = scene.get("ymap_list", [])
         try:
-            ymap_bytes_list.append(ymap_bytes)
-            self.ymap_list = ymap_bytes_list
+            ymap_list_bytes = list(ymap_bytes_list)
+            ymap_list_bytes.append(ymap_bytes)
+            scene["ymap_list"] = ymap_list_bytes
             return True
         except Exception as e:
             print(f"Error adding ymap: {e}")
@@ -99,7 +100,7 @@ class DependenciesManager:
         ymap_bytes_list: List[bytes] = scene.get("ymap_list", [])
         try:
             ymap_bytes_list.pop(index)
-            self.ymap_list = ymap_bytes_list
+            scene["ymap_list"] = ymap_bytes_list
             return True
         except Exception as e:
             print(f"Error removing ymap: {e}")

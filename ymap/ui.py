@@ -1,6 +1,7 @@
 import bpy
-from .operators import VICHO_OT_import_ymap
+from .operators import VICHO_OT_import_ymap, VICHO_OT_remove_ymap
 from ..vicho_dependencies import dependencies_manager as d
+from ..vicho_operators import VICHO_OT_fake_op
 
 class YMAPLIST_UL_list(bpy.types.UIList):
     bl_idname = "YMAPLIST_UL_list"
@@ -26,15 +27,28 @@ class YmapTools_PT_Panel(bpy.types.Panel):
     
     def draw_header(self, context):
         self.layout.label(text="", icon="FORCE_MAGNETIC")
+
     def draw(self, context):
         layout = self.layout
         scene = context.scene
         ymap_list = scene.fake_ymap_list
         
         if d.available:
-            col = layout.column(align=True)
-            col.operator(VICHO_OT_import_ymap.bl_idname, text="Import YMAP(s)")
+            row = layout.row()
+            col = row.column(align=True)
+            col.operator(VICHO_OT_import_ymap.bl_idname, text="", icon="IMPORT")
+            col.operator(VICHO_OT_import_ymap.bl_idname, text="", icon="EXPORT")
             col.separator()
+            col.operator(VICHO_OT_fake_op.bl_idname, text="", icon="ADD")
+            col.operator(VICHO_OT_remove_ymap.bl_idname, text="", icon="REMOVE")
+            col.separator()
+            col.operator(
+                VICHO_OT_fake_op.bl_idname,
+                text="",
+                icon="CURRENT_FILE",
+            )
+            row = row.row()
+            col = row.column(align=True)
             col.template_list(YMAPLIST_UL_list.bl_idname, "", scene, "fake_ymap_list", scene, "ymap_list_index")
             col = layout.column(align=True)
             row = col.row(align=True)

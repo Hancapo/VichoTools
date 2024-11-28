@@ -1,7 +1,7 @@
 import bpy
 from bpy_extras.io_utils import ImportHelper
 from bpy.props import StringProperty, BoolProperty
-from .funcs import add_ymap_to_scene
+from .funcs import add_ymap_to_scene, remove_ymap_from_scene
 import os
 
 class VICHO_OT_import_ymap(bpy.types.Operator, ImportHelper):
@@ -52,3 +52,21 @@ class VICHO_OT_import_ymap(bpy.types.Operator, ImportHelper):
             col.prop(self, "import_extensions", icon="MODIFIER")
             col.prop(self, "import_timecycle_mods", icon="TIME")
             col.prop(self, "import_car_generators", icon="AUTO")
+
+class VICHO_OT_remove_ymap(bpy.types.Operator):
+    """Remove YMAP file(s)"""
+    bl_idname = "ymap.remove_ymap"
+    bl_label = "Remove YMAP file(s)"
+    
+    @classmethod
+    def poll(cls, context):
+        return context.scene.ymap_list_index >= 0
+    
+    def execute(self, context):
+        scene = context.scene
+        selected_ymap_index = scene.ymap_list_index
+        if remove_ymap_from_scene(scene, selected_ymap_index):
+            self.report({'INFO'}, f"YMAP removed from scene")
+        else:
+            self.report({'ERROR'}, f"Error removing YMAP from scene")
+        return {'FINISHED'}

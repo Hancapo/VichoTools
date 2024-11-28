@@ -62,8 +62,16 @@ def add_ymap_to_scene(scene, new_ymap_path: str, self) -> bool:
     else:
         self.report({'ERROR'}, f"YMAP {filename} already exists in scene")
         return False
+ 
+def remove_ymap_from_scene(scene, index: int) -> bool:
+    """Removes a YMAP from the scene"""
+    if dm.remove_ymap(index):
+        scene.fake_ymap_list.remove(index)
+        scene.ymap_list_index = len(scene.fake_ymap_list) - 1
+        return True
+    return False
     
-def fill_data_from_ymap(scene, index) -> None:
+def fill_data_from_ymap(scene, index: int) -> None:
     """Fills the data from the selected YMAP"""
     scene.fake_ymap_list[index].name = get_ymap_name(dm.get_ymap(index))
     scene.fake_ymap_list[index].parent = get_ymap_parent(dm.get_ymap(index))
