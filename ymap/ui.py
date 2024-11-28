@@ -97,52 +97,42 @@ class YmapTools_PT_Panel(bpy.types.Panel):
                                     col = row.column(align=True)
                                     col.prop(ymap, "entities_extents_min", text="Min")
                                     col.prop(ymap, "entities_extents_max", text="Max")
-                                    
-                            # case "ENTITIES":
-                            #     box = panel.box()
-                            #     row = box.row(align=True)
-                            #     col = row.column(align=True)
-                            #     col.label(text="Entities")
-                            # case "OCCLUDERS":
-                            #     box = panel.box()
-                            #     row = box.row(align=True)
-                            #     col = row.column(align=True)
-                            #     col.label(text="Occluders")
-                            # case "PHYSICSDICTIONARIES":
-                            #     box = panel.box()
-                            #     row = box.row(align=True)
-                            #     col = row.column(align=True)
-                            #     col.label(text="Physics Dictionaries")
-                            # case "INSTANCEDDATA":
-                            #     box = panel.box()
-                            #     row = box.row(align=True)
-                            #     col = row.column(align=True)
-                            #     col.label(text="Instanced Data")
-                            # case "TIMECYCLEMODIFIERS":
-                            #     box = panel.box()
-                            #     row = box.row(align=True)
-                            #     col = row.column(align=True)
-                            #     col.label(text="Timecycle Modifiers")
-                            # case "CARGENERATORS":
-                            #     box = panel.box()
-                            #     row = box.row(align=True)
-                            #     col = row.column(align=True)
-                            #     col.label(text="Car Generators")
-                            # case "LODLIGHTS":
-                            #     box = panel.box()
-                            #     row = box.row(align=True)
-                            #     col = row.column(align=True)
-                            #     col.label(text="Lod Lights")
-                            # case "DISTANTLIGHTS":
-                            #     box = panel.box()
-                            #     row = box.row(align=True)
-                            #     col = row.column(align=True)
-                            #     col.label(text="Distant Lights")
-                            # case "BLOCK":
-                            #     box = panel.box()
-                            #     row = box.row(align=True)
-                            #     col = row.column(align=True)
-                            #     col.label(text="Block")
+                        case "ENTITIES":
+                            box = col.box()
+                            row = box.row(align=True)
+                            row.label(text="Entities Work in Progress")
+                        case "OCCLUDERS":
+                            box = col.box()
+                            row = box.row(align=True)
+                            row.label(text="Occluders Work in Progress")
+                        case "PHYSICSDICTIONARIES":
+                            box = col.box()
+                            row = box.row(align=True)
+                            row.label(text="Physics Dictionaries Work in Progress")
+                        case "INSTANCEDDATA":
+                            box = col.box()
+                            row = box.row(align=True)
+                            row.label(text="Instanced Data Work in Progress")
+                        case "TIMECYCLEMODIFIERS":
+                            box = col.box()
+                            row = box.row(align=True)
+                            row.label(text="Timecycle Modifiers Work in Progress")
+                        case "CARGENERATORS":
+                            box = col.box()
+                            row = box.row(align=True)
+                            row.label(text="Car Generators Work in Progress")
+                        case "LODLIGHTS":
+                            box = col.box()
+                            row = box.row(align=True)
+                            row.label(text="Lod Lights Work in Progress")
+                        case "DISTANTLIGHTS":
+                            box = col.box()
+                            row = box.row(align=True)
+                            row.label(text="Distant Lights Work in Progress")
+                        case "BLOCK":
+                            box = col.box()
+                            row = box.row(align=True)
+                            row.label(text="Block Work in Progress")
         else:
             layout.label(
                 text="PythonNET or .NET 8 runtime aren't installed, please make sure you check the Add-on's preference menu",
