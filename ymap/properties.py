@@ -149,6 +149,11 @@ class YmapProps(bpy.types.PropertyGroup):
     map_data_toggle: bpy.props.EnumProperty(
         name="Map Data",
         items=YMAP_MAP_DATA_TOGGLES)
+    
+    hash: bpy.props.StringProperty(
+        name="Hash",
+        default="",
+        description="Hash")
 
 def register():
     bpy.types.Scene.ymap_assets_path = bpy.props.StringProperty(

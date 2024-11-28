@@ -1,5 +1,6 @@
 from ..vicho_dependencies import dependencies_manager as dm
 from pathlib import Path
+from .helper import get_hash_from_bytes
 
 def get_ymap_name(ymap) -> str:
     """Returns the name of the YMAP"""
@@ -31,28 +32,35 @@ def get_ymap_entities_extents_min(ymap) -> tuple[float, float, float]:
 
 def get_ymap_entities_extents_max(ymap) -> tuple[float, float, float]:
     """Returns the entities extents max of the YMAP"""
-    return (ymap.CMapData.entitiesExtentsMax.X, ymap.CMapData.entitiesExtentsMax.Y, ymap.CMapData.entitiesExtentsMax.Z) 
+    return (ymap.CMapData.entitiesExtentsMax.X, ymap.CMapData.entitiesExtentsMax.Y, ymap.CMapData.entitiesExtentsMax.Z)
 
-# def ymap_exist_in_scene(new_ymap: str) -> bool:
-#     """Checks if a YMAP already exists in the scene"""
-#     new_ymap_bytes = Path.read_bytes(new_ymap)
-#     ymap_list = dm.ymap_list
-#     if ymap_list:
-#         for ymap in ymap_list:
-#             if ymap == new_ymap:
-#                 return True
-#     return False
+def ymap_exist_in_scene(scene, new_ymap: str) -> bool:
+    """Checks if a YMAP already exists in the scene"""
+    p: Path = Path(new_ymap)
+    new_ymap_bytes: bytes = p.read_bytes()
+    new_ymap_bytes_hash: str = get_hash_from_bytes(new_ymap_bytes)
+    ymap_list = scene.fake_ymap_list
+    if len(ymap_list) > 0:
+        for ymap in ymap_list:
+            print(f"YMAP HASH: {ymap.hash} NEW HASH: {new_ymap_bytes_hash}")
+            if ymap.hash == new_ymap_bytes_hash:
+                return True
+    return False
             
 def add_ymap_to_scene(scene, new_ymap_path: str, self) -> bool:
-    p = Path(new_ymap_path)
+    p: Path = Path(new_ymap_path)
     filename = p.stem
-    if dm.add_ymap(new_ymap_path):
-        new_fake_ymap = scene.fake_ymap_list.add()
-        fill_data_from_ymap(scene, len(scene.fake_ymap_list) - 1)
-        self.report({'INFO'}, f"YMAP {filename} added to scene")
-        return True
+    if not ymap_exist_in_scene(scene, new_ymap_path):
+        if dm.add_ymap(new_ymap_path):
+            new_fake_ymap = scene.fake_ymap_list.add()
+            fill_data_from_ymap(scene, len(scene.fake_ymap_list) - 1)
+            self.report({'INFO'}, f"YMAP {filename} added to scene")
+            return True
+        else:
+            self.report({'ERROR'}, f"Error adding YMAP {filename} to scene")
+            return False
     else:
-        self.report({'ERROR'}, f"Error adding YMAP {filename} to scene")
+        self.report({'ERROR'}, f"YMAP {filename} already exists in scene")
         return False
     
 def fill_data_from_ymap(scene, index) -> None:
@@ -65,6 +73,7 @@ def fill_data_from_ymap(scene, index) -> None:
     scene.fake_ymap_list[index].streaming_extents_max = get_ymap_streaming_extents_max(dm.get_ymap(index))
     scene.fake_ymap_list[index].entities_extents_min = get_ymap_entities_extents_min(dm.get_ymap(index))
     scene.fake_ymap_list[index].entities_extents_max = get_ymap_entities_extents_max(dm.get_ymap(index))
+    scene.fake_ymap_list[index].hash = get_hash_from_bytes(dm.get_ymap_bytes(index))
     
 def get_icon_and_name_from_toggle(item_list, scene) -> tuple[str, str]:
     """Returns the icon and name of the toggle"""

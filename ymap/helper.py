@@ -1,5 +1,29 @@
+import hashlib
+
 flags_updating = False
 content_flags_updating = False
+
+YMAP_TYPE_TOGGLES = (
+    ("MAPDATA", "Map Data", "Map Data", "OUTLINER_DATA_LIGHTPROBE", 0),
+    ("ENTITIES", "Entities", "Entities", "OUTLINER_OB_GROUP_INSTANCE", 1),
+    ("OCCLUDERS", "Occluders", "Occluders", "GP_CAPS_ROUND", 2),
+    ("PHYSICSDICTIONARIES", "Physics Dictionaries", "Physics Dictionaries", "PHYSICS", 3),
+    ("INSTANCEDDATA", "Instanced Data", "Instanced Data", "MOD_ARRAY", 4),
+    ("TIMECYCLEMODIFIERS", "Timecycle Modifiers", "Timecycle Modifiers", "TIME", 5),
+    ("CARGENERATORS", "Car Generators", "Car Generators", "AUTO", 6),
+    ("LODLIGHTS", "Lod Lights", "Lod Lights", "LIGHTPROBE_PLANE", 7),
+    ("DISTANTLIGHTS", "Distant Lights", "Distant Lights", "LIGHTPROBE_VOLUME", 8),
+    ("BLOCK", "Block", "Block", "MESH_PLANE", 9),
+)
+
+
+YMAP_MAP_DATA_TOGGLES = (
+    ("DATA", "Data", "Data", "OUTLINER_DATA_LIGHTPROBE", 0),
+    ("CONTENT_FLAGS", "Content Flags", "Content Flags", "OUTLINER_DATA_LIGHTPROBE", 1),
+    ("FLAGS", "Flags", "Flags", "OUTLINER_OB_GROUP_INSTANCE", 2),
+    ("STREAMING_EXTENTS", "Streaming Extents", "Streaming Extents", "GP_CAPS_ROUND", 3),
+    ("ENTITIES_EXTENTS", "Entities Extents", "Entities Extents", "PHYSICS", 4),
+)
 
 map_data_content_flags_values = {
     "hd": 1,
@@ -60,24 +84,8 @@ def update_content_flags(self, context):
             self.total_flags |= value
     content_flags_updating = False
     
-YMAP_TYPE_TOGGLES = (
-    ("MAPDATA", "Map Data", "Map Data", "OUTLINER_DATA_LIGHTPROBE", 0),
-    ("ENTITIES", "Entities", "Entities", "OUTLINER_OB_GROUP_INSTANCE", 1),
-    ("OCCLUDERS", "Occluders", "Occluders", "GP_CAPS_ROUND", 2),
-    ("PHYSICSDICTIONARIES", "Physics Dictionaries", "Physics Dictionaries", "PHYSICS", 3),
-    ("INSTANCEDDATA", "Instanced Data", "Instanced Data", "MOD_ARRAY", 4),
-    ("TIMECYCLEMODIFIERS", "Timecycle Modifiers", "Timecycle Modifiers", "TIME", 5),
-    ("CARGENERATORS", "Car Generators", "Car Generators", "AUTO", 6),
-    ("LODLIGHTS", "Lod Lights", "Lod Lights", "LIGHTPROBE_PLANE", 7),
-    ("DISTANTLIGHTS", "Distant Lights", "Distant Lights", "LIGHTPROBE_VOLUME", 8),
-    ("BLOCK", "Block", "Block", "MESH_PLANE", 9),
-)
-
-
-YMAP_MAP_DATA_TOGGLES = (
-    ("DATA", "Data", "Data", "OUTLINER_DATA_LIGHTPROBE", 0),
-    ("CONTENT_FLAGS", "Content Flags", "Content Flags", "OUTLINER_DATA_LIGHTPROBE", 1),
-    ("FLAGS", "Flags", "Flags", "OUTLINER_OB_GROUP_INSTANCE", 2),
-    ("STREAMING_EXTENTS", "Streaming Extents", "Streaming Extents", "GP_CAPS_ROUND", 3),
-    ("ENTITIES_EXTENTS", "Entities Extents", "Entities Extents", "PHYSICS", 4),
-)
+def get_hash_from_bytes(data: bytes, algorithm:str = "sha256") -> str:
+    """Returns the hash of the data"""
+    hash_object = hashlib.new(algorithm)
+    hash_object.update(data)
+    return hash_object.hexdigest()

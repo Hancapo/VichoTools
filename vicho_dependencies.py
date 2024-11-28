@@ -68,6 +68,13 @@ class DependenciesManager:
             actual_ymap_list.append(ymap)
         return actual_ymap_list
     
+    @property
+    def ymap_list_bytes(self) -> List[bytes]:
+        """Returns the list of YMAPs in the scene as bytes"""
+        scene = bpy.context.scene
+        ymap_bytes_list: List[bytes] = scene.get("ymap_list", [])
+        return ymap_bytes_list
+    
     @ymap_list.setter
     def ymap_list(self, value: List["YmapFile"]):
         scene = bpy.context.scene
@@ -85,10 +92,26 @@ class DependenciesManager:
         except Exception as e:
             print(f"Error adding ymap: {e}")
             return False
+        
+    def remove_ymap(self, index: int) -> bool:
+        """Removes a YMAP from the scene"""
+        scene = bpy.context.scene
+        ymap_bytes_list: List[bytes] = scene.get("ymap_list", [])
+        try:
+            ymap_bytes_list.pop(index)
+            self.ymap_list = ymap_bytes_list
+            return True
+        except Exception as e:
+            print(f"Error removing ymap: {e}")
+            return False
 
     def get_ymap(self, index: int) -> "YmapFile":
         """Returns the YmapFile object at the specified index"""
         return self.ymap_list[index]
+    
+    def get_ymap_bytes(self, index: int) -> bytes:
+        """Returns the YmapFile bytes at the specified index"""
+        return self.ymap_list_bytes[index]
 
     @property
     def available(self):
