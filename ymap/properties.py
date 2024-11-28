@@ -1,19 +1,104 @@
 import bpy
-from .funcs import ymap_change_index
+from .helper import (update_content_flags, 
+                     update_content_flags_bool_properties, 
+                     update_flags_bool_properties, 
+                     update_flags, 
+                     YMAP_MAP_DATA_TOGGLES, 
+                     YMAP_TYPE_TOGGLES)
 
-YMAP_TYPE_TOGGLES = (
-    ("MAPDATA", "Map Data", "Map Data", "OUTLINER_DATA_LIGHTPROBE", 0),
-    ("ENTITIES", "Entities", "Entities", "OUTLINER_OB_GROUP_INSTANCE", 1),
-    ("OCCLUDERS", "Occluders", "Occluders", "GP_CAPS_ROUND", 2),
-    ("PHYSICSDICTIONARIES", "Physics Dictionaries", "Physics Dictionaries", "PHYSICS", 3),
-    ("INSTANCEDDATA", "Instanced Data", "Instanced Data", "MOD_ARRAY", 4),
-    ("TIMECYCLEMODIFIERS", "Timecycle Modifiers", "Timecycle Modifiers", "TIME", 5),
-    ("CARGENERATORS", "Car Generators", "Car Generators", "AUTO", 6),
-    ("LODLIGHTS", "Lod Lights", "Lod Lights", "LIGHTPROBE_PLANE", 7),
-    ("DISTANTLIGHTS", "Distant Lights", "Distant Lights", "LIGHTPROBE_VOLUME", 8),
-    ("BLOCK", "Block", "Block", "MESH_PLANE", 9),
-)
 
+class YmapMapDataContentFlags(bpy.types.PropertyGroup):
+    total_flags: bpy.props.IntProperty(
+        name="Flags",
+        default=0,
+        min=0,
+        description="YMAP flags",
+        update=update_content_flags_bool_properties)
+    hd: bpy.props.BoolProperty(
+        name="HD",
+        default=False,
+        description="HD",
+        update=update_content_flags)
+    
+    lod: bpy.props.BoolProperty(
+        name="LOD",
+        default=False,
+        description="LOD",
+        update=update_content_flags)
+    
+    slod2_plus: bpy.props.BoolProperty(
+        name="SLOD2+",
+        default=False,
+        description="SLOD2+",
+        update=update_content_flags)
+    
+    interior: bpy.props.BoolProperty(
+        name="Interior",
+        default=False,
+        description="Interior",
+        update=update_content_flags)
+    
+    slod: bpy.props.BoolProperty(
+        name="SLOD",
+        default=False,
+        description="SLOD",
+        update=update_content_flags)
+    
+    occlusion: bpy.props.BoolProperty(
+        name="Occlusion",
+        default=False,
+        description="Occlusion",
+        update=update_content_flags)
+    
+    physics: bpy.props.BoolProperty(
+        name="Physics",
+        default=False,
+        description="Physics",
+        update=update_content_flags)
+    
+    lod_lights: bpy.props.BoolProperty(
+        name="LOD Lights",
+        default=False,
+        description="LOD Lights",
+        update=update_content_flags)
+    
+    distant_lights: bpy.props.BoolProperty(
+        name="Distant Lights",
+        default=False,
+        description="Distant Lights",
+        update=update_content_flags)
+    
+    critical: bpy.props.BoolProperty(
+        name="Critical",
+        default=False,
+        description="Critical",
+        update=update_content_flags)
+    
+    grass: bpy.props.BoolProperty(
+        name="Grass",
+        default=False,
+        description="Grass",
+        update=update_content_flags)
+
+class YmapMapDataFlags(bpy.types.PropertyGroup):
+    total_flags: bpy.props.IntProperty(
+        name="Flags",
+        default=0,
+        min=0,
+        description="YMAP content flags",
+        update=update_flags_bool_properties)
+    
+    script: bpy.props.BoolProperty(
+        name="Script",
+        default=False,
+        description="Script",
+        update=update_flags)
+    
+    lod: bpy.props.BoolProperty(
+        name="LOD",
+        default=False,
+        description="LOD",
+        update=update_flags)
 
 class YmapProps(bpy.types.PropertyGroup):
     enabled: bpy.props.BoolProperty(
@@ -33,15 +118,13 @@ class YmapProps(bpy.types.PropertyGroup):
         description="Parent",
         maxlen=60)
     
-    flags: bpy.props.IntProperty(
-        name="Flags",
-        default=0,
-        description="Flags")
+    flags: bpy.props.PointerProperty(
+        type=YmapMapDataFlags
+    )
     
-    content_flags: bpy.props.IntProperty(
-        name="Content Flags",
-        default=0,
-        description="Content Flags")
+    content_flags: bpy.props.PointerProperty(
+        type=YmapMapDataContentFlags
+    )
     
     streaming_extents_min: bpy.props.FloatVectorProperty(
         name="Streaming Extents Min",
@@ -62,6 +145,10 @@ class YmapProps(bpy.types.PropertyGroup):
         name="Entities Extents Max",
         default=(0.0, 0.0, 0.0),
         description="YMAP entities extents max")
+    
+    map_data_toggle: bpy.props.EnumProperty(
+        name="Map Data",
+        items=YMAP_MAP_DATA_TOGGLES)
 
 def register():
     bpy.types.Scene.ymap_assets_path = bpy.props.StringProperty(
@@ -76,12 +163,10 @@ def register():
         type=YmapProps)
     bpy.types.Scene.ymap_list_index = bpy.props.IntProperty(
         name="Index",
-        default=0,
-        update=ymap_change_index)
+        default=0)
     bpy.types.Scene.data_type_toggle = bpy.props.EnumProperty(
         name="Data Type",
-        items=YMAP_TYPE_TOGGLES,
-        default="MAPDATA")
+        items=YMAP_TYPE_TOGGLES)
     
 def unregister():
     del bpy.types.Scene.ymap_assets_path

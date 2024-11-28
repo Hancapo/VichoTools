@@ -11,7 +11,7 @@ def get_ymap_parent(ymap) -> str:
 
 def get_ymap_flags(ymap) -> int:
     """Returns the flags of the YMAP"""
-    return ymap._CMapData.flags
+    return ymap.CMapData.flags
 
 def get_ymap_content_flags(ymap) -> int:
     """Returns the content flags of the YMAP"""
@@ -59,8 +59,8 @@ def fill_data_from_ymap(scene, index) -> None:
     """Fills the data from the selected YMAP"""
     scene.fake_ymap_list[index].name = get_ymap_name(dm.get_ymap(index))
     scene.fake_ymap_list[index].parent = get_ymap_parent(dm.get_ymap(index))
-    scene.fake_ymap_list[index].flags = get_ymap_flags(dm.get_ymap(index))
-    scene.fake_ymap_list[index].content_flags = get_ymap_content_flags(dm.get_ymap(index))
+    scene.fake_ymap_list[index].flags.total_flags = get_ymap_flags(dm.get_ymap(index))
+    scene.fake_ymap_list[index].content_flags.total_flags = get_ymap_content_flags(dm.get_ymap(index))
     scene.fake_ymap_list[index].streaming_extents_min = get_ymap_streaming_extents_min(dm.get_ymap(index))
     scene.fake_ymap_list[index].streaming_extents_max = get_ymap_streaming_extents_max(dm.get_ymap(index))
     scene.fake_ymap_list[index].entities_extents_min = get_ymap_entities_extents_min(dm.get_ymap(index))
@@ -72,7 +72,3 @@ def get_icon_and_name_from_toggle(item_list, scene) -> tuple[str, str]:
     for item in item_list:
         if item[0] == get_selected_str:
             return item[2], item[3]
-        
-def ymap_change_index(self, context) -> None:
-    """Changes the index of the YMAP"""
-    context.scene.data_type_toggle = "MAPDATA"
