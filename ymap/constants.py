@@ -17,7 +17,7 @@ YMAP_TYPE_TOGGLES = (
 
 ENTITY_TYPES = (
     ("ENTITY", "Entity", "Entity", "OUTLINER_DATA_LIGHTPROBE", 0),
-    ("MLOINSTANCE", "MLO Instance", "MLO Instance", "OUTLINER_OB_GROUP_INSTANCE", 1),
+    ("MLOINSTANCE", "MLO Instance", "MLO Instance", "HOME", 1),
 )
 
 YMAP_MAP_DATA_TOGGLES = (

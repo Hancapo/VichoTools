@@ -94,12 +94,15 @@ def fill_data_from_ymap(scene, index: int) -> None:
             new_entity.scale_xy = ent._CEntityDef.scaleXY
             new_entity.scale_z = ent._CEntityDef.scaleZ
             new_entity.parent_index = ent._CEntityDef.parentIndex
-            new_entity.lod_dist = ent._CEntityDef.lodDist
+            new_entity.lod_distance = ent._CEntityDef.lodDist
+            new_entity.child_lod_distance = ent._CEntityDef.childLodDist
+            new_entity.num_children = ent._CEntityDef.numChildren
             new_entity.lod_level = get_entity_lod_level(ent)
             new_entity.priority_level = ent._CEntityDef.priorityLevel.ToString()
             new_entity.ambient_occlusion_multiplier = ent._CEntityDef.ambientOcclusionMultiplier
             new_entity.artificial_ambient_occlusion = ent._CEntityDef.artificialAmbientOcclusion
             new_entity.tintValue = ent._CEntityDef.tintValue
+            new_entity.type = get_entity_type(ent)
     
 def get_icon_and_name_from_toggle(item_list, scene) -> tuple[str, str]:
     """Returns the icon and name of the toggle"""

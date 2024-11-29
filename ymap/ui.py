@@ -126,8 +126,10 @@ class YmapTools_PT_Panel(bpy.types.Panel):
                                 match selected_entity.entity_data_toggle:
                                     case "DATA":
                                         col = row.column(align=True)
+                                        col.prop(selected_entity, "type")
                                         col.prop(selected_entity, "archetype_name")
                                         col.prop(selected_entity, "guid")
+                                        col.separator()
                                         col.prop(selected_entity, "tint_value")
                                     case "FLAGS":
                                         col = row.column(align=True)
@@ -154,6 +156,13 @@ class YmapTools_PT_Panel(bpy.types.Panel):
                                         grid_row.prop(selected_entity.flags, "only_render_water_reflections", text="Only Render Water Reflections")
                                         grid_row.prop(selected_entity.flags, "dont_render_mirror_reflections", text="Don't Render Mirror Reflection")
                                         grid_row.prop(selected_entity.flags, "only_render_mirror_reflections", text="Only Render Mirror Reflections")
+                                    case "LOD":
+                                        col = row.column(align=True)
+                                        col.prop(selected_entity, "lod_distance")
+                                        col.prop(selected_entity, "child_lod_distance")
+                                        col.prop(selected_entity, "num_children")
+                                        col.prop(selected_entity, "lod_level")
+
                                             
                             else:
                                 row.label(text="No entities found")

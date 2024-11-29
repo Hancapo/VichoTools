@@ -3,7 +3,8 @@ from .constants import (
                      YMAP_MAP_DATA_TOGGLES, 
                      YMAP_TYPE_TOGGLES,
                      ENTITY_TOGGLES,
-                     LOD_LEVELS)
+                     LOD_LEVELS,
+                     ENTITY_TYPES)
 
 from .helper import (update_entity_flags_bool_properties, 
                      update_entity_flags, 
@@ -252,6 +253,11 @@ class EntityProps(bpy.types.PropertyGroup):
     linked_object: bpy.props.PointerProperty(
         name="Linked Object",
         type=bpy.types.Object
+    )
+    
+    type: bpy.props.EnumProperty(
+        name="Type",
+        items=ENTITY_TYPES
     )
     
     archetype_name: bpy.props.StringProperty(
