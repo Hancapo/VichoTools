@@ -1,6 +1,6 @@
 import bpy
 from .vicho_dependencies import is_dotnet_installed, dependencies_manager as d
-from .vicho_operators import VICHO_OT_install_depens, VICHO_OT_install_dotnet
+from .vicho_operators import VICHO_OT_install_depens, VICHO_OT_install_dotnet, VICHO_OT_import_strings
 
 class VichoToolsAddonProperties(bpy.types.AddonPreferences):
     bl_idname = __package__
@@ -17,32 +17,41 @@ class VichoToolsAddonProperties(bpy.types.AddonPreferences):
     resize_dds: bpy.props.BoolProperty(
         name="Resize DDS textures", default=True, description="If enabled, DDS Textures will be affected by the resize settings"
     )
+    
+    load_strings_on_startup: bpy.props.BoolProperty(
+        name="Load strings on startup", default=False, description="If enabled, strings will be loaded on startup")
         
     def draw(self, context):
         layout = self.layout
         col = layout.column(align=True)
-        box_col = col.box()
-        box_col.label(text="Dependencies", icon="SETTINGS")
+        col.label(text="Dependencies", icon="SETTINGS")
+        col.separator()
         if not is_dotnet_installed():
-            box_col.operator(VICHO_OT_install_dotnet.bl_idname, text="Install first: .NET 8 runtime", icon="SCRIPTPLUGINS")
+            col.operator(VICHO_OT_install_dotnet.bl_idname, text="Install first: .NET 8 runtime", icon="SCRIPTPLUGINS")
         else:
-            box_col.label(text=".NET 8 x64 Runtime is already installed.")
+            col.label(text=".NET 8 x64 Runtime is already installed.")
+        col.separator()
         if d.available:
-            box_col.label(text="PythonNET is already installed.")
+            col.label(text="PythonNET is already installed.")
         else:
             if bpy.app.version < (4, 2, 0):
-                box_col.operator(VICHO_OT_install_depens.bl_idname, text="Install second: Install PythonNET", icon="SCRIPTPLUGINS")
+                col.operator(VICHO_OT_install_depens.bl_idname, text="Install second: Install PythonNET", icon="SCRIPTPLUGINS")
             else:
-                box_col.label(text="No need to install PythonNET, it's already included in wheels, you shouldn't be seeing this, report it as soon as possible.")
+                col.label(text="No need to install PythonNET, it's already included in wheels, you shouldn't be seeing this, report it as soon as possible.")
+        header, panel = layout.panel("texture_settings", default_closed=False)
+        header.label(text= "Texture(s) Settings", icon="TEXTURE")
+        if panel:
+            panel_col = panel.column(align=True)
+            panel_col.prop(self, "add_nonsollumz_to_ytd", icon="STICKY_UVS_LOC")
+            panel_col.prop(self, "enable_folder_export", icon="NEWFOLDER")
+            panel_col.prop(self, "skip_environment_textures", icon="SHADING_RENDERED")
+            panel_col.prop(self, "resize_dds", icon="UV_DATA")
         col.separator()
-        box = col.box()
-        col = box.column(align=True)
-        col.label(text="Texture(s) Settings", icon="TEXTURE")
-        col.separator()
-        col.prop(self, "add_nonsollumz_to_ytd", icon="STICKY_UVS_LOC")
-        col.prop(self, "enable_folder_export", icon="NEWFOLDER")
-        col.prop(self, "skip_environment_textures", icon="SHADING_RENDERED")
-        col.prop(self, "resize_dds", icon="UV_DATA")
+        header, panel = layout.panel("general_settings", default_closed=False)
+        header.label(text="General Settings", icon="INFO")
+        if panel:
+            panel_col = panel.column(align=True)
+            panel_col.operator(VICHO_OT_import_strings.bl_idname, text="Load Strings", icon="FILE_TICK")
         
 
 def get_addon_preferences() -> VichoToolsAddonProperties:

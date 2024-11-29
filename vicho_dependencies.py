@@ -5,7 +5,6 @@ import shutil
 import traceback
 import importlib.util
 from typing import List
-from pathlib import Path
 
 
 dotnet_link = "https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-desktop-8.0.11-windows-x64-installer"
@@ -55,6 +54,7 @@ class DependenciesManager:
         self.CEntityDef = None
         self.MetaHash = None
         self.JenkHash = None
+        self.JenkIndex = None
 
     @property
     def ymap_list(self) -> List["YmapFile"]:
@@ -143,6 +143,7 @@ class DependenciesManager:
                 self.CEntityDef,
                 self.MetaHash,
                 self.JenkHash,
+                self.JenkIndex,
             ]
         )
 
@@ -182,6 +183,7 @@ class DependenciesManager:
                 CEntityDef,
                 MetaHash,
                 JenkHash,
+                JenkIndex,
             )
             import CodeWalker.Utils as Utils
             from TeximpNet import Surface as Surface, ImageFilter as ImageFilter
@@ -216,6 +218,7 @@ class DependenciesManager:
             self.CEntityDef = CEntityDef
             self.MetaHash = MetaHash
             self.JenkHash = JenkHash
+            self.JenkIndex = JenkIndex
 
             self.List = List
             self.File = File

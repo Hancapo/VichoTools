@@ -87,11 +87,19 @@ def fill_data_from_ymap(scene, index: int) -> None:
         for ent in get_all_entities_from_ymap(dm.get_ymap(index)):
             new_entity = scene.fake_ymap_list[index].entities.add()
             new_entity.archetype_name = ent._CEntityDef.archetypeName.ToString()
-            new_entity.flags = ent._CEntityDef.flags
+            new_entity.flags.total_flags = ent._CEntityDef.flags
             new_entity.guid = str(ent._CEntityDef.guid)
             new_entity.position = (ent._CEntityDef.position.X, ent._CEntityDef.position.Y, ent._CEntityDef.position.Z)
-            new_entity.rotation = (ent._CEntityDef.rotation.X, ent._CEntityDef.rotation.Y, ent._CEntityDef.rotation.Z)
-            
+            new_entity.rotation = (ent._CEntityDef.rotation.X, ent._CEntityDef.rotation.Y, ent._CEntityDef.rotation.Z, ent._CEntityDef.rotation.W)
+            new_entity.scale_xy = ent._CEntityDef.scaleXY
+            new_entity.scale_z = ent._CEntityDef.scaleZ
+            new_entity.parent_index = ent._CEntityDef.parentIndex
+            new_entity.lod_dist = ent._CEntityDef.lodDist
+            new_entity.lod_level = get_entity_lod_level(ent)
+            new_entity.priority_level = ent._CEntityDef.priorityLevel.ToString()
+            new_entity.ambient_occlusion_multiplier = ent._CEntityDef.ambientOcclusionMultiplier
+            new_entity.artificial_ambient_occlusion = ent._CEntityDef.artificialAmbientOcclusion
+            new_entity.tintValue = ent._CEntityDef.tintValue
     
 def get_icon_and_name_from_toggle(item_list, scene) -> tuple[str, str]:
     """Returns the icon and name of the toggle"""
@@ -107,3 +115,11 @@ def any_entity_exist_in_ymap(ymap) -> bool:
 def get_all_entities_from_ymap(ymap) -> list:
     """Returns all the entities from the YMAP"""
     return ymap.AllEntities
+
+def get_entity_type(entity) -> str:
+    """Returns the entity type"""
+    return "ENTITY" if entity.MloInstance is None else "MLOINSTANCE"
+
+def get_entity_lod_level(entity) -> str:
+    """Returns the LOD level of the entity"""
+    return str(entity._CEntityDef.lodLevel.ToString())

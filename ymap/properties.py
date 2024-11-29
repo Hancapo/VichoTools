@@ -1,11 +1,155 @@
 import bpy
-from .helper import (update_content_flags, 
-                     update_content_flags_bool_properties, 
-                     update_flags_bool_properties, 
-                     update_flags, 
+from .constants import (
                      YMAP_MAP_DATA_TOGGLES, 
-                     YMAP_TYPE_TOGGLES)
+                     YMAP_TYPE_TOGGLES,
+                     ENTITY_TOGGLES,
+                     LOD_LEVELS)
 
+from .helper import (update_entity_flags_bool_properties, 
+                     update_entity_flags, 
+                     update_ymap_flags_bool_properties, 
+                     update_ymap_flags, 
+                     update_ymap_content_flags_bool_properties, 
+                     update_ymap_content_flags)
+
+class EntityFlags(bpy.types.PropertyGroup):
+    total_flags: bpy.props.IntProperty(
+        name="Flags",
+        default=0,
+        min=0,
+        description="Entity flags",
+        update=update_entity_flags_bool_properties)
+    allow_full_rotation: bpy.props.BoolProperty(
+        name="Allow Full Rotation",
+        default=False,
+        description="Allow Full Rotation",
+        update=update_entity_flags)
+    
+    stream_low_priority: bpy.props.BoolProperty(
+        name="Stream Low Priority",
+        default=False,
+        description="Stream Low Priority",
+        update=update_entity_flags)
+    
+    disable_embedded_collision: bpy.props.BoolProperty(
+        name="Disable Embedded Collision",
+        default=False,
+        description="Disable Embedded Collision",
+        update=update_entity_flags)
+    
+    lod_in_parent_map: bpy.props.BoolProperty(
+        name="LOD In Parent Map",
+        default=False,
+        description="LOD In Parent Map",
+        update=update_entity_flags)
+    
+    lod_adopt_me: bpy.props.BoolProperty(
+        name="LOD Adopt Me",
+        default=False,
+        description="LOD Adopt Me",
+        update=update_entity_flags)
+    
+    static_entity: bpy.props.BoolProperty(
+        name="Static Entity",
+        default=False,
+        description="Static Entity",
+        update=update_entity_flags)
+    
+    interior_lod: bpy.props.BoolProperty(
+        name="Interior LOD",
+        default=False,
+        description="Interior LOD",
+        update=update_entity_flags)
+    
+    lod_use_alt_fade: bpy.props.BoolProperty(
+        name="LOD Use Alt Fade",
+        default=False,
+        description="LOD Use Alt Fade",
+        update=update_entity_flags)
+    
+    underwater: bpy.props.BoolProperty(
+        name="Underwater",
+        default=False,
+        description="Underwater",
+        update=update_entity_flags)
+    
+    doesnt_touch_water: bpy.props.BoolProperty(
+        name="Doesn't Touch Water",
+        default=False,
+        description="Doesn't Touch Water",
+        update=update_entity_flags)
+    
+    doesnt_spawn_peds: bpy.props.BoolProperty(
+        name="Doesn't Spawn Peds",
+        default=False,
+        description="Doesn't Spawn Peds",
+        update=update_entity_flags)
+    
+    cast_static_shadows: bpy.props.BoolProperty(
+        name="Cast Static Shadows",
+        default=False,
+        description="Cast Static Shadows",
+        update=update_entity_flags)
+    
+    cast_dynamic_shadows: bpy.props.BoolProperty(
+        name="Cast Dynamic Shadows",
+        default=False,
+        description="Cast Dynamic Shadows",
+        update=update_entity_flags)
+    
+    ignore_time_settings: bpy.props.BoolProperty(
+        name="Ignore Time Settings",
+        default=False,
+        description="Ignore Time Settings",
+        update=update_entity_flags)
+    
+    dont_render_shadows: bpy.props.BoolProperty(
+        name="Don't Render Shadows",
+        default=False,
+        description="Don't Render Shadows",
+        update=update_entity_flags)
+    
+    only_render_shadows: bpy.props.BoolProperty(
+        name="Only Render Shadows",
+        default=False,
+        description="Only Render Shadows",
+        update=update_entity_flags)
+    
+    dont_render_reflections: bpy.props.BoolProperty(
+        name="Don't Render Reflections",
+        default=False,
+        description="Don't Render Reflections",
+        update=update_entity_flags)
+    
+    only_render_reflections: bpy.props.BoolProperty(
+        name="Only Render Reflections",
+        default=False,
+        description="Only Render Reflections",
+        update=update_entity_flags)
+    
+    dont_render_water_reflections: bpy.props.BoolProperty(
+        name="Don't Render Water Reflections",
+        default=False,
+        description="Don't Render Water Reflections",
+        update=update_entity_flags)
+    
+    only_render_water_reflections: bpy.props.BoolProperty(
+        name="Only Render Water Reflections",
+        default=False,
+        description="Only Render Water Reflections",
+        update=update_entity_flags)
+    
+    dont_render_mirror_reflections: bpy.props.BoolProperty(
+        name="Don't Render Mirror Reflections",
+        default=False,
+        description="Don't Render Mirror Reflections",
+        update=update_entity_flags)
+    
+    only_render_mirror_reflections: bpy.props.BoolProperty(
+        name="Only Render Mirror Reflections",
+        default=False,
+        description="Only Render Mirror Reflections",
+        update=update_entity_flags)
 
 class YmapMapDataContentFlags(bpy.types.PropertyGroup):
     total_flags: bpy.props.IntProperty(
@@ -13,72 +157,72 @@ class YmapMapDataContentFlags(bpy.types.PropertyGroup):
         default=0,
         min=0,
         description="YMAP flags",
-        update=update_content_flags_bool_properties)
+        update=update_ymap_content_flags_bool_properties)
     hd: bpy.props.BoolProperty(
         name="HD",
         default=False,
         description="HD",
-        update=update_content_flags)
+        update=update_ymap_content_flags)
     
     lod: bpy.props.BoolProperty(
         name="LOD",
         default=False,
         description="LOD",
-        update=update_content_flags)
+        update=update_ymap_content_flags)
     
     slod2_plus: bpy.props.BoolProperty(
         name="SLOD2+",
         default=False,
         description="SLOD2+",
-        update=update_content_flags)
+        update=update_ymap_content_flags)
     
     interior: bpy.props.BoolProperty(
         name="Interior",
         default=False,
         description="Interior",
-        update=update_content_flags)
+        update=update_ymap_content_flags)
     
     slod: bpy.props.BoolProperty(
         name="SLOD",
         default=False,
         description="SLOD",
-        update=update_content_flags)
+        update=update_ymap_content_flags)
     
     occlusion: bpy.props.BoolProperty(
         name="Occlusion",
         default=False,
         description="Occlusion",
-        update=update_content_flags)
+        update=update_ymap_content_flags)
     
     physics: bpy.props.BoolProperty(
         name="Physics",
         default=False,
         description="Physics",
-        update=update_content_flags)
+        update=update_ymap_content_flags)
     
     lod_lights: bpy.props.BoolProperty(
         name="LOD Lights",
         default=False,
         description="LOD Lights",
-        update=update_content_flags)
+        update=update_ymap_content_flags)
     
     distant_lights: bpy.props.BoolProperty(
         name="Distant Lights",
         default=False,
         description="Distant Lights",
-        update=update_content_flags)
+        update=update_ymap_content_flags)
     
     critical: bpy.props.BoolProperty(
         name="Critical",
         default=False,
         description="Critical",
-        update=update_content_flags)
+        update=update_ymap_content_flags)
     
     grass: bpy.props.BoolProperty(
         name="Grass",
         default=False,
         description="Grass",
-        update=update_content_flags)
+        update=update_ymap_content_flags)
 
 class YmapMapDataFlags(bpy.types.PropertyGroup):
     total_flags: bpy.props.IntProperty(
@@ -86,28 +230,38 @@ class YmapMapDataFlags(bpy.types.PropertyGroup):
         default=0,
         min=0,
         description="YMAP content flags",
-        update=update_flags_bool_properties)
+        update=update_ymap_flags_bool_properties)
     
     script: bpy.props.BoolProperty(
         name="Script",
         default=False,
         description="Script",
-        update=update_flags)
+        update=update_ymap_flags)
     
     lod: bpy.props.BoolProperty(
         name="LOD",
         default=False,
         description="LOD",
-        update=update_flags)
+        update=update_ymap_flags)
 
 class EntityProps(bpy.types.PropertyGroup):
+    entity_data_toggle: bpy.props.EnumProperty(
+        name="Data Type",
+        items=ENTITY_TOGGLES)
+    
+    linked_object: bpy.props.PointerProperty(
+        name="Linked Object",
+        type=bpy.types.Object
+    )
+    
     archetype_name: bpy.props.StringProperty(
         name="Archetype Name",
         default="",
         description="Archetype Name")
-    flags: bpy.props.IntProperty(
-        name="Flags",
-        default=0)
+    
+    flags: bpy.props.PointerProperty(
+        type=EntityFlags
+    )
     
     guid: bpy.props.StringProperty(
         name="GUID",
@@ -120,7 +274,8 @@ class EntityProps(bpy.types.PropertyGroup):
     
     rotation: bpy.props.FloatVectorProperty(
         name="Rotation",
-        default=(0.0, 0.0, 0.0))
+        size=4,
+        default=(0.0, 0.0, 0.0, 0.0))
     
     scale_xy: bpy.props.FloatProperty(
         name="Scale XY",
@@ -146,9 +301,10 @@ class EntityProps(bpy.types.PropertyGroup):
         name="Num Children",
         default=0)
     
-    lod_level: bpy.props.StringProperty(
+    lod_level: bpy.props.EnumProperty(
         name="LOD Level",
-        default="")
+        items=LOD_LEVELS
+    )
     
     priority_level: bpy.props.StringProperty(
         name="Priority Level",
@@ -163,7 +319,7 @@ class EntityProps(bpy.types.PropertyGroup):
         name="Artificial Ambient Occlusion",
         default=0)
     
-    tintValue: bpy.props.IntProperty(
+    tint_value: bpy.props.IntProperty(
         name="Tint Value",
         default=0)
 

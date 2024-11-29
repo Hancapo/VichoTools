@@ -5,10 +5,10 @@ import webbrowser
 import os
 from .misc.funcs import export_milo_ymap_xml
 from bpy.props import StringProperty
-from bpy_extras.io_utils import ExportHelper
+from bpy_extras.io_utils import ExportHelper, ImportHelper
 from .vicho_dependencies import dependencies_manager, is_dotnet_installed, dotnet_link
 from importlib import util, machinery
-
+from .ymap.helper import resolve_hashes_from_file
 
 class ContextSelectionRestrictedHelper:
     @classmethod
@@ -271,3 +271,30 @@ class VICHO_OT_fake_op(bpy.types.Operator):
 
     def execute(self, context):
         return {"FINISHED"}
+    
+class VICHO_OT_import_strings(bpy.types.Operator, ImportHelper):
+    """Import strings from a file"""
+
+    bl_idname = "vicho.importstrings"
+    bl_label = "Import strings"
+    
+    filename_ext = ".txt"
+    
+    filter_glob: StringProperty(default="*.txt", options={"HIDDEN"})
+    load_on_startup: bpy.props.BoolProperty(name="Load on startup", default=False, description="Load strings on startup")
+    
+    def execute(self, context):
+        scene = context.scene
+        #prefs.load_strings_on_startup = self.load_on_startup
+        resolved: int = resolve_hashes_from_file(self.filepath)
+        self.report({"INFO"}, f"Resolved {resolved} hashes from file")
+        return {"FINISHED"}
+    
+    
+    def invoke(self, context, event):
+        context.window_manager.fileselect_add(self)
+        return {"RUNNING_MODAL"}
+    
+    def draw(self, context):
+        layout = self.layout
+        layout.prop(self, "load_on_startup")

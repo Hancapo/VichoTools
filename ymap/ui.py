@@ -117,7 +117,44 @@ class YmapTools_PT_Panel(bpy.types.Panel):
                             row = box.row(align=True)
                             if ymap.entities:
                                 row.template_list(ENTITYLIST_UL_list.bl_idname, "", ymap, "entities", scene, "entity_list_index")
-                                pass
+                                selected_entity = ymap.entities[scene.entity_list_index]
+                                col.separator()
+                                grid_row = col.grid_flow(row_major=True, columns=6, even_columns=False, even_rows=False, align=True)
+                                grid_row.prop(selected_entity, "entity_data_toggle", text="")
+                                box = col.box()
+                                row = box.row(align=True)
+                                match selected_entity.entity_data_toggle:
+                                    case "DATA":
+                                        col = row.column(align=True)
+                                        col.prop(selected_entity, "archetype_name")
+                                        col.prop(selected_entity, "guid")
+                                        col.prop(selected_entity, "tint_value")
+                                    case "FLAGS":
+                                        col = row.column(align=True)
+                                        grid_row = col.grid_flow(row_major=False, columns=6, even_columns=False, even_rows=False, align=True)
+                                        grid_row.prop(selected_entity.flags, "allow_full_rotation", text="Allow Full Rotation")
+                                        grid_row.prop(selected_entity.flags, "stream_low_priority", text="Stream Low Priority")
+                                        grid_row.prop(selected_entity.flags, "disable_embedded_collision", text="Disable Embedded Collision")
+                                        grid_row.prop(selected_entity.flags, "lod_in_parent_map", text="LOD in Parent Map")
+                                        grid_row.prop(selected_entity.flags, "lod_adopt_me", text="LOD Adopt Me")
+                                        grid_row.prop(selected_entity.flags, "static_entity", text="Static Entity")
+                                        grid_row.prop(selected_entity.flags, "interior_lod", text="Interior LOD")
+                                        grid_row.prop(selected_entity.flags, "lod_use_alt_fade", text="LOD Use Alt Fade")
+                                        grid_row.prop(selected_entity.flags, "underwater", text="Underwater")
+                                        grid_row.prop(selected_entity.flags, "doesnt_touch_water", text="Doesn't Touch Water")
+                                        grid_row.prop(selected_entity.flags, "doesnt_spawn_peds", text="Doesn't Spawn Peds")
+                                        grid_row.prop(selected_entity.flags, "cast_static_shadows", text="Cast Static Shadows")
+                                        grid_row.prop(selected_entity.flags, "cast_dynamic_shadows", text="Cast Dynamic Shadows")
+                                        grid_row.prop(selected_entity.flags, "ignore_time_settings", text="Ignore Time Settings")
+                                        grid_row.prop(selected_entity.flags, "dont_render_shadows", text="Don't Render Shadows")
+                                        grid_row.prop(selected_entity.flags, "only_render_shadows", text="Only Render Shadows")
+                                        grid_row.prop(selected_entity.flags, "dont_render_reflections", text="Don't Render Reflections")
+                                        grid_row.prop(selected_entity.flags, "only_render_reflections", text="Only Render Reflections")
+                                        grid_row.prop(selected_entity.flags, "dont_render_water_reflections", text="Don't Render Water Reflections")
+                                        grid_row.prop(selected_entity.flags, "only_render_water_reflections", text="Only Render Water Reflections")
+                                        grid_row.prop(selected_entity.flags, "dont_render_mirror_reflections", text="Don't Render Mirror Reflection")
+                                        grid_row.prop(selected_entity.flags, "only_render_mirror_reflections", text="Only Render Mirror Reflections")
+                                            
                             else:
                                 row.label(text="No entities found")
                                 
