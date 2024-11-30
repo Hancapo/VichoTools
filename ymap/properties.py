@@ -246,6 +246,10 @@ class YmapMapDataFlags(bpy.types.PropertyGroup):
         update=update_ymap_flags)
 
 class EntityProps(bpy.types.PropertyGroup):
+    enabled: bpy.props.BoolProperty(
+        name="Enabled",
+        default=True,
+    )
     entity_data_toggle: bpy.props.EnumProperty(
         name="Data Type",
         items=ENTITY_TOGGLES)

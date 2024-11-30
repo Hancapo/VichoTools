@@ -30,6 +30,7 @@ class ENTITYLIST_UL_list(bpy.types.UIList):
             if ymap_list:
                 ymap = ymap_list[scene.ymap_list_index]
                 entity = ymap.entities[index]
+                layout.prop(item, "enabled", text="", emboss=False, icon="CHECKBOX_HLT" if item.enabled else "CHECKBOX_DEHLT")
                 layout.label(text=entity.archetype_name, icon="FILE_3D")
                 
 class YmapTools_PT_Panel(bpy.types.Panel):
@@ -77,7 +78,6 @@ class YmapTools_PT_Panel(bpy.types.Panel):
                         case "MAPDATA":
                             grid_row = col.grid_flow(row_major=False, columns=1, even_columns=False, even_rows=False, align=True)
                             grid_row.prop(ymap, "map_data_toggle", text="")
-                                
                             box = col.box()
                             row = box.row(align=True)
                             match ymap.map_data_toggle:
@@ -87,7 +87,7 @@ class YmapTools_PT_Panel(bpy.types.Panel):
                                     col.prop(ymap, "parent")
                                 case "CONTENT_FLAGS":
                                     col = row.column(align=True)
-                                    grid_row = col.grid_flow(row_major=False, columns=6, even_columns=False, even_rows=False, align=True)
+                                    grid_row = col.grid_flow(row_major=False, columns=2, even_columns=False, even_rows=False, align=True)
                                     grid_row.prop(ymap.content_flags, "hd", text="HD")
                                     grid_row.prop(ymap.content_flags, "lod", text="LOD")
                                     grid_row.prop(ymap.content_flags, "slod2_plus", text="SLOD2+")
@@ -104,14 +104,20 @@ class YmapTools_PT_Panel(bpy.types.Panel):
                                     grid_row = col.grid_flow(row_major=False, columns=1, even_columns=False, even_rows=False, align=True)
                                     grid_row.prop(ymap.flags, "script", text="Script")
                                     grid_row.prop(ymap.flags, "lod", text="LOD")
-                                case "STREAMING_EXTENTS":
-                                    col = row.column(align=True)
-                                    col.prop(ymap, "streaming_extents_min", text="Min")
-                                    col.prop(ymap, "streaming_extents_max", text="Max")
-                                case "ENTITIES_EXTENTS":
-                                    col = row.column(align=True)
-                                    col.prop(ymap, "entities_extents_min", text="Min")
-                                    col.prop(ymap, "entities_extents_max", text="Max")
+                                case "EXTENTS":
+                                    header, panel = box.panel("_streaming_extents", default_closed=False)
+                                    header.label(text="Streaming Extents")
+                                    if panel:
+                                        col = panel.column(align=True)
+                                        col.prop(ymap, "streaming_extents_min", text="Min")
+                                        col.prop(ymap, "streaming_extents_max", text="Max")
+                                    header, panel = box.panel("_entities_extents", default_closed=False)
+                                    header.label(text="Entities Extents")
+                                    if panel:
+                                        col = panel.column(align=True)
+                                        col.prop(ymap, "entities_extents_min", text="Min")
+                                        col.prop(ymap, "entities_extents_max", text="Max")
+                                    
                         case "ENTITIES":
                             box = col.box()
                             row = box.row(align=True)

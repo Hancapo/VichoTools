@@ -24,8 +24,7 @@ YMAP_MAP_DATA_TOGGLES = (
     ("DATA", "Data", "Data", "OUTLINER_DATA_LIGHTPROBE", 0),
     ("CONTENT_FLAGS", "Content Flags", "Content Flags", "OUTLINER_DATA_LIGHTPROBE", 1),
     ("FLAGS", "Flags", "Flags", "OUTLINER_OB_GROUP_INSTANCE", 2),
-    ("STREAMING_EXTENTS", "Streaming Extents", "Streaming Extents", "GP_CAPS_ROUND", 3),
-    ("ENTITIES_EXTENTS", "Entities Extents", "Entities Extents", "PHYSICS", 4),
+    ("EXTENTS", "Extents", "Extents", "GP_CAPS_ROUND", 3)
 )
 
 ENTITY_TOGGLES = (
