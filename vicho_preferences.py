@@ -1,6 +1,7 @@
 import bpy
 from .vicho_dependencies import is_dotnet_installed, dependencies_manager as d
 from .vicho_operators import VICHO_OT_install_depens, VICHO_OT_install_dotnet, VICHO_OT_import_strings
+from .ymap.helper import get_strings_loaded_count
 
 class VichoToolsAddonProperties(bpy.types.AddonPreferences):
     bl_idname = __package__
@@ -51,7 +52,11 @@ class VichoToolsAddonProperties(bpy.types.AddonPreferences):
         header.label(text="General Settings", icon="INFO")
         if panel:
             panel_col = panel.column(align=True)
-            panel_col.operator(VICHO_OT_import_strings.bl_idname, text="Load Strings", icon="FILE_TICK")
+            str_loaded_count: int = get_strings_loaded_count()
+            if str_loaded_count == 0:
+                panel_col.operator(VICHO_OT_import_strings.bl_idname, text="Load Strings", icon="FILE_TICK")
+            else:
+                panel_col.label(text=f"{str_loaded_count} strings loaded.")
         
 
 def get_addon_preferences() -> VichoToolsAddonProperties:

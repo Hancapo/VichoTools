@@ -68,9 +68,10 @@ def get_hash_from_bytes(data: bytes, algorithm:str = "sha256") -> str:
     hash_object.update(data)
     return hash_object.hexdigest()
 
-def resolve_hashes_from_file(file_path: str) -> int:
+def resolve_hashes_from_file(file_path: str) -> None:
     all_txt_lines: list[str] = open(file_path, "r").readlines()
-    line_count: int = len(all_txt_lines)
     for line in all_txt_lines:
         dm.JenkIndex.Ensure(line.strip())
-    return line_count
+
+def get_strings_loaded_count() -> int:
+    return dm.JenkIndex.GetAllStrings().Length

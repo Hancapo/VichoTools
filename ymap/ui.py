@@ -53,7 +53,7 @@ class YmapTools_PT_Panel(bpy.types.Panel):
             row = layout.row()
             col = row.column(align=True)
             col.operator(VICHO_OT_import_ymap.bl_idname, text="", icon="IMPORT")
-            col.operator(VICHO_OT_import_ymap.bl_idname, text="", icon="EXPORT")
+            col.operator(VICHO_OT_fake_op.bl_idname, text="", icon="EXPORT")
             col.separator()
             col.operator(VICHO_OT_fake_op.bl_idname, text="", icon="ADD")
             col.operator(VICHO_OT_remove_ymap.bl_idname, text="", icon="REMOVE")

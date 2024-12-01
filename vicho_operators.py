@@ -8,7 +8,7 @@ from bpy.props import StringProperty
 from bpy_extras.io_utils import ExportHelper, ImportHelper
 from .vicho_dependencies import dependencies_manager, is_dotnet_installed, dotnet_link
 from importlib import util, machinery
-from .ymap.helper import resolve_hashes_from_file
+from .ymap.helper import resolve_hashes_from_file, get_strings_loaded_count
 
 class ContextSelectionRestrictedHelper:
     @classmethod
@@ -284,12 +284,9 @@ class VICHO_OT_import_strings(bpy.types.Operator, ImportHelper):
     load_on_startup: bpy.props.BoolProperty(name="Load on startup", default=False, description="Load strings on startup")
     
     def execute(self, context):
-        scene = context.scene
-        #prefs.load_strings_on_startup = self.load_on_startup
-        resolved: int = resolve_hashes_from_file(self.filepath)
-        self.report({"INFO"}, f"Resolved {resolved} hashes from file")
+        resolve_hashes_from_file(self.filepath)
+        self.report({"INFO"}, f"Resolved {get_strings_loaded_count()} hashes from file")
         return {"FINISHED"}
-    
     
     def invoke(self, context, event):
         context.window_manager.fileselect_add(self)
