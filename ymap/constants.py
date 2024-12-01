@@ -30,8 +30,8 @@ YMAP_MAP_DATA_TOGGLES = (
 ENTITY_TOGGLES = (
     ("DATA", "Data", "Data", "OUTLINER_DATA_LIGHTPROBE", 0),
     ("FLAGS", "Flags", "Flags", "OUTLINER_OB_GROUP_INSTANCE", 1),
-    ("LOD", "Lod", "Lod", "GP_CAPS_ROUND", 2),
-    ("Ambient Occlusion", "Ambient Occlusion", "Ambient Occlusion", "PHYSICS", 3),
+    ("LOD", "LOD", "Lod", "GP_CAPS_ROUND", 2),
+    ("AMBIENT_OCCLUSION", "Ambient Occlusion", "Ambient Occlusion", "PHYSICS", 3),
     ("MLO", "MLO", "MLO", "MOD_ARRAY", 4),
 )
 
@@ -48,7 +48,7 @@ LOD_LEVELS = (
 map_data_content_flags_values = {
     "hd": 1,
     "lod": 2,
-    "slod2+": 4,
+    "slod2_plus": 4,
     "interior": 8,
     "slod": 16,
     "occlusion": 32,
@@ -88,3 +88,8 @@ entity_flags_values = {
     "dont_render_mirror_reflections": 268435456,
     "only_render_mirror_reflections": 536870912,
 }
+
+COMPAT_SOLL_TYPES = [
+    "sollumz_drawable",
+    "sollumz_fragment",
+]

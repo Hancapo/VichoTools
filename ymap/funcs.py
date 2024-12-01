@@ -1,6 +1,8 @@
 from ..vicho_dependencies import dependencies_manager as dm
 from pathlib import Path
 from .helper import get_hash_from_bytes
+import bpy
+from .constants import COMPAT_SOLL_TYPES
 
 def get_ymap_name(ymap) -> str:
     """Returns the name of the YMAP"""
@@ -34,7 +36,7 @@ def get_ymap_entities_extents_max(ymap) -> tuple[float, float, float]:
     """Returns the entities extents max of the YMAP"""
     return (ymap.CMapData.entitiesExtentsMax.X, ymap.CMapData.entitiesExtentsMax.Y, ymap.CMapData.entitiesExtentsMax.Z)
 
-def ymap_exist_in_scene(scene, new_ymap: str) -> bool:
+def ymap_exist_in_scene(scene: bpy.types.Scene, new_ymap: str) -> bool:
     """Checks if a YMAP already exists in the scene"""
     p: Path = Path(new_ymap)
     new_ymap_bytes: bytes = p.read_bytes()
@@ -47,13 +49,16 @@ def ymap_exist_in_scene(scene, new_ymap: str) -> bool:
                 return True
     return False
             
-def add_ymap_to_scene(scene, new_ymap_path: str, self) -> bool:
+def add_ymap_to_scene(scene: bpy.types.Scene, new_ymap_path: str, i_ents: bool, i_occls: bool, i_timemods: bool, i_cargens: bool, self, assets_path: str = None) -> bool:
     p: Path = Path(new_ymap_path)
     filename = p.stem
     if not ymap_exist_in_scene(scene, new_ymap_path):
         if dm.add_ymap(new_ymap_path):
             new_fake_ymap = scene.fake_ymap_list.add()
-            fill_data_from_ymap(scene, len(scene.fake_ymap_list) - 1)
+            current_index = len(scene.fake_ymap_list) - 1
+            fill_data_from_ymap(scene, current_index)
+            if i_ents and assets_path is not None:
+                set_imported_objs_transform(scene, current_index, assets_path, self)
             self.report({'INFO'}, f"YMAP {filename} added to scene")
             return True
         else:
@@ -63,7 +68,7 @@ def add_ymap_to_scene(scene, new_ymap_path: str, self) -> bool:
         self.report({'ERROR'}, f"YMAP {filename} already exists in scene")
         return False
  
-def remove_ymap_from_scene(scene, index: int) -> bool:
+def remove_ymap_from_scene(scene: bpy.types.Scene, index: int) -> bool:
     """Removes a YMAP from the scene"""
     if dm.remove_ymap(index):
         scene.fake_ymap_list.remove(index)
@@ -71,20 +76,23 @@ def remove_ymap_from_scene(scene, index: int) -> bool:
         return True
     return False
     
-def fill_data_from_ymap(scene, index: int) -> None:
+def fill_data_from_ymap(scene: bpy.types.Scene, index: int) -> None:
     """Fills the data from the selected YMAP"""
-    scene.fake_ymap_list[index].name = get_ymap_name(dm.get_ymap(index))
-    scene.fake_ymap_list[index].parent = get_ymap_parent(dm.get_ymap(index))
-    scene.fake_ymap_list[index].flags.total_flags = get_ymap_flags(dm.get_ymap(index))
-    scene.fake_ymap_list[index].content_flags.total_flags = get_ymap_content_flags(dm.get_ymap(index))
-    scene.fake_ymap_list[index].streaming_extents_min = get_ymap_streaming_extents_min(dm.get_ymap(index))
-    scene.fake_ymap_list[index].streaming_extents_max = get_ymap_streaming_extents_max(dm.get_ymap(index))
-    scene.fake_ymap_list[index].entities_extents_min = get_ymap_entities_extents_min(dm.get_ymap(index))
-    scene.fake_ymap_list[index].entities_extents_max = get_ymap_entities_extents_max(dm.get_ymap(index))
-    scene.fake_ymap_list[index].hash = get_hash_from_bytes(dm.get_ymap_bytes(index))
-    if any_entity_exist_in_ymap(dm.get_ymap(index)):
-        scene.fake_ymap_list[index].any_entities = any_entity_exist_in_ymap(dm.get_ymap(index))
-        for ent in get_all_entities_from_ymap(dm.get_ymap(index)):
+    current_ymap = dm.get_ymap(index)
+    current_ymap_bytes = dm.get_ymap_bytes(index)
+    any_entities = any_entity_exist_in_ymap(current_ymap)
+    scene.fake_ymap_list[index].name = get_ymap_name(current_ymap)
+    scene.fake_ymap_list[index].parent = get_ymap_parent(current_ymap)
+    scene.fake_ymap_list[index].flags.total_flags = get_ymap_flags(current_ymap)
+    scene.fake_ymap_list[index].content_flags.total_flags = get_ymap_content_flags(current_ymap)
+    scene.fake_ymap_list[index].streaming_extents_min = get_ymap_streaming_extents_min(current_ymap)
+    scene.fake_ymap_list[index].streaming_extents_max = get_ymap_streaming_extents_max(current_ymap)
+    scene.fake_ymap_list[index].entities_extents_min = get_ymap_entities_extents_min(current_ymap)
+    scene.fake_ymap_list[index].entities_extents_max = get_ymap_entities_extents_max(current_ymap)
+    scene.fake_ymap_list[index].hash = get_hash_from_bytes(current_ymap_bytes)
+    scene.fake_ymap_list[index].any_entities = any_entities
+    if any_entities:
+        for ent in get_all_entities_from_ymap(current_ymap):
             new_entity = scene.fake_ymap_list[index].entities.add()
             new_entity.archetype_name = ent._CEntityDef.archetypeName.ToString()
             new_entity.flags.total_flags = ent._CEntityDef.flags
@@ -103,8 +111,30 @@ def fill_data_from_ymap(scene, index: int) -> None:
             new_entity.artificial_ambient_occlusion = ent._CEntityDef.artificialAmbientOcclusion
             new_entity.tintValue = ent._CEntityDef.tintValue
             new_entity.type = get_entity_type(ent)
+            if get_entity_is_mlo_instance(ent):
+                new_entity.is_mlo_instance = True
+
+
+def set_imported_objs_transform(scene: bpy.types.Scene, index: int, asset_path: str, self) -> None:
+    current_ymap = scene.fake_ymap_list[index]
+    ents: str = current_ymap.entities
     
-def get_icon_and_name_from_toggle(item_list, scene) -> tuple[str, str]:
+    for e in ents:
+        p: Path = Path(asset_path)
+        for file in p.glob("*.xml"):
+            file_name = file.stem.split(".")[0]
+            if file_name == e.archetype_name:
+                bpy.ops.sollumz.import_assets(directory=str(p), files=[{"name": file.name}])
+                imported_obj: bpy.types.Object = next((x for x in scene.objects if x.name.split(".")[0] == file_name and 
+                                                       x.type == 'EMPTY' and 
+                                                       x.sollum_type in COMPAT_SOLL_TYPES), None)
+                if imported_obj is not None:
+                    e.linked_object = imported_obj
+                    e.linked_object.location = e.position
+                    e.linked_object.rotation_quaternion = e.rotation
+                    e.linked_object.scale = (e.scale_xy, e.scale_xy, e.scale_z)
+
+def get_icon_and_name_from_toggle(item_list, scene: bpy.types.Scene) -> tuple[str, str]:
     """Returns the icon and name of the toggle"""
     get_selected_str = scene.data_type_toggle
     for item in item_list:
@@ -126,3 +156,7 @@ def get_entity_type(entity) -> str:
 def get_entity_lod_level(entity) -> str:
     """Returns the LOD level of the entity"""
     return str(entity._CEntityDef.lodLevel.ToString())
+
+def get_entity_is_mlo_instance(entity) -> bool:
+    """Returns if the entity is a MLO instance"""
+    return entity.IsMlo

@@ -259,6 +259,10 @@ class EntityProps(bpy.types.PropertyGroup):
         type=bpy.types.Object
     )
     
+    is_mlo_instance: bpy.props.BoolProperty(
+        name="Is MLO Instance",
+        default=False)
+    
     type: bpy.props.EnumProperty(
         name="Type",
         items=ENTITY_TYPES
