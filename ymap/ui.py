@@ -2,6 +2,7 @@ import bpy
 from .operators import VICHO_OT_import_ymap, VICHO_OT_remove_ymap
 from ..vicho_dependencies import dependencies_manager as d
 from ..vicho_operators import VICHO_OT_fake_op
+from .constants import entity_flags_values, map_data_content_flags_values, map_data_flags_values
 
 class YMAPLIST_UL_list(bpy.types.UIList):
     bl_idname = "YMAPLIST_UL_list"
@@ -88,22 +89,13 @@ class YmapTools_PT_Panel(bpy.types.Panel):
                                 case "CONTENT_FLAGS":
                                     col = row.column(align=True)
                                     grid_row = col.grid_flow(row_major=False, columns=2, even_columns=False, even_rows=False, align=True)
-                                    grid_row.prop(ymap.content_flags, "hd", text="HD")
-                                    grid_row.prop(ymap.content_flags, "lod", text="LOD")
-                                    grid_row.prop(ymap.content_flags, "slod2_plus", text="SLOD2+")
-                                    grid_row.prop(ymap.content_flags, "interior", text="Interior")
-                                    grid_row.prop(ymap.content_flags, "slod", text="SLOD")
-                                    grid_row.prop(ymap.content_flags, "occlusion", text="Occlusion")
-                                    grid_row.prop(ymap.content_flags, "physics", text="Physics")
-                                    grid_row.prop(ymap.content_flags, "lod_lights", text="LOD Lights")
-                                    grid_row.prop(ymap.content_flags, "distant_lights", text="Distant Lights")
-                                    grid_row.prop(ymap.content_flags, "critical", text="Critical")
-                                    grid_row.prop(ymap.content_flags, "grass", text="Grass")
+                                    for flag in map_data_content_flags_values:
+                                        grid_row.prop(ymap.content_flags, flag)
                                 case "FLAGS":
                                     col = row.column(align=True)
                                     grid_row = col.grid_flow(row_major=False, columns=1, even_columns=False, even_rows=False, align=True)
-                                    grid_row.prop(ymap.flags, "script", text="Script")
-                                    grid_row.prop(ymap.flags, "lod", text="LOD")
+                                    for flags in map_data_flags_values:
+                                        grid_row.prop(ymap.flags, flags)
                                 case "EXTENTS":
                                     header, panel = box.panel("_streaming_extents", default_closed=False)
                                     header.label(text="Streaming Extents")
@@ -135,41 +127,30 @@ class YmapTools_PT_Panel(bpy.types.Panel):
                                         col.prop(selected_entity, "type")
                                         col.prop(selected_entity, "archetype_name")
                                         col.prop(selected_entity, "guid")
+                                        col.prop(selected_entity, "linked_object")
                                         col.separator()
-                                        col.prop(selected_entity, "tint_value")
                                     case "FLAGS":
                                         col = row.column(align=True)
-                                        grid_row = col.grid_flow(row_major=False, columns=6, even_columns=False, even_rows=False, align=True)
-                                        grid_row.prop(selected_entity.flags, "allow_full_rotation", text="Allow Full Rotation")
-                                        grid_row.prop(selected_entity.flags, "stream_low_priority", text="Stream Low Priority")
-                                        grid_row.prop(selected_entity.flags, "disable_embedded_collision", text="Disable Embedded Collision")
-                                        grid_row.prop(selected_entity.flags, "lod_in_parent_map", text="LOD in Parent Map")
-                                        grid_row.prop(selected_entity.flags, "lod_adopt_me", text="LOD Adopt Me")
-                                        grid_row.prop(selected_entity.flags, "static_entity", text="Static Entity")
-                                        grid_row.prop(selected_entity.flags, "interior_lod", text="Interior LOD")
-                                        grid_row.prop(selected_entity.flags, "lod_use_alt_fade", text="LOD Use Alt Fade")
-                                        grid_row.prop(selected_entity.flags, "underwater", text="Underwater")
-                                        grid_row.prop(selected_entity.flags, "doesnt_touch_water", text="Doesn't Touch Water")
-                                        grid_row.prop(selected_entity.flags, "doesnt_spawn_peds", text="Doesn't Spawn Peds")
-                                        grid_row.prop(selected_entity.flags, "cast_static_shadows", text="Cast Static Shadows")
-                                        grid_row.prop(selected_entity.flags, "cast_dynamic_shadows", text="Cast Dynamic Shadows")
-                                        grid_row.prop(selected_entity.flags, "ignore_time_settings", text="Ignore Time Settings")
-                                        grid_row.prop(selected_entity.flags, "dont_render_shadows", text="Don't Render Shadows")
-                                        grid_row.prop(selected_entity.flags, "only_render_shadows", text="Only Render Shadows")
-                                        grid_row.prop(selected_entity.flags, "dont_render_reflections", text="Don't Render Reflections")
-                                        grid_row.prop(selected_entity.flags, "only_render_reflections", text="Only Render Reflections")
-                                        grid_row.prop(selected_entity.flags, "dont_render_water_reflections", text="Don't Render Water Reflections")
-                                        grid_row.prop(selected_entity.flags, "only_render_water_reflections", text="Only Render Water Reflections")
-                                        grid_row.prop(selected_entity.flags, "dont_render_mirror_reflections", text="Don't Render Mirror Reflection")
-                                        grid_row.prop(selected_entity.flags, "only_render_mirror_reflections", text="Only Render Mirror Reflections")
+                                        grid_row = col.grid_flow(row_major=False, columns=2, even_columns=False, even_rows=False, align=True)
+                                        for flag in entity_flags_values:
+                                            grid_row.prop(selected_entity.flags, flag)
                                     case "LOD":
                                         col = row.column(align=True)
                                         col.prop(selected_entity, "lod_distance")
                                         col.prop(selected_entity, "child_lod_distance")
                                         col.prop(selected_entity, "num_children")
+                                        col.separator()
                                         col.prop(selected_entity, "lod_level")
-
-                                            
+                                    case "AMBIENT_OCCLUSION":
+                                        col = row.column(align=True)
+                                        col.prop(selected_entity, "ambient_occlusion_multiplier", text="Multiplier")
+                                        col.prop(selected_entity, "artificial_ambient_occlusion", text="Artificial")
+                                    case "MLO":
+                                        col = row.column(align=True)
+                                        if selected_entity.is_mlo_instance:
+                                            col.label(text="It's a MLO Instance")
+                                        else:
+                                            col.label(text="Not a MLO Instance", icon="ERROR")
                             else:
                                 row.label(text="No entities found")
                                 
