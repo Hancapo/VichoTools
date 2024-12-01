@@ -125,12 +125,14 @@ def set_imported_objs_transform(scene: bpy.types.Scene, index: int, asset_path: 
             file_name = file.stem.split(".")[0]
             if file_name == e.archetype_name:
                 bpy.ops.sollumz.import_assets(directory=str(p), files=[{"name": file.name}])
-                imported_obj: bpy.types.Object = next((x for x in scene.objects if x.name.split(".")[0] == file_name and 
-                                                       x.type == 'EMPTY' and 
-                                                       x.sollum_type in COMPAT_SOLL_TYPES), None)
+                imported_obj: bpy.types.Object = next((x for x in scene.objects if file_name in x.name and 
+                                                       x.type in ['EMPTY', 'ARMATURE'] and 
+                                                       x.sollum_type in COMPAT_SOLL_TYPES and
+                                                       not x.parent), None)
                 if imported_obj is not None:
                     e.linked_object = imported_obj
                     e.linked_object.location = e.position
+                    e.linked_object.rotation_mode = 'QUATERNION'
                     e.linked_object.rotation_quaternion = e.rotation
                     e.linked_object.scale = (e.scale_xy, e.scale_xy, e.scale_z)
 
