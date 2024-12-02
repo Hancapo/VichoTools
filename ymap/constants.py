@@ -89,7 +89,7 @@ entity_flags_values = {
     "only_render_mirror_reflections": 536870912,
 }
 
-COMPAT_SOLL_TYPES = [
+COMPAT_SOLL_TYPES = (
     "sollumz_drawable",
     "sollumz_fragment",
-]
+)

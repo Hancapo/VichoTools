@@ -135,13 +135,6 @@ def set_imported_objs_transform(scene: bpy.types.Scene, index: int, asset_path: 
                     e.linked_object.rotation_mode = 'QUATERNION'
                     e.linked_object.rotation_quaternion = e.rotation
                     e.linked_object.scale = (e.scale_xy, e.scale_xy, e.scale_z)
-
-def get_icon_and_name_from_toggle(item_list, scene: bpy.types.Scene) -> tuple[str, str]:
-    """Returns the icon and name of the toggle"""
-    get_selected_str = scene.data_type_toggle
-    for item in item_list:
-        if item[0] == get_selected_str:
-            return item[2], item[3]
         
 def any_entity_exist_in_ymap(ymap) -> bool:
     """Checks if any entity exists in the YMAP"""
