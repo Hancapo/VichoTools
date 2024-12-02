@@ -426,4 +426,5 @@ def unregister():
     del bpy.types.Scene.ymap_assets_path
     del bpy.types.Scene.fake_ymap_list
     del bpy.types.Scene.ymap_list_index
+    del bpy.types.Scene.entity_list_index
     del bpy.types.Scene.data_type_toggle
