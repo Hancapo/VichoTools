@@ -86,3 +86,22 @@ class VICHO_OT_remove_ymap(bpy.types.Operator):
         else:
             self.report({'ERROR'}, f"Error removing YMAP from scene")
         return {'FINISHED'}
+    
+class VICHO_OT_go_to_entity(bpy.types.Operator):
+    """Go to entity"""
+    bl_idname = "ymap.go_to_entity"
+    bl_label = "Go to entity"
+    
+    def execute(self, context):
+        scene = context.scene
+        selected_ymap_index = scene.ymap_list_index
+        ymap = scene.fake_ymap_list[selected_ymap_index]
+        entity = ymap.entities[scene.entity_list_index]
+        
+        if entity.linked_object:
+            bpy.context.view_layer.objects.active = entity.linked_object
+            bpy.ops.object.select_all(action='DESELECT')
+            entity.linked_object.select_set(True)
+            bpy.ops.view3d.view_selected()
+        
+        return {'FINISHED'}

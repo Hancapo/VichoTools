@@ -1,5 +1,5 @@
 import bpy
-from .operators import VICHO_OT_import_ymap, VICHO_OT_remove_ymap
+from .operators import VICHO_OT_import_ymap, VICHO_OT_remove_ymap, VICHO_OT_go_to_entity
 from ..vicho_dependencies import dependencies_manager as d
 from ..vicho_operators import VICHO_OT_fake_op
 from .constants import entity_flags_values, map_data_content_flags_values, map_data_flags_values
@@ -127,8 +127,10 @@ class YmapTools_PT_Panel(bpy.types.Panel):
                                         col.prop(selected_entity, "type")
                                         col.prop(selected_entity, "archetype_name")
                                         col.prop(selected_entity, "guid")
-                                        col.prop(selected_entity, "linked_object")
                                         col.separator()
+                                        row = col.row(align=True)
+                                        row.prop(selected_entity, "linked_object")
+                                        row.operator(VICHO_OT_go_to_entity.bl_idname, text="", icon="VIEWZOOM")
                                     case "FLAGS":
                                         col = row.column(align=True)
                                         grid_row = col.grid_flow(row_major=False, columns=2, even_columns=False, even_rows=False, align=True)
