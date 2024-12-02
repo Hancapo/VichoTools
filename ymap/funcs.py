@@ -58,7 +58,7 @@ def add_ymap_to_scene(scene: bpy.types.Scene, new_ymap_path: str, i_ents: bool, 
             current_index = len(scene.fake_ymap_list) - 1
             fill_data_from_ymap(scene, current_index)
             if i_ents and assets_path is not None:
-                set_imported_objs_transform(scene, current_index, assets_path, self)
+                import_entity_objs(scene, current_index, assets_path, self)
             self.report({'INFO'}, f"YMAP {filename} added to scene")
             return True
         else:
@@ -98,7 +98,7 @@ def fill_data_from_ymap(scene: bpy.types.Scene, index: int) -> None:
             new_entity.flags.total_flags = ent._CEntityDef.flags
             new_entity.guid = str(ent._CEntityDef.guid)
             new_entity.position = (ent._CEntityDef.position.X, ent._CEntityDef.position.Y, ent._CEntityDef.position.Z)
-            new_entity.rotation = (ent._CEntityDef.rotation.X, ent._CEntityDef.rotation.Y, ent._CEntityDef.rotation.Z, ent._CEntityDef.rotation.W)
+            new_entity.rotation = (ent._CEntityDef.rotation.W, ent._CEntityDef.rotation.X, ent._CEntityDef.rotation.Y, -ent._CEntityDef.rotation.Z)
             new_entity.scale_xy = ent._CEntityDef.scaleXY
             new_entity.scale_z = ent._CEntityDef.scaleZ
             new_entity.parent_index = ent._CEntityDef.parentIndex
@@ -115,17 +115,21 @@ def fill_data_from_ymap(scene: bpy.types.Scene, index: int) -> None:
                 new_entity.is_mlo_instance = True
 
 
-def set_imported_objs_transform(scene: bpy.types.Scene, index: int, asset_path: str, self) -> None:
+def import_entity_objs(scene: bpy.types.Scene, index: int, asset_path: str, self) -> None:
     current_ymap = scene.fake_ymap_list[index]
     ents: str = current_ymap.entities
     
     for e in ents:
         p: Path = Path(asset_path)
         for file in p.glob("*.xml"):
+            before_import = set(bpy.data.objects.keys())
             file_name = file.stem.split(".")[0]
             if file_name == e.archetype_name:
                 bpy.ops.sollumz.import_assets(directory=str(p), files=[{"name": file.name}])
-                imported_obj: bpy.types.Object = next((x for x in scene.objects if file_name in x.name and 
+                after_import = set(bpy.data.objects.keys())
+                new_objs_names = after_import - before_import
+                new_objs = [bpy.data.objects[name] for name in new_objs_names]
+                imported_obj: bpy.types.Object = next((x for x in new_objs if file_name in x.name and 
                                                        x.type in ['EMPTY', 'ARMATURE'] and 
                                                        x.sollum_type in COMPAT_SOLL_TYPES and
                                                        not x.parent), None)
