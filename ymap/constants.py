@@ -11,8 +11,7 @@ YMAP_TYPE_TOGGLES = (
     ("TIMECYCLEMODIFIERS", "Timecycle Modifiers", "Timecycle Modifiers", "TIME", 5),
     ("CARGENERATORS", "Car Generators", "Car Generators", "AUTO", 6),
     ("LODLIGHTS", "Lod Lights", "Lod Lights", "LIGHTPROBE_PLANE", 7),
-    ("DISTANTLIGHTS", "Distant Lights", "Distant Lights", "LIGHTPROBE_VOLUME", 8),
-    ("BLOCK", "Block", "Block", "MESH_PLANE", 9),
+    ("DISTANTLIGHTS", "Distant Lights", "Distant Lights", "LIGHTPROBE_VOLUME", 8)
 )
 
 ENTITY_TYPES = (
