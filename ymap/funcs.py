@@ -4,6 +4,7 @@ from .helper import get_hash_from_bytes, run_ops_without_view_layer_update
 import bpy
 from .constants import COMPAT_SOLL_TYPES, OBJECT_TYPES
 from bpy.types import Object, Scene
+import time
 
 def get_ymap_name(ymap) -> str:
     """Returns the name of the YMAP"""
@@ -126,7 +127,7 @@ def import_entity_objs(scene: Scene, index: int, asset_path: str, self) -> None:
             def fast_import():
                 bpy.ops.sollumz.import_assets(directory=str(p), files=[{"name": xml_file}])
             run_ops_without_view_layer_update(fast_import)
-            process_asset_by_name(scene, str(p), xml_file, before_import, e)
+            process_asset_by_name(before_import, e)
 
 
 def get_obj_soll_parent(filename: str, new_objs: list[Object]) -> Object:
@@ -136,7 +137,7 @@ def get_obj_soll_parent(filename: str, new_objs: list[Object]) -> Object:
                  not x.parent), None)
 
 
-def process_asset_by_name(scene: Scene, newPath: str, filename: str, before_import, entity) -> None:
+def process_asset_by_name(before_import, entity) -> None:
     after_import: set[str] = set(bpy.data.objects.keys())
     new_objs_names: set[str] = after_import - before_import
     new_objs: list[object] = [bpy.data.objects[name] for name in new_objs_names]
