@@ -1,6 +1,6 @@
 from ..vicho_dependencies import dependencies_manager as dm
 from pathlib import Path
-from .helper import get_hash_from_bytes
+from .helper import get_hash_from_bytes, run_ops_without_view_layer_update
 import bpy
 from .constants import COMPAT_SOLL_TYPES, OBJECT_TYPES
 from bpy.types import Object, Scene
@@ -120,16 +120,14 @@ def import_entity_objs(scene: Scene, index: int, asset_path: str, self) -> None:
     ents: str = current_ymap.entities
     for e in ents:
         p: Path = Path(asset_path)
-        xml_file = f"{e.archetype_name}.ydr.xml" if Path.exists(p / f"{e.archetype_name}.ydr.xml") else f"{e.archetype_name}.yft.xml"
-        before_import = set(bpy.data.objects.keys())
+        xml_file: str = f"{e.archetype_name}.ydr.xml" if Path.exists(p / f"{e.archetype_name}.ydr.xml") else f"{e.archetype_name}.yft.xml"
+        before_import: set[str] = set(bpy.data.objects.keys())
         if Path.exists(p / xml_file):
-            bpy.ops.sollumz.import_assets(directory=str(p), files=[{"name": xml_file}])
-            after_import = set(bpy.data.objects.keys())
-            new_objs_names = after_import - before_import
-            new_objs = [bpy.data.objects[name] for name in new_objs_names]
-            imported_obj: Object = get_obj_soll_parent(e.archetype_name, new_objs)
-            apply_transforms_to_obj_from_entity(imported_obj, e)
-                
+            def fast_import():
+                bpy.ops.sollumz.import_assets(directory=str(p), files=[{"name": xml_file}])
+            run_ops_without_view_layer_update(fast_import)
+            process_asset_by_name(scene, str(p), xml_file, before_import, e)
+
 
 def get_obj_soll_parent(filename: str, new_objs: list[Object]) -> Object:
     return next((x for x in new_objs if filename in x.name and
@@ -138,8 +136,12 @@ def get_obj_soll_parent(filename: str, new_objs: list[Object]) -> Object:
                  not x.parent), None)
 
 
-def import_asset_by_name(scene: Scene, newPath: str, filename: str, before_import) -> None:
-    pass
+def process_asset_by_name(scene: Scene, newPath: str, filename: str, before_import, entity) -> None:
+    after_import: set[str] = set(bpy.data.objects.keys())
+    new_objs_names: set[str] = after_import - before_import
+    new_objs: list[object] = [bpy.data.objects[name] for name in new_objs_names]
+    imported_obj: Object = get_obj_soll_parent(entity.archetype_name, new_objs)
+    apply_transforms_to_obj_from_entity(imported_obj, entity)
 
 def apply_transforms_to_obj_from_entity(obj:Object, entity) -> None:
     if obj is not None:

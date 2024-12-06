@@ -75,3 +75,14 @@ def resolve_hashes_from_file(file_path: str) -> None:
 
 def get_strings_loaded_count() -> int:
     return dm.JenkIndex.GetAllStrings().Length
+
+def run_ops_without_view_layer_update(func):
+    from bpy.ops import _BPyOpsSubModOp
+    view_layer_update = _BPyOpsSubModOp._view_layer_update
+    def dummy_view_layer_update(context):
+        pass
+    try:
+        _BPyOpsSubModOp._view_layer_update = dummy_view_layer_update
+        func()
+    finally:
+        _BPyOpsSubModOp._view_layer_update = view_layer_update            
