@@ -2,7 +2,8 @@ from ..vicho_dependencies import dependencies_manager as dm
 from pathlib import Path
 from .helper import get_hash_from_bytes
 import bpy
-from .constants import COMPAT_SOLL_TYPES
+from .constants import COMPAT_SOLL_TYPES, OBJECT_TYPES
+from bpy.types import Object, Scene
 
 def get_ymap_name(ymap) -> str:
     """Returns the name of the YMAP"""
@@ -36,7 +37,7 @@ def get_ymap_entities_extents_max(ymap) -> tuple[float, float, float]:
     """Returns the entities extents max of the YMAP"""
     return (ymap.CMapData.entitiesExtentsMax.X, ymap.CMapData.entitiesExtentsMax.Y, ymap.CMapData.entitiesExtentsMax.Z)
 
-def ymap_exist_in_scene(scene: bpy.types.Scene, new_ymap: str) -> bool:
+def ymap_exist_in_scene(scene: Scene, new_ymap: str) -> bool:
     """Checks if a YMAP already exists in the scene"""
     p: Path = Path(new_ymap)
     new_ymap_bytes: bytes = p.read_bytes()
@@ -49,12 +50,12 @@ def ymap_exist_in_scene(scene: bpy.types.Scene, new_ymap: str) -> bool:
                 return True
     return False
             
-def add_ymap_to_scene(scene: bpy.types.Scene, new_ymap_path: str, i_ents: bool, i_occls: bool, i_timemods: bool, i_cargens: bool, self, assets_path: str = None) -> bool:
+def add_ymap_to_scene(scene: Scene, new_ymap_path: str, i_ents: bool, i_occls: bool, i_timemods: bool, i_cargens: bool, self, assets_path: str = None) -> bool:
     p: Path = Path(new_ymap_path)
     filename = p.stem
     if not ymap_exist_in_scene(scene, new_ymap_path):
         if dm.add_ymap(new_ymap_path):
-            new_fake_ymap = scene.fake_ymap_list.add()
+            scene.fake_ymap_list.add()
             current_index = len(scene.fake_ymap_list) - 1
             fill_data_from_ymap(scene, current_index)
             if i_ents and assets_path is not None:
@@ -68,7 +69,7 @@ def add_ymap_to_scene(scene: bpy.types.Scene, new_ymap_path: str, i_ents: bool, 
         self.report({'ERROR'}, f"YMAP {filename} already exists in scene")
         return False
  
-def remove_ymap_from_scene(scene: bpy.types.Scene, index: int) -> bool:
+def remove_ymap_from_scene(scene: Scene, index: int) -> bool:
     """Removes a YMAP from the scene"""
     if dm.remove_ymap(index):
         scene.fake_ymap_list.remove(index)
@@ -76,7 +77,7 @@ def remove_ymap_from_scene(scene: bpy.types.Scene, index: int) -> bool:
         return True
     return False
     
-def fill_data_from_ymap(scene: bpy.types.Scene, index: int) -> None:
+def fill_data_from_ymap(scene: Scene, index: int) -> None:
     """Fills the data from the selected YMAP"""
     current_ymap = dm.get_ymap(index)
     current_ymap_bytes = dm.get_ymap_bytes(index)
@@ -115,30 +116,39 @@ def fill_data_from_ymap(scene: bpy.types.Scene, index: int) -> None:
                 new_entity.is_mlo_instance = True
 
 
-def import_entity_objs(scene: bpy.types.Scene, index: int, asset_path: str, self) -> None:
+def import_entity_objs(scene: Scene, index: int, asset_path: str, self) -> None:
     current_ymap = scene.fake_ymap_list[index]
     ents: str = current_ymap.entities
-    
     for e in ents:
         p: Path = Path(asset_path)
         for file in p.glob("*.xml"):
             before_import = set(bpy.data.objects.keys())
-            file_name = file.stem.split(".")[0]
+            file_name: str = file.stem.split(".")[0]
             if file_name == e.archetype_name:
                 bpy.ops.sollumz.import_assets(directory=str(p), files=[{"name": file.name}])
                 after_import = set(bpy.data.objects.keys())
                 new_objs_names = after_import - before_import
                 new_objs = [bpy.data.objects[name] for name in new_objs_names]
-                imported_obj: bpy.types.Object = next((x for x in new_objs if file_name in x.name and 
-                                                       x.type in ['EMPTY', 'ARMATURE'] and 
-                                                       x.sollum_type in COMPAT_SOLL_TYPES and
-                                                       not x.parent), None)
-                if imported_obj is not None:
-                    e.linked_object = imported_obj
-                    e.linked_object.location = e.position
-                    e.linked_object.rotation_mode = 'QUATERNION'
-                    e.linked_object.rotation_quaternion = e.rotation
-                    e.linked_object.scale = (e.scale_xy, e.scale_xy, e.scale_z)
+                imported_obj: Object = get_obj_soll_parent(file_name, new_objs)
+                apply_transforms_to_obj_from_entity(imported_obj, e)
+
+def get_obj_soll_parent(filename: str, new_objs: list[Object]) -> Object:
+    return next((x for x in new_objs if filename in x.name and
+                 x.type in OBJECT_TYPES and
+                 x.sollum_type in COMPAT_SOLL_TYPES and
+                 not x.parent), None)
+
+
+def import_asset_by_name(scene: Scene, newPath: str, filename: str, before_import) -> None:
+    pass
+
+def apply_transforms_to_obj_from_entity(obj:Object, entity) -> None:
+    if obj is not None:
+        entity.linked_object = obj
+        entity.linked_object.location = entity.position
+        entity.linked_object.rotation_mode = 'QUATERNION'
+        entity.linked_object.rotation_quaternion = entity.rotation
+        entity.linked_object.scale = (entity.scale_xy, entity.scale_xy, entity.scale_z)
         
 def any_entity_exist_in_ymap(ymap) -> bool:
     """Checks if any entity exists in the YMAP"""

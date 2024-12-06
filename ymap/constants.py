@@ -93,3 +93,5 @@ COMPAT_SOLL_TYPES = (
     "sollumz_drawable",
     "sollumz_fragment",
 )
+
+OBJECT_TYPES = ['EMPTY', 'ARMATURE']
