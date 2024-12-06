@@ -115,22 +115,21 @@ def fill_data_from_ymap(scene: Scene, index: int) -> None:
             if get_entity_is_mlo_instance(ent):
                 new_entity.is_mlo_instance = True
 
-
 def import_entity_objs(scene: Scene, index: int, asset_path: str, self) -> None:
     current_ymap = scene.fake_ymap_list[index]
     ents: str = current_ymap.entities
     for e in ents:
         p: Path = Path(asset_path)
-        for file in p.glob("*.xml"):
-            before_import = set(bpy.data.objects.keys())
-            file_name: str = file.stem.split(".")[0]
-            if file_name == e.archetype_name:
-                bpy.ops.sollumz.import_assets(directory=str(p), files=[{"name": file.name}])
-                after_import = set(bpy.data.objects.keys())
-                new_objs_names = after_import - before_import
-                new_objs = [bpy.data.objects[name] for name in new_objs_names]
-                imported_obj: Object = get_obj_soll_parent(file_name, new_objs)
-                apply_transforms_to_obj_from_entity(imported_obj, e)
+        xml_file = f"{e.archetype_name}.ydr.xml" if Path.exists(p / f"{e.archetype_name}.ydr.xml") else f"{e.archetype_name}.yft.xml"
+        before_import = set(bpy.data.objects.keys())
+        if Path.exists(p / xml_file):
+            bpy.ops.sollumz.import_assets(directory=str(p), files=[{"name": xml_file}])
+            after_import = set(bpy.data.objects.keys())
+            new_objs_names = after_import - before_import
+            new_objs = [bpy.data.objects[name] for name in new_objs_names]
+            imported_obj: Object = get_obj_soll_parent(e.archetype_name, new_objs)
+            apply_transforms_to_obj_from_entity(imported_obj, e)
+                
 
 def get_obj_soll_parent(filename: str, new_objs: list[Object]) -> Object:
     return next((x for x in new_objs if filename in x.name and
