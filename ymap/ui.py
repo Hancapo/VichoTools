@@ -184,10 +184,6 @@ class YmapTools_PT_Panel(bpy.types.Panel):
                             box = col.box()
                             row = box.row(align=True)
                             row.label(text="Distant Lights Work in Progress")
-                        case "BLOCK":
-                            box = col.box()
-                            row = box.row(align=True)
-                            row.label(text="Block Work in Progress")
         else:
             layout.label(
                 text="PythonNET or .NET 8 runtime aren't installed, please make sure you check the Add-on's preference menu",
