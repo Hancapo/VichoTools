@@ -50,7 +50,7 @@ def ymap_exist_in_scene(scene: Scene, new_ymap: str) -> bool:
                 return True
     return False
             
-def add_ymap_to_scene(scene: Scene, new_ymap_path: str, i_ents: bool, i_occls: bool, i_timemods: bool, i_cargens: bool, self, assets_path: str = None) -> bool:
+def import_ymap_to_scene(scene: Scene, new_ymap_path: str, i_ents: bool, i_occls: bool, i_timemods: bool, i_cargens: bool, self, assets_path: str = None) -> bool:
     p: Path = Path(new_ymap_path)
     filename = p.stem
     if not ymap_exist_in_scene(scene, new_ymap_path):
@@ -76,6 +76,10 @@ def remove_ymap_from_scene(scene: Scene, index: int) -> bool:
         scene.ymap_list_index = len(scene.fake_ymap_list) - 1
         return True
     return False
+
+def add_ymap_to_scene(scene: Scene) -> None:
+    scene.fake_ymap_list.add()
+    scene.ymap_list_index = len(scene.fake_ymap_list) + 1
     
 def fill_data_from_ymap(scene: Scene, index: int) -> None:
     """Fills the data from the selected YMAP"""
@@ -123,16 +127,18 @@ def import_entity_objs(scene: Scene, index: int, asset_path: str, self) -> None:
         xml_file: str = f"{e.archetype_name}.ydr.xml" if Path.exists(p / f"{e.archetype_name}.ydr.xml") else f"{e.archetype_name}.yft.xml"
         before_import: set[str] = set(bpy.data.objects.keys())
         if Path.exists(p / xml_file):
+            working_obj: Object = None
             if not get_object_from_scene(scene, e.archetype_name):
                 def fast_import():
                     bpy.ops.sollumz.import_assets(directory=str(p), files=[{"name": xml_file}])
                 run_ops_without_view_layer_update(fast_import)
-                process_asset_by_name(before_import, e)
+                working_obj = get_imported_asset(before_import, e)
             else:
                 existing_obj = get_object_from_scene(scene, e.archetype_name)
                 if existing_obj is not None:
-                    new_copy: Object = copy_object_and_children(existing_obj)
-                    apply_transforms_to_obj_from_entity(new_copy, e)
+                    working_obj = copy_object_and_children(existing_obj)
+            
+            apply_transforms_to_obj_from_entity(working_obj, e)
 
 
 def get_obj_soll_parent(filename: str, new_objs: list[Object]) -> Object:
@@ -142,12 +148,12 @@ def get_obj_soll_parent(filename: str, new_objs: list[Object]) -> Object:
                  not x.parent), None)
 
 
-def process_asset_by_name(before_import, entity) -> None:
+def get_imported_asset(before_import, entity) -> None:
     after_import: set[str] = set(bpy.data.objects.keys())
     new_objs_names: set[str] = after_import - before_import
     new_objs: list[object] = [bpy.data.objects[name] for name in new_objs_names]
     imported_obj: Object = get_obj_soll_parent(entity.archetype_name, new_objs)
-    apply_transforms_to_obj_from_entity(imported_obj, entity)
+    return imported_obj
 
 def apply_transforms_to_obj_from_entity(obj:Object, entity) -> None:
     if obj is not None:

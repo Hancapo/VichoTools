@@ -1,7 +1,7 @@
 import bpy
 from bpy_extras.io_utils import ImportHelper
 from bpy.props import StringProperty, BoolProperty
-from .funcs import add_ymap_to_scene, remove_ymap_from_scene
+from .funcs import import_ymap_to_scene, remove_ymap_from_scene
 import os
 import time
 
@@ -37,7 +37,7 @@ class VICHO_OT_import_ymap(bpy.types.Operator, ImportHelper):
         start_time = time.time()
         for file in self.files:
             filepath: str = os.path.join(self.directory, file.name)
-            add_ymap_to_scene(scene, filepath, self.import_entities, self.import_occluders, self.import_timecycle_mods, self.import_car_generators, self, self.asset_path)
+            import_ymap_to_scene(scene, filepath, self.import_entities, self.import_occluders, self.import_timecycle_mods, self.import_car_generators, self, self.asset_path)
         self.report({'INFO'}, f"YMAP file(s) imported in {time.time() - start_time:.2f} seconds")
         return {'FINISHED'}
 
