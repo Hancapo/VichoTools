@@ -98,13 +98,13 @@ class YmapTools_PT_Panel(bpy.types.Panel):
                                         grid_row.prop(ymap.flags, flags)
                                 case "EXTENTS":
                                     header, panel = box.panel("_streaming_extents", default_closed=False)
-                                    header.label(text="Streaming Extents")
+                                    header.label(text="Streaming")
                                     if panel:
                                         col = panel.column(align=True)
                                         col.prop(ymap, "streaming_extents_min", text="Min")
                                         col.prop(ymap, "streaming_extents_max", text="Max")
                                     header, panel = box.panel("_entities_extents", default_closed=False)
-                                    header.label(text="Entities Extents")
+                                    header.label(text="Entities")
                                     if panel:
                                         col = panel.column(align=True)
                                         col.prop(ymap, "entities_extents_min", text="Min")
