@@ -1,10 +1,9 @@
 from ..vicho_dependencies import dependencies_manager as dm
 from pathlib import Path
-from .helper import get_hash_from_bytes, run_ops_without_view_layer_update
+from .helper import get_hash_from_bytes, run_ops_without_view_layer_update, copy_object_and_children, get_object_from_scene
 import bpy
 from .constants import COMPAT_SOLL_TYPES, OBJECT_TYPES
 from bpy.types import Object, Scene
-import time
 
 def get_ymap_name(ymap) -> str:
     """Returns the name of the YMAP"""
@@ -124,10 +123,16 @@ def import_entity_objs(scene: Scene, index: int, asset_path: str, self) -> None:
         xml_file: str = f"{e.archetype_name}.ydr.xml" if Path.exists(p / f"{e.archetype_name}.ydr.xml") else f"{e.archetype_name}.yft.xml"
         before_import: set[str] = set(bpy.data.objects.keys())
         if Path.exists(p / xml_file):
-            def fast_import():
-                bpy.ops.sollumz.import_assets(directory=str(p), files=[{"name": xml_file}])
-            run_ops_without_view_layer_update(fast_import)
-            process_asset_by_name(before_import, e)
+            if not get_object_from_scene(scene, e.archetype_name):
+                def fast_import():
+                    bpy.ops.sollumz.import_assets(directory=str(p), files=[{"name": xml_file}])
+                run_ops_without_view_layer_update(fast_import)
+                process_asset_by_name(before_import, e)
+            else:
+                existing_obj = get_object_from_scene(scene, e.archetype_name)
+                if existing_obj is not None:
+                    new_copy: Object = copy_object_and_children(existing_obj)
+                    apply_transforms_to_obj_from_entity(new_copy, e)
 
 
 def get_obj_soll_parent(filename: str, new_objs: list[Object]) -> Object:
