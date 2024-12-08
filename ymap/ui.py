@@ -133,13 +133,21 @@ class YmapTools_PT_Panel(bpy.types.Panel):
                                 match selected_entity.entity_data_toggle:
                                     case "DATA":
                                         col = row.column(align=True)
-                                        col.prop(selected_entity, "type")
-                                        col.prop(selected_entity, "archetype_name")
-                                        col.prop(selected_entity, "guid")
-                                        col.separator()
-                                        row = col.row(align=True)
-                                        row.prop(selected_entity, "linked_object")
+                                        col.scale_x = 0.3
+                                        text_grid_col = col.grid_flow(row_major=False, columns=1, even_columns=False, even_rows=False, align=True)
+                                        text_grid_col.label(text="Linked Object:")
+                                        text_grid_col.label(text="Type:")
+                                        text_grid_col.label(text="GUID:")
+                                        col = row.column(align=True)
+                                        grid_col = col.grid_flow(row_major=False, columns=1, even_columns=False, even_rows=False, align=True)
+                                        row = grid_col.row(align=True)
+                                        row.prop(selected_entity, "linked_object", text="")
                                         row.operator(VICHO_OT_go_to_entity.bl_idname, text="", icon="VIEWZOOM")
+                                        grid_col.prop(selected_entity, "type", text="")
+                                        grid_col.prop(selected_entity, "guid", text="")
+                                        
+                                        
+                                        
                                     case "FLAGS":
                                         col = row.column(align=True)
                                         grid_row = col.grid_flow(row_major=False, columns=2, even_columns=False, even_rows=False, align=True)
