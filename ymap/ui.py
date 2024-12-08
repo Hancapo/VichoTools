@@ -32,7 +32,12 @@ class ENTITYLIST_UL_list(bpy.types.UIList):
                 ymap = ymap_list[scene.ymap_list_index]
                 entity = ymap.entities[index]
                 layout.prop(item, "enabled", text="", emboss=False, icon="CHECKBOX_HLT" if item.enabled else "CHECKBOX_DEHLT")
-                layout.label(text=entity.archetype_name, icon="FILE_3D")
+                layout.label(text=entity.archetype_name, icon="HOME" if entity.is_mlo_instance else "FILE_3D")
+                
+    def filter_items(self, context, data, property):
+        items = getattr(data, property)
+        flt_flags = bpy.types.UI_UL_list.filter_items_by_name(self.filter_name, self.bitflag_filter_item, items, propname="archetype_name")
+        return flt_flags, []
                 
 class YmapTools_PT_Panel(bpy.types.Panel):
     bl_label = "Map Data"
