@@ -100,18 +100,13 @@ def copy_object(obj):
 
 
 def copy_object_and_children(obj):
-    # Copia el objeto padre
     new_obj = copy_object(obj)
     
-    # Copia cada hijo del objeto original
     for child in obj.children:
         new_child = copy_object(child)
-        new_child.parent = new_obj  # Asigna el nuevo padre
-        
-        # Maneja los nietos y descendientes recursivamente
+        new_child.parent = new_obj
         for grandchild in child.children:
             copy_object_and_children_recursive(grandchild, new_child)
-
     return new_obj
 
 def copy_object_and_children_recursive(obj, parent):
