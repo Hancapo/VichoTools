@@ -363,6 +363,16 @@ class YmapProps(bpy.types.PropertyGroup):
         type=YmapMapDataContentFlags
     )
     
+    show_streaming_extents: bpy.props.BoolProperty(
+        name="Show Streaming Extents",
+        default=False,
+        description="Show streaming extents gizmo")
+    
+    show_entities_extents: bpy.props.BoolProperty(
+        name="Show Entities Extents",
+        default=False,
+        description="Show entities extents gizmo")
+    
     streaming_extents_min: bpy.props.FloatVectorProperty(
         name="Streaming Extents Min",
         default=(0.0, 0.0, 0.0),

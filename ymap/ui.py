@@ -103,12 +103,16 @@ class YmapTools_PT_Panel(bpy.types.Panel):
                                         col = panel.column(align=True)
                                         col.prop(ymap, "streaming_extents_min", text="Min")
                                         col.prop(ymap, "streaming_extents_max", text="Max")
+                                        col.separator()
+                                        col.prop(ymap, "show_streaming_extents", text="Show Gizmo", icon="META_CUBE")
                                     header, panel = box.panel("_entities_extents", default_closed=False)
                                     header.label(text="Entities")
                                     if panel:
                                         col = panel.column(align=True)
                                         col.prop(ymap, "entities_extents_min", text="Min")
                                         col.prop(ymap, "entities_extents_max", text="Max")
+                                        col.separator()
+                                        col.prop(ymap, "show_entities_extents", text="Show Gizmo", icon="META_CUBE")
                                     
                         case "ENTITIES":
                             box = col.box()
