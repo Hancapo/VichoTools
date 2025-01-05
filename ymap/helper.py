@@ -88,10 +88,10 @@ def run_ops_without_view_layer_update(func):
     finally:
         _BPyOpsSubModOp._view_layer_update = view_layer_update
         
-def copy_object(obj):
-    new_obj = obj.copy()
+def instance_object(obj: Object) -> Object:
+    new_obj: Object = obj.copy()
     if obj.data:
-        new_obj.data = obj.data.copy()
+        new_obj.data = obj.data
     
     for collection in obj.users_collection:
         collection.objects.link(new_obj)
@@ -99,21 +99,21 @@ def copy_object(obj):
     return new_obj
 
 
-def copy_object_and_children(obj):
-    new_obj = copy_object(obj)
+def instance_object_and_children(obj: Object) -> Object:
+    new_obj: Object = instance_object(obj)
     
     for child in obj.children:
-        new_child = copy_object(child)
+        new_child = instance_object(child)
         new_child.parent = new_obj
         for grandchild in child.children:
-            copy_object_and_children_recursive(grandchild, new_child)
+            instance_object_and_children_recursive(grandchild, new_child)
     return new_obj
 
-def copy_object_and_children_recursive(obj, parent):
-    new_obj = copy_object(obj)
+def instance_object_and_children_recursive(obj: Object, parent: Object):
+    new_obj: Object = instance_object(obj)
     new_obj.parent = parent
     for child in obj.children:
-        copy_object_and_children_recursive(child, new_obj)
+        instance_object_and_children_recursive(child, new_obj)
 
 def get_object_from_scene(scene, obj_name: Object) -> Object:
     return scene.objects.get(obj_name)

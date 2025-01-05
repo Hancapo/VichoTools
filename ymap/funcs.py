@@ -1,6 +1,6 @@
 from ..vicho_dependencies import dependencies_manager as dm
 from pathlib import Path
-from .helper import get_hash_from_bytes, run_ops_without_view_layer_update, copy_object_and_children, get_object_from_scene
+from .helper import get_hash_from_bytes, run_ops_without_view_layer_update, instance_object_and_children, get_object_from_scene
 import bpy
 from .constants import COMPAT_SOLL_TYPES, OBJECT_TYPES
 from bpy.types import Object, Scene
@@ -136,7 +136,7 @@ def import_entity_objs(scene: Scene, index: int, asset_path: str, self) -> None:
             else:
                 existing_obj = get_object_from_scene(scene, e.archetype_name)
                 if existing_obj is not None:
-                    working_obj = copy_object_and_children(existing_obj)
+                    working_obj = instance_object_and_children(existing_obj)
             
             apply_transforms_to_obj_from_entity(working_obj, e)
 
