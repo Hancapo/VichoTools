@@ -397,11 +397,6 @@ class YmapProps(bpy.types.PropertyGroup):
         name="Map Data",
         items=YMAP_MAP_DATA_TOGGLES)
     
-    hash: bpy.props.StringProperty(
-        name="Hash",
-        default="",
-        description="Hash")
-    
     any_entities: bpy.props.BoolProperty(
         name="Any Entities",
         default=False,
@@ -419,7 +414,7 @@ def register():
         maxlen=60,
         subtype="DIR_PATH")
     
-    bpy.types.Scene.fake_ymap_list = bpy.props.CollectionProperty(
+    bpy.types.Scene.ymap_list = bpy.props.CollectionProperty(
         name="Ymaps",
         type=YmapProps)
     bpy.types.Scene.ymap_list_index = bpy.props.IntProperty(
@@ -434,7 +429,7 @@ def register():
     
 def unregister():
     del bpy.types.Scene.ymap_assets_path
-    del bpy.types.Scene.fake_ymap_list
+    del bpy.types.Scene.ymap_list
     del bpy.types.Scene.ymap_list_index
     del bpy.types.Scene.entity_list_index
     del bpy.types.Scene.data_type_toggle

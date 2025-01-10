@@ -2,7 +2,7 @@ import bpy
 from mathutils import Matrix, Vector
 
 def get_extents_matrix(context, type):
-        selected_ymap = context.scene.fake_ymap_list[context.scene.ymap_list_index]
+        selected_ymap = context.scene.ymap_list[context.scene.ymap_list_index]
         match type:
             case 'streaming':
                 min_x, min_y, min_z = selected_ymap.streaming_extents_min
@@ -37,8 +37,8 @@ class StreamingExtentsGizmoGroup(bpy.types.GizmoGroup):
     def poll(cls, context):
         ymap_index = context.scene.ymap_list_index
         if ymap_index != -1:
-            if len(context.scene.fake_ymap_list) > 0:
-                selected_ymap = context.scene.fake_ymap_list[context.scene.ymap_list_index]
+            if len(context.scene.ymap_list) > 0:
+                selected_ymap = context.scene.ymap_list[context.scene.ymap_list_index]
                 return selected_ymap.show_streaming_extents
     
     
@@ -65,8 +65,8 @@ class EntitiesExtentsGizmoGroup(bpy.types.GizmoGroup):
     def poll(cls, context):
         ymap_index = context.scene.ymap_list_index
         if ymap_index != -1:
-            if len(context.scene.fake_ymap_list) > 0:
-                selected_ymap = context.scene.fake_ymap_list[context.scene.ymap_list_index]
+            if len(context.scene.ymap_list) > 0:
+                selected_ymap = context.scene.ymap_list[context.scene.ymap_list_index]
                 return selected_ymap.show_entities_extents
     
     

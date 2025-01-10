@@ -8,7 +8,7 @@ from bpy.props import StringProperty
 from bpy_extras.io_utils import ExportHelper, ImportHelper
 from .vicho_dependencies import dependencies_manager, is_dotnet_installed, dotnet_link
 from importlib import util, machinery
-from .ymap.helper import resolve_hashes_from_file, get_strings_loaded_count
+from .ymap.helper import resolve_hashes_from_file, str_loaded_count
 
 class ContextSelectionRestrictedHelper:
     @classmethod
@@ -285,7 +285,7 @@ class VICHO_OT_import_strings(bpy.types.Operator, ImportHelper):
     
     def execute(self, context):
         resolve_hashes_from_file(self.filepath)
-        self.report({"INFO"}, f"Resolved {get_strings_loaded_count()} hashes from file")
+        self.report({"INFO"}, f"Resolved {str_loaded_count()} hashes from file")
         return {"FINISHED"}
     
     def invoke(self, context, event):

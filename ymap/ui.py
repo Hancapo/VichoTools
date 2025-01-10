@@ -11,7 +11,7 @@ class YMAPLIST_UL_list(bpy.types.UIList):
         self, context, layout, data, item, icon, active_data, active_propname, index
     ):
         scene = context.scene
-        ymap_list = scene.fake_ymap_list
+        ymap_list = scene.ymap_list
         if self.layout_type in {"DEFAULT", "COMPACT"}:
             if ymap_list:
                 ymap = ymap_list[index]
@@ -26,7 +26,7 @@ class ENTITYLIST_UL_list(bpy.types.UIList):
         self, context, layout, data, item, icon, active_data, active_propname, index
     ):
         scene = context.scene
-        ymap_list = scene.fake_ymap_list
+        ymap_list = scene.ymap_list
         if self.layout_type in {"DEFAULT", "COMPACT"}:
             if ymap_list:
                 ymap = ymap_list[scene.ymap_list_index]
@@ -53,7 +53,7 @@ class YmapTools_PT_Panel(bpy.types.Panel):
     def draw(self, context):
         layout = self.layout
         scene = context.scene
-        ymap_list = scene.fake_ymap_list
+        ymap_list = scene.ymap_list
         
         if d.available:
             row = layout.row()
@@ -71,11 +71,11 @@ class YmapTools_PT_Panel(bpy.types.Panel):
             )
             row = row.row()
             col = row.column(align=True)
-            col.template_list(YMAPLIST_UL_list.bl_idname, "", scene, "fake_ymap_list", scene, "ymap_list_index")
+            col.template_list(YMAPLIST_UL_list.bl_idname, "", scene, "ymap_list", scene, "ymap_list_index")
             col = layout.column(align=True)
             row = col.row(align=True)
             if ymap_list:
-                ymap = scene.fake_ymap_list[scene.ymap_list_index]
+                ymap = scene.ymap_list[scene.ymap_list_index]
                 if ymap is not None:
                     grid_row = row.grid_flow(row_major=True, columns=6, even_columns=False, even_rows=False, align=True)
                     grid_row.prop(scene, "data_type_toggle", icon="CON_ARMATURE", expand=True)

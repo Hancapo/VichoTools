@@ -2,6 +2,7 @@ import hashlib
 from ..vicho_dependencies import dependencies_manager as dm
 from .constants import entity_flags_values, map_data_flags_values, map_data_content_flags_values, entity_flags_updating, ymap_flags_updating, ymap_content_flags_updating
 from bpy.types import Object
+from pathlib import Path
 
 def update_entity_flags_bool_properties(self, context):
     global entity_flags_updating
@@ -74,7 +75,7 @@ def resolve_hashes_from_file(file_path: str) -> None:
     for line in all_txt_lines:
         dm.JenkIndex.Ensure(line.strip())
 
-def get_strings_loaded_count() -> int:
+def str_loaded_count() -> int:
     return dm.JenkIndex.GetAllStrings().Length
 
 def run_ops_without_view_layer_update(func):
@@ -88,32 +89,35 @@ def run_ops_without_view_layer_update(func):
     finally:
         _BPyOpsSubModOp._view_layer_update = view_layer_update
         
-def instance_object(obj: Object) -> Object:
+def instance_obj(obj: Object) -> Object:
     new_obj: Object = obj.copy()
     if obj.data:
         new_obj.data = obj.data
-    
     for collection in obj.users_collection:
         collection.objects.link(new_obj)
-    
     return new_obj
 
-
-def instance_object_and_children(obj: Object) -> Object:
-    new_obj: Object = instance_object(obj)
+def instance_obj_and_child(obj: Object) -> Object:
+    new_obj: Object = instance_obj(obj)
     
     for child in obj.children:
-        new_child = instance_object(child)
+        new_child = instance_obj(child)
         new_child.parent = new_obj
         for grandchild in child.children:
-            instance_object_and_children_recursive(grandchild, new_child)
+            instance_obj_and_child_recur(grandchild, new_child)
     return new_obj
 
-def instance_object_and_children_recursive(obj: Object, parent: Object):
-    new_obj: Object = instance_object(obj)
+def instance_obj_and_child_recur(obj: Object, parent: Object):
+    new_obj: Object = instance_obj(obj)
     new_obj.parent = parent
     for child in obj.children:
-        instance_object_and_children_recursive(child, new_obj)
+        instance_obj_and_child_recur(child, new_obj)
 
-def get_object_from_scene(scene, obj_name: Object) -> Object:
+def get_obj_from_scene(scene, obj_name: Object) -> Object:
     return scene.objects.get(obj_name)
+
+def get_bytes_from_file(file_path: str) -> bytes:
+    return bytes(dm.File.ReadAllBytes(file_path))
+
+def get_fn_wt_ext(file_path: str) -> str:
+    return Path(file_path).stem

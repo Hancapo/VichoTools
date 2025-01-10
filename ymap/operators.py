@@ -30,7 +30,6 @@ class VICHO_OT_import_ymap(bpy.types.Operator, ImportHelper):
     import_car_generators: BoolProperty(name="Car Generators", default=True, description="Import car generators from the YMAP file(s)")
     
     asset_path: StringProperty(name="Asset Path", default="")
-    import_assets: BoolProperty(name="Import Assets", default=True, description="Import assets from the YMAP file(s)")
 
     def execute(self, context):
         scene = context.scene
@@ -68,8 +67,6 @@ class VICHO_OT_import_ymap(bpy.types.Operator, ImportHelper):
             row.prop(self, "show_assets", text="Assets", icon='TRIA_DOWN' if self.show_assets else 'TRIA_RIGHT', emboss=False)
             if self.show_assets:
                 col = box.column(align=True)
-                col.prop(self, "import_assets")
-                col.separator()
                 col.prop(self, "asset_path", icon="FILE_FOLDER")
 
 class VICHO_OT_remove_ymap(bpy.types.Operator):
@@ -83,7 +80,7 @@ class VICHO_OT_remove_ymap(bpy.types.Operator):
     
     def execute(self, context):
         scene = context.scene
-        selected_ymap_index = scene.ymap_list_index
+        selected_ymap_index = scene.ymap_list_index 
         if remove_ymap_from_scene(scene, selected_ymap_index):
             self.report({'INFO'}, f"YMAP removed from scene")
         else:
@@ -98,7 +95,7 @@ class VICHO_OT_go_to_entity(bpy.types.Operator):
     def execute(self, context):
         scene = context.scene
         selected_ymap_index = scene.ymap_list_index
-        ymap = scene.fake_ymap_list[selected_ymap_index]
+        ymap = scene.ymap_list[selected_ymap_index]
         entity = ymap.entities[scene.entity_list_index]
         
         if entity.linked_object:
