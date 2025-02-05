@@ -30,13 +30,14 @@ class VICHO_OT_import_ymap(bpy.types.Operator, ImportHelper):
     import_car_generators: BoolProperty(name="Car Generators", default=True, description="Import car generators from the YMAP file(s)")
     
     asset_path: StringProperty(name="Asset Path", default="")
+    import_props: BoolProperty(name="Import Props", default=True, description="Whether or not to import props from the YMAP file(s)")
 
     def execute(self, context):
         scene = context.scene
         start_time = time.time()
         for file in self.files:
             filepath: str = os.path.join(self.directory, file.name)
-            import_ymap_to_scene(scene, filepath, self.import_entities, self.import_occluders, self.import_timecycle_mods, self.import_car_generators, self, self.asset_path)
+            import_ymap_to_scene(scene, filepath, self.import_entities, self.import_occluders, self.import_timecycle_mods, self.import_car_generators, self.import_props, self, self.asset_path)
         self.report({'INFO'}, f"YMAP file(s) imported in {time.time() - start_time:.2f} seconds")
         return {'FINISHED'}
 
@@ -68,6 +69,8 @@ class VICHO_OT_import_ymap(bpy.types.Operator, ImportHelper):
             if self.show_assets:
                 col = box.column(align=True)
                 col.prop(self, "asset_path", icon="FILE_FOLDER")
+                col.separator()
+                col.prop(self, "import_props")
 
 class VICHO_OT_remove_ymap(bpy.types.Operator):
     """Remove YMAP file(s)"""

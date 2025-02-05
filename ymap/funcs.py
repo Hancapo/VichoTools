@@ -46,15 +46,16 @@ def ymap_exist_in_scene(scene: Scene, new_ymap: str) -> bool:
             if ymap.name == fn:
                 return True
     return False
+
             
-def import_ymap_to_scene(scene: Scene, new_ymap_path: str, i_ents: bool, i_occls: bool, i_timemods: bool, i_cargens: bool, self, assets_path: str = None) -> bool:
+def import_ymap_to_scene(scene: Scene, new_ymap_path: str, i_ents: bool, i_occls: bool, i_timemods: bool, i_cargens: bool, do_props: bool, self, assets_path: str = None) -> bool:
     p: Path = Path(new_ymap_path)
     filename = p.stem
     if not ymap_exist_in_scene(scene, new_ymap_path):
         scene.ymap_list.add()
         current_index = len(scene.ymap_list) - 1
         ymap = get_ymap_from_file(new_ymap_path)
-        fill_map_data_from_ymap(scene, current_index, ymap)
+        fill_map_data_from_ymap(scene, current_index, ymap, do_props)
         if i_ents and assets_path is not None:
             import_ent_objs(scene, current_index, assets_path, self)
         self.report({'INFO'}, f"YMAP {filename} added to scene")
@@ -74,7 +75,7 @@ def add_ymap_to_scene(scene: Scene) -> None:
     scene.ymap_list.add()
     scene.ymap_list_index = len(scene.ymap_list) + 1
     
-def fill_map_data_from_ymap(scene: Scene, index: int, current_ymap) -> None:
+def fill_map_data_from_ymap(scene: Scene, index: int, current_ymap, do_props: bool) -> None:
     """Fills the data from the selected YMAP"""
     any_entities = any_ent_exists_in_ymap(current_ymap)
     scene.ymap_list[index].name = get_name(current_ymap)
@@ -86,13 +87,15 @@ def fill_map_data_from_ymap(scene: Scene, index: int, current_ymap) -> None:
     scene.ymap_list[index].entities_extents_min = get_ents_extents_min(current_ymap)
     scene.ymap_list[index].entities_extents_max = get_ents_extents_max(current_ymap)
     scene.ymap_list[index].any_entities = any_entities
-    fill_ents_data_from_ymap(scene, index, current_ymap, any_entities)
+    fill_ents_data_from_ymap(scene, index, current_ymap, any_entities, do_props)
         
 
-def fill_ents_data_from_ymap(scene: Scene, index: int, current_ymap, any_ents: bool) -> None:
+def fill_ents_data_from_ymap(scene: Scene, index: int, current_ymap, any_ents: bool, do_props: bool) -> None:
     """Fills the entity data from the selected YMAP"""
     if any_ents:
         for ent in get_all_ents_from_ymap(current_ymap):
+            if not do_props and get_ent_lod_level(ent) == "LODTYPES_DEPTH_ORPHANHD":
+                continue
             new_entity = scene.ymap_list[index].entities.add()
             new_entity.archetype_name = ent._CEntityDef.archetypeName.ToString()
             new_entity.flags.total_flags = ent._CEntityDef.flags
@@ -105,21 +108,18 @@ def fill_ents_data_from_ymap(scene: Scene, index: int, current_ymap, any_ents: b
             new_entity.lod_distance = ent._CEntityDef.lodDist
             new_entity.child_lod_distance = ent._CEntityDef.childLodDist
             new_entity.num_children = ent._CEntityDef.numChildren
-            new_entity.lod_level = get_ent_lod_level(ent)
+            new_entity.lod_level = ent._CEntityDef.lodLevel.ToString()
             new_entity.priority_level = ent._CEntityDef.priorityLevel.ToString()
             new_entity.ambient_occlusion_multiplier = ent._CEntityDef.ambientOcclusionMultiplier
             new_entity.artificial_ambient_occlusion = ent._CEntityDef.artificialAmbientOcclusion
             new_entity.tintValue = ent._CEntityDef.tintValue
             new_entity.type = get_ent_type(ent)
-            if is_mlo_instance(ent):
-                new_entity.is_mlo_instance = True
+            new_entity.is_mlo_instance = is_mlo_instance(ent)
     
 
 def import_ent_objs(scene: Scene, index: int, asset_path: str, self) -> None:
-    
-    current_ymap = scene.ymap_list[index]
-    ents: str = current_ymap.entities
-    for e in ents:
+    entities = scene.ymap_list[index].entities
+    for e in entities:
         p: Path = Path(asset_path)
         xml_file: str = f"{e.archetype_name}.ydr.xml" if Path.exists(p / f"{e.archetype_name}.ydr.xml") else f"{e.archetype_name}.yft.xml"
         before_import: set[str] = set(bpy.data.objects.keys())
@@ -143,12 +143,34 @@ def get_obj_soll_parent(filename: str, new_objs: list[Object]) -> Object:
                  x.sollum_type in COMPAT_SOLL_TYPES and
                  not x.parent), None)
 
-def get_imported_asset(before_import, entity) -> None:
+def get_imported_asset(before_import, entity, purify = True) -> None:
     after_import: set[str] = set(bpy.data.objects.keys())
     new_objs_names: set[str] = after_import - before_import
     new_objs: list[object] = [bpy.data.objects[name] for name in new_objs_names]
     imported_obj: Object = get_obj_soll_parent(entity.archetype_name, new_objs)
     return imported_obj
+
+def get_purified_asset(obj: Object) -> Object:
+    match obj.sollum_type:
+        case "sollumz_drawable":
+            
+            pass
+        case "sollumz_fragment":
+            pass
+        case _:
+            pass
+        
+def delete_all_cols(obj: Object) -> None:
+    pass
+
+def delete_all_lights(obj: Object) -> None:
+    pass
+
+def remove_non_high_meshes(obj: Object) -> None:
+    obj.sz_lods.very_low.mesh = None
+    obj.sz_lods.low.mesh = None
+    obj.sz_lods.medium.mesh = None
+    obj.sz_lods.very_high.mesh = None
 
 def apply_transforms_to_obj_from_entity(obj:Object, entity) -> None:
     """Applies the transforms from the entity to the object"""
@@ -173,7 +195,7 @@ def get_ent_type(entity) -> str:
 
 def get_ent_lod_level(entity) -> str:
     """Returns the LOD level of the entity"""
-    return str(entity._CEntityDef.lodLevel.ToString())
+    return str(entity._CEntityDef.lodLevel)
 
 def is_mlo_instance(entity) -> bool:
     """Returns if the entity is a MLO instance"""
