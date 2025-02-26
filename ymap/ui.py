@@ -141,8 +141,11 @@ class YmapTools_PT_Panel(bpy.types.Panel):
                                         col = row.column(align=True)
                                         grid_col = col.grid_flow(row_major=False, columns=1, even_columns=False, even_rows=False, align=True)
                                         row = grid_col.row(align=True)
-                                        row.prop(selected_entity, "linked_object", text="")
-                                        row.operator(VICHO_OT_go_to_entity.bl_idname, text="", icon="VIEWZOOM")
+                                        if selected_entity.linked_object:
+                                            row.prop(selected_entity, "linked_object", text="")
+                                            row.operator(VICHO_OT_go_to_entity.bl_idname, text="", icon="VIEWZOOM")
+                                        else:
+                                            row.label(text="No object linked (failed import?)", icon="ERROR")
                                         grid_col.prop(selected_entity, "type", text="")
                                         grid_col.prop(selected_entity, "guid", text="")
                                         
