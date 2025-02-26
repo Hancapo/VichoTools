@@ -5,6 +5,9 @@ import bpy
 from .constants import COMPAT_SOLL_TYPES, OBJECT_TYPES
 from bpy.types import Object, Scene
 
+def get_sollumz_extensions() -> list[str]:
+    return ["ydr", "ydd", "yft", "ybn"]
+
 def get_name(ymap) -> str:
     """Returns the name of the YMAP"""
     return ymap.CMapData.name.ToString()
@@ -121,15 +124,29 @@ def import_ent_objs(scene: Scene, index: int, asset_path: str, self) -> None:
     entities = scene.ymap_list[index].entities
     for e in entities:
         p: Path = Path(asset_path)
-        xml_file: str = f"{e.archetype_name}.ydr.xml" if Path.exists(p / f"{e.archetype_name}.ydr.xml") else f"{e.archetype_name}.yft.xml"
+        print(f"Is MLO: {e.is_mlo_instance}")
+        
+        file_found: bool = False
+        for ext in get_sollumz_extensions():
+            
+            if Path.exists(p / f"{e.archetype_name}.{ext}.xml"):
+                xml_file: str = f"{e.archetype_name}.{ext}.xml"
+                file_found = True
+                break
+        
+        if not file_found:
+            self.report({'ERROR'}, f"Could not find the XML file for {e.archetype_name}")
+        
         before_import: set[str] = set(bpy.data.objects.keys())
         if Path.exists(p / xml_file):
             working_obj: Object = None
             if not get_obj_from_scene(scene, e.archetype_name):
                 def fast_import():
+                    print(f"Trying to import {xml_file}")
                     bpy.ops.sollumz.import_assets(directory=str(p), files=[{"name": xml_file}])
                 run_ops_without_view_layer_update(fast_import)
                 working_obj = get_imported_asset(before_import, e)
+                print(f"Working obj: {working_obj}")
             else:
                 existing_obj = get_obj_from_scene(scene, e.archetype_name)
                 if existing_obj is not None:

@@ -91,6 +91,7 @@ entity_flags_values = {
 COMPAT_SOLL_TYPES = (
     "sollumz_drawable",
     "sollumz_fragment",
+    "sollumz_bound_composite",
 )
 
 OBJECT_TYPES = ['EMPTY', 'ARMATURE']
