@@ -53,15 +53,10 @@ class VichoToolsAddonProperties(bpy.types.AddonPreferences):
         if panel:
             panel_col = panel.column(align=True)
             strings_loaded: int = str_loaded_count()
-            if strings_loaded == 0:
-                panel_col.operator(VICHO_OT_import_strings.bl_idname, text="Load Strings", icon="FILE_TICK")
-            else:
-                panel_col.label(text=f"{strings_loaded} strings loaded.")
-        
+            panel_col.operator(VICHO_OT_import_strings.bl_idname, text=f"Load Strings ({str(strings_loaded)})", icon="FILE_TICK")
 
 def get_addon_preferences() -> VichoToolsAddonProperties:
     return bpy.context.preferences.addons[__package__].preferences
-
 
 def register():
     bpy.utils.register_class(VichoToolsAddonProperties)
