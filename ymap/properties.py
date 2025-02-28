@@ -13,6 +13,8 @@ from .helper import (update_entity_flags_bool_properties,
                      update_ymap_content_flags_bool_properties, 
                      update_ymap_content_flags)
 
+
+
 class EntityFlags(bpy.types.PropertyGroup):
     total_flags: bpy.props.IntProperty(
         name="Flags",
@@ -151,6 +153,13 @@ class EntityFlags(bpy.types.PropertyGroup):
         default=False,
         description="Only Render Mirror Reflections",
         update=update_entity_flags)
+
+class EntitySetsProps(bpy.types.PropertyGroup):
+    name: bpy.props.StringProperty(
+        name="Name",
+        default="",
+        description="Name",
+        maxlen=60)
 
 class YmapMapDataContentFlags(bpy.types.PropertyGroup):
     total_flags: bpy.props.IntProperty(
@@ -336,6 +345,18 @@ class EntityProps(bpy.types.PropertyGroup):
     tint_value: bpy.props.IntProperty(
         name="Tint Value",
         default=0)
+    
+    group_id: bpy.props.IntProperty(
+        name="Group ID",
+        default=0)
+    
+    floor_id: bpy.props.IntProperty(
+        name="Floor ID",
+        default=0)
+    
+    default_entity_sets: bpy.props.CollectionProperty(
+        name="Default Entity Sets",
+        type=EntitySetsProps)
 
 class YmapProps(bpy.types.PropertyGroup):
     enabled: bpy.props.BoolProperty(

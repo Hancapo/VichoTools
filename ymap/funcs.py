@@ -97,14 +97,16 @@ def fill_ents_data_from_ymap(scene: Scene, index: int, current_ymap, any_ents: b
     """Fills the entity data from the selected YMAP"""
     if any_ents:
         for ent in get_all_ents_from_ymap(current_ymap):
-            if not do_props and get_ent_lod_level(ent) == "LODTYPES_DEPTH_ORPHANHD":
+            if not do_props and get_ent_lod_level(ent) == "LODTYPES_DEPTH_ORPHANHD" and not is_mlo_instance(ent):
                 continue
+            
             new_entity = scene.ymap_list[index].entities.add()
+            new_entity.is_mlo_instance = is_mlo_instance(ent)
             new_entity.archetype_name = ent._CEntityDef.archetypeName.ToString()
             new_entity.flags.total_flags = ent._CEntityDef.flags
             new_entity.guid = str(ent._CEntityDef.guid)
             new_entity.position = (ent._CEntityDef.position.X, ent._CEntityDef.position.Y, ent._CEntityDef.position.Z)
-            new_entity.rotation = (ent._CEntityDef.rotation.W, ent._CEntityDef.rotation.X, ent._CEntityDef.rotation.Y, -ent._CEntityDef.rotation.Z)
+            new_entity.rotation = (ent._CEntityDef.rotation.W, ent._CEntityDef.rotation.X, ent._CEntityDef.rotation.Y, get_z_axis_ent(ent))
             new_entity.scale_xy = ent._CEntityDef.scaleXY
             new_entity.scale_z = ent._CEntityDef.scaleZ
             new_entity.parent_index = ent._CEntityDef.parentIndex
@@ -117,7 +119,6 @@ def fill_ents_data_from_ymap(scene: Scene, index: int, current_ymap, any_ents: b
             new_entity.artificial_ambient_occlusion = ent._CEntityDef.artificialAmbientOcclusion
             new_entity.tintValue = ent._CEntityDef.tintValue
             new_entity.type = get_ent_type(ent)
-            new_entity.is_mlo_instance = is_mlo_instance(ent)
     
 
 def import_ent_objs(scene: Scene, index: int, asset_path: str, self) -> None:
@@ -223,3 +224,7 @@ def get_ymap_from_file(ymap_path: str):
     ymap_file = d.YmapFile()
     ymap_file.Load(d.File.ReadAllBytes(ymap_path))
     return ymap_file
+
+def get_z_axis_ent(ent):
+    """Returns the Z axis of the entity as negative if it is not a MLO instance otherwise positive"""
+    return -ent._CEntityDef.rotation.Z if not is_mlo_instance(ent) else ent._CEntityDef.rotation.Z
