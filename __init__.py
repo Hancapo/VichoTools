@@ -12,6 +12,10 @@ bl_info = {
 def reload_vicho_tools():
     import sys
     print("Reloading Vicho's Tools")
+    
+    
+    from . import icons_load
+    icons_load.unregister_icons()
     global auto_load
     del auto_load
     vicho_module_prefix = f"{__package__}."
@@ -27,14 +31,18 @@ if "auto_load" in locals():
         d.load_dependencies()
 
 from . import auto_load
+from . import icons_load
 from .vicho_dependencies import dependencies_manager as d, is_pythonnet_loaded, is_dotnet_installed
 
 auto_load.init()
 
 def register():
+    icons_load.init_icons()
+    icons_load.load_icons()
     auto_load.register()
     if is_pythonnet_loaded() and is_dotnet_installed():
         d.load_dependencies()
 
 def unregister():
     auto_load.unregister()
+    icons_load.unregister_icons()

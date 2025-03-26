@@ -270,6 +270,7 @@ class VICHO_OT_fake_op(bpy.types.Operator):
     bl_label = ""
 
     def execute(self, context):
+        print("Fake operator")
         return {"FINISHED"}
     
 class VICHO_OT_import_strings(bpy.types.Operator, ImportHelper):

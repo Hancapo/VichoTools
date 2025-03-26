@@ -1,10 +1,5 @@
 import bpy
-from .constants import (
-                     YMAP_MAP_DATA_TOGGLES, 
-                     YMAP_TYPE_TOGGLES,
-                     ENTITY_TOGGLES,
-                     LOD_LEVELS,
-                     ENTITY_TYPES)
+from .constants import (LOD_LEVELS,ENTITY_TYPES, YMAP_MAP_DATA_TOGGLES, ENTITY_TOGGLES)
 
 from .helper import (update_entity_flags_bool_properties, 
                      update_entity_flags, 
@@ -259,9 +254,6 @@ class EntityProps(bpy.types.PropertyGroup):
         name="Enabled",
         default=True,
     )
-    entity_data_toggle: bpy.props.EnumProperty(
-        name="Data Type",
-        items=ENTITY_TOGGLES)
     
     linked_object: bpy.props.PointerProperty(
         name="Linked Object",
@@ -357,6 +349,11 @@ class EntityProps(bpy.types.PropertyGroup):
     default_entity_sets: bpy.props.CollectionProperty(
         name="Default Entity Sets",
         type=EntitySetsProps)
+    
+    entity_data_toggle: bpy.props.EnumProperty(
+        name="Entity Data Toggle",
+        items=ENTITY_TOGGLES
+    )
 
 class YmapProps(bpy.types.PropertyGroup):
     enabled: bpy.props.BoolProperty(
@@ -414,10 +411,6 @@ class YmapProps(bpy.types.PropertyGroup):
         default=(0.0, 0.0, 0.0),
         description="YMAP entities extents max")
     
-    map_data_toggle: bpy.props.EnumProperty(
-        name="Map Data",
-        items=YMAP_MAP_DATA_TOGGLES)
-    
     any_entities: bpy.props.BoolProperty(
         name="Any Entities",
         default=False,
@@ -426,6 +419,16 @@ class YmapProps(bpy.types.PropertyGroup):
     entities: bpy.props.CollectionProperty(
         name="Entities",
         type=EntityProps)
+    
+    active_category: bpy.props.StringProperty(
+        name="Active Category",
+        default="",
+        description="Active category")
+    
+    data_category: bpy.props.EnumProperty(
+        name="Data Category",
+        items=YMAP_MAP_DATA_TOGGLES
+    )
 
 def register():
     bpy.types.Scene.ymap_assets_path = bpy.props.StringProperty(
@@ -444,13 +447,9 @@ def register():
     bpy.types.Scene.entity_list_index = bpy.props.IntProperty(
         name="Index",
         default=0)
-    bpy.types.Scene.data_type_toggle = bpy.props.EnumProperty(
-        name="Data Type",
-        items=YMAP_TYPE_TOGGLES)
     
 def unregister():
     del bpy.types.Scene.ymap_assets_path
     del bpy.types.Scene.ymap_list
     del bpy.types.Scene.ymap_list_index
     del bpy.types.Scene.entity_list_index
-    del bpy.types.Scene.data_type_toggle
