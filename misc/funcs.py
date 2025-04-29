@@ -6,6 +6,7 @@ import string
 import time
 import uuid
 import random
+from bpy.types import Object
 
 def export_milo_ymap_xml(ymapname, object, instance_name):
 
@@ -251,3 +252,59 @@ def abs_path(path: str) -> str:
 
 def is_obj_in_any_collection(obj):
     return any(obj.name in collection.objects for collection in bpy.data.collections)
+
+
+def add_transform_item(self, context):
+    obj: Object = context.active_object
+    if obj:
+        new_transform = obj.transforms_list.add()
+        new_transform.name = f"Transform {len(obj.transforms_list)}"
+        new_transform.location = obj.location.copy()
+        obj.rotation_mode = 'XYZ'
+        new_transform.rotation = obj.rotation_euler.copy()
+        new_transform.scale = obj.scale.copy()
+        obj.active_transform_index = len(obj.transforms_list) - 1
+        return new_transform
+    
+def remove_transform_item_by_index(self, context, index):
+    obj: Object = context.active_object
+    if obj and obj.transforms_list:
+        if 0 <= index < len(obj.transforms_list):
+            obj.transforms_list.remove(index)
+            if len(obj.transforms_list) > 0:
+                obj.active_transform_index = min(obj.active_transform_index, len(obj.transforms_list) - 1)
+            else:
+                obj.active_transform_index = -1
+    return None
+
+def set_obj_to_transform_item(self, context, index):
+    obj: Object = context.active_object
+    if obj and obj.transforms_list:
+        if 0 <= index < len(obj.transforms_list):
+            transform_item = obj.transforms_list[index]
+            obj.location = transform_item.location
+            obj.rotation_euler = transform_item.rotation
+            obj.scale = transform_item.scale
+            return True
+    return False
+
+def reset_transform_obj(self, context):
+    obj: Object = context.active_object
+    obj.location = (0, 0, 0)
+    obj.rotation_euler = (0, 0, 0)
+    obj.scale = (1, 1, 1)
+
+def update_transform_index(self, context):
+    if context.scene.lock_transform:
+        return
+    set_obj_to_transform_item(self, context, self.active_transform_index)
+    obj = context.active_object
+    obj.select_set(True)
+    
+    for area in context.screen.areas:
+        if area.type == 'VIEW_3D':
+            for region in area.regions:
+                if region.type == 'WINDOW':
+                    with context.temp_override(area=area, region=region):
+                        bpy.ops.view3d.view_selected()
+                    return
