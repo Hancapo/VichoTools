@@ -36,6 +36,7 @@ class TransformsManagerTools_PT_Panel(bpy.types.Panel):
             row2 = col2.row(align=True)
             row2.operator(TRANSFORMS_OT_add.bl_idname, text="", icon='ADD')
             row2.prop(scene, "lock_transform", text="Lock Transforms", icon='TRIA_RIGHT')
+            row2.prop(scene, "zoom_to_object", text="Zoom to Object", icon='VIEW3D')
             row2.operator(TRANSFORMS_OT_reset.bl_idname, text="Reset Transform from Object", icon='FILE_REFRESH')
         else:
             row.label(text="No object selected", icon='ERROR')

@@ -301,10 +301,11 @@ def update_transform_index(self, context):
     obj = context.active_object
     obj.select_set(True)
     
-    for area in context.screen.areas:
-        if area.type == 'VIEW_3D':
-            for region in area.regions:
-                if region.type == 'WINDOW':
-                    with context.temp_override(area=area, region=region):
-                        bpy.ops.view3d.view_selected()
-                    return
+    if context.scene.zoom_to_object:
+        for area in context.screen.areas:
+            if area.type == 'VIEW_3D':
+                for region in area.regions:
+                    if region.type == 'WINDOW':
+                        with context.temp_override(area=area, region=region):
+                            bpy.ops.view3d.view_selected()
+                        return
