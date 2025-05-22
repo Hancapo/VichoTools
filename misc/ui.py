@@ -1,5 +1,5 @@
 import bpy
-from .operators import TRANSFORMS_OT_add, TRANSFORMS_OT_remove, TRANSFORMS_OT_reset
+from .operators import TRANSFORMS_OT_add, TRANSFORMS_OT_remove, TRANSFORMS_OT_reset, TRANSFORMS_OT_transfer_to_parent
 
 
 class TRANSFORMS_UL_list(bpy.types.UIList):
@@ -35,8 +35,10 @@ class TransformsManagerTools_PT_Panel(bpy.types.Panel):
             col2 = col.column(align=True)
             row2 = col2.row(align=True)
             row2.operator(TRANSFORMS_OT_add.bl_idname, text="", icon='ADD')
-            row2.prop(scene, "lock_transform", text="Lock Transforms", icon='TRIA_RIGHT')
-            row2.prop(scene, "zoom_to_object", text="Zoom to Object", icon='VIEW3D')
-            row2.operator(TRANSFORMS_OT_reset.bl_idname, text="Reset Transform from Object", icon='FILE_REFRESH')
+            row3 = col2.row(align=True)
+            row3.prop(scene, "lock_transform", text="Lock Transforms", icon='TRIA_RIGHT')
+            row3.prop(scene, "zoom_to_object", text="Zoom to Object", icon='VIEW3D')
+            row3.operator(TRANSFORMS_OT_reset.bl_idname, text="Reset Transform from Object", icon='FILE_REFRESH')
+            row3.operator(TRANSFORMS_OT_transfer_to_parent.bl_idname, text="Transfer to Top Parent", icon='OUTLINER_OB_EMPTY')
         else:
             row.label(text="No object selected", icon='ERROR')
