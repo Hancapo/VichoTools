@@ -28,9 +28,10 @@ class TransformsManagerTools_PT_Panel(bpy.types.Panel):
         obj = context.object
         scene = context.scene
         
+        row = col.row(align=True)
+        
         if obj:
             col.label(text=f"{obj.name} selected.", icon='OBJECT_DATA')
-            row = col.row(align=True)
             row.template_list(TRANSFORMS_UL_list.bl_idname, "", obj, "transforms_list", obj, "active_transform_index")
             col2 = col.column(align=True)
             row2 = col2.row(align=True)

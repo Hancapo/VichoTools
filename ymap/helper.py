@@ -121,3 +121,7 @@ def get_bytes_from_file(file_path: str) -> bytes:
 
 def get_fn_wt_ext(file_path: str) -> str:
     return Path(file_path).stem
+
+def get_scene_collection(scene) -> str:
+    """Returns the name of the scene collection"""
+    return scene.collection.name if scene.collection else "Scene Collection"
