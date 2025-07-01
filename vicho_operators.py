@@ -1,13 +1,9 @@
-import subprocess
-import sys
 import bpy
 import webbrowser
-import os
 from .misc.funcs import export_milo_ymap_xml
 from bpy.props import StringProperty
 from bpy_extras.io_utils import ExportHelper, ImportHelper
-from .vicho_dependencies import dependencies_manager, is_dotnet_installed, dotnet_link
-from importlib import util, machinery
+from .vicho_dependencies import DOTNET_LINK
 from .ymap.helper import resolve_hashes_from_file, str_loaded_count
 
 class ContextSelectionRestrictedHelper:
@@ -187,78 +183,19 @@ class VICHO_OT_rename_all_cas(bpy.types.Operator, ContextSelectionRestrictedHelp
 
         return {"FINISHED"}
 
-class VICHO_OT_install_depens(bpy.types.Operator):
-    bl_idname = "vicho.installdependencies"
-    bl_label = "Install dependencies (Python.NET)"
-    bl_description = "Install dependencies (Python.NET)"
-
-    def execute(self, context):
-        try:
-            if not is_dotnet_installed():
-                self.report(
-                    {"ERROR"},
-                    ".NET 8.0 or later is not installed. Please install it first.",
-                )
-                return {"CANCELLED"}
-
-            find_pythonnet: machinery.ModuleSpec = util.find_spec("pythonnet")
-            
-            if find_pythonnet is not None:
-                self.report({"INFO"}, "Python.NET is already installed")
-            else:
-                self.report({"INFO"}, "Installing Python.NET...")
-                python_exe = os.path.join(sys.prefix, "bin", "python.exe")
-                target = os.path.join(sys.prefix, "lib", "site-packages")
-                subprocess.call([python_exe, "-m", "ensurepip"])
-                subprocess.call([python_exe, '-m', 'pip', 'install', '--upgrade', 'pip'])
-                subprocess.call([python_exe, '-m', 'pip', 'install', '--upgrade', 'pythonnet', '-t', target])
-                self.report({"INFO"}, "Python.NET installed successfully")
-
-            if dependencies_manager.load_dependencies():
-                self.report({"INFO"}, "Dependencies loaded successfully")
-                print(f"dependencies.available: {dependencies_manager.available}")
-                print(f"clr: {dependencies_manager.clr}")
-                print(f"List: {dependencies_manager.List}")
-                print(f"GameFiles: {dependencies_manager.GameFiles}")
-                print(f"Utils: {dependencies_manager.Utils}")
-            else:
-                self.report({"ERROR"}, "Failed to load dependencies")
-                return {"CANCELLED"}
-
-            if dependencies_manager.available:
-                self.report(
-                    {"INFO"}, "All dependencies are now available and ready to use"
-                )
-            else:
-                self.report(
-                    {"ERROR"}, "Dependencies are still not available after loading"
-                )
-                return {"CANCELLED"}
-
-        except subprocess.CalledProcessError as e:
-            self.report({"ERROR"}, f"Error installing Python.NET: {str(e)}")
-            return {"CANCELLED"}
-        except Exception as e:
-            self.report({"ERROR"}, f"Unexpected error: {str(e)}")
-            return {"CANCELLED"}
-
-        return {"FINISHED"}
-
-
 class VICHO_OT_install_dotnet(bpy.types.Operator):
     bl_idname = "vicho.installdotnetruntime"
-    bl_label = "Install .NET 8 runtime"
-    bl_description = "Install .NET 8 runtime"
+    bl_label = "Install .NET 9 runtime"
+    bl_description = "Install .NET 9 runtime"
 
     def execute(self, context):
-        # download .NET 8 runtime from Microsoft
         try:
-            webbrowser.open(dotnet_link)
-            self.report({"INFO"}, "Download .NET 8 runtime from Microsoft's website")
+            webbrowser.open(DOTNET_LINK)
+            self.report({"INFO"}, "Download .NET 9 runtime from Microsoft's website")
         except Exception:
             self.report(
                 {"ERROR"},
-                "Error opening web browser to download .NET 8 runtime from Microsoft's website",
+                "Error opening web browser to download .NET 9 runtime from Microsoft's website",
             )
 
         return {"FINISHED"}

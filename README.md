@@ -5,8 +5,8 @@
 
 ## Requirements
 
-- Blender 4.0+ (4.2 recommended)
-- Sollumz 2.5+
+- Blender 4.2+ (4.4.X recommended)
+- Sollumz 2.7+
 - .NET 8 Runtime x64: [Download](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-desktop-8.0.11-windows-x64-installer)
 
 ## Features

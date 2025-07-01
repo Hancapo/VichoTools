@@ -1,6 +1,6 @@
 import bpy
 from .vicho_dependencies import is_dotnet_installed, dependencies_manager as d
-from .vicho_operators import VICHO_OT_install_depens, VICHO_OT_install_dotnet, VICHO_OT_import_strings
+from .vicho_operators import VICHO_OT_install_dotnet, VICHO_OT_import_strings
 from .ymap.helper import str_loaded_count
 
 class VichoToolsAddonProperties(bpy.types.AddonPreferences):
@@ -28,17 +28,14 @@ class VichoToolsAddonProperties(bpy.types.AddonPreferences):
         col.label(text="Dependencies", icon="SETTINGS")
         col.separator()
         if not is_dotnet_installed():
-            col.operator(VICHO_OT_install_dotnet.bl_idname, text="Install first: .NET 8 runtime", icon="SCRIPTPLUGINS")
+            col.operator(VICHO_OT_install_dotnet.bl_idname, text="Install first: .NET 9 runtime", icon="SCRIPTPLUGINS")
         else:
-            col.label(text=".NET 8 x64 Runtime is already installed.")
+            col.label(text=".NET 9 x64 Runtime is already installed.")
         col.separator()
         if d.available:
-            col.label(text="PythonNET is already installed.")
+            col.label(text="PythonNET is already available.")
         else:
-            if bpy.app.version < (4, 2, 0):
-                col.operator(VICHO_OT_install_depens.bl_idname, text="Install second: Install PythonNET", icon="SCRIPTPLUGINS")
-            else:
-                col.label(text="No need to install PythonNET, it's already included in wheels, you shouldn't be seeing this, report it as soon as possible.")
+            col.label(text="No need to install PythonNET, it's already included in wheels, you shouldn't be seeing this, report it as soon as possible.")
         header, panel = layout.panel("texture_settings", default_closed=False)
         header.label(text= "Texture(s) Settings", icon="TEXTURE")
         if panel:
@@ -53,7 +50,8 @@ class VichoToolsAddonProperties(bpy.types.AddonPreferences):
         if panel:
             panel_col = panel.column(align=True)
             strings_loaded: int = str_loaded_count()
-            panel_col.operator(VICHO_OT_import_strings.bl_idname, text=f"Load Strings ({str(strings_loaded)})", icon="FILE_TICK")
+            if strings_loaded is not None:
+                panel_col.operator(VICHO_OT_import_strings.bl_idname, text=f"Load Strings ({str(strings_loaded)})", icon="FILE_TICK")
 
 def get_addon_preferences() -> VichoToolsAddonProperties:
     return bpy.context.preferences.addons[__package__].preferences

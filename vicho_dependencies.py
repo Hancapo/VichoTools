@@ -7,7 +7,7 @@ import importlib.util
 from typing import List
 
 
-dotnet_link = "https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-desktop-8.0.11-windows-x64-installer"
+DOTNET_LINK = "https://builds.dotnet.microsoft.com/dotnet/Runtime/9.0.6/dotnet-runtime-9.0.6-win-x64.exe"
 
 
 class DependenciesManager:
@@ -155,7 +155,6 @@ class DependenciesManager:
             os.environ["PATH"] = libs_loc + os.pathsep + os.environ["PATH"]
             if os.path.exists(runtime_loc):
                 import pythonnet
-
                 pythonnet.load("coreclr", runtime_config=runtime_loc)
             else:
                 return False
@@ -255,7 +254,6 @@ dependencies_manager = DependenciesManager()
 
 def is_dotnet_installed():
     try:
-        # Find the dotnet executable in the system's PATH
         dotnet_path = shutil.which("dotnet")
         if dotnet_path is None:
             print(
@@ -270,7 +268,7 @@ def is_dotnet_installed():
             return False
 
         for line in result.stdout.splitlines():
-            if "Microsoft.NETCore.App 8" in line:
+            if "Microsoft.NETCore.App 9" in line:
                 return True
         return False
     except Exception as e:
