@@ -76,7 +76,10 @@ def resolve_hashes_from_file(file_path: str) -> None:
         dm.JenkIndex.Ensure(line.strip())
 
 def str_loaded_count() -> int:
-    return dm.JenkIndex.GetAllStrings().Length
+    if dm.available:
+        return dm.JenkIndex.GetAllStrings().Length
+    else:
+        return None
 
 def run_ops_without_view_layer_update(func):
     from bpy.ops import _BPyOpsSubModOp
