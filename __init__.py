@@ -1,19 +1,6 @@
-bl_info = {
-    "name": "Vicho's Tools",
-    "author": "MrVicho13",
-    "version": (1, 0, 1),
-    "blender": (4, 0, 0),
-    "description": "A collection of tools for GTA V modding ranging from Textures, Animations, YMAP(S) and more.",
-    "category": "Vicho's Tools",
-    "doc_url": "https://vichomodding.gitbook.io/main/blender-stuff/recommended-add-ons/modding/vichos-tools",
-    "tracker_url": "https://github.com/Hancapo/VichoTools/issues",
-}
-
 def reload_vicho_tools():
     import sys
     print("Reloading Vicho's Tools")
-    
-    
     from . import icons_load
     icons_load.unregister_icons()
     global auto_load
