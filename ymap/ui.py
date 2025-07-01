@@ -74,7 +74,7 @@ class YmapTools_PT_Panel(bpy.types.Panel):
             col.template_list(YMAPLIST_UL_list.bl_idname, "", scene, "ymap_list", scene, "ymap_list_index")
         else:
             layout.label(
-                text="PythonNET or .NET 8 runtime aren't installed, please make sure you check the Add-on's preference menu",
+                text="PythonNET or .NET 9 runtime aren't installed, please make sure you check the Add-on's preference menu",
                 icon="ERROR",
             )
 
@@ -86,6 +86,9 @@ class YmapTools_Data_PT_Panel(bpy.types.Panel):
     bl_region_type = "UI"
     bl_category = "Vicho's Tools"
     
+    @classmethod
+    def poll(cls, context):
+        return len(context.scene.ymap_list) > 0 and d.available
     
     def draw_header(self, context):
         self.layout.label(text="", icon_value=get_icon("sitemap"))
