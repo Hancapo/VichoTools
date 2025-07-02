@@ -55,10 +55,11 @@ def import_ymap_to_scene(scene: Scene, new_ymap_path: str, i_ents: bool, i_occls
     p: Path = Path(new_ymap_path)
     filename = p.stem
     if not ymap_exist_in_scene(scene, new_ymap_path):
-        scene.ymap_list.add()
+        new_ymap = scene.ymap_list.add()
+        bpy.ops.ymap.map_data_menu(operator_id="ymap.map_data_menu")
         current_index = len(scene.ymap_list) - 1
-        ymap = get_ymap_from_file(new_ymap_path)
-        fill_map_data_from_ymap(scene, current_index, ymap, do_props)
+        ymap_from_f = get_ymap_from_file(new_ymap_path)
+        fill_map_data_from_ymap(scene, current_index, ymap_from_f, do_props)
         if i_ents and assets_path is not None:
             import_ent_objs(scene, current_index, assets_path, self)
         self.report({'INFO'}, f"YMAP {filename} added to scene")
