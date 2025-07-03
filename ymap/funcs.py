@@ -4,6 +4,7 @@ from .helper import run_ops_without_view_layer_update, instance_obj_and_child, g
 import bpy
 from .constants import COMPAT_SOLL_TYPES, OBJECT_TYPES
 from bpy.types import Object, Scene
+from ..misc.funcs import create_ymap_empty, create_ymap_entities_group
 
 def get_sollumz_extensions() -> list[str]:
     return ["ydr", "ydd", "yft", "ybn"]
@@ -58,10 +59,12 @@ def import_ymap_to_scene(scene: Scene, new_ymap_path: str, i_ents: bool, i_occls
         new_ymap = scene.ymap_list.add()
         bpy.ops.ymap.map_data_menu(operator_id="ymap.map_data_menu")
         current_index = len(scene.ymap_list) - 1
-        ymap_from_f = get_ymap_from_file(new_ymap_path)
-        fill_map_data_from_ymap(scene, current_index, ymap_from_f, do_props)
+        ymap_file = get_ymap_from_file(new_ymap_path)
+        fill_map_data_from_ymap(scene, current_index, ymap_file, do_props)
+        ymap_obj: Object = create_ymap_empty(filename)
         if i_ents and assets_path is not None:
-            import_ent_objs(scene, current_index, assets_path, self)
+            ymap_ent_group: Object = create_ymap_entities_group(ymap_obj)
+            import_ent_objs(scene, current_index, assets_path, ymap_ent_group, self)
         self.report({'INFO'}, f"YMAP {filename} added to scene")
         return True
     else:
@@ -122,7 +125,7 @@ def fill_ents_data_from_ymap(scene: Scene, index: int, current_ymap, any_ents: b
             new_entity.type = get_ent_type(ent)
     
 
-def import_ent_objs(scene: Scene, index: int, asset_path: str, self) -> None:
+def import_ent_objs(scene: Scene, index: int, asset_path: str, ymap_group: Object, self) -> None:
     entities = scene.ymap_list[index].entities
     for e in entities:
         p: Path = Path(asset_path)
@@ -147,14 +150,14 @@ def import_ent_objs(scene: Scene, index: int, asset_path: str, self) -> None:
                     print(f"Trying to import {xml_file}")
                     bpy.ops.sollumz.import_assets(directory=str(p), files=[{"name": xml_file}])
                 run_ops_without_view_layer_update(fast_import)
-                working_obj = get_imported_asset(before_import, e)
+                working_obj: Object = get_imported_asset(before_import, e)
                 print(f"Working obj: {working_obj}")
             else:
                 existing_obj = get_obj_from_scene(scene, e.archetype_name)
                 if existing_obj is not None:
-                    working_obj = instance_obj_and_child(existing_obj)
-            
+                    working_obj: Object = instance_obj_and_child(existing_obj)
             apply_transforms_to_obj_from_entity(working_obj, e)
+            working_obj.parent = ymap_group
 
 def get_obj_soll_parent(filename: str, new_objs: list[Object]) -> Object:
     return next((x for x in new_objs if filename in x.name and

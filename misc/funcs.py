@@ -6,7 +6,7 @@ import string
 import time
 import uuid
 import random
-from bpy.types import Object
+from bpy.types import Object, Collection
 
 def export_milo_ymap_xml(ymapname, object, instance_name):
 
@@ -313,3 +313,28 @@ def update_transform_index(self, context):
                         with context.temp_override(area=area, region=region):
                             bpy.ops.view3d.view_selected()
                         return
+                    
+def create_empty_obj(name: str, collection: Collection = None):
+    """Create an empty object with the given name."""
+    empty_obj = bpy.data.objects.new(name, None)
+    empty_obj.empty_display_type = "PLAIN_AXES"
+    empty_obj.empty_display_size = 0.0001
+    empty_obj.name = name
+    if collection:
+        collection.objects.link(empty_obj)
+    else:
+        bpy.context.scene.collection.objects.link(empty_obj)
+    return empty_obj
+
+def create_ymap_empty(name: str, collection: Collection = None):
+    """Create an empty object for a YMAP."""
+    ymap_obj = create_empty_obj(name, collection)
+    ymap_obj.vicho_type = 'vicho_ymap_base'
+    return ymap_obj
+
+def create_ymap_entities_group(parent_ymap_obj: Object):
+    """Create a group for YMAP entities."""
+    ymap_entities_group = create_empty_obj(f"{parent_ymap_obj.name}.entities")
+    ymap_entities_group.vicho_type = 'vicho_ymap_entities'
+    ymap_entities_group.parent = parent_ymap_obj
+    return ymap_entities_group

@@ -448,8 +448,15 @@ def register():
         name="Index",
         default=0)
     
+    bpy.types.Object.vicho_type = bpy.props.StringProperty(
+        name="Vicho Type",
+        default="vicho_none",
+        description="Type of the object, used for filtering in the UI",
+        maxlen=60)
+    
 def unregister():
     del bpy.types.Scene.ymap_assets_path
     del bpy.types.Scene.ymap_list
     del bpy.types.Scene.ymap_list_index
     del bpy.types.Scene.entity_list_index
+    del bpy.types.Object.vicho_type
