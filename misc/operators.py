@@ -18,8 +18,6 @@ class ContextActiveObjectTransformsRestrict:
     @classmethod
     def poll(cls, context):
         len(context.active_object.transforms_list) > 0
-        
-    
     
 class TRANSFORMS_OT_add(bpy.types.Operator, ContextActiveObjectRestrict):
     """Add a new transform"""

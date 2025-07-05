@@ -2,9 +2,9 @@ from ..vicho_dependencies import dependencies_manager as d
 from pathlib import Path
 from .helper import run_ops_without_view_layer_update, instance_obj_and_child, get_obj_from_scene, get_fn_wt_ext
 import bpy
-from .constants import COMPAT_SOLL_TYPES, OBJECT_TYPES
+from .constants import COMPAT_SOLL_TYPES, OBJECT_TYPES, VALID_NON_POLY_BOUND_TYPES
 from bpy.types import Object, Scene
-from ..misc.funcs import create_ymap_empty, create_ymap_entities_group
+from ..misc.funcs import create_ymap_empty, create_ymap_entities_group, delete_hierarchy, delete_mesh
 
 def get_sollumz_extensions() -> list[str]:
     return ["ydr", "ydd", "yft", "ybn"]
@@ -50,7 +50,6 @@ def ymap_exist_in_scene(scene: Scene, new_ymap: str) -> bool:
             if ymap.name == fn:
                 return True
     return False
-
             
 def import_ymap_to_scene(scene: Scene, new_ymap_path: str, i_ents: bool, i_occls: bool, i_timemods: bool, i_cargens: bool, do_props: bool, self, assets_path: str = None) -> bool:
     p: Path = Path(new_ymap_path)
@@ -133,12 +132,10 @@ def import_ent_objs(scene: Scene, index: int, asset_path: str, ymap_group: Objec
         
         file_found: bool = False
         for ext in get_sollumz_extensions():
-            
             if Path.exists(p / f"{e.archetype_name}.{ext}.xml"):
                 xml_file: str = f"{e.archetype_name}.{ext}.xml"
                 file_found = True
                 break
-        
         if not file_found:
             self.report({'ERROR'}, f"Could not find the XML file for {e.archetype_name}")
         
@@ -158,6 +155,7 @@ def import_ent_objs(scene: Scene, index: int, asset_path: str, ymap_group: Objec
                     working_obj: Object = instance_obj_and_child(existing_obj)
             apply_transforms_to_obj_from_entity(working_obj, e)
             working_obj.parent = ymap_group
+            purify_asset(working_obj)
 
 def get_obj_soll_parent(filename: str, new_objs: list[Object]) -> Object:
     return next((x for x in new_objs if filename in x.name and
@@ -172,18 +170,33 @@ def get_imported_asset(before_import, entity, purify = True) -> None:
     imported_obj: Object = get_obj_soll_parent(entity.archetype_name, new_objs)
     return imported_obj
 
-def get_purified_asset(obj: Object) -> Object:
-    match obj.sollum_type:
-        case "sollumz_drawable":
+def purify_asset(obj: Object) -> None:
+    print(f"Purifying asset: {obj.name}")
+    bound_compo: list[Object] = [child for child in obj.children if child.sollum_type == "sollumz_bound_composite"]
+    if bound_compo:
+        for compo in bound_compo:
+            delete_hierarchy(compo)
             
-            pass
-        case "sollumz_fragment":
-            pass
-        case _:
-            pass
-        
-def delete_all_cols(obj: Object) -> None:
-    pass
+    cols_to_delete: list[Object] = [child for child in obj.children if child.sollum_type in VALID_NON_POLY_BOUND_TYPES]
+    if cols_to_delete:
+        for col in cols_to_delete:
+            delete_hierarchy(col)
+                
+    lights_group: Object = next((child for child in obj.children if ".lights" in child.name or "Lights" in child.name), None)
+    delete_hierarchy(lights_group) if lights_group else None
+    
+    draw_models: list[Object] = [child for child in obj.children if child.sollum_type == "sollumz_drawable_model"]
+    if draw_models:
+        for draw_model in draw_models:
+            delete_mesh(draw_model.sz_lods.very_low.mesh) if draw_model.sz_lods.very_low.mesh else None
+            draw_model.sz_lods.very_low.mesh_name = ''
+            delete_mesh(draw_model.sz_lods.low.mesh) if draw_model.sz_lods.low.mesh else None
+            draw_model.sz_lods.low.mesh_name = ''
+            delete_mesh(draw_model.sz_lods.medium.mesh) if draw_model.sz_lods.medium.mesh else None
+            draw_model.sz_lods.medium.mesh_name = ''
+            delete_mesh(draw_model.sz_lods.very_high.mesh) if draw_model.sz_lods.very_high.mesh else None
+            draw_model.sz_lods.very_high.mesh_name = ''
+    
 
 def delete_all_lights(obj: Object) -> None:
     pass

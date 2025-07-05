@@ -2,6 +2,16 @@ ymap_flags_updating = False
 ymap_content_flags_updating = False
 entity_flags_updating = False
 
+VALID_NON_POLY_BOUND_TYPES = [
+    "sollumz_bound_sphere",
+    "sollumz_bound_box",
+    "sollumz_bound_capsule",
+    "sollumz_bound_disc",
+    "sollumz_bound_geometry",
+    "sollumz_bound_plane",
+    "sollumz_bound_cylinder",
+]
+
 ENTITY_TYPES = (
     ("ENTITY", "Entity", "Entity", "OUTLINER_DATA_LIGHTPROBE", 0),
     ("MLOINSTANCE", "MLO Instance", "MLO Instance", "HOME", 1),

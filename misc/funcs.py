@@ -6,7 +6,7 @@ import string
 import time
 import uuid
 import random
-from bpy.types import Object, Collection
+from bpy.types import Object, Collection, Mesh
 
 def export_milo_ymap_xml(ymapname, object, instance_name):
 
@@ -338,3 +338,50 @@ def create_ymap_entities_group(parent_ymap_obj: Object):
     ymap_entities_group.vicho_type = 'vicho_ymap_entities'
     ymap_entities_group.parent = parent_ymap_obj
     return ymap_entities_group
+
+def obj_has_parent(obj: Object) -> bool:
+    """Check if the object has a parent."""
+    return obj.parent is not None
+
+def delete_obj(obj):
+    """Delete the given object and its data if unused."""
+    bpy.data.objects.remove(obj, do_unlink=True)
+
+def delete_unused_objs_from_scene(self):
+    """Delete all objects not in the scene."""
+    for obj in bpy.context.scene.objects:
+        if not is_object_in_scene(obj):
+            delete_obj(obj)
+
+def get_hierarchy(root: Object) -> list[Object]:
+    """Collect root and all its descendants."""
+    objs = []
+    def recurse(obj):
+        objs.append(obj)
+        for child in obj.children:
+            recurse(child)
+    recurse(root)
+    return objs
+
+def delete_hierarchy(root: Object):
+    """Delete the root object and all its descendants."""
+    to_delete = get_hierarchy(root)
+    for obj in to_delete:
+        for col in list(obj.users_collection):
+            col.objects.unlink(obj)
+    for obj in reversed(to_delete):
+        data = getattr(obj, "data", None)
+        if data and data.users == 0:
+            if isinstance(data, bpy.types.Mesh):
+                bpy.data.meshes.remove(data)
+        bpy.data.objects.remove(obj, do_unlink=True)
+        
+def delete_mesh(mesh: Mesh):
+    """Delete the given mesh even if it has users."""
+    if mesh.users == 0:
+        bpy.data.meshes.remove(mesh)
+    else:
+        for obj in bpy.data.objects:
+            if obj.data == mesh:
+                obj.data = None
+        bpy.data.meshes.remove(mesh, do_unlink=True)
