@@ -250,3 +250,11 @@ def get_ymap_from_file(ymap_path: str):
 def get_z_axis_ent(ent):
     """Returns the Z axis of the entity as negative if it is not a MLO instance otherwise positive"""
     return -ent._CEntityDef.rotation.Z if not is_mlo_instance(ent) else ent._CEntityDef.rotation.Z
+
+def sanitize_name(name: str) -> str:
+    new_name: str = ""
+    if '.' in name:
+        new_name = name.split('.')[0]
+    else:
+        new_name = name
+    return new_name

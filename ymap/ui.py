@@ -5,6 +5,7 @@ from ..vicho_operators import VICHO_OT_fake_op
 from .operators_menu import (YMAP_MENU_OPERATORS_GROUPS)
 from .constants import entity_flags_values, map_data_content_flags_values, map_data_flags_values
 from ..icons_load import get_icon
+from .funcs import sanitize_name
 
 class YMAPLIST_UL_list(bpy.types.UIList):
     bl_idname = "YMAPLIST_UL_list"
@@ -32,7 +33,7 @@ class ENTITYLIST_UL_list(bpy.types.UIList):
                 ymap = ymap_list[scene.ymap_list_index]
                 entity = ymap.entities[index]
                 layout.prop(item, "enabled", text="", emboss=False, icon="CHECKBOX_HLT" if item.enabled else "CHECKBOX_DEHLT")
-                layout.label(text=entity.archetype_name, icon="HOME" if entity.is_mlo_instance else "FILE_3D")
+                layout.label(text=sanitize_name(entity.linked_object.name), icon="HOME" if entity.is_mlo_instance else "FILE_3D")
                 
     def filter_items(self, context, data, property):
         items = getattr(data, property)
