@@ -1,7 +1,7 @@
 import bpy
 from bpy_extras.io_utils import ImportHelper
 from bpy.props import StringProperty, BoolProperty
-from .funcs import import_ymap_to_scene, remove_ymap_from_scene
+from .funcs import import_ymap_to_scene, remove_ymap_from_scene, create_ymap_empty
 import os
 import time
 
@@ -59,8 +59,6 @@ class VICHO_OT_import_ymap(bpy.types.Operator, ImportHelper):
             col.prop(self, "import_extensions", icon="MODIFIER")
             col.prop(self, "import_timecycle_mods", icon="TIME")
             col.prop(self, "import_car_generators", icon="AUTO")
-            
-        
         
         if self.import_entities:
             box = layout.box()
@@ -73,13 +71,13 @@ class VICHO_OT_import_ymap(bpy.types.Operator, ImportHelper):
                 col.prop(self, "import_props")
 
 class VICHO_OT_remove_ymap(bpy.types.Operator):
-    """Remove YMAP file(s)"""
+    """Remove YMAP item from the scene"""
     bl_idname = "ymap.remove_ymap"
-    bl_label = "Remove YMAP file(s)"
+    bl_label = "Remove YMAP item from the scene"
     
     @classmethod
     def poll(cls, context):
-        return context.scene.ymap_list_index >= 0
+        return len(context.scene.ymap_list) > 0
     
     def execute(self, context):
         scene = context.scene
@@ -89,6 +87,30 @@ class VICHO_OT_remove_ymap(bpy.types.Operator):
         else:
             self.report({'ERROR'}, f"Error removing YMAP from scene")
         return {'FINISHED'}
+    
+    # Confirmation dialog
+    def invoke(self, context, event):
+        scene = context.scene
+        selected_ymap_index = scene.ymap_list_index
+        ymap_name = scene.ymap_list[selected_ymap_index].ymap_object.name if selected_ymap_index >= 0 else "YMAP"
+        message = f"Are you sure you want to remove the YMAP '{ymap_name}' from the scene?"
+        return context.window_manager.invoke_confirm(self, event, message=message)
+    
+    
+class VICHO_OT_add_ymap(bpy.types.Operator):
+    """Add YMAP item to the scene"""
+    bl_idname = "ymap.add_ymap"
+    bl_label = "Add YMAP item to the scene"
+    
+    def execute(self, context):
+        scene = context.scene
+        new_ymap = scene.ymap_list.add()
+        new_ymap.ymap_object = create_ymap_empty("New YMAP")
+        scene.ymap_list_index = len(scene.ymap_list) - 1
+        bpy.ops.ymap.map_data_menu(operator_id="ymap.map_data_menu")
+        self.report({'INFO'}, f"YMAP added to scene")
+        return {'FINISHED'}
+    
     
 class VICHO_OT_go_to_entity(bpy.types.Operator):
     """Go to entity"""

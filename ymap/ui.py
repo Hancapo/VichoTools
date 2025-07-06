@@ -1,5 +1,5 @@
 import bpy
-from .operators import VICHO_OT_import_ymap, VICHO_OT_remove_ymap, VICHO_OT_go_to_entity
+from .operators import VICHO_OT_import_ymap, VICHO_OT_remove_ymap, VICHO_OT_go_to_entity, VICHO_OT_add_ymap
 from ..vicho_dependencies import dependencies_manager as d
 from ..vicho_operators import VICHO_OT_fake_op
 from .operators_menu import (YMAP_MENU_OPERATORS_GROUPS)
@@ -16,9 +16,8 @@ class YMAPLIST_UL_list(bpy.types.UIList):
         ymap_list = scene.ymap_list
         if self.layout_type in {"DEFAULT", "COMPACT"}:
             if ymap_list:
-                ymap = ymap_list[index]
                 layout.prop(item, "enabled", text="", emboss=False, icon="CHECKBOX_HLT" if item.enabled else "CHECKBOX_DEHLT")
-                layout.label(text=ymap.name, icon="OUTLINER_OB_GROUP_INSTANCE")
+                layout.prop(item.ymap_object, "name", text="", emboss=False, icon="OUTLINER_OB_GROUP_INSTANCE")
 
 class ENTITYLIST_UL_list(bpy.types.UIList):
     bl_idname = "ENTITYLIST_UL_list"
@@ -60,7 +59,7 @@ class YmapTools_PT_Panel(bpy.types.Panel):
             col.operator(VICHO_OT_import_ymap.bl_idname, text="", icon_value=get_icon("import_icon") )
             col.operator(VICHO_OT_fake_op.bl_idname, text="", icon_value=get_icon("export"))
             col.separator()
-            col.operator(VICHO_OT_fake_op.bl_idname, text="", icon="ADD")
+            col.operator(VICHO_OT_add_ymap.bl_idname, text="", icon="ADD")
             col.operator(VICHO_OT_remove_ymap.bl_idname, text="", icon="REMOVE")
             col.separator()
             col.operator(

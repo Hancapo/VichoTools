@@ -61,8 +61,10 @@ def import_ymap_to_scene(scene: Scene, new_ymap_path: str, i_ents: bool, i_occls
         ymap_file = get_ymap_from_file(new_ymap_path)
         fill_map_data_from_ymap(scene, current_index, ymap_file, do_props)
         ymap_obj: Object = create_ymap_empty(filename)
+        new_ymap.ymap_object = ymap_obj
         if i_ents and assets_path is not None:
             ymap_ent_group: Object = create_ymap_entities_group(ymap_obj)
+            new_ymap.ymap_entities_group = ymap_ent_group
             import_ent_objs(scene, current_index, assets_path, ymap_ent_group, self)
         self.report({'INFO'}, f"YMAP {filename} added to scene")
         return True
@@ -72,8 +74,11 @@ def import_ymap_to_scene(scene: Scene, new_ymap_path: str, i_ents: bool, i_occls
  
 def remove_ymap_from_scene(scene: Scene, index: int) -> bool:
     """Removes a YMAP from the scene"""
+    ymap_obj: Object = scene.ymap_list[index].ymap_object
+    if len(scene.ymap_list) > 0:
+        scene.ymap_list_index = max(0, index - 1)
+    bpy.data.objects.remove(ymap_obj, do_unlink=True)
     scene.ymap_list.remove(index)
-    scene.ymap_list_index = len(scene.ymap_list) - 1
     return True
 
 def add_ymap_to_scene(scene: Scene) -> None:
