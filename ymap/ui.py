@@ -146,23 +146,21 @@ class YmapTools_Data_PT_Panel(bpy.types.Panel):
                                 
                                 
                     case "ymap.entities_menu":
-                        if ymap.entities:
-                            right_col.template_list(
-                                ENTITYLIST_UL_list.bl_idname, 
-                                "", 
-                                ymap, 
-                                "entities", 
-                                scene, 
-                                "entity_list_index"
-                            )
-                            selected_ent = ymap.entities[scene.entity_list_index]
-                            
-                            right_col.separator()
-                            row_ent_cat = right_col.row()
+                        right_col.template_list(
+                            ENTITYLIST_UL_list.bl_idname, 
+                            "", 
+                            ymap, 
+                            "entities", 
+                            scene, 
+                            "entity_list_index"
+                        )
+                        selected_ent = ymap.entities[scene.entity_list_index] if ymap.entities else None
+                        right_col.separator()
+                        row_ent_cat = right_col.row()
+                        if selected_ent:
                             entity_data_flow = row_ent_cat.grid_flow(row_major=True, columns=5, even_columns=True, even_rows=True, align=True)
                             entity_data_flow.prop(selected_ent, "entity_data_toggle", expand=True, icon_only=True)
                             right_col.separator()
-                            
                             match selected_ent.entity_data_toggle:
                                 case "DATA":
                                     right_col.separator()
@@ -173,14 +171,10 @@ class YmapTools_Data_PT_Panel(bpy.types.Panel):
                                     ent_data_flow.prop(selected_ent, "guid")
                                     if selected_ent.linked_object:
                                         ent_data_flow.prop(selected_ent, "linked_object", icon="OBJECT_DATA")
-                                        go_to_ent = ent_data_flow.operator(VICHO_OT_go_to_entity.bl_idname, icon="VIEWZOOM", text="")
+                                        ent_data_flow.operator(VICHO_OT_go_to_entity.bl_idname, icon="VIEWZOOM", text="")
                                     else:
                                         ent_data_flow.alert = True
                                         ent_data_flow.label(text="No linked object")
-
-                                    
-                                    
-                                    
                                 
                     case "ymap.occluders_menu":
                         right_col.label(text="Occluders")
