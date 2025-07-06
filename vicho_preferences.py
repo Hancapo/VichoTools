@@ -24,6 +24,7 @@ class VichoToolsAddonProperties(bpy.types.AddonPreferences):
         
     def draw(self, context):
         layout = self.layout
+        strings_loaded: int = str_loaded_count()
         col = layout.column(align=True)
         col.label(text="Dependencies", icon="SETTINGS")
         col.separator()
@@ -49,7 +50,6 @@ class VichoToolsAddonProperties(bpy.types.AddonPreferences):
         header.label(text="General Settings", icon="INFO")
         if panel:
             panel_col = panel.column(align=True)
-            strings_loaded: int = str_loaded_count()
             if strings_loaded is not None:
                 panel_col.operator(VICHO_OT_import_strings.bl_idname, text=f"Load Strings ({str(strings_loaded)})", icon="FILE_TICK")
 

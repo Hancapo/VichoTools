@@ -4,6 +4,7 @@ from bpy.props import StringProperty, BoolProperty
 from .funcs import import_ymap_to_scene, remove_ymap_from_scene, create_ymap_empty
 import os
 import time
+from .helper import str_loaded_count
 
 class VICHO_OT_import_ymap(bpy.types.Operator, ImportHelper):
     """Import YMAP file(s)"""
@@ -31,6 +32,10 @@ class VICHO_OT_import_ymap(bpy.types.Operator, ImportHelper):
     
     asset_path: StringProperty(name="Asset Path", default="")
     import_props: BoolProperty(name="Import Props", default=True, description="Whether or not to import props from the YMAP file(s)")
+    
+    @classmethod
+    def poll(cls, context):
+        return str_loaded_count() > 0
 
     def execute(self, context):
         scene = context.scene
