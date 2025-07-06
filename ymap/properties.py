@@ -6,7 +6,8 @@ from .helper import (update_entity_flags_bool_properties,
                      update_ymap_flags_bool_properties, 
                      update_ymap_flags, 
                      update_ymap_content_flags_bool_properties, 
-                     update_ymap_content_flags)
+                     update_ymap_content_flags,
+                     update_entity_index)
 
 
 class PhysicsGroup(bpy.types.PropertyGroup):
@@ -467,7 +468,9 @@ def register():
         default=0)
     bpy.types.Scene.entity_list_index = bpy.props.IntProperty(
         name="Index",
-        default=0)
+        default=0,
+        update=update_entity_index
+    )
     
     bpy.types.Object.vicho_type = bpy.props.StringProperty(
         name="Vicho Type",
