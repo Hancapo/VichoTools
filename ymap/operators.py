@@ -116,6 +116,7 @@ class VICHO_OT_add_ymap(bpy.types.Operator):
         scene.ymap_list_index = len(scene.ymap_list) - 1
         bpy.ops.ymap.map_data_menu(operator_id="ymap.map_data_menu")
         self.report({'INFO'}, f"YMAP added to scene")
+        return {'FINISHED'}
         
 
 class VICHO_OT_add_entity(bpy.types.Operator):
