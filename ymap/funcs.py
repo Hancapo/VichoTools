@@ -1,3 +1,4 @@
+from .properties import EntityProps
 from ..vicho_dependencies import dependencies_manager as d
 from pathlib import Path
 from .helper import run_ops_without_view_layer_update, instance_obj_and_child, get_obj_from_scene, get_fn_wt_ext
@@ -114,7 +115,7 @@ def fill_ents_data_from_ymap(scene: Scene, index: int, current_ymap, any_ents: b
             new_entity.flags.total_flags = ent._CEntityDef.flags
             new_entity.guid = str(ent._CEntityDef.guid)
             new_entity.position = (ent._CEntityDef.position.X, ent._CEntityDef.position.Y, ent._CEntityDef.position.Z)
-            new_entity.rotation = (ent._CEntityDef.rotation.W, ent._CEntityDef.rotation.X, ent._CEntityDef.rotation.Y, get_z_axis_ent(ent))
+            new_entity.rotation = (-ent._CEntityDef.rotation.W, ent._CEntityDef.rotation.X, ent._CEntityDef.rotation.Y, get_z_axis_ent(ent))
             new_entity.scale_xy = ent._CEntityDef.scaleXY
             new_entity.scale_z = ent._CEntityDef.scaleZ
             new_entity.parent_index = ent._CEntityDef.parentIndex
@@ -130,11 +131,10 @@ def fill_ents_data_from_ymap(scene: Scene, index: int, current_ymap, any_ents: b
     
 
 def import_ent_objs(scene: Scene, index: int, asset_path: str, ymap_group: Object, self) -> None:
-    entities = scene.ymap_list[index].entities
+    entities: list[EntityProps] = scene.ymap_list[index].entities
     for e in entities:
         p: Path = Path(asset_path)
         print(f"Is MLO: {e.is_mlo_instance}")
-        
         file_found: bool = False
         for ext in get_sollumz_extensions():
             if Path.exists(p / f"{e.archetype_name}.{ext}.xml"):
@@ -168,7 +168,7 @@ def get_obj_soll_parent(filename: str, new_objs: list[Object]) -> Object:
                  x.sollum_type in COMPAT_SOLL_TYPES and
                  not x.parent), None)
 
-def get_imported_asset(before_import, entity, purify = True) -> None:
+def get_imported_asset(before_import, entity) -> None:
     after_import: set[str] = set(bpy.data.objects.keys())
     new_objs_names: set[str] = after_import - before_import
     new_objs: list[object] = [bpy.data.objects[name] for name in new_objs_names]
@@ -177,42 +177,39 @@ def get_imported_asset(before_import, entity, purify = True) -> None:
 
 def purify_asset(obj: Object) -> None:
     print(f"Purifying asset: {obj.name}")
+    delete_all_cols(obj)
+    delete_all_lights(obj)
+    draw_models: list[Object] = [child for child in obj.children if child.sollum_type == "sollumz_drawable_model"]
+    if draw_models:
+        for draw_model in draw_models:
+            remove_non_high_meshes(draw_model)
+
+def delete_all_cols(obj: Object) -> None:
+    """Deletes all collision objects from the given object"""
     bound_compo: list[Object] = [child for child in obj.children if child.sollum_type == "sollumz_bound_composite"]
     if bound_compo:
         for compo in bound_compo:
             delete_hierarchy(compo)
-            
     cols_to_delete: list[Object] = [child for child in obj.children if child.sollum_type in VALID_NON_POLY_BOUND_TYPES]
     if cols_to_delete:
         for col in cols_to_delete:
             delete_hierarchy(col)
-                
-    lights_group: Object = next((child for child in obj.children if ".lights" in child.name or "Lights" in child.name), None)
-    delete_hierarchy(lights_group) if lights_group else None
-    
-    draw_models: list[Object] = [child for child in obj.children if child.sollum_type == "sollumz_drawable_model"]
-    if draw_models:
-        for draw_model in draw_models:
-            delete_mesh(draw_model.sz_lods.very_low.mesh) if draw_model.sz_lods.very_low.mesh else None
-            draw_model.sz_lods.very_low.mesh_name = ''
-            delete_mesh(draw_model.sz_lods.low.mesh) if draw_model.sz_lods.low.mesh else None
-            draw_model.sz_lods.low.mesh_name = ''
-            delete_mesh(draw_model.sz_lods.medium.mesh) if draw_model.sz_lods.medium.mesh else None
-            draw_model.sz_lods.medium.mesh_name = ''
-            delete_mesh(draw_model.sz_lods.very_high.mesh) if draw_model.sz_lods.very_high.mesh else None
-            draw_model.sz_lods.very_high.mesh_name = ''
-    
 
 def delete_all_lights(obj: Object) -> None:
-    pass
+    lights_group: Object = next((child for child in obj.children if ".lights" in child.name or "Lights" in child.name), None)
+    delete_hierarchy(lights_group) if lights_group else None
 
 def remove_non_high_meshes(obj: Object) -> None:
-    obj.sz_lods.very_low.mesh = None
-    obj.sz_lods.low.mesh = None
-    obj.sz_lods.medium.mesh = None
-    obj.sz_lods.very_high.mesh = None
+    delete_mesh(obj.sz_lods.very_low.mesh) if obj.sz_lods.very_low.mesh else None
+    obj.sz_lods.very_low.mesh_name = ''
+    delete_mesh(obj.sz_lods.low.mesh) if obj.sz_lods.low.mesh else None
+    obj.sz_lods.low.mesh_name = ''
+    delete_mesh(obj.sz_lods.medium.mesh) if obj.sz_lods.medium.mesh else None
+    obj.sz_lods.medium.mesh_name = ''
+    delete_mesh(obj.sz_lods.very_high.mesh) if obj.sz_lods.very_high.mesh else None
+    obj.sz_lods.very_high.mesh_name = ''
 
-def apply_transforms_to_obj_from_entity(obj:Object, entity) -> None:
+def apply_transforms_to_obj_from_entity(obj:Object, entity: "EntityProps") -> None:
     """Applies the transforms from the entity to the object"""
     if obj is not None:
         entity.linked_object = obj
@@ -249,7 +246,7 @@ def get_ymap_from_file(ymap_path: str):
 
 def get_z_axis_ent(ent):
     """Returns the Z axis of the entity as negative if it is not a MLO instance otherwise positive"""
-    return -ent._CEntityDef.rotation.Z if not is_mlo_instance(ent) else ent._CEntityDef.rotation.Z
+    return ent._CEntityDef.rotation.Z if not is_mlo_instance(ent) else -ent._CEntityDef.rotation.Z
 
 def sanitize_name(name: str) -> str:
     new_name: str = ""
