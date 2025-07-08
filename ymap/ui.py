@@ -1,5 +1,5 @@
 import bpy
-from .operators import VICHO_OT_import_ymap, VICHO_OT_remove_ymap, VICHO_OT_go_to_entity, VICHO_OT_add_ymap
+from .operators import VICHO_OT_import_ymap, VICHO_OT_remove_ymap, VICHO_OT_go_to_entity, VICHO_OT_add_ymap, VICHO_OT_add_entity
 from ..vicho_dependencies import dependencies_manager as d
 from ..vicho_operators import VICHO_OT_fake_op
 from .operators_menu import (YMAP_MENU_OPERATORS_GROUPS)
@@ -143,21 +143,16 @@ class YmapTools_Data_PT_Panel(bpy.types.Panel):
                             case "EXTENTS":
                                 right_col.prop(ymap, "show_streaming_extents", text="Show Streaming Extents", icon_value=get_icon("axis_arrow_info"))
                                 right_col.prop(ymap, "show_entities_extents", text="Show Entity Extents", icon_value=get_icon("axis_arrow_info"))
-                                
-                                
                     case "ymap.entities_menu":
-                        right_col.template_list(
-                            ENTITYLIST_UL_list.bl_idname, 
-                            "", 
-                            ymap, 
-                            "entities", 
-                            scene, 
-                            "entity_list_index"
-                        )
+                        right_col.template_list(ENTITYLIST_UL_list.bl_idname, "", ymap, "entities", scene, "entity_list_index")
+                        tool_ent_col = main_row.column(align=True)
+                        tool_ent_col.ui_units_x = 1
+                        tool_ent_col.operator(VICHO_OT_add_entity.bl_idname, text="", icon="ADD")
+                        tool_ent_col.operator(VICHO_OT_fake_op.bl_idname, text="", icon="REMOVE")
                         selected_ent = ymap.entities[scene.entity_list_index] if ymap.entities else None
                         right_col.separator()
-                        row_ent_cat = right_col.row()
                         if selected_ent:
+                            row_ent_cat = right_col.row()
                             entity_data_flow = row_ent_cat.grid_flow(row_major=True, columns=5, even_columns=True, even_rows=True, align=True)
                             entity_data_flow.prop(selected_ent, "entity_data_toggle", expand=True, icon_only=True)
                             right_col.separator()
@@ -175,7 +170,6 @@ class YmapTools_Data_PT_Panel(bpy.types.Panel):
                                     else:
                                         ent_data_flow.alert = True
                                         ent_data_flow.label(text="No linked object")
-                                
                     case "ymap.occluders_menu":
                         right_col.label(text="Occluders")
                     case "ymap.physics_dictionaries_menu":

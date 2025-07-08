@@ -258,15 +258,17 @@ class YmapMapDataFlags(bpy.types.PropertyGroup):
         update=update_ymap_flags) # type: ignore
 
 class EntityProps(bpy.types.PropertyGroup):
+    """Properties for a Entity Definition"""
     enabled: bpy.props.BoolProperty(
         name="Enabled",
         default=True,
+        description="Entity toggle",
     ) # type: ignore
     
     linked_object: bpy.props.PointerProperty(
         name="Linked Object",
         type=bpy.types.Object
-    ) # type: ignore
+    )
     
     is_mlo_instance: bpy.props.BoolProperty(
         name="Is MLO Instance",
@@ -364,6 +366,11 @@ class EntityProps(bpy.types.PropertyGroup):
     )
 
 class YmapProps(bpy.types.PropertyGroup):
+    is_imported: bpy.props.BoolProperty(
+        name="Is Imported",
+        default=False,
+        description="Is this YMAP imported from a file") # type: ignore
+    
     ymap_object: bpy.props.PointerProperty(
         name="Ymap Object",
         type=bpy.types.Object,

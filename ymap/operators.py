@@ -5,6 +5,8 @@ from .funcs import import_ymap_to_scene, remove_ymap_from_scene, create_ymap_emp
 import os
 import time
 from .helper import str_loaded_count
+from bpy.types import Object
+from .constants import COMPAT_SOLL_TYPES
 
 class VICHO_OT_import_ymap(bpy.types.Operator, ImportHelper):
     """Import YMAP file(s)"""
@@ -114,8 +116,25 @@ class VICHO_OT_add_ymap(bpy.types.Operator):
         scene.ymap_list_index = len(scene.ymap_list) - 1
         bpy.ops.ymap.map_data_menu(operator_id="ymap.map_data_menu")
         self.report({'INFO'}, f"YMAP added to scene")
-        return {'FINISHED'}
+        
+
+class VICHO_OT_add_entity(bpy.types.Operator):
+    """Add entity to the YMAP"""
+    bl_idname = "ymap.add_entity"
+    bl_label = "Add entity to YMAP"
     
+    def execute(self, context):
+        scene = context.scene
+        selected_objs: list[Object] = [obj for obj in bpy.context.selected_objects if obj.type == 'EMPTY' and obj.sollum_type in COMPAT_SOLL_TYPES]
+        added_entities: str = ""
+        for obj in selected_objs:
+            new_entity = scene.ymap_list[scene.ymap_list_index].entities.add()
+            new_entity.linked_object = obj
+            scene.entity_list_index = len(scene.ymap_list[scene.ymap_list_index].entities) - 1
+            added_entities += f"{obj.name}, "
+        self.report({'INFO'}, f"Entities added to YMAP: {added_entities}")
+        return {'FINISHED'}    
+            
     
 class VICHO_OT_go_to_entity(bpy.types.Operator):
     """Go to entity"""
