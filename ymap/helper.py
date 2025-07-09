@@ -3,7 +3,6 @@ from ..vicho_dependencies import dependencies_manager as dm
 from .constants import entity_flags_values, map_data_flags_values, map_data_content_flags_values, entity_flags_updating, ymap_flags_updating, ymap_content_flags_updating
 from bpy.types import Object, Context
 from pathlib import Path
-from ..misc.funcs import get_top_parent
 
 def update_entity_flags_bool_properties(self, context):
     global entity_flags_updating

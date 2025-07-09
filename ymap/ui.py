@@ -1,5 +1,5 @@
 import bpy
-from .operators import VICHO_OT_import_ymap, VICHO_OT_remove_ymap, VICHO_OT_go_to_entity, VICHO_OT_add_ymap, VICHO_OT_add_entity
+from .operators import VICHO_OT_import_ymap, VICHO_OT_remove_ymap, VICHO_OT_go_to_entity, VICHO_OT_add_ymap, VICHO_OT_add_entity, VICHO_OT_remove_entity
 from ..vicho_dependencies import dependencies_manager as d
 from ..vicho_operators import VICHO_OT_fake_op
 from .operators_menu import (YMAP_MENU_OPERATORS_GROUPS)
@@ -148,7 +148,7 @@ class YmapTools_Data_PT_Panel(bpy.types.Panel):
                         tool_ent_col = main_row.column(align=True)
                         tool_ent_col.ui_units_x = 1
                         tool_ent_col.operator(VICHO_OT_add_entity.bl_idname, text="", icon="ADD")
-                        tool_ent_col.operator(VICHO_OT_fake_op.bl_idname, text="", icon="REMOVE")
+                        tool_ent_col.operator(VICHO_OT_remove_entity.bl_idname, text="", icon="REMOVE")
                         selected_ent = ymap.entities[scene.entity_list_index] if ymap.entities else None
                         right_col.separator()
                         if selected_ent:
@@ -170,6 +170,13 @@ class YmapTools_Data_PT_Panel(bpy.types.Panel):
                                     else:
                                         ent_data_flow.alert = True
                                         ent_data_flow.label(text="No linked object")
+                                case "FLAGS":
+                                    right_col.separator()
+                                    right_col.prop(selected_ent.flags, "total_flags", text="Flags", expand=False)
+                                    flags_box = right_col.box()
+                                    entity_flags_flow = flags_box.grid_flow(row_major=True, columns=3, even_columns=True, even_rows=True, align=True)
+                                    for flag in entity_flags_values:
+                                        entity_flags_flow.prop(selected_ent.flags, flag)
                     case "ymap.occluders_menu":
                         right_col.label(text="Occluders")
                     case "ymap.physics_dictionaries_menu":

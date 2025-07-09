@@ -268,7 +268,7 @@ class EntityProps(bpy.types.PropertyGroup):
     linked_object: bpy.props.PointerProperty(
         name="Linked Object",
         type=bpy.types.Object
-    )
+    )# type: ignore
     
     is_mlo_instance: bpy.props.BoolProperty(
         name="Is MLO Instance",
@@ -470,9 +470,11 @@ def register():
     bpy.types.Scene.ymap_list = bpy.props.CollectionProperty(
         name="Ymaps",
         type=YmapProps)
+    
     bpy.types.Scene.ymap_list_index = bpy.props.IntProperty(
         name="Index",
         default=0)
+    
     bpy.types.Scene.entity_list_index = bpy.props.IntProperty(
         name="Index",
         default=0,
