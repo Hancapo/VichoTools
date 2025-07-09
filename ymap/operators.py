@@ -135,7 +135,30 @@ class VICHO_OT_add_entity(bpy.types.Operator):
             added_entities += f"{obj.name}, "
         self.report({'INFO'}, f"Entities added to YMAP: {added_entities}")
         return {'FINISHED'}    
-            
+
+class VICHO_OT_remove_entity(bpy.types.Operator):
+    """Remove entity from the YMAP"""
+    bl_idname = "ymap.remove_entity"
+    bl_label = "Remove entity from YMAP"
+    
+    @classmethod
+    def poll(cls, context):
+        return len(context.scene.ymap_list) > 0 and len(context.scene.ymap_list[context.scene.ymap_list_index].entities) > 0
+    
+    def execute(self, context):
+        scene = context.scene
+        selected_ymap_index = scene.ymap_list_index
+        selected_entity_index = scene.entity_list_index
+        
+        if selected_entity_index >= 0:
+            ymap = scene.ymap_list[selected_ymap_index]
+            ymap.entities.remove(selected_entity_index)
+            scene.entity_list_index = max(0, selected_entity_index - 1)
+            self.report({'INFO'}, f"Entity removed from YMAP")
+        else:
+            self.report({'ERROR'}, f"No entity selected to remove")
+        
+        return {'FINISHED'}            
     
 class VICHO_OT_go_to_entity(bpy.types.Operator):
     """Go to entity"""
