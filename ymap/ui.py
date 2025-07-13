@@ -115,7 +115,7 @@ class YmapTools_Data_PT_Panel(bpy.types.Panel):
                     )
                     op_button.operator_id = op[0].bl_idname
                 
-                right_col = main_row.column()
+                right_col = main_row.column(align=True)
                 
                 match ymap.active_category:
                     case "ymap.map_data_menu":
@@ -155,10 +155,8 @@ class YmapTools_Data_PT_Panel(bpy.types.Panel):
                             row_ent_cat = right_col.row()
                             entity_data_flow = row_ent_cat.grid_flow(row_major=True, columns=5, even_columns=True, even_rows=True, align=True)
                             entity_data_flow.prop(selected_ent, "entity_data_toggle", expand=True, icon_only=True)
-                            right_col.separator()
                             match selected_ent.entity_data_toggle:
                                 case "DATA":
-                                    right_col.separator()
                                     obj_row = right_col.row(align=True)
                                     obj_box = obj_row.box()
                                     obj_box.separator(factor=0.1)
@@ -171,12 +169,15 @@ class YmapTools_Data_PT_Panel(bpy.types.Panel):
                                         ent_data_flow.alert = True
                                         ent_data_flow.label(text="No linked object")
                                 case "FLAGS":
-                                    right_col.separator()
                                     right_col.prop(selected_ent.flags, "total_flags", text="Flags", expand=False)
                                     flags_box = right_col.box()
                                     entity_flags_flow = flags_box.grid_flow(row_major=True, columns=3, even_columns=True, even_rows=True, align=True)
                                     for flag in entity_flags_values:
                                         entity_flags_flow.prop(selected_ent.flags, flag)
+                                case "LOD":
+                                    right_col.separator()
+                                    right_col.prop(selected_ent, "lod_level", text="")
+                                    pass
                     case "ymap.occluders_menu":
                         right_col.label(text="Occluders")
                     case "ymap.physics_dictionaries_menu":
