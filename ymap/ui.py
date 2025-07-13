@@ -181,7 +181,12 @@ class YmapTools_Data_PT_Panel(bpy.types.Panel):
                                     right_col.separator()
                                     right_col.prop(selected_ent, "child_lod_distance", text="Child Distance")
                                     right_col.prop(selected_ent, "num_children", text="Child Count")
-                                    pass
+                                case "MISC":
+                                    right_col.separator()
+                                    right_col.prop(selected_ent, "ambient_occlusion_multiplier", text="AO Multiplier")
+                                    right_col.prop(selected_ent, "artificial_ambient_occlusion", text="AO Artificial")
+                                    right_col.separator()
+                                    right_col.prop(selected_ent, "tint_value", text="Tint Value")
                     case "ymap.occluders_menu":
                         right_col.label(text="Occluders")
                     case "ymap.physics_dictionaries_menu":

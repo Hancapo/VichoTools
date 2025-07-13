@@ -37,7 +37,7 @@ ENTITY_TOGGLES = (
     ("DATA", "Data", "Data", "ALIGN_LEFT", 0),
     ("FLAGS", "Flags", "Flags", "PLAY", 1),
     ("LOD", "LOD", "Lod", "MOD_EXPLODE", 2),
-    ("AMBIENT_OCCLUSION", "Ambient Occlusion", "Ambient Occlusion", "SHADERFX", 3),
+    ("MISC", "Miscellaneous", "Miscellaneous", "OUTLINER_OB_EMPTY", 3),
     ("MLO", "MLO", "MLO", "HOME", 4),
 )
 
