@@ -157,10 +157,9 @@ class YmapTools_Data_PT_Panel(bpy.types.Panel):
                             entity_data_flow.prop(selected_ent, "entity_data_toggle", expand=True, icon_only=True)
                             match selected_ent.entity_data_toggle:
                                 case "DATA":
+                                    right_col.separator()
                                     obj_row = right_col.row(align=True)
-                                    obj_box = obj_row.box()
-                                    obj_box.separator(factor=0.1)
-                                    ent_data_flow = obj_box.grid_flow(row_major=True, columns=1, even_columns=True, even_rows=True, align=False)
+                                    ent_data_flow = obj_row.grid_flow(row_major=True, columns=1, even_columns=True, even_rows=True, align=False)
                                     ent_data_flow.prop(selected_ent, "guid")
                                     if selected_ent.linked_object:
                                         ent_data_flow.prop(selected_ent, "linked_object", icon="OBJECT_DATA")
@@ -169,6 +168,7 @@ class YmapTools_Data_PT_Panel(bpy.types.Panel):
                                         ent_data_flow.alert = True
                                         ent_data_flow.label(text="No linked object")
                                 case "FLAGS":
+                                    right_col.separator()
                                     right_col.prop(selected_ent.flags, "total_flags", text="Flags", expand=False)
                                     flags_box = right_col.box()
                                     entity_flags_flow = flags_box.grid_flow(row_major=True, columns=3, even_columns=True, even_rows=True, align=True)
@@ -177,6 +177,12 @@ class YmapTools_Data_PT_Panel(bpy.types.Panel):
                                 case "LOD":
                                     right_col.separator()
                                     right_col.prop(selected_ent, "lod_level", text="")
+                                    right_col.prop(selected_ent, "parent_index", text="Parent Index")
+                                    right_col.prop(selected_ent, "lod_distance", text="LOD Distance")
+                                    right_col.separator()
+                                    right_col.prop(selected_ent, "child_lod_distance", text="Child Distance")
+                                    right_col.prop(selected_ent, "num_children", text="Child Count")
+                                    
                                     pass
                     case "ymap.occluders_menu":
                         right_col.label(text="Occluders")
