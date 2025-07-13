@@ -187,6 +187,13 @@ class YmapTools_Data_PT_Panel(bpy.types.Panel):
                                     right_col.prop(selected_ent, "artificial_ambient_occlusion", text="AO Artificial")
                                     right_col.separator()
                                     right_col.prop(selected_ent, "tint_value", text="Tint Value")
+                                case "MLO":
+                                    right_col.separator()
+                                    if selected_ent.is_mlo_instance:
+                                        right_col.prop(selected_ent, "group_id", text="Group ID")
+                                        right_col.prop(selected_ent, "floor_id", text="Floor ID")
+                                    else:
+                                        right_col.label(text="Not an MLO Instance", icon="ERROR")
                     case "ymap.occluders_menu":
                         right_col.label(text="Occluders")
                     case "ymap.physics_dictionaries_menu":
