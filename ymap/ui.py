@@ -169,11 +169,10 @@ class YmapTools_Data_PT_Panel(bpy.types.Panel):
                                         ent_data_flow.label(text="No linked object")
                                 case "FLAGS":
                                     right_col.separator()
-                                    right_col.prop(selected_ent.flags, "total_flags", text="Flags", expand=False)
-                                    flags_box = right_col.box()
-                                    entity_flags_flow = flags_box.grid_flow(row_major=True, columns=3, even_columns=True, even_rows=True, align=True)
+                                    entity_flags_flow = right_col.grid_flow(row_major=True, columns=4, even_columns=True, even_rows=False, align=False)
                                     for flag in entity_flags_values:
                                         entity_flags_flow.prop(selected_ent.flags, flag)
+                                    right_col.prop(selected_ent.flags, "total_flags", text="Total Flags", expand=False)
                                 case "LOD":
                                     right_col.separator()
                                     right_col.prop(selected_ent, "lod_level", text="")
@@ -182,7 +181,6 @@ class YmapTools_Data_PT_Panel(bpy.types.Panel):
                                     right_col.separator()
                                     right_col.prop(selected_ent, "child_lod_distance", text="Child Distance")
                                     right_col.prop(selected_ent, "num_children", text="Child Count")
-                                    
                                     pass
                     case "ymap.occluders_menu":
                         right_col.label(text="Occluders")
