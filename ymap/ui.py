@@ -120,7 +120,7 @@ class YmapTools_Data_PT_Panel(bpy.types.Panel):
                 match ymap.active_category:
                     case "ymap.map_data_menu":
                         data_flow = right_col.grid_flow(row_major=True, columns=3, even_columns=True, even_rows=True, align=True)
-                        data_flow.prop(ymap, "data_category", expand=True, icon_only=True)
+                        data_flow.prop(ymap, "data_category", expand=True, icon_only=True, emboss=False)
                         right_col.separator()
                         match ymap.data_category:
                             case "DATA":
@@ -154,7 +154,7 @@ class YmapTools_Data_PT_Panel(bpy.types.Panel):
                         if selected_ent:
                             row_ent_cat = right_col.row()
                             entity_data_flow = row_ent_cat.grid_flow(row_major=True, columns=5, even_columns=True, even_rows=True, align=True)
-                            entity_data_flow.prop(selected_ent, "entity_data_toggle", expand=True, icon_only=True)
+                            entity_data_flow.prop(selected_ent, "entity_data_toggle", expand=True, icon_only=True, emboss=False)
                             match selected_ent.entity_data_toggle:
                                 case "DATA":
                                     right_col.separator()
