@@ -187,6 +187,7 @@ class YmapTools_Data_PT_Panel(bpy.types.Panel):
                                     right_col.prop(selected_ent, "artificial_ambient_occlusion", text="AO Artificial")
                                     right_col.separator()
                                     right_col.prop(selected_ent, "tint_value", text="Tint Value")
+                                    right_col.prop(selected_ent, "priority_level", text="")
                                 case "MLO":
                                     right_col.separator()
                                     if selected_ent.is_mlo_instance:

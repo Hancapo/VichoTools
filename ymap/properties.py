@@ -1,5 +1,9 @@
 import bpy
-from .constants import (LOD_LEVELS,ENTITY_TYPES, YMAP_MAP_DATA_TOGGLES, ENTITY_TOGGLES)
+from .constants import (LOD_LEVELS,
+                        ENTITY_TYPES, 
+                        YMAP_MAP_DATA_TOGGLES, 
+                        ENTITY_TOGGLES, 
+                        PRIORITY_LEVELS)
 
 from .helper import (update_entity_flags_bool_properties, 
                      update_entity_flags, 
@@ -332,9 +336,10 @@ class EntityProps(bpy.types.PropertyGroup):
         default="LODTYPES_DEPTH_HD",
     ) # type: ignore
     
-    priority_level: bpy.props.StringProperty(
+    priority_level: bpy.props.EnumProperty(
         name="Priority Level",
-        default=""
+        items=PRIORITY_LEVELS,
+        default="PRI_REQUIRED",
     ) # type: ignore
     
     ambient_occlusion_multiplier: bpy.props.IntProperty(

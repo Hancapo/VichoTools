@@ -128,8 +128,8 @@ def fill_ents_data_from_ymap(scene: Scene, index: int, current_ymap, any_ents: b
             new_entity.lod_distance = ent._CEntityDef.lodDist
             new_entity.child_lod_distance = ent._CEntityDef.childLodDist
             new_entity.num_children = ent._CEntityDef.numChildren
-            new_entity.lod_level = ent._CEntityDef.lodLevel.ToString()
-            new_entity.priority_level = ent._CEntityDef.priorityLevel.ToString()
+            new_entity.lod_level = get_ent_lod_level(ent)
+            new_entity.priority_level = get_ent_priority_level(ent)
             new_entity.ambient_occlusion_multiplier = ent._CEntityDef.ambientOcclusionMultiplier
             new_entity.artificial_ambient_occlusion = ent._CEntityDef.artificialAmbientOcclusion
             new_entity.tintValue = ent._CEntityDef.tintValue
@@ -239,6 +239,10 @@ def get_ent_type(entity) -> str:
 def get_ent_lod_level(entity) -> str:
     """Returns the LOD level of the entity"""
     return str(entity._CEntityDef.lodLevel)
+
+def get_ent_priority_level(entity) -> str:
+    """Returns the priority level of the entity"""
+    return str(entity._CEntityDef.priorityLevel)
 
 def is_mlo_instance(entity) -> bool:
     """Returns if the entity is a MLO instance"""
