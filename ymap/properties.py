@@ -356,6 +356,18 @@ class EntityProps(bpy.types.PropertyGroup):
         name="Floor ID",
         default=0) # type: ignore
     
+    mlo_inst_flags: bpy.props.IntProperty(
+        name="MLO Instance Flags",
+        default=0,
+        description="MLO Instance Flags"
+    ) # type: ignore
+    
+    num_exit_portals: bpy.props.IntProperty(
+        name="Number of Exit Portals",
+        default=0,
+        description="Number of exit portals for MLO instances"
+    ) # type: ignore
+    
     default_entity_sets: bpy.props.CollectionProperty(
         name="Default Entity Sets",
         type=EntitySetsProps) # type: ignore

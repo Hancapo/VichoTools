@@ -110,9 +110,13 @@ def fill_ents_data_from_ymap(scene: Scene, index: int, current_ymap, any_ents: b
         for ent in get_all_ents_from_ymap(current_ymap):
             if not do_props and get_ent_lod_level(ent) == "LODTYPES_DEPTH_ORPHANHD" and not is_mlo_instance(ent):
                 continue
-            
             new_entity = scene.ymap_list[index].entities.add()
-            new_entity.is_mlo_instance = is_mlo_instance(ent)
+            if is_mlo_instance(ent):
+                new_entity.is_mlo_instance = True
+                new_entity.group_id = ent.MloInstance.Instance.groupId
+                new_entity.floor_id = ent.MloInstance.Instance.floorId
+                new_entity.mlo_inst_flags = ent.MloInstance.Instance.MLOInstflags
+                new_entity.num_exit_portals = ent.MloInstance.Instance.numExitPortals
             new_entity.archetype_name = ent._CEntityDef.archetypeName.ToString()
             new_entity.flags.total_flags = ent._CEntityDef.flags
             new_entity.guid = str(ent._CEntityDef.guid)

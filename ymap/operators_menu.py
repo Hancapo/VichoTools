@@ -14,7 +14,7 @@ class MAPDATA_Menu_OT_Operator(bpy.types.Operator, getYmapData):
     bl_description = "Map Data Menu"
     bl_options = {"UNDO"}
     
-    operator_id: bpy.props.StringProperty()
+    operator_id: bpy.props.StringProperty() # type: ignore
     
     def execute(self, context):
         ymap = self.get_ymap_data(context)
@@ -29,7 +29,7 @@ class ENTITIES_Menu_OT_Operator(bpy.types.Operator, getYmapData):
     bl_description = "Entities Menu"
     bl_options = {"UNDO"}
     
-    operator_id: bpy.props.StringProperty()
+    operator_id: bpy.props.StringProperty() # type: ignore
     
     def execute(self, context):
         ymap = self.get_ymap_data(context)
@@ -43,7 +43,7 @@ class OCCLUDERS_Menu_OT_Operator(bpy.types.Operator, getYmapData):
     bl_description = "Occluders Menu"
     bl_options = {"UNDO"}
     
-    operator_id: bpy.props.StringProperty()
+    operator_id: bpy.props.StringProperty() # type: ignore
     
     def execute(self, context):
         ymap = self.get_ymap_data(context)
@@ -57,7 +57,7 @@ class PHYSICSDICTIONARIES_Menu_OT_Operator(bpy.types.Operator, getYmapData):
     bl_description = "Physics Dictionaries Menu"
     bl_options = {"UNDO"}
     
-    operator_id: bpy.props.StringProperty()
+    operator_id: bpy.props.StringProperty() # type: ignore
     
     def execute(self, context):
         ymap = self.get_ymap_data(context)
@@ -71,7 +71,7 @@ class INSTANCEDDATA_Menu_OT_Operator(bpy.types.Operator, getYmapData):
     bl_description = "Instanced Data Menu"
     bl_options = {"UNDO"}
     
-    operator_id: bpy.props.StringProperty()
+    operator_id: bpy.props.StringProperty() # type: ignore
     
     def execute(self, context):
         ymap = self.get_ymap_data(context)
@@ -85,7 +85,7 @@ class TIMECYCLEMODIFIERS_Menu_OT_Operator(bpy.types.Operator, getYmapData):
     bl_description = "Timecycle Modifiers Menu"
     bl_options = {"UNDO"}
     
-    operator_id: bpy.props.StringProperty()
+    operator_id: bpy.props.StringProperty() # type: ignore
     
     def execute(self, context):
         ymap = self.get_ymap_data(context)
@@ -99,7 +99,7 @@ class CARGENERATORS_Menu_OT_Operator(bpy.types.Operator, getYmapData):
     bl_description = "Car Generators Menu"
     bl_options = {"UNDO"}
     
-    operator_id: bpy.props.StringProperty()
+    operator_id: bpy.props.StringProperty() # type: ignore
     
     def execute(self, context):
         ymap = self.get_ymap_data(context)
@@ -113,7 +113,7 @@ class LODLIGHTS_Menu_OT_Operator(bpy.types.Operator, getYmapData):
     bl_description = "Lod Lights Menu"
     bl_options = {"UNDO"}
     
-    operator_id: bpy.props.StringProperty()
+    operator_id: bpy.props.StringProperty() # type: ignore
     
     def execute(self, context):
         ymap = self.get_ymap_data(context)
@@ -127,7 +127,7 @@ class DISTANTLIGHTS_Menu_OT_Operator(bpy.types.Operator, getYmapData):
     bl_description = "Distant Lights Menu"
     bl_options = {"UNDO"}
     
-    operator_id: bpy.props.StringProperty()
+    operator_id: bpy.props.StringProperty() # type: ignore
     
     def execute(self, context):
         ymap = self.get_ymap_data(context)

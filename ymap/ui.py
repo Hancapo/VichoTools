@@ -192,6 +192,8 @@ class YmapTools_Data_PT_Panel(bpy.types.Panel):
                                     if selected_ent.is_mlo_instance:
                                         right_col.prop(selected_ent, "group_id", text="Group ID")
                                         right_col.prop(selected_ent, "floor_id", text="Floor ID")
+                                        right_col.prop(selected_ent, "num_exit_portals", text="Exit Portals")
+                                        right_col.prop(selected_ent, "mlo_inst_flags", text="Instance Flags")
                                     else:
                                         right_col.label(text="Not an MLO Instance", icon="ERROR")
                     case "ymap.occluders_menu":

@@ -172,12 +172,9 @@ def export_milo_ymap_xml(ymapname, object, instance_name):
 
 def get_bounds_from_single_object(obj):
     corners = []
-
     for pos in obj.bound_box:
         corners.append(Vector(pos))
-
     return corners
-
 
 def get_bound_extents(obj, margin=0):
     corners = get_bounds_from_single_object(obj)
@@ -188,7 +185,6 @@ def get_bound_extents(obj, margin=0):
     min = subtract_from_vector(get_min_vector_list(corners), margin)
     max = add_to_vector(get_max_vector_list(corners), margin)
     return min + obj.location, max + obj.location
-
 
 def subtract_from_vector(v, f):
     r = Vector((0, 0, 0))
@@ -374,7 +370,7 @@ def delete_hierarchy(root: Object):
         if data and data.users == 0:
             if isinstance(data, bpy.types.Mesh):
                 bpy.data.meshes.remove(data)
-        bpy.data.objects.remove(obj, do_unlink=True)
+        delete_obj(obj)
         
 def delete_mesh(mesh: Mesh):
     """Delete the given mesh even if it has users."""
