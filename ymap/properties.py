@@ -328,7 +328,8 @@ class EntityProps(bpy.types.PropertyGroup):
     
     lod_level: bpy.props.EnumProperty(
         name="LOD Level",
-        items=LOD_LEVELS
+        items=LOD_LEVELS,
+        default="LODTYPES_DEPTH_HD",
     ) # type: ignore
     
     priority_level: bpy.props.StringProperty(
@@ -338,11 +339,11 @@ class EntityProps(bpy.types.PropertyGroup):
     
     ambient_occlusion_multiplier: bpy.props.IntProperty(
         name="Ambient Occlusion Multiplier",
-        default=0) # type: ignore
+        default=255) # type: ignore
     
     artificial_ambient_occlusion: bpy.props.IntProperty(
         name="Artificial Ambient Occlusion",
-        default=0) # type: ignore
+        default=255) # type: ignore
     
     tint_value: bpy.props.IntProperty(
         name="Tint Value",
