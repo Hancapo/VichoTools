@@ -18,15 +18,22 @@ ENTITY_TYPES = (
 )
 
 LOD_LEVELS = (
-    ("LODTYPES_DEPTH_ORPHANHD", "Depth Orphan HD", "Depth Orphan HD", "OUTLINER_DATA_LIGHTPROBE", 0),
-    ("LODTYPES_DEPTH_HD", "Depth HD", "Depth HD", "OUTLINER_OB_GROUP_INSTANCE", 1),
-    ("LODTYPES_DEPTH_LOD", "Depth LOD", "Depth LOD", "GP_CAPS_ROUND", 2),
-    ("LODTYPES_DEPTH_SLOD1", "Depth SLOD1", "Depth SLOD1", "PHYSICS", 3),
-    ("LODTYPES_DEPTH_SLOD2", "Depth SLOD2", "Depth SLOD2", "MOD_ARRAY", 4),
-    ("LODTYPES_DEPTH_SLOD3", "Depth SLOD3", "Depth SLOD3", "TIME", 5),
-    ("LODTYPES_DEPTH_SLOD4", "Depth SLOD4", "Depth SLOD4", "AUTO", 6)
+    ("LODTYPES_DEPTH_ORPHANHD", "Depth Orphan HD", "Depth Orphan HD", "EVENT_O", 0),
+    ("LODTYPES_DEPTH_HD", "Depth HD", "Depth HD", "EVENT_H", 1),
+    ("LODTYPES_DEPTH_LOD", "Depth LOD", "Depth LOD", "EVENT_L", 2),
+    ("LODTYPES_DEPTH_SLOD1", "Depth SLOD1", "Depth SLOD1", "EVENT_ONEKEY", 3),
+    ("LODTYPES_DEPTH_SLOD2", "Depth SLOD2", "Depth SLOD2", "EVENT_TWOKEY", 4),
+    ("LODTYPES_DEPTH_SLOD3", "Depth SLOD3", "Depth SLOD3", "EVENT_THREEKEY", 5),
+    ("LODTYPES_DEPTH_SLOD4", "Depth SLOD4", "Depth SLOD4", "EVENT_FOURKEY", 6)
 )
 
+PRIORITY_LEVELS = (
+    ("PRI_OPTIONAL_HIGH", "Priority Optional High", "Priority Optional High", "OUTLINER_DATA_LIGHTPROBE", 0),
+    ("PRI_OPTIONAL_MEDIUM", "Priority Optional Medium", "Priority Optional Medium", "OUTLINER_OB_GROUP_INSTANCE", 1),
+    ("PRI_OPTIONAL_LOW", "Priority Optional Low", "Priority Optional Low", "OUTLINER_OB_GROUP_INSTANCE", 2),
+    ("PRI_REQUIRED", "Priority Required", "Priority Required", "OUTLINER_OB_GROUP_INSTANCE", 3),
+)
+    
 YMAP_MAP_DATA_TOGGLES = (
     ("DATA", "Data", "Data", "ALIGN_LEFT", 0),
     ("FLAGS", "Flags", "Flags", "PLAY", 2),
