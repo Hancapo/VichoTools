@@ -10,7 +10,6 @@ from ..misc.funcs import is_drawable_model, is_mesh, is_drawable, gen_rdm_str, a
 from ..misc.constants import YTD_SOLLUM_TYPES
 from threading import Thread
 
-
 def get_images_info_from_mat(mat: bpy.types.Material, self = None) -> list[ImageInfo]:
     images_info: list[ImageInfo] = []
     if mat.use_nodes:
@@ -22,6 +21,8 @@ def get_images_info_from_mat(mat: bpy.types.Material, self = None) -> list[Image
                         if is_img_valid(node.image):
                             images_info.append(ImageInfo(abs_path(node.image.filepath), mat.name, is_tint_shader(node)))
                         else:
+                            if not prefs().skip_environment_textures and get_img_filename(node.image).lower() in ENV_TEXTURES:
+                                continue
                             self.report({"ERROR"}, f"Missing image?: {node.image} in material: {mat.name}")
             case "sollumz_material_none":
                 for node in mat_nodes:
@@ -35,6 +36,11 @@ def get_images_info_from_mat(mat: bpy.types.Material, self = None) -> list[Image
         images_info = [img_inf for img_inf in images_info if img_inf.img_name.lower() not in ENV_TEXTURES]
         
     return images_info
+
+def get_img_filename(image: bpy.types.Image) -> str:
+    if image and Path(abs_path(image.filepath)).exists():
+        return Path(image.filepath).stem
+    return ""
 
 def is_img_valid(image: bpy.types.Image) -> bool:
     if image and os.path.exists(abs_path(image.filepath)):
