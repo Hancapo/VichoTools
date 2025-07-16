@@ -1,6 +1,6 @@
 schema_version = "1.0.0"
 id = "gta_vicho_tools"
-version = "1.0.1"
+version = "1.0.2"
 name = "Vicho's Tools"
 tagline = "A collection of tools for GTA V modding ranging from Textures, Animations, YMAP(S) and more."
 maintainer = "MrVicho13 <vicho0202@gmail.com>"
