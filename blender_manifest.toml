@@ -16,9 +16,9 @@ platforms = ["windows-x64",]
 
 wheels = [
     "./wheels/cffi-1.17.1-cp311-cp311-win_amd64.whl",
-    "./wheels/clr_loader-0.2.6-py3-none-any.whl",
+    "./wheels/clr_loader-0.2.7.post0-py3-none-any.whl",
     "./wheels/pycparser-2.22-py3-none-any.whl",
-    "./wheels/pythonnet-3.0.4-py3-none-any.whl"
+    "./wheels/pythonnet-3.0.5-py3-none-any.whl"
 ]
 
 [permissions]
