@@ -73,7 +73,7 @@ class YtdGroupProps(bpy.types.PropertyGroup):
         default="",
         description="Path to export the YTD file(s)",
         subtype="DIR_PATH",
-        update=update_path,
+        update=lambda self, context: update_path(self, context),
     )
 
     bpy.types.Scene.ytd_enum_process_type = bpy.props.EnumProperty(
