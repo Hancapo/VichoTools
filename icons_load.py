@@ -1,6 +1,7 @@
 import bpy
 import os
 from bpy.utils import previews
+import pathlib
 
 pcoll = None
 preview_collections = {}
@@ -35,27 +36,14 @@ def load_icons():
     icons_dir = os.path.join(os.path.dirname(__file__), "icons")
     print(f"Loading icons from: {icons_dir}")
     
-    icons = [
-        ["map_legend", "map_legend.png"],
-        ["car_multiple", "car_multiple.png"],
-        ["vector_diff", "vector_diff.png"],
-        ["forest", "forest.png"],
-        ["home_city", "home_city.png"],
-        ["arrow_collapse_vertical", "arrow_collapse_vertical.png"],
-        ["grass", "grass.png"],
-        ["sun_clock", "sun_clock.png"],
-        ["lamps", "lamps.png"],
-        ["lighthouse_on", "lighthouse_on.png"],
-        ["file_import", "file_import.png"],
-        ["map_plus", "map_plus.png"],
-        ["map_minus", "map_minus.png"],
-        ["export", "export.png"],
-        ["import_icon", "import.png"],
-        ["box_shadow", "box_shadow.png"],
-        ["sitemap", "sitemap.png"],
-        ["axis_arrow_info", "axis_arrow_info.png"],
-        ["alpha_x_box", "alpha_x_box.png"],
-    ]
+    icons = []
+    icons_dir_path = pathlib.Path(icons_dir)
+    if icons_dir_path.exists():
+        for file in icons_dir_path.glob("*.png"):
+            name = file.stem
+            icons.append([name, file.name])
+    else:
+        print(f"Icons directory does not exist: {icons_dir}")
     
     for name, filename in icons:
         if name in pcoll:
