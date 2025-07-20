@@ -8,7 +8,7 @@ from .funcs import (import_ymap_to_scene,
                     create_ymap_entities_group)
 import os
 import time
-from .helper import str_loaded_count
+from .helper import str_loaded_count, set_sollumz_export_settings, change_ent_parenting
 from bpy.types import Object
 from .constants import COMPAT_SOLL_TYPES
 from ..vicho_dependencies import dependencies_manager as d
@@ -88,6 +88,13 @@ class VICHO_OT_export_ymap(bpy.types.Operator):
     bl_idname = "ymap.export_ymap"
     bl_label = "Export YMAP file(s)"
     
+    
+    export_assets: BoolProperty(
+        name="Export Assets",
+        default=True,
+        description="Export assets used in the YMAP file(s) inside a subfolder"
+    )
+    
     directory: StringProperty(
         name="Export Directory",
         description="Directory to export YMAP files to",
@@ -154,12 +161,26 @@ class VICHO_OT_export_ymap(bpy.types.Operator):
                         ymap_file.AddEntity(ymap_entity_def)
 
             d.File.WriteAllBytes(f"{self.directory}/{ymap_file.Name}.ymap", ymap_file.Save())
+            if self.export_assets:
+                set_sollumz_export_settings()
+                link_objs: list[Object] = [obj.linked_object for obj in ymap.entities if obj.linked_object]
+                change_ent_parenting(link_objs)
+                os.makedirs(self.directory + f"/{ymap.ymap_object.name}_assets", exist_ok=True)
+                scene.sollumz_export_path = f"{self.directory}{ymap.ymap_object.name}_assets"
+                bpy.ops.sollumz.export_assets(directory=self.directory + f"/{ymap.ymap_object.name}_assets")
+                change_ent_parenting(link_objs, do_parent=True)
+                
             self.report({'INFO'}, f"YMAP '{ymap_file.Name}' exported successfully")
+        #create dir
         return {'FINISHED'}
     
     def invoke(self, context, event):
         context.window_manager.fileselect_add(self)
         return {'RUNNING_MODAL'}
+    
+    def draw(self, context):
+        layout = self.layout
+        layout.prop(self, "export_assets", text="Export Assets")
 
 class VICHO_OT_remove_ymap(bpy.types.Operator):
     """Remove YMAP item from the scene"""

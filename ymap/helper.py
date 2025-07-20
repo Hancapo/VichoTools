@@ -3,6 +3,7 @@ from ..vicho_dependencies import dependencies_manager as dm
 from .constants import entity_flags_values, map_data_flags_values, map_data_content_flags_values, entity_flags_updating, ymap_flags_updating, ymap_content_flags_updating
 from bpy.types import Object, Context
 from pathlib import Path
+import bpy
 
 def update_entity_flags_bool_properties(self, context):
     global entity_flags_updating
@@ -142,3 +143,28 @@ def unselect_entities_from_all_ymaps(context: Context):
         if ymap.entities:
             for entity in ymap.entities:
                 entity.linked_object.select_set(False)
+                
+def set_sollumz_export_settings() -> None:
+    """Sets the proper settings needed for assets export"""
+    loaded_addons = bpy.context.preferences.addons
+    preferences = None
+    for addon in loaded_addons:
+        if "sollumz" in addon.module:
+            preferences = loaded_addons[addon.module].preferences
+            break
+    preferences.export_settings.limit_to_selected = True            
+
+def change_ent_parenting(objs: list[Object], do_parent = False):
+    """Changes the parenting of the selected objects to the YMAP entities group"""
+    scene = bpy.context.scene
+    ymap_obj = scene.ymap_list[scene.ymap_list_index].ymap_object
+    ymap_ent_group_obj = next((obj for obj in ymap_obj.children if obj.vicho_type == "vicho_ymap_entities"), None)
+    bpy.ops.object.select_all(action='DESELECT')
+    if ymap_ent_group_obj:
+        for obj in objs:
+            obj.select_set(True)
+            if do_parent:
+                obj.parent = ymap_ent_group_obj
+            else:
+                obj.parent = None
+
