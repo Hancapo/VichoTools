@@ -1,7 +1,7 @@
 import bpy
 from bpy_extras.io_utils import ImportHelper, ExportHelper
 from bpy.props import StringProperty, BoolProperty
-from .funcs import import_ymap_to_scene, remove_ymap_from_scene, create_ymap_empty, sanitize_name, calc_ymap_flags
+from .funcs import import_ymap_to_scene, remove_ymap_from_scene, create_ymap_empty, sanitize_name, calc_ymap_flags, calc_extents
 import os
 import time
 from .helper import str_loaded_count
@@ -128,7 +128,7 @@ class VICHO_OT_export_ymap(bpy.types.Operator):
                         entity_def.ambientOcclusionMultiplier = entity.ambient_occlusion_multiplier
                         entity_def.artificialAmbientOcclusion = entity.artificial_ambient_occlusion
                         entity_def.flags = entity.flags.total_flags
-                        entity_def.guid = entity.guid
+                        entity_def.guid = d.UInt32.Parse(entity.guid)
                         entity_def.tintValue = entity.tint_value
                         entity_def.priorityLevel = d.Enum.Parse(d.rage__ePriorityLevel, entity.priority_level)
                         entity_def.lodDist = entity.lod_distance
@@ -246,5 +246,28 @@ class VICHO_OT_go_to_entity(bpy.types.Operator):
             bpy.ops.object.select_all(action='DESELECT')
             entity.linked_object.select_set(True)
             bpy.ops.view3d.view_selected()
+        
+        return {'FINISHED'}
+    
+class VICHO_OT_calculate_ymap_extents(bpy.types.Operator):
+    """Calculate YMAP extents"""
+    bl_idname = "ymap.calculate_extents"
+    bl_label = "Calculate YMAP extents"
+    
+    @classmethod
+    def poll(cls, context):
+        scene = context.scene
+        return len(scene.ymap_list) > 0
+    
+    def execute(self, context):
+        scene = context.scene
+        selected_ymap_index = scene.ymap_list_index
+        ymap = scene.ymap_list[selected_ymap_index]
+        
+        if ymap.entities:
+            ymap.entities_extents_min, ymap.entities_extents_max, ymap.streaming_extents_min, ymap.streaming_extents_max = calc_extents(ymap.entities)
+            self.report({'INFO'}, f"YMAP extents calculated")
+        else:
+            self.report({'WARNING'}, f"No entities in YMAP to calculate extents")
         
         return {'FINISHED'}

@@ -5,7 +5,8 @@ from .operators import (VICHO_OT_import_ymap,
                         VICHO_OT_add_ymap, 
                         VICHO_OT_add_entity, 
                         VICHO_OT_remove_entity,
-                        VICHO_OT_export_ymap)
+                        VICHO_OT_export_ymap,
+                        VICHO_OT_calculate_ymap_extents)
 from ..vicho_dependencies import dependencies_manager as d
 from ..vicho_operators import VICHO_OT_fake_op
 from .operators_menu import (YMAP_MENU_OPERATORS_GROUPS)
@@ -158,6 +159,8 @@ class YmapTools_Data_PT_Panel(bpy.types.Panel):
                             case "EXTENTS":
                                 right_col.prop(ymap, "show_streaming_extents", text="Show Streaming Extents", icon_value=get_icon("axis_arrow_info"))
                                 right_col.prop(ymap, "show_entities_extents", text="Show Entity Extents", icon_value=get_icon("axis_arrow_info"))
+                                right_col.separator()
+                                right_col.operator(VICHO_OT_calculate_ymap_extents.bl_idname, text="Calculate Extents", icon="FILE_REFRESH")
                     case "ymap.entities_menu":
                         right_col.template_list(ENTITYLIST_UL_list.bl_idname, "", ymap, "entities", scene, "entity_list_index")
                         tool_ent_col = main_row.column(align=True)
