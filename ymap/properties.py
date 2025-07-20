@@ -292,9 +292,9 @@ class EntityProps(bpy.types.PropertyGroup):
         type=EntityFlags
     ) # type: ignore
     
-    guid: bpy.props.StringProperty(
+    guid: bpy.props.IntProperty(
         name="GUID",
-        default="",
+        default=0,
         description="GUID") # type: ignore
     
     position: bpy.props.FloatVectorProperty(
@@ -320,7 +320,7 @@ class EntityProps(bpy.types.PropertyGroup):
     
     lod_distance: bpy.props.FloatProperty(
         name="LOD Distance",
-        default=0.0) # type: ignore
+        default=6000.0) # type: ignore
     
     child_lod_distance: bpy.props.FloatProperty(
         name="Child LOD Distance",
@@ -490,13 +490,19 @@ def register():
         type=YmapProps)
     
     bpy.types.Scene.ymap_list_index = bpy.props.IntProperty(
-        name="Index",
+        name="Ymap Index",
         default=0)
     
     bpy.types.Scene.entity_list_index = bpy.props.IntProperty(
-        name="Index",
+        name="Entity Index",
         default=0,
         update=update_entity_index
+    )
+    
+    bpy.types.Scene.default_entity_sets_index = bpy.props.IntProperty(
+        name="Default Entity Sets Index",
+        default=0,
+        description="Index of the selected default entity set",
     )
     
     bpy.types.Object.vicho_type = bpy.props.StringProperty(
@@ -510,4 +516,5 @@ def unregister():
     del bpy.types.Scene.ymap_list
     del bpy.types.Scene.ymap_list_index
     del bpy.types.Scene.entity_list_index
+    del bpy.types.Scene.default_entity_sets_index
     del bpy.types.Object.vicho_type

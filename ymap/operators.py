@@ -1,12 +1,14 @@
 import bpy
-from bpy_extras.io_utils import ImportHelper
+from bpy_extras.io_utils import ImportHelper, ExportHelper
 from bpy.props import StringProperty, BoolProperty
-from .funcs import import_ymap_to_scene, remove_ymap_from_scene, create_ymap_empty
+from .funcs import import_ymap_to_scene, remove_ymap_from_scene, create_ymap_empty, sanitize_name
 import os
 import time
 from .helper import str_loaded_count
 from bpy.types import Object
 from .constants import COMPAT_SOLL_TYPES
+from ..vicho_dependencies import dependencies_manager as d
+
 
 class VICHO_OT_import_ymap(bpy.types.Operator, ImportHelper):
     """Import YMAP file(s)"""
@@ -76,6 +78,72 @@ class VICHO_OT_import_ymap(bpy.types.Operator, ImportHelper):
                 col.prop(self, "asset_path", icon="FILE_FOLDER")
                 col.separator()
                 col.prop(self, "import_props")
+
+class VICHO_OT_export_ymap(bpy.types.Operator):
+    """Export YMAP file(s)"""
+    bl_idname = "ymap.export_ymap"
+    bl_label = "Export YMAP file(s)"
+    
+    directory: StringProperty(
+        name="Export Directory",
+        description="Directory to export YMAP files to",
+        subtype='DIR_PATH'
+    )
+    
+    filter_folder: BoolProperty(
+        name="Filter Folder",
+        default=True,
+        options={'HIDDEN'},
+    )
+    
+    @classmethod
+    def poll(cls, context):
+        return len(context.scene.ymap_list) > 0
+    
+    def execute(self, context):
+        scene = context.scene
+        ymap_list = scene.ymap_list
+        for i, ymap in enumerate(ymap_list):
+            #Calculate ymap flags
+            
+            ymap_file = d.YmapFile()
+            ymap_file.Name = ymap.ymap_object.name
+            
+            #Build entities
+            if ymap.entities:
+                for entity in ymap.entities:
+                    if entity.linked_object:
+                        lo: Object = entity.linked_object
+                        ymap_entity_def = d.YmapEntityDef()
+                        entity_def = d.CEntityDef()
+                        name_meta = d.MetaHash(d.JenkHash.GenHash(sanitize_name(lo.name)))
+                        entity_def.archetypeName = name_meta
+                        entity_def.position = d.Vector3(lo.location.x, lo.location.y, lo.location.z)
+                        entity_def.rotation = d.Vector4(lo.rotation_quaternion.x, lo.rotation_quaternion.y, lo.rotation_quaternion.z, lo.rotation_quaternion.w)
+                        entity_def.scaleXY = lo.scale.x
+                        entity_def.scaleZ = lo.scale.z
+                        entity_def.lodLevel = d.Enum.Parse(d.rage__eLodType, entity.lod_level)
+                        entity_def.ambientOcclusionMultiplier = entity.ambient_occlusion_multiplier
+                        entity_def.artificialAmbientOcclusion = entity.artificial_ambient_occlusion
+                        entity_def.flags = entity.flags.total_flags
+                        entity_def.guid = entity.guid
+                        entity_def.tintValue = entity.tint_value
+                        entity_def.priorityLevel = d.Enum.Parse(d.rage__ePriorityLevel, entity.priority_level)
+                        entity_def.lodDist = entity.lod_distance
+                        entity_def.childLodDist = entity.child_lod_distance
+                        entity_def.numChildren = entity.num_children
+                        entity_def.parentIndex = entity.parent_index
+                        #TODO MLO Instance Support
+                        ymap_entity_def._CEntityDef = entity_def
+                        ymap_file.AddEntity(ymap_entity_def)
+
+            d.File.WriteAllBytes(f"{self.directory}/{ymap_file.Name}.ymap", ymap_file.Save())
+            self.report({'INFO'}, f"YMAP '{ymap_file.Name}' exported successfully")
+        return {'FINISHED'}
+    
+    def invoke(self, context, event):
+        context.window_manager.fileselect_add(self)
+        return {'RUNNING_MODAL'}
 
 class VICHO_OT_remove_ymap(bpy.types.Operator):
     """Remove YMAP item from the scene"""
