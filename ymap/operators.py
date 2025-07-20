@@ -4,7 +4,7 @@ from bpy.props import StringProperty, BoolProperty
 from .funcs import (import_ymap_to_scene, 
                     remove_ymap_from_scene, 
                     create_ymap_empty, sanitize_name, 
-                    calc_ymap_flags, calc_extents, 
+                    calc_ymap_flags, set_ymap_extents, 
                     create_ymap_entities_group)
 import os
 import time
@@ -122,6 +122,7 @@ class VICHO_OT_export_ymap(bpy.types.Operator):
             
             new_map_data = d.CMapData()
             
+            set_ymap_extents(ymap, ymap.entities)
             
             new_map_data.flags, new_map_data.contentFlags = ymap.flags.total_flags, ymap.content_flags.total_flags
             
@@ -310,7 +311,7 @@ class VICHO_OT_calculate_ymap_extents(bpy.types.Operator):
         ymap = scene.ymap_list[selected_ymap_index]
         
         if ymap.entities:
-            ymap.entities_extents_min, ymap.entities_extents_max, ymap.streaming_extents_min, ymap.streaming_extents_max = calc_extents(ymap.entities)
+            set_ymap_extents(ymap, ymap.entities)
             self.report({'INFO'}, f"YMAP extents calculated")
         else:
             self.report({'WARNING'}, f"No entities in YMAP to calculate extents")

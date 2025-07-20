@@ -339,6 +339,13 @@ def get_children_aabb(parent: bpy.types.Object):
 
     return bb_min, bb_max
 
+def set_ymap_extents(ymap, entities):
+    """Sets the extents of the YMAP based on the given entities."""
+    emin, emax, smin, smax = calc_extents(entities)
+    ymap.entities_extents_min = emin
+    ymap.entities_extents_max = emax
+    ymap.streaming_extents_min = smin
+    ymap.streaming_extents_max = smax
 
 # I don't understand this function tbh, thanks dexy and ChatGPT, I guess. I don't have high expectations for this one anyway (it worked lmao).
 def calc_extents(entities):
