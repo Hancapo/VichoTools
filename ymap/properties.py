@@ -292,9 +292,9 @@ class EntityProps(bpy.types.PropertyGroup):
         type=EntityFlags
     ) # type: ignore
     
-    guid: bpy.props.IntProperty(
+    guid: bpy.props.StringProperty(
         name="GUID",
-        default=0,
+        default="0",
         description="GUID") # type: ignore
     
     position: bpy.props.FloatVectorProperty(
