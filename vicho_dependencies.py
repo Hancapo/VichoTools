@@ -57,6 +57,7 @@ class DependenciesManager:
         self.MetaHash = None
         self.JenkHash = None
         self.JenkIndex = None
+        self.CMapData = None
 
     @property
     def ymap_list(self) -> List["YmapFile"]:
@@ -148,6 +149,7 @@ class DependenciesManager:
                 self.MetaHash,
                 self.JenkHash,
                 self.JenkIndex,
+                self.CMapData,
             ]
         )
 
@@ -188,6 +190,7 @@ class DependenciesManager:
                 MetaHash,
                 JenkHash,
                 JenkIndex,
+                CMapData,
             )
             import CodeWalker.Utils as Utils
             from TeximpNet import Surface as Surface, ImageFilter as ImageFilter
@@ -225,6 +228,7 @@ class DependenciesManager:
             self.MetaHash = MetaHash
             self.JenkHash = JenkHash
             self.JenkIndex = JenkIndex
+            self.CMapData = CMapData
 
             self.List = List
             self.File = File
