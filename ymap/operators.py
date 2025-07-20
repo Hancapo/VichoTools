@@ -137,12 +137,14 @@ class VICHO_OT_export_ymap(bpy.types.Operator):
                 for entity in ymap.entities:
                     if entity.linked_object:
                         lo: Object = entity.linked_object
+                        if lo.rotation_mode != 'QUATERNION':
+                            lo.rotation_mode = 'QUATERNION'
                         ymap_entity_def = d.YmapEntityDef()
                         entity_def = d.CEntityDef()
                         name_meta = d.MetaHash(d.JenkHash.GenHash(sanitize_name(lo.name)))
                         entity_def.archetypeName = name_meta
                         entity_def.position = d.Vector3(lo.location.x, lo.location.y, lo.location.z)
-                        entity_def.rotation = d.Vector4(lo.rotation_quaternion.x, lo.rotation_quaternion.y, lo.rotation_quaternion.z, lo.rotation_quaternion.w)
+                        entity_def.rotation = d.Vector4(lo.rotation_quaternion.x, lo.rotation_quaternion.y, lo.rotation_quaternion.z, -lo.rotation_quaternion.w if lo.rotation_quaternion.w != 1 else lo.rotation_quaternion.w)
                         entity_def.scaleXY = lo.scale.x
                         entity_def.scaleZ = lo.scale.z
                         entity_def.lodLevel = d.Enum.Parse(d.rage__eLodType, entity.lod_level)
