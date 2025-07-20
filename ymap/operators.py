@@ -108,12 +108,22 @@ class VICHO_OT_export_ymap(bpy.types.Operator):
         scene = context.scene
         ymap_list = scene.ymap_list
         for i, ymap in enumerate(ymap_list):
-            #Calculate ymap flags
             
             ymap_file = d.YmapFile()
             ymap_file.Name = ymap.ymap_object.name
             ymap.flags.total_flags, ymap.content_flags.total_flags = calc_ymap_flags(ymap)
-            ymap_file._CMapData.flags, ymap_file._CMapData.contentFlags = ymap.flags.total_flags, ymap.content_flags.total_flags
+            
+            new_map_data = d.CMapData()
+            
+            
+            new_map_data.flags, new_map_data.contentFlags = ymap.flags.total_flags, ymap.content_flags.total_flags
+            
+            new_map_data.streamingExtentsMin = d.Vector3(ymap.streaming_extents_min[0], ymap.streaming_extents_min[1], ymap.streaming_extents_min[2])
+            new_map_data.streamingExtentsMax = d.Vector3(ymap.streaming_extents_max[0], ymap.streaming_extents_max[1], ymap.streaming_extents_max[2])
+            new_map_data.entitiesExtentsMin = d.Vector3(ymap.entities_extents_min[0], ymap.entities_extents_min[1], ymap.entities_extents_min[2])
+            new_map_data.entitiesExtentsMax = d.Vector3(ymap.entities_extents_max[0], ymap.entities_extents_max[1], ymap.entities_extents_max[2])
+            
+            ymap_file._CMapData = new_map_data
 
             #Build entities
             if ymap.entities:
