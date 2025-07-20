@@ -49,10 +49,10 @@ class StreamingExtentsGizmoGroup(bpy.types.GizmoGroup):
         gizmo_entities.draw_style = 'BOX'
         gizmo_entities.matrix_offset = get_extents_matrix(context, 'streaming')
         
-    def refresh(self, context):
-        if context.scene.ymap_list_index != -1:
-            for gizmo in self.gizmos:
-                gizmo.matrix_offset = get_extents_matrix(context, 'streaming')
+    def draw_prepare(self, context):
+        mat = get_extents_matrix(context, 'streaming')
+        for gz in self.gizmos:
+            gz.matrix_offset = mat
                     
 class EntitiesExtentsGizmoGroup(bpy.types.GizmoGroup):
     bl_idname = "OBJECT_GGT_Entities_Extents"
@@ -77,7 +77,9 @@ class EntitiesExtentsGizmoGroup(bpy.types.GizmoGroup):
         gizmo_entities.draw_style = 'BOX'
         gizmo_entities.matrix_offset = get_extents_matrix(context, 'entities')
         
-    def refresh(self, context):
-        if context.scene.ymap_list_index != -1:
-            for gizmo in self.gizmos:
-                gizmo.matrix_offset = get_extents_matrix(context, 'entities')
+    def draw_prepare(self, context):
+        mat = get_extents_matrix(context, 'entities')
+        for gz in self.gizmos:
+            gz.matrix_offset = mat
+                
+    
