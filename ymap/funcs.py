@@ -6,6 +6,7 @@ import bpy
 from .constants import COMPAT_SOLL_TYPES, OBJECT_TYPES, VALID_NON_POLY_BOUND_TYPES
 from bpy.types import Object, Scene
 from ..misc.funcs import create_ymap_empty, create_ymap_entities_group, delete_hierarchy, delete_mesh
+from mathutils import Vector, Matrix
 
 def get_sollumz_extensions() -> list[str]:
     return ["ydr", "ydd", "yft", "ybn"]
@@ -287,8 +288,9 @@ def set_bit(value: int, bit: int) -> int:
     """Sets a specific bit in an integer value"""
     return value | (1 << bit)
 
+# This function is almost a copy of the CodeWalker's one.
 def calc_ymap_flags(ymap) -> tuple[int, int]:
-    """Calculates the content flags for the YMAP"""
+    """Calculates all flags for the YMAP"""
     flags = 0
     content_flags = 0
     
@@ -314,3 +316,72 @@ def calc_ymap_flags(ymap) -> tuple[int, int]:
                 content_flags = set_bit(content_flags, 3)
         
     return flags, content_flags
+
+def get_children_aabb(parent: bpy.types.Object):
+    """Calculates the axis-aligned bounding box of all children of the given parent object."""
+    inf, ninf = float('inf'), float('-inf')
+    bb_min = Vector(( inf,  inf,  inf))
+    bb_max = Vector((ninf, ninf, ninf))
+    inv_parent = parent.matrix_world.inverted()
+
+    for child in parent.children_recursive:
+        if child.type != 'MESH' and child.sollum_type != "sollumz_drawable_model":
+            continue
+        for corner in child.bound_box:
+            world_pt = child.matrix_world @ Vector(corner)
+            local_pt = inv_parent @ world_pt
+            bb_min.x = min(bb_min.x, local_pt.x)
+            bb_min.y = min(bb_min.y, local_pt.y)
+            bb_min.z = min(bb_min.z, local_pt.z)
+            bb_max.x = max(bb_max.x, local_pt.x)
+            bb_max.y = max(bb_max.y, local_pt.y)
+            bb_max.z = max(bb_max.z, local_pt.z)
+
+    return bb_min, bb_max
+
+
+# I don't understand this function tbh, thanks dexy and ChatGPT, I guess. I don't have high expectations for this one anyway (it worked lmao).
+def calc_extents(entities):
+    """Calculates the extents of the entities in the YMAP."""
+    inf, ninf = float('inf'), float('-inf')
+    emin = Vector(( inf,  inf,  inf))
+    emax = Vector((ninf, ninf, ninf))
+    smin = Vector(( inf,  inf,  inf))
+    smax = Vector((ninf, ninf, ninf))
+
+    for ent in entities:
+        obj = ent.linked_object
+        mw = obj.matrix_world
+        lod_dist = ent.lod_distance
+        bb_min_loc, bb_max_loc = get_children_aabb(obj)
+        corners = [
+            Vector((x, y, z))
+            for x in (bb_min_loc.x, bb_max_loc.x)
+            for y in (bb_min_loc.y, bb_max_loc.y)
+            for z in (bb_min_loc.z, bb_max_loc.z)
+        ]
+        world_c = [mw @ v for v in corners]
+        bbmin_w = Vector((min(v[i] for v in world_c) for i in range(3)))
+        bbmax_w = Vector((max(v[i] for v in world_c) for i in range(3)))
+
+        emin = Vector((min(emin[i], bbmin_w[i]) for i in range(3)))
+        emax = Vector((max(emax[i], bbmax_w[i]) for i in range(3)))
+
+        inf_min = bb_min_loc - Vector((lod_dist,)*3)
+        inf_max = bb_max_loc + Vector((lod_dist,)*3)
+        stream_corners = [
+            Vector((x, y, z))
+            for x in (inf_min.x, inf_max.x)
+            for y in (inf_min.y, inf_max.y)
+            for z in (inf_min.z, inf_max.z)
+        ]
+        world_s = [mw @ v for v in stream_corners]
+        sbmin_w = Vector((min(v[i] for v in world_s) for i in range(3)))
+        sbmax_w = Vector((max(v[i] for v in world_s) for i in range(3)))
+
+        smin = Vector((min(smin[i], sbmin_w[i]) for i in range(3)))
+        smax = Vector((max(smax[i], sbmax_w[i]) for i in range(3)))
+
+    return emin, emax, smin, smax
+
+    
