@@ -1,5 +1,11 @@
 import bpy
-from .operators import VICHO_OT_import_ymap, VICHO_OT_remove_ymap, VICHO_OT_go_to_entity, VICHO_OT_add_ymap, VICHO_OT_add_entity, VICHO_OT_remove_entity
+from .operators import (VICHO_OT_import_ymap, 
+                        VICHO_OT_remove_ymap, 
+                        VICHO_OT_go_to_entity, 
+                        VICHO_OT_add_ymap, 
+                        VICHO_OT_add_entity, 
+                        VICHO_OT_remove_entity,
+                        VICHO_OT_export_ymap)
 from ..vicho_dependencies import dependencies_manager as d
 from ..vicho_operators import VICHO_OT_fake_op
 from .operators_menu import (YMAP_MENU_OPERATORS_GROUPS)
@@ -39,7 +45,16 @@ class ENTITYLIST_UL_list(bpy.types.UIList):
         items = getattr(data, property)
         flt_flags = bpy.types.UI_UL_list.filter_items_by_name(self.filter_name, self.bitflag_filter_item, items, propname="archetype_name")
         return flt_flags, []
-                
+    
+class GENERICNAME_UL_lists(bpy.types.UIList):
+    bl_idname = "GENERICNAME_UL_lists"
+    
+    def draw_item(
+        self, context, layout, data, item, icon, active_data, active_propname, index
+    ):
+        if self.layout_type in {"DEFAULT", "COMPACT"}:
+                layout.prop(item, "name", text="", emboss=False, icon="OUTLINER_OB_GROUP_INSTANCE")
+
 class YmapTools_PT_Panel(bpy.types.Panel):
     bl_label = "Map Data"
     bl_idname = "VICHOTOOLS_PT_Ymap"
@@ -57,8 +72,8 @@ class YmapTools_PT_Panel(bpy.types.Panel):
         if d.available:
             row = layout.row()
             col = row.column(align=True)
-            col.operator(VICHO_OT_import_ymap.bl_idname, text="", icon_value=get_icon("import_icon") )
-            col.operator(VICHO_OT_fake_op.bl_idname, text="", icon_value=get_icon("export"))
+            col.operator(VICHO_OT_import_ymap.bl_idname, text="", icon_value=get_icon("upload") )
+            col.operator(VICHO_OT_export_ymap.bl_idname, text="", icon_value=get_icon("download"))
             col.separator()
             col.operator(VICHO_OT_add_ymap.bl_idname, text="", icon="ADD")
             col.operator(VICHO_OT_remove_ymap.bl_idname, text="", icon="REMOVE")
@@ -195,6 +210,21 @@ class YmapTools_Data_PT_Panel(bpy.types.Panel):
                                         right_col.prop(selected_ent, "floor_id", text="Floor ID")
                                         right_col.prop(selected_ent, "num_exit_portals", text="Exit Portals")
                                         right_col.prop(selected_ent, "mlo_inst_flags", text="Instance Flags")
+                                        right_col.separator()
+                                        
+                                        if selected_ent.default_entity_sets:
+                                            header, panel = right_col.panel("tesd", default_closed=True)
+                                            header.label(text="Default Entity Sets", icon="GROUP_BONE")
+                                            if panel:
+                                                panel_col = panel.column()
+                                                panel_col.template_list(
+                                                    "GENERICNAME_UL_lists", 
+                                                    "", 
+                                                    selected_ent, 
+                                                    "default_entity_sets", 
+                                                    scene, 
+                                                    "default_entity_sets_index"
+                                                )
                                     else:
                                         right_col.label(text="Not an MLO Instance", icon="ERROR")
                     case "ymap.occluders_menu":

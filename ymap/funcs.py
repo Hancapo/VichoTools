@@ -117,6 +117,7 @@ def fill_ents_data_from_ymap(scene: Scene, index: int, current_ymap, any_ents: b
                 new_entity.floor_id = ent.MloInstance.Instance.floorId
                 new_entity.mlo_inst_flags = ent.MloInstance.Instance.MLOInstflags
                 new_entity.num_exit_portals = ent.MloInstance.Instance.numExitPortals
+                fill_default_entity_sets(ent, new_entity)
             new_entity.archetype_name = ent._CEntityDef.archetypeName.ToString()
             new_entity.flags.total_flags = ent._CEntityDef.flags
             new_entity.guid = str(ent._CEntityDef.guid)
@@ -244,9 +245,25 @@ def get_ent_priority_level(entity) -> str:
     """Returns the priority level of the entity"""
     return str(entity._CEntityDef.priorityLevel)
 
+
+def fill_default_entity_sets(entity, bld_entity) -> None:
+    """Returns the default entity sets of the MLO instance"""
+    if entity.MloInstance:
+        sets = [ent_set.ToString() for ent_set in entity.MloInstance.defaultEntitySets]
+        
+    if sets:
+        for ent_set in sets:
+            new = bld_entity.default_entity_sets.add()
+            new.name = ent_set
+
+def build_default_entity_sets_list(dels: list[str]) -> None:
+    """Builds the list for the default entity sets property"""
+    return None
+
 def is_mlo_instance(entity) -> bool:
     """Returns if the entity is a MLO instance"""
     return entity.IsMlo
+
 
 def get_ymap_from_file(ymap_path: str):
     """Returns the YMAP object from the file"""
@@ -265,3 +282,19 @@ def sanitize_name(name: str) -> str:
     else:
         new_name = name
     return new_name
+
+def set_bit(value: int, bit: int) -> int:
+    """Sets a specific bit in an integer value"""
+    return value | (1 << bit)
+
+def calc_ymap_flags(ymap) -> tuple[int, int]:
+    """Calculates the content flags for the YMAP"""
+    flags = 0
+    content_flags = 0
+    
+    if ymap.entities:
+        for ent in ymap.entities:
+            match ent.lod_level:
+                case "LODTYPES_DEPTH_ORPHANHD":
+                    pass
+            
