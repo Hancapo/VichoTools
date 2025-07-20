@@ -1,7 +1,7 @@
 import bpy
 from bpy_extras.io_utils import ImportHelper, ExportHelper
 from bpy.props import StringProperty, BoolProperty
-from .funcs import import_ymap_to_scene, remove_ymap_from_scene, create_ymap_empty, sanitize_name
+from .funcs import import_ymap_to_scene, remove_ymap_from_scene, create_ymap_empty, sanitize_name, calc_ymap_flags
 import os
 import time
 from .helper import str_loaded_count
@@ -108,7 +108,9 @@ class VICHO_OT_export_ymap(bpy.types.Operator):
             
             ymap_file = d.YmapFile()
             ymap_file.Name = ymap.ymap_object.name
-            
+            ymap.flags.total_flags, ymap.content_flags.total_flags = calc_ymap_flags(ymap)
+            ymap_file._CMapData.flags, ymap_file._CMapData.contentFlags = ymap.flags.total_flags, ymap.content_flags.total_flags
+
             #Build entities
             if ymap.entities:
                 for entity in ymap.entities:
