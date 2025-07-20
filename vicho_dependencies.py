@@ -25,6 +25,7 @@ class DependenciesManager:
         self.List = None
         self.File = None
         self.Enum = None
+        self.UInt32 = None
 
         # TeximpNet stuff
         self.Surface = None
@@ -123,6 +124,7 @@ class DependenciesManager:
                 self.List,
                 self.File,
                 self.Enum,
+                self.UInt32,
                 self.Surface,
                 self.Compressor,
                 self.CompressionFormat,
@@ -171,7 +173,7 @@ class DependenciesManager:
             print("References added correctly")
 
             from System.Collections.Generic import List
-            from System import Enum
+            from System import Enum, UInt32
             import CodeWalker.GameFiles as GameFiles
             from System.IO import File
             from CodeWalker.GameFiles import (
@@ -207,6 +209,7 @@ class DependenciesManager:
             self.GameFiles = GameFiles
             self.Utils = Utils
             self.Enum = Enum
+            self.UInt32 = UInt32
 
             self.Vector3 = Vector3
             self.Vector4 = Vector4
