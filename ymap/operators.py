@@ -1,5 +1,5 @@
 import bpy
-from bpy_extras.io_utils import ImportHelper, ExportHelper
+from bpy_extras.io_utils import ImportHelper
 from bpy.props import StringProperty, BoolProperty
 from .funcs import (import_ymap_to_scene, 
                     remove_ymap_from_scene, 
@@ -15,7 +15,7 @@ from ..vicho_dependencies import dependencies_manager as d
 
 
 class VICHO_OT_import_ymap(bpy.types.Operator, ImportHelper):
-    """Import YMAP file(s)"""
+    """Import(s) all the selected YMAP file(s) from a given directory"""
     bl_idname = "ymap.import_ymap"
     bl_label = "Import YMAP file(s)"
 
@@ -84,7 +84,7 @@ class VICHO_OT_import_ymap(bpy.types.Operator, ImportHelper):
                 col.prop(self, "import_props")
 
 class VICHO_OT_export_ymap(bpy.types.Operator):
-    """Export YMAP file(s)"""
+    """Export(s) all the selected YMAP file(s) to a given directory"""
     bl_idname = "ymap.export_ymap"
     bl_label = "Export YMAP file(s)"
     
@@ -92,7 +92,7 @@ class VICHO_OT_export_ymap(bpy.types.Operator):
     export_assets: BoolProperty(
         name="Export Assets",
         default=True,
-        description="Export assets used in the YMAP file(s) inside a subfolder"
+        description="Whether or not to export assets linked to the YMAP entities",
     )
     
     directory: StringProperty(
@@ -186,9 +186,9 @@ class VICHO_OT_export_ymap(bpy.types.Operator):
         layout.prop(self, "export_assets", text="Export Assets")
 
 class VICHO_OT_remove_ymap(bpy.types.Operator):
-    """Remove YMAP item from the scene"""
+    """Removes the selected YMAP from the list"""
     bl_idname = "ymap.remove_ymap"
-    bl_label = "Remove YMAP item from the scene"
+    bl_label = "Removes a YMAP"
     
     @classmethod
     def poll(cls, context):
@@ -212,9 +212,9 @@ class VICHO_OT_remove_ymap(bpy.types.Operator):
         return context.window_manager.invoke_confirm(self, event, message=message)
     
 class VICHO_OT_add_ymap(bpy.types.Operator):
-    """Add YMAP item to the scene"""
+    """Adds a new YMAP item to the scene/ymap list"""
     bl_idname = "ymap.add_ymap"
-    bl_label = "Add YMAP item to the scene"
+    bl_label = "Creates a new YMAP"
     
     def execute(self, context):
         scene = context.scene
@@ -277,7 +277,7 @@ class VICHO_OT_remove_entity(bpy.types.Operator):
         return {'FINISHED'}            
     
 class VICHO_OT_go_to_entity(bpy.types.Operator):
-    """Go to entity"""
+    """It zooms in to selected entity in the 3D Viewport"""
     bl_idname = "ymap.go_to_entity"
     bl_label = "Go to entity"
     
@@ -296,7 +296,7 @@ class VICHO_OT_go_to_entity(bpy.types.Operator):
         return {'FINISHED'}
     
 class VICHO_OT_calculate_ymap_extents(bpy.types.Operator):
-    """Calculate YMAP extents"""
+    """It calculates the extents of the current YMAP"""
     bl_idname = "ymap.calculate_extents"
     bl_label = "Calculate YMAP extents"
     

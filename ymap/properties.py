@@ -25,10 +25,11 @@ class PhysicsGroup(bpy.types.PropertyGroup):
 class EntityFlags(bpy.types.PropertyGroup):
     total_flags: bpy.props.IntProperty(
         name="Flags",
-        default=0,
+        default=1572864,
         min=0,
-        description="Entity flags",
+        description="Total Flags number",
         update=update_entity_flags_bool_properties) # type: ignore
+    
     allow_full_rotation: bpy.props.BoolProperty(
         name="Allow Full Rotation",
         default=False,
@@ -173,8 +174,9 @@ class YmapMapDataContentFlags(bpy.types.PropertyGroup):
         name="Flags",
         default=0,
         min=0,
-        description="YMAP flags",
+        description="Total Flags number",
         update=update_ymap_content_flags_bool_properties) # type: ignore
+    
     hd: bpy.props.BoolProperty(
         name="HD",
         default=False,
@@ -271,7 +273,8 @@ class EntityProps(bpy.types.PropertyGroup):
     
     linked_object: bpy.props.PointerProperty(
         name="Linked Object",
-        type=bpy.types.Object
+        type=bpy.types.Object,
+        description="The linked object for this entity from the scene",
     )# type: ignore
     
     is_mlo_instance: bpy.props.BoolProperty(
@@ -334,12 +337,14 @@ class EntityProps(bpy.types.PropertyGroup):
         name="LOD Level",
         items=LOD_LEVELS,
         default="LODTYPES_DEPTH_HD",
+        description="Level of Detail (LOD) for the entity",
     ) # type: ignore
     
     priority_level: bpy.props.EnumProperty(
         name="Priority Level",
         items=PRIORITY_LEVELS,
         default="PRI_REQUIRED",
+        description="Priority level used for prioritizing entity streaming",
     ) # type: ignore
     
     ambient_occlusion_multiplier: bpy.props.IntProperty(
@@ -431,13 +436,13 @@ class YmapProps(bpy.types.PropertyGroup):
     show_streaming_extents: bpy.props.BoolProperty(
         name="Show Streaming Extents",
         default=False,
-        description="Show streaming extents gizmo") # type: ignore
-    
+        description="Shows streaming extents' Gizmo") # type: ignore
+
     show_entities_extents: bpy.props.BoolProperty(
         name="Show Entities Extents",
         default=False,
-        description="Show entities extents gizmo") # type: ignore
-    
+        description="Shows entities extents' Gizmo") # type: ignore
+
     streaming_extents_min: bpy.props.FloatVectorProperty(
         name="Streaming Extents Min",
         default=(0.0, 0.0, 0.0),
@@ -473,7 +478,7 @@ class YmapProps(bpy.types.PropertyGroup):
         description="Active category") # type: ignore
     
     data_category: bpy.props.EnumProperty(
-        name="Data Category",
+        name="Category",
         items=YMAP_MAP_DATA_TOGGLES
     ) # type: ignore
 
@@ -490,11 +495,11 @@ def register():
         type=YmapProps)
     
     bpy.types.Scene.ymap_list_index = bpy.props.IntProperty(
-        name="Ymap Index",
+        name="Ymap Item",
         default=0)
     
     bpy.types.Scene.entity_list_index = bpy.props.IntProperty(
-        name="Entity Index",
+        name="Entity Item",
         default=0,
         update=update_entity_index
     )

@@ -1,8 +1,8 @@
-ymap_flags_updating = False
-ymap_content_flags_updating = False
-entity_flags_updating = False
+ymap_flags_updating: bool = False
+ymap_content_flags_updating: bool = False
+entity_flags_updating: bool = False
 
-VALID_NON_POLY_BOUND_TYPES = [
+VALID_NON_POLY_BOUND_TYPES: list[str] = [
     "sollumz_bound_sphere",
     "sollumz_bound_box",
     "sollumz_bound_capsule",
@@ -12,12 +12,12 @@ VALID_NON_POLY_BOUND_TYPES = [
     "sollumz_bound_cylinder",
 ]
 
-ENTITY_TYPES = (
+ENTITY_TYPES: list[tuple[str, str, str, str, int]] = (
     ("ENTITY", "Entity", "Entity", "OUTLINER_DATA_LIGHTPROBE", 0),
     ("MLOINSTANCE", "MLO Instance", "MLO Instance", "HOME", 1),
 )
 
-LOD_LEVELS = (
+LOD_LEVELS: list[tuple[str, str, str, str, int]] = (
     ("LODTYPES_DEPTH_ORPHANHD", "Depth Orphan HD", "Depth Orphan HD", "EVENT_O", 0),
     ("LODTYPES_DEPTH_HD", "Depth HD", "Depth HD", "EVENT_H", 1),
     ("LODTYPES_DEPTH_LOD", "Depth LOD", "Depth LOD", "EVENT_L", 2),
@@ -27,20 +27,20 @@ LOD_LEVELS = (
     ("LODTYPES_DEPTH_SLOD4", "Depth SLOD4", "Depth SLOD4", "EVENT_FOURKEY", 6)
 )
 
-PRIORITY_LEVELS = (
+PRIORITY_LEVELS: list[tuple[str, str, str, str, int]] = (
     ("PRI_OPTIONAL_HIGH", "Priority Optional High", "Priority Optional High", "OUTLINER_DATA_LIGHTPROBE", 0),
     ("PRI_OPTIONAL_MEDIUM", "Priority Optional Medium", "Priority Optional Medium", "OUTLINER_OB_GROUP_INSTANCE", 1),
     ("PRI_OPTIONAL_LOW", "Priority Optional Low", "Priority Optional Low", "OUTLINER_OB_GROUP_INSTANCE", 2),
     ("PRI_REQUIRED", "Priority Required", "Priority Required", "OUTLINER_OB_GROUP_INSTANCE", 3),
 )
-    
-YMAP_MAP_DATA_TOGGLES = (
+
+YMAP_MAP_DATA_TOGGLES: list[tuple[str, str, str, str, int]] = (
     ("DATA", "Data", "Data", "ALIGN_LEFT", 0),
     ("FLAGS", "Flags", "Flags", "PLAY", 2),
     ("EXTENTS", "Extents", "Extents", "AXIS_FRONT", 3)
 )
 
-ENTITY_TOGGLES = (
+ENTITY_TOGGLES: list[tuple[str, str, str, str, int]] = (
     ("DATA", "Data", "Data", "ALIGN_LEFT", 0),
     ("FLAGS", "Flags", "Flags", "PLAY", 1),
     ("LOD", "LOD", "Lod", "MOD_EXPLODE", 2),
@@ -48,7 +48,7 @@ ENTITY_TOGGLES = (
     ("MLO", "MLO", "MLO", "HOME", 4),
 )
 
-map_data_content_flags_values = {
+map_data_content_flags_values: dict[str, int] = {
     "hd": 1,
     "lod": 2,
     "slod2_plus": 4,
@@ -62,12 +62,12 @@ map_data_content_flags_values = {
     "grass": 1024
 }
 
-map_data_flags_values = {
+map_data_flags_values: dict[str, int] = {
     "script": 1,
     "lod": 2,
 }
 
-entity_flags_values = {
+entity_flags_values: dict[str, int] = {
     "allow_full_rotation": 1,
     "stream_low_priority": 2,
     "disable_embedded_collision": 4,
@@ -92,10 +92,10 @@ entity_flags_values = {
     "only_render_mirror_reflections": 536870912,
 }
 
-COMPAT_SOLL_TYPES = (
+COMPAT_SOLL_TYPES: tuple[str, ...] = (
     "sollumz_drawable",
     "sollumz_fragment",
     "sollumz_bound_composite",
 )
 
-OBJECT_TYPES = ['EMPTY', 'ARMATURE']
+OBJECT_TYPES: list[str] = ['EMPTY', 'ARMATURE']

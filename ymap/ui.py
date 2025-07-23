@@ -25,7 +25,7 @@ class YMAPLIST_UL_list(bpy.types.UIList):
         if self.layout_type in {"DEFAULT", "COMPACT"}:
             if ymap_list:
                 layout.prop(item, "enabled", text="", emboss=False, icon="CHECKBOX_HLT" if item.enabled else "CHECKBOX_DEHLT")
-                layout.prop(item.ymap_object, "name", text="", emboss=False, icon="OUTLINER_OB_GROUP_INSTANCE")
+                layout.prop(item.ymap_object, "name", text="", emboss=False, icon_value=get_icon("island"))
 
 class ENTITYLIST_UL_list(bpy.types.UIList):
     bl_idname = "ENTITYLIST_UL_list"
@@ -40,8 +40,8 @@ class ENTITYLIST_UL_list(bpy.types.UIList):
                 ymap = ymap_list[scene.ymap_list_index]
                 entity = ymap.entities[index]
                 layout.prop(item, "enabled", text="", emboss=False, icon="CHECKBOX_HLT" if item.enabled else "CHECKBOX_DEHLT")
-                layout.label(text=sanitize_name(entity.linked_object.name), icon="HOME" if entity.is_mlo_instance else "FILE_3D")
-                
+                layout.label(text=sanitize_name(entity.linked_object.name), icon_value=get_icon("home") if entity.is_mlo_instance else get_icon("nature_people"))
+
     def filter_items(self, context, data, property):
         items = getattr(data, property)
         flt_flags = bpy.types.UI_UL_list.filter_items_by_name(self.filter_name, self.bitflag_filter_item, items, propname="archetype_name")
@@ -54,7 +54,7 @@ class GENERICNAME_UL_lists(bpy.types.UIList):
         self, context, layout, data, item, icon, active_data, active_propname, index
     ):
         if self.layout_type in {"DEFAULT", "COMPACT"}:
-                layout.prop(item, "name", text="", emboss=False, icon="OUTLINER_OB_GROUP_INSTANCE")
+                layout.prop(item, "name", text="", emboss=False, icon_value=get_icon("triangle"))
 
 class YmapTools_PT_Panel(bpy.types.Panel):
     bl_label = "Map Data"
@@ -136,31 +136,35 @@ class YmapTools_Data_PT_Panel(bpy.types.Panel):
                 match ymap.active_category:
                     case "ymap.map_data_menu":
                         data_flow = right_col.grid_flow(row_major=True, columns=3, even_columns=True, even_rows=True, align=True)
-                        data_flow.prop(ymap, "data_category", expand=True, icon_only=True, emboss=False)
+                        data_flow.prop(ymap, "data_category", expand=True, icon_only=True, emboss=True)
+                        ymap_data_box = right_col.box()
                         right_col.separator()
                         match ymap.data_category:
                             case "DATA":
-                                right_col.prop(ymap, "parent")
+                                ymap_data_box.prop(ymap, "parent")
+                                ymap_data_box.separator(factor=23.4)
                             case "FLAGS":
-                                right_col.label(text="Content Flags:")
-                                content_flags_row = right_col.row()
+                                content_flags_row = ymap_data_box.row()
                                 cf_box = content_flags_row.box()
-                                content_flags_grid = cf_box.grid_flow(row_major=True, columns=3, even_columns=True, even_rows=True, align=False)
+                                cf_box.label(text="Content Flags", icon="CHECKMARK")
+                                content_flags_grid = cf_box.grid_flow(row_major=True, columns=2, even_columns=True, even_rows=True, align=False)
                                 for c_flag in map_data_content_flags_values:
+                                    content_flags_grid.alignment = 'CENTER'
                                     content_flags_grid.prop(ymap.content_flags, c_flag)
-                                
-                                right_col.separator()
-                                flags_col = right_col.column()
-                                flags_col.label(text="Flags:")
-                                f_box = flags_col.box()
-                                flags_grid = f_box.grid_flow(row_major=True, columns=1, even_columns=True, even_rows=True, align=False)
+                                f_box = content_flags_row.box()
+                                f_box.label(text="Flags", icon="CHECKMARK")
+                                flags_grid = f_box.grid_flow(row_major=True, columns=2, even_columns=True, even_rows=True, align=False)
                                 for flag in map_data_flags_values:
+                                    flags_grid.alignment = 'CENTER'
                                     flags_grid.prop(ymap.flags, flag)
+                                f_box.separator(factor=17)
                             case "EXTENTS":
-                                right_col.prop(ymap, "show_streaming_extents", text="Show Streaming Extents", icon_value=get_icon("axis_arrow_info"))
-                                right_col.prop(ymap, "show_entities_extents", text="Show Entity Extents", icon_value=get_icon("axis_arrow_info"))
-                                right_col.separator()
-                                right_col.operator(VICHO_OT_calculate_ymap_extents.bl_idname, text="Calculate Extents", icon="FILE_REFRESH")
+                                ext_col = ymap_data_box.column(align=True)
+                                ext_col.prop(ymap, "show_streaming_extents", text="Show Streaming Extents", icon_value=get_icon("axis_arrow_info"))
+                                ext_col.prop(ymap, "show_entities_extents", text="Show Entity Extents", icon_value=get_icon("axis_arrow_info"))
+                                ext_col.separator()
+                                ext_col.operator(VICHO_OT_calculate_ymap_extents.bl_idname, text="Calculate Extents", icon="FILE_REFRESH")
+                                ext_col.separator(factor=17)
                     case "ymap.entities_menu":
                         right_col.template_list(ENTITYLIST_UL_list.bl_idname, "", ymap, "entities", scene, "entity_list_index")
                         tool_ent_col = main_row.column(align=True)
@@ -168,17 +172,17 @@ class YmapTools_Data_PT_Panel(bpy.types.Panel):
                         tool_ent_col.operator(VICHO_OT_add_entity.bl_idname, text="", icon="ADD")
                         tool_ent_col.operator(VICHO_OT_remove_entity.bl_idname, text="", icon="REMOVE")
                         selected_ent = ymap.entities[scene.entity_list_index] if ymap.entities else None
-                        right_col.separator()
                         if selected_ent:
-                            row_ent_cat = right_col.row()
+                            right_col.separator()
+                            row_ent_cat = right_col.row(align=True)
                             entity_data_flow = row_ent_cat.grid_flow(row_major=True, columns=5, even_columns=True, even_rows=True, align=True)
-                            entity_data_flow.prop(selected_ent, "entity_data_toggle", expand=True, icon_only=True, emboss=False)
+                            entity_data_flow.prop(selected_ent, "entity_data_toggle", expand=True, icon_only=True, emboss=True)
+                            entity_box = right_col.box()
+                            col_box = entity_box.column(align=True)
                             match selected_ent.entity_data_toggle:
                                 case "DATA":
-                                    right_col.separator()
-                                    obj_row = right_col.row(align=True)
+                                    obj_row = col_box.row(align=True)
                                     ent_data_flow = obj_row.grid_flow(row_major=True, columns=1, even_columns=True, even_rows=True, align=False)
-                                    ent_data_flow.prop(selected_ent, "guid")
                                     if selected_ent.linked_object:
                                         ent_data_flow.prop(selected_ent, "linked_object", icon="OBJECT_DATA")
                                         ent_data_flow.operator(VICHO_OT_go_to_entity.bl_idname, icon="VIEWZOOM", text="")
@@ -186,38 +190,34 @@ class YmapTools_Data_PT_Panel(bpy.types.Panel):
                                         ent_data_flow.alert = True
                                         ent_data_flow.label(text="No linked object")
                                 case "FLAGS":
-                                    right_col.separator()
-                                    entity_flags_flow = right_col.grid_flow(row_major=True, columns=4, even_columns=True, even_rows=False, align=False)
+                                    entity_flags_flow = col_box.grid_flow(row_major=True, columns=4, even_columns=True, even_rows=False, align=False)
                                     for flag in entity_flags_values:
                                         entity_flags_flow.prop(selected_ent.flags, flag)
-                                    right_col.prop(selected_ent.flags, "total_flags", text="Total Flags", expand=False)
+                                    col_box.prop(selected_ent.flags, "total_flags", text="Total Flags", expand=False)
                                 case "LOD":
-                                    right_col.separator()
-                                    right_col.prop(selected_ent, "lod_level", text="")
-                                    right_col.prop(selected_ent, "parent_index", text="Parent Index")
-                                    right_col.prop(selected_ent, "lod_distance", text="LOD Distance")
-                                    right_col.separator()
-                                    right_col.prop(selected_ent, "child_lod_distance", text="Child Distance")
-                                    right_col.prop(selected_ent, "num_children", text="Child Count")
+                                    col_box.prop(selected_ent, "lod_level", text="")
+                                    col_box.prop(selected_ent, "parent_index", text="Parent Index")
+                                    col_box.prop(selected_ent, "lod_distance", text="LOD Distance")
+                                    col_box.separator()
+                                    col_box.prop(selected_ent, "child_lod_distance", text="Child Distance")
+                                    col_box.prop(selected_ent, "num_children", text="Child Count")
                                 case "MISC":
-                                    right_col.separator()
-                                    right_col.prop(selected_ent, "ambient_occlusion_multiplier", text="AO Multiplier")
-                                    right_col.prop(selected_ent, "artificial_ambient_occlusion", text="AO Artificial")
-                                    right_col.separator()
-                                    right_col.prop(selected_ent, "tint_value", text="Tint Value")
-                                    right_col.prop(selected_ent, "priority_level", text="")
+                                    col_box.prop(selected_ent, "ambient_occlusion_multiplier", text="AO Multiplier")
+                                    col_box.prop(selected_ent, "artificial_ambient_occlusion", text="AO Artificial")
+                                    col_box.separator()
+                                    col_box.prop(selected_ent, "tint_value", text="Tint Value")
+                                    col_box.prop(selected_ent, "priority_level", text="")
                                 case "MLO":
-                                    right_col.separator()
                                     if selected_ent.is_mlo_instance:
-                                        right_col.prop(selected_ent, "group_id", text="Group ID")
-                                        right_col.prop(selected_ent, "floor_id", text="Floor ID")
-                                        right_col.prop(selected_ent, "num_exit_portals", text="Exit Portals")
-                                        right_col.prop(selected_ent, "mlo_inst_flags", text="Instance Flags")
-                                        right_col.separator()
-                                        
+                                        col_box.prop(selected_ent, "group_id", text="Group ID")
+                                        col_box.prop(selected_ent, "floor_id", text="Floor ID")
+                                        col_box.prop(selected_ent, "num_exit_portals", text="Exit Portals")
+                                        col_box.prop(selected_ent, "mlo_inst_flags", text="Instance Flags")
+                                        col_box.separator()
+
                                         if selected_ent.default_entity_sets:
-                                            header, panel = right_col.panel("tesd", default_closed=True)
-                                            header.label(text="Default Entity Sets", icon="GROUP_BONE")
+                                            header, panel = col_box.panel("tesd", default_closed=True)
+                                            header.label(text="Default Entity Sets", icon_value=get_icon("shape"))
                                             if panel:
                                                 panel_col = panel.column()
                                                 panel_col.template_list(
@@ -229,7 +229,9 @@ class YmapTools_Data_PT_Panel(bpy.types.Panel):
                                                     "default_entity_sets_index"
                                                 )
                                     else:
-                                        right_col.label(text="Not an MLO Instance", icon="ERROR")
+                                        row_box = col_box.row(align=True)
+                                        row_box.alignment = 'CENTER'
+                                        row_box.label(text="Not an MLO Instance", icon="ERROR")
                     case "ymap.occluders_menu":
                         right_col.label(text="Occluders")
                     case "ymap.physics_dictionaries_menu":
