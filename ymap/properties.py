@@ -383,10 +383,7 @@ class EntityProps(bpy.types.PropertyGroup):
         name="Default Entity Sets",
         type=EntitySetsProps) # type: ignore
     
-    entity_data_toggle: bpy.props.EnumProperty(
-        name="Entity Data Toggle",
-        items=ENTITY_TOGGLES # type: ignore
-    )
+    
 
 class YmapProps(bpy.types.PropertyGroup):
     is_imported: bpy.props.BoolProperty(
@@ -481,6 +478,11 @@ class YmapProps(bpy.types.PropertyGroup):
         name="Category",
         items=YMAP_MAP_DATA_TOGGLES
     ) # type: ignore
+    
+    entity_data_category: bpy.props.EnumProperty(
+        name="Entity Data Toggle",
+        items=ENTITY_TOGGLES # type: ignore
+    )
 
 def register():
     bpy.types.Scene.ymap_assets_path = bpy.props.StringProperty(

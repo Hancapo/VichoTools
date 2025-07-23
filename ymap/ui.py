@@ -176,10 +176,10 @@ class YmapTools_Data_PT_Panel(bpy.types.Panel):
                             right_col.separator()
                             row_ent_cat = right_col.row(align=True)
                             entity_data_flow = row_ent_cat.grid_flow(row_major=True, columns=5, even_columns=True, even_rows=True, align=True)
-                            entity_data_flow.prop(selected_ent, "entity_data_toggle", expand=True, icon_only=True, emboss=True)
+                            entity_data_flow.prop(ymap, "entity_data_category", expand=True, icon_only=True, emboss=True)
                             entity_box = right_col.box()
                             col_box = entity_box.column(align=True)
-                            match selected_ent.entity_data_toggle:
+                            match ymap.entity_data_category:
                                 case "DATA":
                                     obj_row = col_box.row(align=True)
                                     ent_data_flow = obj_row.grid_flow(row_major=True, columns=1, even_columns=True, even_rows=True, align=False)
