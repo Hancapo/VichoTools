@@ -25,7 +25,7 @@ class PhysicsGroup(bpy.types.PropertyGroup):
 class EntityFlags(bpy.types.PropertyGroup):
     total_flags: bpy.props.IntProperty(
         name="Flags",
-        default=1572864,
+        default=0, # part of a "hack" since I can't trigger the update on the first load.
         min=0,
         description="Total Flags number",
         update=update_entity_flags_bool_properties) # type: ignore

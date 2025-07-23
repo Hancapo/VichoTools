@@ -247,6 +247,7 @@ class VICHO_OT_add_entity(bpy.types.Operator):
                 obj.parent = ymap_ent_group
                 new_entity = scene.ymap_list[scene.ymap_list_index].entities.add()
                 new_entity.linked_object = obj
+                new_entity.flags.total_flags = 1572864  # Default flags
                 scene.entity_list_index = len(scene.ymap_list[scene.ymap_list_index].entities) - 1
                 added_entities += f"{obj.name}, "
             self.report({'INFO'}, f"Entities added to YMAP: {added_entities}")
