@@ -250,7 +250,7 @@ class VICHO_OT_add_entity(bpy.types.Operator):
                 new_entity.flags.total_flags = 1572864  # Default flags
                 scene.entity_list_index = len(scene.ymap_list[scene.ymap_list_index].entities) - 1
                 added_entities += f"{obj.name}, "
-            self.report({'INFO'}, f"Entities added to YMAP: {added_entities}")
+            self.report({'INFO'}, f"Entities added to {ymap_obj.name} YMAP: {added_entities}")
             return {'FINISHED'}
 
 class VICHO_OT_remove_entity(bpy.types.Operator):
@@ -271,7 +271,7 @@ class VICHO_OT_remove_entity(bpy.types.Operator):
             ymap = scene.ymap_list[selected_ymap_index]
             ymap.entities.remove(selected_entity_index)
             scene.entity_list_index = max(0, selected_entity_index - 1)
-            self.report({'INFO'}, f"Entity removed from YMAP")
+            self.report({'INFO'}, f"Entity {ymap.entities[selected_entity_index].linked_object.name} removed from YMAP")
         else:
             self.report({'ERROR'}, f"No entity selected to remove")
         
