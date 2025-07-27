@@ -91,7 +91,7 @@ class VICHO_OT_export_ymap(bpy.types.Operator):
     
     export_assets: BoolProperty(
         name="Export Assets",
-        default=True,
+        default=False,
         description="Whether or not to export assets linked to the YMAP entities",
     )
     
