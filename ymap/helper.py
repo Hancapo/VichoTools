@@ -144,15 +144,19 @@ def unselect_entities_from_all_ymaps(context: Context):
             for entity in ymap.entities:
                 entity.linked_object.select_set(False)
                 
-def set_sollumz_export_settings() -> None:
-    """Sets the proper settings needed for assets export"""
+def get_sollumz_settings() -> bpy.types.AddonPreferences:
+    """Returns the Sollumz addon preferences"""
     loaded_addons = bpy.context.preferences.addons
-    preferences = None
     for addon in loaded_addons:
         if "sollumz" in addon.module:
-            preferences = loaded_addons[addon.module].preferences
-            break
-    preferences.export_settings.limit_to_selected = True            
+            return loaded_addons[addon.module].preferences
+    return None
+                
+def set_sollumz_export_settings() -> None:
+    """Sets the proper settings needed for assets export"""
+    preferences = get_sollumz_settings()
+    if preferences:
+        preferences.export_settings.limit_to_selected = True
 
 def change_ent_parenting(objs: list[Object], do_parent = False):
     """Changes the parenting of the selected objects to the YMAP entities group"""
