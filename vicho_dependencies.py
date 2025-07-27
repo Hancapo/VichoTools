@@ -52,6 +52,7 @@ class DependenciesManager:
         self.rage__ePriorityLevel = None
         self.MloInstanceData = None
         self.MloArchetype = None
+        self.CMloInstanceDef = None
         self.CMloArchetypeDefData = None
         self.CEntityDef = None
         self.MetaHash = None
@@ -144,6 +145,7 @@ class DependenciesManager:
                 self.rage__ePriorityLevel,
                 self.MloInstanceData,
                 self.MloArchetype,
+                self.CMloInstanceDef,
                 self.CMloArchetypeDefData,
                 self.CEntityDef,
                 self.MetaHash,
@@ -185,6 +187,7 @@ class DependenciesManager:
                 rage__ePriorityLevel,
                 MloInstanceData,
                 MloArchetype,
+                CMloInstanceDef,
                 CMloArchetypeDefData,
                 CEntityDef,
                 MetaHash,
@@ -223,6 +226,7 @@ class DependenciesManager:
             self.rage__ePriorityLevel = rage__ePriorityLevel
             self.MloInstanceData = MloInstanceData
             self.MloArchetype = MloArchetype
+            self.CMloInstanceDef = CMloInstanceDef
             self.CMloArchetypeDefData = CMloArchetypeDefData
             self.CEntityDef = CEntityDef
             self.MetaHash = MetaHash

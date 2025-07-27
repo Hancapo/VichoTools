@@ -141,26 +141,40 @@ class VICHO_OT_export_ymap(bpy.types.Operator):
                         if lo.rotation_mode != 'QUATERNION':
                             lo.rotation_mode = 'QUATERNION'
                         ymap_entity_def = d.YmapEntityDef()
-                        entity_def = d.CEntityDef()
+                        ent_def = d.CEntityDef()
                         name_meta = d.MetaHash(d.JenkHash.GenHash(sanitize_name(lo.name)))
-                        entity_def.archetypeName = name_meta
-                        entity_def.position = d.Vector3(lo.location.x, lo.location.y, lo.location.z)
-                        entity_def.rotation = d.Vector4(lo.rotation_quaternion.x, lo.rotation_quaternion.y, lo.rotation_quaternion.z, -lo.rotation_quaternion.w if lo.rotation_quaternion.w != 1 else lo.rotation_quaternion.w)
-                        entity_def.scaleXY = lo.scale.x
-                        entity_def.scaleZ = lo.scale.z
-                        entity_def.lodLevel = d.Enum.Parse(d.rage__eLodType, entity.lod_level)
-                        entity_def.ambientOcclusionMultiplier = entity.ambient_occlusion_multiplier
-                        entity_def.artificialAmbientOcclusion = entity.artificial_ambient_occlusion
-                        entity_def.flags = entity.flags.total_flags
-                        entity_def.guid = d.UInt32.Parse(entity.guid)
-                        entity_def.tintValue = entity.tint_value
-                        entity_def.priorityLevel = d.Enum.Parse(d.rage__ePriorityLevel, entity.priority_level)
-                        entity_def.lodDist = entity.lod_distance
-                        entity_def.childLodDist = entity.child_lod_distance
-                        entity_def.numChildren = entity.num_children
-                        entity_def.parentIndex = entity.parent_index
-                        #TODO MLO Instance Support
-                        ymap_entity_def._CEntityDef = entity_def
+                        ent_def.archetypeName = name_meta
+                        ent_def.position = d.Vector3(lo.location.x, lo.location.y, lo.location.z)
+                        ent_def.rotation = d.Vector4(lo.rotation_quaternion.x, lo.rotation_quaternion.y, lo.rotation_quaternion.z, -lo.rotation_quaternion.w if lo.rotation_quaternion.w != 1 else lo.rotation_quaternion.w)
+                        ent_def.scaleXY = lo.scale.x
+                        ent_def.scaleZ = lo.scale.z
+                        ent_def.lodLevel = d.Enum.Parse(d.rage__eLodType, entity.lod_level)
+                        ent_def.ambientOcclusionMultiplier = entity.ambient_occlusion_multiplier
+                        ent_def.artificialAmbientOcclusion = entity.artificial_ambient_occlusion
+                        ent_def.flags = entity.flags.total_flags
+                        ent_def.guid = d.UInt32.Parse(entity.guid)
+                        ent_def.tintValue = entity.tint_value
+                        ent_def.priorityLevel = d.Enum.Parse(d.rage__ePriorityLevel, entity.priority_level)
+                        ent_def.lodDist = entity.lod_distance
+                        ent_def.childLodDist = entity.child_lod_distance
+                        ent_def.numChildren = entity.num_children
+                        ent_def.parentIndex = entity.parent_index
+                        
+                        if entity.is_mlo_instance:
+                            mlo_arch = d.MloArchetype()
+                            mlo_inst_data = d.MloInstanceData(ymap_entity_def, mlo_arch)
+                            if entity.default_entity_sets:
+                                mlo_inst_data.defaultEntitySets = [d.MetaHash(d.JenkHash.GenHash(des.name)) for des in entity.default_entity_sets]
+                            cmlo_inst = d.CMloInstanceDef()
+                            cmlo_inst.groupId = entity.group_id
+                            cmlo_inst.floorId = entity.floor_id
+                            cmlo_inst.MLOInstflags = entity.mlo_inst_flags
+                            cmlo_inst.numExitPortals = entity.num_exit_portals
+                            
+                            ymap_entity_def.MloInstance = mlo_inst_data
+                            ymap_entity_def.MloInstance.Instance = cmlo_inst
+
+                        ymap_entity_def._CEntityDef = ent_def
                         ymap_file.AddEntity(ymap_entity_def)
 
             d.File.WriteAllBytes(f"{self.directory}/{ymap_file.Name}.ymap", ymap_file.Save())
