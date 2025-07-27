@@ -226,9 +226,34 @@ class VICHO_OT_add_ymap(bpy.types.Operator):
         return {'FINISHED'}
 
 class VICHO_OT_add_entity(bpy.types.Operator):
-    """Add entity to the YMAP"""
+    """Adds a new entity to the YMAP"""
     bl_idname = "ymap.add_entity"
-    bl_label = "Add entity to YMAP"
+    bl_label = "Creates a new entity"
+    
+    @classmethod
+    def poll(cls, context):
+        scene = context.scene
+        return len(scene.ymap_list) > 0 and scene.ymap_list[scene.ymap_list_index].ymap_object
+
+    def execute(self, context):
+        scene = context.scene
+        ymap = scene.ymap_list[scene.ymap_list_index]
+        ymap_obj: Object = ymap.ymap_object
+        ymap_eg: Object = create_ymap_entities_group(ymap_obj) if not ymap.ymap_entity_group_object else ymap.ymap_entity_group_object
+        ymap.ymap_entity_group_object = ymap_eg
+
+        if ymap_obj:
+            new_entity = ymap.entities.add()
+            new_entity.name = "New Entity"
+            new_entity.flags.total_flags = 1572864
+            scene.entity_list_index = len(ymap.entities) - 1
+            self.report({'INFO'}, f"Added new entity to {ymap_obj.name} YMAP")
+            return {'FINISHED'}
+
+class VICHO_OT_add_entity_from_selection(bpy.types.Operator):
+    """Add(s) selected objects as entities to the YMAP"""
+    bl_idname = "ymap.add_sel_objs_as_entity"
+    bl_label = "Add entities from selection"
     
     @classmethod
     def poll(cls, context):
@@ -241,14 +266,15 @@ class VICHO_OT_add_entity(bpy.types.Operator):
         ymap = scene.ymap_list[scene.ymap_list_index]
         ymap_obj = ymap.ymap_object
         if ymap_obj:
-            ymap_ent_group: Object = create_ymap_entities_group(ymap_obj)
+            ymap_eg: Object = create_ymap_entities_group(ymap_obj) if not ymap.ymap_entity_group_object else ymap.ymap_entity_group_object
             added_entities: str = ""
             for obj in selected_objs:
-                obj.parent = ymap_ent_group
+                obj.parent = ymap_eg
                 new_entity = scene.ymap_list[scene.ymap_list_index].entities.add()
                 new_entity.linked_object = obj
+                new_entity.linked_object.vicho_ymap_parent = ymap_obj
                 new_entity.flags.total_flags = 1572864  # Default flags
-                scene.entity_list_index = len(scene.ymap_list[scene.ymap_list_index].entities) - 1
+                scene.entity_list_index = len(ymap.entities) - 1
                 added_entities += f"{obj.name}, "
             self.report({'INFO'}, f"Entities added to {ymap_obj.name} YMAP: {added_entities}")
             return {'FINISHED'}
@@ -268,10 +294,14 @@ class VICHO_OT_remove_entity(bpy.types.Operator):
         selected_entity_index = scene.entity_list_index
         
         if selected_entity_index >= 0:
+            entity = scene.ymap_list[selected_ymap_index].entities[selected_entity_index]
             ymap = scene.ymap_list[selected_ymap_index]
             ymap.entities.remove(selected_entity_index)
             scene.entity_list_index = max(0, selected_entity_index - 1)
-            self.report({'INFO'}, f"Entity {ymap.entities[selected_entity_index].linked_object.name} removed from YMAP")
+            if entity.linked_object:
+                self.report({'INFO'}, f"Entity {entity.linked_object.name} removed from YMAP")
+            else :
+                self.report({'INFO'}, f"Entity removed from YMAP")
         else:
             self.report({'ERROR'}, f"No entity selected to remove")
         

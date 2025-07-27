@@ -130,12 +130,12 @@ def get_scene_collection(scene) -> str:
     """Returns the name of the scene collection"""
     return scene.collection.name if scene.collection else "Scene Collection"
 
-def update_entity_index(self, context: Context):
-    unselect_entities_from_all_ymaps(context)
-    entity_idx = self.entity_list_index
-    selected_ymap = context.scene.ymap_list[context.scene.ymap_list_index]
-    selected_ymap.entities[entity_idx].linked_object.select_set(True)
-    
+def get_selected_ymap(context: Context) -> Object:
+    """Returns the currently selected YMAP object in the scene"""
+    ymap_list = context.scene.ymap_list
+    if ymap_list and context.scene.ymap_list_index < len(ymap_list):
+        return ymap_list[context.scene.ymap_list_index]
+    return None
 
 def unselect_entities_from_all_ymaps(context: Context):
     """Unselects all entities from all YMAPs in the scene"""
@@ -168,3 +168,9 @@ def change_ent_parenting(objs: list[Object], do_parent = False):
             else:
                 obj.parent = None
 
+def update_linked_obj(self, context):
+    """Updates the linked object for the entity"""
+    if not self.linked_object:
+        return
+    if not self.linked_object.parent:
+        self.linked_object.parent = get_selected_ymap(context).ymap_entity_group_object

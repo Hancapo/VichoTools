@@ -11,7 +11,7 @@ from .helper import (update_entity_flags_bool_properties,
                      update_ymap_flags, 
                      update_ymap_content_flags_bool_properties, 
                      update_ymap_content_flags,
-                     update_entity_index)
+                     update_linked_obj)
 
 
 class PhysicsGroup(bpy.types.PropertyGroup):
@@ -275,6 +275,7 @@ class EntityProps(bpy.types.PropertyGroup):
         name="Linked Object",
         type=bpy.types.Object,
         description="The linked object for this entity from the scene",
+        update=update_linked_obj
     )# type: ignore
     
     is_mlo_instance: bpy.props.BoolProperty(
@@ -383,13 +384,12 @@ class EntityProps(bpy.types.PropertyGroup):
         name="Default Entity Sets",
         type=EntitySetsProps) # type: ignore
     
-    
 
 class YmapProps(bpy.types.PropertyGroup):
     is_imported: bpy.props.BoolProperty(
         name="Is Imported",
         default=False,
-        description="Is this YMAP imported from a file") # type: ignore
+        description="Is this YMAP imported from a file?") # type: ignore
     
     ymap_object: bpy.props.PointerProperty(
         name="Ymap Object",
@@ -503,7 +503,6 @@ def register():
     bpy.types.Scene.entity_list_index = bpy.props.IntProperty(
         name="Entity Item",
         default=0,
-        update=update_entity_index
     )
     
     bpy.types.Scene.default_entity_sets_index = bpy.props.IntProperty(
@@ -515,9 +514,14 @@ def register():
     bpy.types.Object.vicho_type = bpy.props.StringProperty(
         name="Vicho Type",
         default="vicho_none",
-        description="Type of the object, used for filtering in the UI",
+        description="Vicho Type of the object",
         maxlen=60)
     
+    bpy.types.Object.vicho_ymap_parent = bpy.props.PointerProperty(
+        name="Vicho Ymap Parent",
+        type=bpy.types.Object,
+    )
+
 def unregister():
     del bpy.types.Scene.ymap_assets_path
     del bpy.types.Scene.ymap_list
@@ -525,3 +529,4 @@ def unregister():
     del bpy.types.Scene.entity_list_index
     del bpy.types.Scene.default_entity_sets_index
     del bpy.types.Object.vicho_type
+    del bpy.types.Object.vicho_ymap_parent

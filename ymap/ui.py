@@ -3,7 +3,8 @@ from .operators import (VICHO_OT_import_ymap,
                         VICHO_OT_remove_ymap, 
                         VICHO_OT_go_to_entity, 
                         VICHO_OT_add_ymap, 
-                        VICHO_OT_add_entity, 
+                        VICHO_OT_add_entity,
+                        VICHO_OT_add_entity_from_selection,
                         VICHO_OT_remove_entity,
                         VICHO_OT_export_ymap,
                         VICHO_OT_calculate_ymap_extents)
@@ -39,8 +40,11 @@ class ENTITYLIST_UL_list(bpy.types.UIList):
             if ymap_list:
                 ymap = ymap_list[scene.ymap_list_index]
                 entity = ymap.entities[index]
-                layout.prop(item, "enabled", text="", emboss=False, icon="CHECKBOX_HLT" if item.enabled else "CHECKBOX_DEHLT")
-                layout.label(text=sanitize_name(entity.linked_object.name), icon_value=get_icon("home") if entity.is_mlo_instance else get_icon("nature_people"))
+                if entity.linked_object:
+                    layout.prop(item, "enabled", text="", emboss=False, icon="CHECKBOX_HLT" if item.enabled else "CHECKBOX_DEHLT")
+                    layout.label(text=sanitize_name(entity.linked_object.name), icon_value=get_icon("home") if entity.is_mlo_instance else get_icon("nature_people"))
+                else:
+                    layout.label(text="Unassigned Entity", icon="ERROR")
 
     def filter_items(self, context, data, property):
         items = getattr(data, property)
@@ -171,6 +175,8 @@ class YmapTools_Data_PT_Panel(bpy.types.Panel):
                         tool_ent_col.ui_units_x = 1
                         tool_ent_col.operator(VICHO_OT_add_entity.bl_idname, text="", icon="ADD")
                         tool_ent_col.operator(VICHO_OT_remove_entity.bl_idname, text="", icon="REMOVE")
+                        tool_ent_col.separator()
+                        tool_ent_col.operator(VICHO_OT_add_entity_from_selection.bl_idname, text="", icon="DUPLICATE")
                         selected_ent = ymap.entities[scene.entity_list_index] if ymap.entities else None
                         if selected_ent:
                             right_col.separator()
@@ -187,8 +193,7 @@ class YmapTools_Data_PT_Panel(bpy.types.Panel):
                                         ent_data_flow.prop(selected_ent, "linked_object", icon="OBJECT_DATA")
                                         ent_data_flow.operator(VICHO_OT_go_to_entity.bl_idname, icon="VIEWZOOM", text="")
                                     else:
-                                        ent_data_flow.alert = True
-                                        ent_data_flow.label(text="No linked object")
+                                        ent_data_flow.prop(selected_ent, "linked_object", icon="OBJECT_DATA")
                                 case "FLAGS":
                                     entity_flags_flow = col_box.grid_flow(row_major=True, columns=4, even_columns=True, even_rows=False, align=False)
                                     for flag in entity_flags_values:

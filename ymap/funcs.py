@@ -168,6 +168,7 @@ def import_ent_objs(scene: Scene, index: int, asset_path: str, ymap_group: Objec
                     working_obj: Object = instance_obj_and_child(existing_obj)
             apply_transforms_to_obj_from_entity(working_obj, e)
             working_obj.parent = ymap_group
+            working_obj.vicho_ymap_parent = ymap_group.parent
             purify_asset(working_obj)
 
 def get_obj_soll_parent(filename: str, new_objs: list[Object]) -> Object:
