@@ -186,11 +186,11 @@ def change_ent_parenting(objs: list[Object], do_parent = False):
 
 def update_linked_obj(self, context):
     """Updates the linked object for the entity"""
-    entity = get_selected_entity(context)
     if not self.linked_object:
         return
     if not self.linked_object.parent:
         self.linked_object.parent = get_selected_ymap(context).ymap_entity_group_object
         if self.linked_object.sollum_type == "sollumz_bound_composite":
+            entity = get_selected_entity(context)
             entity.sollum_type = "sollumz_bound_composite"
             entity.is_mlo_instance = True
