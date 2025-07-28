@@ -294,9 +294,9 @@ class VICHO_OT_add_entity_from_selection(bpy.types.Operator):
             return {'FINISHED'}
 
 class VICHO_OT_remove_entity(bpy.types.Operator):
-    """Remove entity from the YMAP"""
+    """Removes the selected entity from the entity list"""
     bl_idname = "ymap.remove_entity"
-    bl_label = "Remove entity from YMAP"
+    bl_label = "Removes an entity"
     
     @classmethod
     def poll(cls, context):
