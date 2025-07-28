@@ -8,11 +8,11 @@ from .funcs import (import_ymap_to_scene,
                     create_ymap_entities_group)
 import os
 import time
-from .helper import str_loaded_count, set_sollumz_export_settings, change_ent_parenting
+from .helper import str_loaded_count, set_sollumz_export_settings, change_ent_parenting, get_selected_entity, get_selected_ymap
 from bpy.types import Object
 from .constants import COMPAT_SOLL_TYPES
 from ..vicho_dependencies import dependencies_manager as d
-
+from ..misc.funcs import delete_hierarchy
 
 class VICHO_OT_import_ymap(bpy.types.Operator, ImportHelper):
     """Import(s) all the selected YMAP file(s) from a given directory"""
@@ -253,7 +253,7 @@ class VICHO_OT_add_entity(bpy.types.Operator):
         scene = context.scene
         ymap = scene.ymap_list[scene.ymap_list_index]
         ymap_obj: Object = ymap.ymap_object
-        ymap_eg: Object = create_ymap_entities_group(ymap_obj) if not ymap.ymap_entity_group_object else ymap.ymap_entity_group_object
+        ymap_eg: Object = next((ent_group for ent_group in ymap_obj.children if ent_group.vicho_type == "vicho_ymap_entities"), None) or create_ymap_entities_group(ymap_obj)
         ymap.ymap_entity_group_object = ymap_eg
 
         if ymap_obj:
@@ -280,7 +280,7 @@ class VICHO_OT_add_entity_from_selection(bpy.types.Operator):
         ymap = scene.ymap_list[scene.ymap_list_index]
         ymap_obj = ymap.ymap_object
         if ymap_obj:
-            ymap_eg: Object = create_ymap_entities_group(ymap_obj) if not ymap.ymap_entity_group_object else ymap.ymap_entity_group_object
+            ymap_eg = next((ent_group for ent_group in ymap_obj.children if ent_group.vicho_type == "vicho_ymap_entities"), None) or create_ymap_entities_group(ymap_obj)
             added_entities: str = ""
             for obj in selected_objs:
                 obj.parent = ymap_eg
@@ -299,29 +299,52 @@ class VICHO_OT_remove_entity(bpy.types.Operator):
     bl_idname = "ymap.remove_entity"
     bl_label = "Removes an entity"
     
+    delete_obj_from_scene: BoolProperty(
+        name="Delete Object",
+        default=False,
+        description="Whether to delete the linked object from the scene when removing the entity",
+    )
+    
     @classmethod
     def poll(cls, context):
         return len(context.scene.ymap_list) > 0 and len(context.scene.ymap_list[context.scene.ymap_list_index].entities) > 0
     
     def execute(self, context):
         scene = context.scene
-        selected_ymap_index = scene.ymap_list_index
         selected_entity_index = scene.entity_list_index
         
         if selected_entity_index >= 0:
-            entity = scene.ymap_list[selected_ymap_index].entities[selected_entity_index]
-            ymap = scene.ymap_list[selected_ymap_index]
-            ymap.entities.remove(selected_entity_index)
-            scene.entity_list_index = max(0, selected_entity_index - 1)
+            entity = get_selected_entity(context)
+            ymap = get_selected_ymap(context)
             if entity.linked_object:
-                self.report({'INFO'}, f"Entity {entity.linked_object.name} removed from YMAP")
+                saved_name: str = entity.linked_object.name
+                if self.delete_obj_from_scene:
+                    delete_hierarchy(entity.linked_object)
+                else:
+                    entity.linked_object.parent = None
+                    entity.linked_object.vicho_ymap_parent = None
+                self.report({'INFO'}, f"Entity {saved_name} removed from YMAP")
             else :
                 self.report({'INFO'}, f"Entity removed from YMAP")
+            ymap.entities.remove(selected_entity_index)
+            scene.entity_list_index = max(0, selected_entity_index - 1)
         else:
             self.report({'ERROR'}, f"No entity selected to remove")
         
-        return {'FINISHED'}            
+        return {'FINISHED'}
+
+    def invoke(self, context, event):
+        if get_selected_entity(context).linked_object:
+            return context.window_manager.invoke_props_dialog(self, width=300, title="Remove Entity Confirmation")
+        else:
+            return context.window_manager.invoke_confirm(self, event, message="Are you sure you want to remove this entity? It has no linked object.")
     
+    def draw(self, context):
+        layout = self.layout
+        col = layout.column()
+        if get_selected_entity(context).linked_object:
+            col.prop(self, "delete_obj_from_scene", text=f"Fully remove {get_selected_entity(context).linked_object.name} from scene?")
+
 class VICHO_OT_go_to_entity(bpy.types.Operator):
     """It zooms in to selected entity in the 3D Viewport"""
     bl_idname = "ymap.go_to_entity"
