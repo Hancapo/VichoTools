@@ -1,30 +1,11 @@
 import bpy
-from .vicho_operators import (VICHO_OT_mlo_ymap_file_browser, 
+from .vicho_operators import (
                               VICHO_OT_paste_obj_trans_from_pick_obj, 
                               VICHO_OT_del_all_cols_attrs, 
                               VICHO_OT_del_all_vgs, 
                               VICHO_OT_detect_meshes_no_textures, 
                               VICHO_OT_rename_all_uvs,
                               VICHO_OT_rename_all_cas)
-
-class VichoMloTools_PT_Panel(bpy.types.Panel):
-    bl_label = "MLO"
-    bl_idname = "VICHOTOOLS_PT_Mlo"
-    bl_space_type = "VIEW_3D"
-    bl_region_type = "UI"
-    bl_category = "Vicho's Tools"
-    bl_options = {"DEFAULT_CLOSED"}
-
-    def draw_header(self, context):
-        self.layout.label(text="", icon="HOME")
-
-    def draw(self, context):
-        layout = self.layout
-        row = layout.row()
-        row.prop(context.scene, "ymap_instance_name_field", text="Instance name")
-        row = layout.row()
-        row.operator(VICHO_OT_mlo_ymap_file_browser.bl_idname)
-
 
 class VichoObjectTools_PT_Panel(bpy.types.Panel):
     bl_label = "Objects"

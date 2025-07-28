@@ -1,8 +1,7 @@
 import bpy
 import webbrowser
-from .misc.funcs import export_milo_ymap_xml
 from bpy.props import StringProperty
-from bpy_extras.io_utils import ExportHelper, ImportHelper
+from bpy_extras.io_utils import ImportHelper
 from .vicho_dependencies import DOTNET_LINK
 from .ymap.helper import resolve_hashes_from_file, str_loaded_count
 
@@ -10,31 +9,6 @@ class ContextSelectionRestrictedHelper:
     @classmethod
     def poll(cls, context):
         return context.active_object is not None
-
-
-class VICHO_OT_export_mlo_file(bpy.types.Operator, ContextSelectionRestrictedHelper):
-    bl_idname = "vicho.exportmlostransformstofile"
-    bl_label = "Export MLO transforms to YMAP"
-
-    def execute(self, context):
-        objs = context.selected_objects
-
-        for obj in objs:
-            if obj.sollum_type == "sollumz_bound_composite" or obj.type == "MESH":
-                export_milo_ymap_xml(
-                    "map1", obj, context.scene.ymap_instance_name_field
-                )
-                self.report(
-                    {"INFO"}, f"{obj.name} location and rotation exported to file"
-                )
-
-            else:
-                self.report(
-                    {"WARNING"}, f"{obj.name} is not a Bound Composite or a Mesh"
-                )
-
-        return {"FINISHED"}
-
 
 class VICHO_OT_paste_obj_trans_from_pick_obj(bpy.types.Operator):
     bl_idname = "vicho.pasteobjtransfrompickedobject"
@@ -60,33 +34,6 @@ class VICHO_OT_paste_obj_trans_from_pick_obj(bpy.types.Operator):
             to_obj.scale = from_obj.scale
 
         return {"FINISHED"}
-
-
-class VICHO_OT_mlo_ymap_file_browser(bpy.types.Operator, ExportHelper):
-    """Export MLO instance to YMAP"""
-
-    bl_idname = "vicho.mloyampfilebrowser"
-    bl_label = "Export MLO transforms to YMAP"
-    bl_action = "Export a YMAP MLO" 
-    bl_showtime = True
-
-    filename_ext = ".ymap"
-
-    filter_glob: StringProperty(default="*.ymap", options={"HIDDEN"})
-
-    def execute(self, context):
-        try:
-            export_milo_ymap_xml(
-                self.filepath,
-                context.active_object,
-                context.scene.ymap_instance_name_field,
-            )
-            self.report({"INFO"}, f"{self.filepath} successfully exported")
-            return {"FINISHED"}
-
-        except Exception:
-            self.report({"ERROR"}, f"Error exporting {self.filepath} ")
-            return {"FINISHED"}
 
 
 class VICHO_OT_del_all_cols_attrs(bpy.types.Operator, ContextSelectionRestrictedHelper):

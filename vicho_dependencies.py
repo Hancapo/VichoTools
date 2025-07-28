@@ -6,9 +6,7 @@ import traceback
 import importlib.util
 from typing import List
 
-
 DOTNET_LINK = "https://builds.dotnet.microsoft.com/dotnet/Runtime/9.0.6/dotnet-runtime-9.0.6-win-x64.exe"
-
 
 class DependenciesManager:
     _instance = None

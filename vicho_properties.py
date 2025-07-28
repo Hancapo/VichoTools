@@ -6,13 +6,6 @@ class VichoGroup(bpy.types.PropertyGroup):
         description="File name for the text file",
         maxlen=50,
     )
-
-    bpy.types.Scene.ymap_instance_name_field = bpy.props.StringProperty(
-        name="Instance Name",
-        default="",
-        description="instance name for the MLO Instance",
-        maxlen=50,
-    )
     bpy.types.Scene.CopyDataFromObject = bpy.props.PointerProperty(
         name="Target Object", type=bpy.types.Object
     )
