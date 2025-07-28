@@ -69,7 +69,7 @@ class YmapTools_PT_Panel(bpy.types.Panel):
     bl_options = {"DEFAULT_CLOSED"}
     
     def draw_header(self, context):
-        self.layout.label(text="", icon="FORCE_MAGNETIC")
+        self.layout.label(text="", icon_value=get_icon("database_marker"))
 
     def draw(self, context):
         layout = self.layout
