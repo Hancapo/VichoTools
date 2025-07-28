@@ -6,6 +6,12 @@ class getYmapData:
         if ymap:
             return ymap
         return None
+    
+    def execute_menu_op(self, context, op_id):
+        ymap = self.get_ymap_data(context)
+        if ymap:
+            ymap.active_category = op_id
+            return {"FINISHED"}
 
 
 class MAPDATA_Menu_OT_Operator(bpy.types.Operator, getYmapData):
@@ -17,11 +23,7 @@ class MAPDATA_Menu_OT_Operator(bpy.types.Operator, getYmapData):
     operator_id: bpy.props.StringProperty() # type: ignore
     
     def execute(self, context):
-        ymap = self.get_ymap_data(context)
-        if ymap:
-            ymap.active_category = self.operator_id
-        print("Debug: Executing Map Data Menu operator")
-        return {"FINISHED"}
+        return self.execute_menu_op(context, self.operator_id)
     
 class ENTITIES_Menu_OT_Operator(bpy.types.Operator, getYmapData):
     bl_idname = "ymap.entities_menu"
@@ -32,11 +34,8 @@ class ENTITIES_Menu_OT_Operator(bpy.types.Operator, getYmapData):
     operator_id: bpy.props.StringProperty() # type: ignore
     
     def execute(self, context):
-        ymap = self.get_ymap_data(context)
-        if ymap:
-            ymap.active_category = self.operator_id
-        return {"FINISHED"}
-    
+        return self.execute_menu_op(context, self.operator_id)
+
 class OCCLUDERS_Menu_OT_Operator(bpy.types.Operator, getYmapData):
     bl_idname = "ymap.occluders_menu"
     bl_label = "Occluders Menu"
@@ -46,11 +45,8 @@ class OCCLUDERS_Menu_OT_Operator(bpy.types.Operator, getYmapData):
     operator_id: bpy.props.StringProperty() # type: ignore
     
     def execute(self, context):
-        ymap = self.get_ymap_data(context)
-        if ymap:
-            ymap.active_category = self.operator_id
-        return {"FINISHED"}
-    
+        return self.execute_menu_op(context, self.operator_id)
+
 class PHYSICSDICTIONARIES_Menu_OT_Operator(bpy.types.Operator, getYmapData):
     bl_idname = "ymap.physics_dictionaries_menu"
     bl_label = "Physics Dictionaries Menu"
@@ -60,11 +56,8 @@ class PHYSICSDICTIONARIES_Menu_OT_Operator(bpy.types.Operator, getYmapData):
     operator_id: bpy.props.StringProperty() # type: ignore
     
     def execute(self, context):
-        ymap = self.get_ymap_data(context)
-        if ymap:
-            ymap.active_category = self.operator_id
-        return {"FINISHED"}
-    
+        return self.execute_menu_op(context, self.operator_id)
+
 class INSTANCEDDATA_Menu_OT_Operator(bpy.types.Operator, getYmapData):
     bl_idname = "ymap.instanced_data_menu"
     bl_label = "Instanced Data Menu"
@@ -74,11 +67,8 @@ class INSTANCEDDATA_Menu_OT_Operator(bpy.types.Operator, getYmapData):
     operator_id: bpy.props.StringProperty() # type: ignore
     
     def execute(self, context):
-        ymap = self.get_ymap_data(context)
-        if ymap:
-            ymap.active_category = self.operator_id
-        return {"FINISHED"}
-    
+        return self.execute_menu_op(context, self.operator_id)
+
 class TIMECYCLEMODIFIERS_Menu_OT_Operator(bpy.types.Operator, getYmapData):
     bl_idname = "ymap.timecycle_modifiers_menu"
     bl_label = "Timecycle Modifiers Menu"
@@ -88,11 +78,8 @@ class TIMECYCLEMODIFIERS_Menu_OT_Operator(bpy.types.Operator, getYmapData):
     operator_id: bpy.props.StringProperty() # type: ignore
     
     def execute(self, context):
-        ymap = self.get_ymap_data(context)
-        if ymap:
-            ymap.active_category = self.operator_id
-        return {"FINISHED"}
-    
+        return self.execute_menu_op(context, self.operator_id)
+
 class CARGENERATORS_Menu_OT_Operator(bpy.types.Operator, getYmapData):
     bl_idname = "ymap.car_generators_menu"
     bl_label = "Car Generators Menu"
@@ -102,10 +89,7 @@ class CARGENERATORS_Menu_OT_Operator(bpy.types.Operator, getYmapData):
     operator_id: bpy.props.StringProperty() # type: ignore
     
     def execute(self, context):
-        ymap = self.get_ymap_data(context)
-        if ymap:
-            ymap.active_category = self.operator_id
-        return {"FINISHED"}
+        return self.execute_menu_op(context, self.operator_id)
 
 class LODLIGHTS_Menu_OT_Operator(bpy.types.Operator, getYmapData):
     bl_idname = "ymap.lod_lights_menu"
@@ -116,10 +100,7 @@ class LODLIGHTS_Menu_OT_Operator(bpy.types.Operator, getYmapData):
     operator_id: bpy.props.StringProperty() # type: ignore
     
     def execute(self, context):
-        ymap = self.get_ymap_data(context)
-        if ymap:
-            ymap.active_category = self.operator_id
-        return {"FINISHED"}
+        return self.execute_menu_op(context, self.operator_id)
     
 class DISTANTLIGHTS_Menu_OT_Operator(bpy.types.Operator, getYmapData):
     bl_idname = "ymap.distant_lights_menu"
@@ -130,11 +111,7 @@ class DISTANTLIGHTS_Menu_OT_Operator(bpy.types.Operator, getYmapData):
     operator_id: bpy.props.StringProperty() # type: ignore
     
     def execute(self, context):
-        ymap = self.get_ymap_data(context)
-        if ymap:
-            ymap.active_category = self.operator_id
-        return {"FINISHED"}
-
+        return self.execute_menu_op(context, self.operator_id)
 
 YMAP_MENU_OPERATORS_GROUPS = [
     (MAPDATA_Menu_OT_Operator, "map_legend"),
