@@ -1,6 +1,6 @@
-ymap_flags_updating: bool = False
-ymap_content_flags_updating: bool = False
-entity_flags_updating: bool = False
+YMAP_FLAGS_UPDATING: bool = False
+YMAP_CONTENT_FLAGS_UPDATING: bool = False
+ENTITY_FLAGS_UPDATING: bool = False
 
 VALID_NON_POLY_BOUND_TYPES: list[str] = [
     "sollumz_bound_sphere",
@@ -48,7 +48,7 @@ ENTITY_TOGGLES: list[tuple[str, str, str, str, int]] = (
     ("MLO", "MLO", "MLO", "HOME", 4),
 )
 
-map_data_content_flags_values: dict[str, int] = {
+MAP_DATA_CONTENT_FLAGS_VALUES: dict[str, int] = {
     "hd": 1,
     "lod": 2,
     "slod2_plus": 4,
@@ -62,12 +62,12 @@ map_data_content_flags_values: dict[str, int] = {
     "grass": 1024
 }
 
-map_data_flags_values: dict[str, int] = {
+MAP_DATA_FLAGS_VALUES: dict[str, int] = {
     "script": 1,
     "lod": 2,
 }
 
-entity_flags_values: dict[str, int] = {
+ENTITY_FLAGS_VALUES: dict[str, int] = {
     "allow_full_rotation": 1,
     "stream_low_priority": 2,
     "disable_embedded_collision": 4,

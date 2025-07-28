@@ -1,69 +1,74 @@
 import hashlib
 from ..vicho_dependencies import dependencies_manager as dm
-from .constants import entity_flags_values, map_data_flags_values, map_data_content_flags_values, entity_flags_updating, ymap_flags_updating, ymap_content_flags_updating
+from .constants import (ENTITY_FLAGS_VALUES,
+                        MAP_DATA_FLAGS_VALUES, 
+                        MAP_DATA_CONTENT_FLAGS_VALUES, 
+                        ENTITY_FLAGS_UPDATING, 
+                        YMAP_FLAGS_UPDATING, 
+                        YMAP_CONTENT_FLAGS_UPDATING)
 from bpy.types import Object, Context
 from pathlib import Path
 import bpy
 
 def update_entity_flags_bool_properties(self, context):
-    global entity_flags_updating
-    if entity_flags_updating:
+    global ENTITY_FLAGS_UPDATING
+    if ENTITY_FLAGS_UPDATING:
         return
-    entity_flags_updating = True
-    for key, value in entity_flags_values.items():
+    ENTITY_FLAGS_UPDATING = True
+    for key, value in ENTITY_FLAGS_VALUES.items():
         setattr(self, key, bool(self.total_flags & value))
-    entity_flags_updating = False
+    ENTITY_FLAGS_UPDATING = False
 
 def update_entity_flags(self, context):
-    global entity_flags_updating
-    if entity_flags_updating:
+    global ENTITY_FLAGS_UPDATING
+    if ENTITY_FLAGS_UPDATING:
         return
-    entity_flags_updating = True
+    ENTITY_FLAGS_UPDATING = True
     self.total_flags = 0
-    for key, value in entity_flags_values.items():
+    for key, value in ENTITY_FLAGS_VALUES.items():
         if getattr(self, key):
             self.total_flags |= value
-    entity_flags_updating = False
+    ENTITY_FLAGS_UPDATING = False
 
 def update_ymap_flags_bool_properties(self, context):
-    global ymap_flags_updating
-    if ymap_flags_updating:
+    global YMAP_FLAGS_UPDATING
+    if YMAP_FLAGS_UPDATING:
         return
-    ymap_flags_updating = True
-    for key, value in map_data_flags_values.items():
+    YMAP_FLAGS_UPDATING = True
+    for key, value in MAP_DATA_FLAGS_VALUES.items():
         setattr(self, key, bool(self.total_flags & value))
-    ymap_flags_updating = False
+    YMAP_FLAGS_UPDATING = False
     
 def update_ymap_flags(self, context):
-    global ymap_flags_updating
-    if ymap_flags_updating:
+    global YMAP_FLAGS_UPDATING
+    if YMAP_FLAGS_UPDATING:
         return
-    ymap_flags_updating = True
+    YMAP_FLAGS_UPDATING = True
     self.total_flags = 0
-    for key, value in map_data_flags_values.items():
+    for key, value in MAP_DATA_FLAGS_VALUES.items():
         if getattr(self, key):
             self.total_flags |= value
-    ymap_flags_updating = False
+    YMAP_FLAGS_UPDATING = False
     
 def update_ymap_content_flags_bool_properties(self, context):
-    global ymap_content_flags_updating
-    if ymap_content_flags_updating:
+    global YMAP_CONTENT_FLAGS_UPDATING
+    if YMAP_CONTENT_FLAGS_UPDATING:
         return
-    ymap_content_flags_updating = True
-    for key, value in map_data_content_flags_values.items():
+    YMAP_CONTENT_FLAGS_UPDATING = True
+    for key, value in MAP_DATA_CONTENT_FLAGS_VALUES.items():
         setattr(self, key, bool(self.total_flags & value))
-    ymap_content_flags_updating = False
+    YMAP_CONTENT_FLAGS_UPDATING = False
     
 def update_ymap_content_flags(self, context):
-    global ymap_content_flags_updating
-    if ymap_content_flags_updating:
+    global YMAP_CONTENT_FLAGS_UPDATING
+    if YMAP_CONTENT_FLAGS_UPDATING:
         return
-    ymap_content_flags_updating = True
+    YMAP_CONTENT_FLAGS_UPDATING = True
     self.total_flags = 0
-    for key, value in map_data_content_flags_values.items():
+    for key, value in MAP_DATA_CONTENT_FLAGS_VALUES.items():
         if getattr(self, key):
             self.total_flags |= value
-    ymap_content_flags_updating = False
+    YMAP_CONTENT_FLAGS_UPDATING = False
     
 def get_hash_from_bytes(data: bytes, algorithm:str = "sha256") -> str:
     """Returns the hash of the data"""
@@ -137,6 +142,13 @@ def get_selected_ymap(context: Context) -> Object:
         return ymap_list[context.scene.ymap_list_index]
     return None
 
+def get_selected_entity(context: Context) -> Object:
+    """Returns the currently selected entity in the scene"""
+    ymap = get_selected_ymap(context)
+    if ymap and ymap.entities:
+        return ymap.entities[context.scene.entity_list_index]
+    return None
+
 def unselect_entities_from_all_ymaps(context: Context):
     """Unselects all entities from all YMAPs in the scene"""
     for ymap in context.scene.ymap_list:
@@ -174,7 +186,11 @@ def change_ent_parenting(objs: list[Object], do_parent = False):
 
 def update_linked_obj(self, context):
     """Updates the linked object for the entity"""
+    entity = get_selected_entity(context)
     if not self.linked_object:
         return
     if not self.linked_object.parent:
         self.linked_object.parent = get_selected_ymap(context).ymap_entity_group_object
+        if self.linked_object.sollum_type == "sollumz_bound_composite":
+            entity.sollum_type = "sollumz_bound_composite"
+            entity.is_mlo_instance = True

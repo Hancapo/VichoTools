@@ -11,7 +11,7 @@ from .operators import (VICHO_OT_import_ymap,
 from ..vicho_dependencies import dependencies_manager as d
 from ..vicho_operators import VICHO_OT_fake_op
 from .operators_menu import (YMAP_MENU_OPERATORS_GROUPS)
-from .constants import entity_flags_values, map_data_content_flags_values, map_data_flags_values
+from .constants import ENTITY_FLAGS_VALUES, MAP_DATA_CONTENT_FLAGS_VALUES, MAP_DATA_FLAGS_VALUES
 from ..icons_load import get_icon
 from .funcs import sanitize_name
 
@@ -152,13 +152,13 @@ class YmapTools_Data_PT_Panel(bpy.types.Panel):
                                 cf_box = content_flags_row.box()
                                 cf_box.label(text="Content Flags", icon="CHECKMARK")
                                 content_flags_grid = cf_box.grid_flow(row_major=True, columns=2, even_columns=True, even_rows=True, align=False)
-                                for c_flag in map_data_content_flags_values:
+                                for c_flag in MAP_DATA_CONTENT_FLAGS_VALUES:
                                     content_flags_grid.alignment = 'CENTER'
                                     content_flags_grid.prop(ymap.content_flags, c_flag)
                                 f_box = content_flags_row.box()
                                 f_box.label(text="Flags", icon="CHECKMARK")
                                 flags_grid = f_box.grid_flow(row_major=True, columns=2, even_columns=True, even_rows=True, align=False)
-                                for flag in map_data_flags_values:
+                                for flag in MAP_DATA_FLAGS_VALUES:
                                     flags_grid.alignment = 'CENTER'
                                     flags_grid.prop(ymap.flags, flag)
                                 f_box.separator(factor=17)
@@ -196,7 +196,7 @@ class YmapTools_Data_PT_Panel(bpy.types.Panel):
                                         ent_data_flow.prop(selected_ent, "linked_object", icon="OBJECT_DATA")
                                 case "FLAGS":
                                     entity_flags_flow = col_box.grid_flow(row_major=True, columns=4, even_columns=True, even_rows=False, align=False)
-                                    for flag in entity_flags_values:
+                                    for flag in ENTITY_FLAGS_VALUES:
                                         entity_flags_flow.prop(selected_ent.flags, flag)
                                     col_box.prop(selected_ent.flags, "total_flags", text="Total Flags", expand=False)
                                 case "LOD":
@@ -220,19 +220,19 @@ class YmapTools_Data_PT_Panel(bpy.types.Panel):
                                         col_box.prop(selected_ent, "mlo_inst_flags", text="Instance Flags")
                                         col_box.separator()
 
-                                        if selected_ent.default_entity_sets:
-                                            header, panel = col_box.panel("tesd", default_closed=True)
-                                            header.label(text="Default Entity Sets", icon_value=get_icon("shape"))
-                                            if panel:
-                                                panel_col = panel.column()
-                                                panel_col.template_list(
-                                                    "GENERICNAME_UL_lists", 
-                                                    "", 
-                                                    selected_ent, 
-                                                    "default_entity_sets", 
-                                                    scene, 
-                                                    "default_entity_sets_index"
-                                                )
+                                        header, panel = col_box.panel("tesd", default_closed=True)
+                                        header.label(text="Default Entity Sets", icon_value=get_icon("shape"))
+                                        if panel:
+                                            panel_col = panel.column()
+                                            panel_col.template_list(
+                                                "GENERICNAME_UL_lists", 
+                                                "", 
+                                                selected_ent, 
+                                                "default_entity_sets", 
+                                                scene, 
+                                                "default_entity_sets_index"
+                                            )
+                                            
                                     else:
                                         row_box = col_box.row(align=True)
                                         row_box.alignment = 'CENTER'

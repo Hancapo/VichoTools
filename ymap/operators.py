@@ -288,6 +288,7 @@ class VICHO_OT_add_entity_from_selection(bpy.types.Operator):
                 new_entity.linked_object = obj
                 new_entity.linked_object.vicho_ymap_parent = ymap_obj
                 new_entity.flags.total_flags = 1572864  # Default flags
+                new_entity.is_mlo_instance = True if obj.sollum_type == 'sollumz_bound_composite' else False
                 scene.entity_list_index = len(ymap.entities) - 1
                 added_entities += f"{obj.name}, "
             self.report({'INFO'}, f"Entities added to {ymap_obj.name} YMAP: {added_entities}")
