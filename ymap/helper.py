@@ -10,6 +10,19 @@ from bpy.types import Object, Context
 from pathlib import Path
 import bpy
 
+class getYmapData:
+    def get_ymap_data(self, context):
+        ymap = context.scene.ymap_list[context.scene.ymap_list_index]
+        if ymap:
+            return ymap
+        return None
+    
+    def execute_menu_op(self, context, op_id):
+        ymap = self.get_ymap_data(context)
+        if ymap:
+            ymap.active_category = op_id
+            return {"FINISHED"}
+
 def update_entity_flags_bool_properties(self, context):
     global ENTITY_FLAGS_UPDATING
     if ENTITY_FLAGS_UPDATING:

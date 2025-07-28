@@ -1,18 +1,6 @@
 import bpy
 
-class getYmapData:
-    def get_ymap_data(self, context):
-        ymap = context.scene.ymap_list[context.scene.ymap_list_index]
-        if ymap:
-            return ymap
-        return None
-    
-    def execute_menu_op(self, context, op_id):
-        ymap = self.get_ymap_data(context)
-        if ymap:
-            ymap.active_category = op_id
-            return {"FINISHED"}
-
+from .helper import getYmapData
 
 class MAPDATA_Menu_OT_Operator(bpy.types.Operator, getYmapData):
     bl_idname = "ymap.map_data_menu"
