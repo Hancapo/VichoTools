@@ -176,7 +176,7 @@ class YmapTools_Data_PT_Panel(bpy.types.Panel):
                         tool_ent_col.operator(VICHO_OT_add_entity.bl_idname, text="", icon="ADD")
                         tool_ent_col.operator(VICHO_OT_remove_entity.bl_idname, text="", icon="REMOVE")
                         tool_ent_col.separator()
-                        tool_ent_col.operator(VICHO_OT_add_entity_from_selection.bl_idname, text="", icon="DUPLICATE")
+                        tool_ent_col.operator(VICHO_OT_add_entity_from_selection.bl_idname, text="", icon_value=get_icon("format_list_bulleted_type"))
                         selected_ent = ymap.entities[scene.entity_list_index] if ymap.entities else None
                         if selected_ent:
                             right_col.separator()
