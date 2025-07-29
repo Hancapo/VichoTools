@@ -3,12 +3,16 @@ from bpy_extras.io_utils import ImportHelper
 from bpy.props import StringProperty, BoolProperty
 from .funcs import (import_ymap_to_scene, 
                     remove_ymap_from_scene, 
-                    create_ymap_empty, sanitize_name, 
-                    calc_ymap_flags, set_ymap_extents, 
-                    create_ymap_entities_group)
+                    create_ymap_empty, 
+                    sanitize_name, 
+                    calc_ymap_flags, 
+                    set_ymap_extents)
 import os
 import time
-from .helper import str_loaded_count, set_sollumz_export_settings, change_ent_parenting, get_selected_entity, get_selected_ymap
+from .helper import (str_loaded_count, 
+                     set_sollumz_export_settings, 
+                     change_ent_parenting, 
+                     YmapData)
 from bpy.types import Object
 from .constants import COMPAT_SOLL_TYPES
 from ..vicho_dependencies import dependencies_manager as d
@@ -212,9 +216,9 @@ class VICHO_OT_remove_ymap(bpy.types.Operator):
         scene = context.scene
         selected_ymap_index = scene.ymap_list_index 
         if remove_ymap_from_scene(scene, selected_ymap_index):
-            self.report({'INFO'}, f"YMAP removed from scene")
+            self.report({'INFO'}, "YMAP removed from scene")
         else:
-            self.report({'ERROR'}, f"Error removing YMAP from scene")
+            self.report({'ERROR'}, "Error removing YMAP from scene")
         return {'FINISHED'}
     
     # Confirmation dialog
@@ -236,10 +240,10 @@ class VICHO_OT_add_ymap(bpy.types.Operator):
         new_ymap.ymap_object = create_ymap_empty("New YMAP")
         scene.ymap_list_index = len(scene.ymap_list) - 1
         bpy.ops.ymap.map_data_menu(operator_id="ymap.map_data_menu")
-        self.report({'INFO'}, f"YMAP added to scene")
+        self.report({'INFO'}, "YMAP added to scene")
         return {'FINISHED'}
 
-class VICHO_OT_add_entity(bpy.types.Operator):
+class VICHO_OT_add_entity(bpy.types.Operator, YmapData):
     """Adds a new entity to the YMAP"""
     bl_idname = "ymap.add_entity"
     bl_label = "Creates a new entity"
@@ -251,11 +255,8 @@ class VICHO_OT_add_entity(bpy.types.Operator):
 
     def execute(self, context):
         scene = context.scene
-        ymap = scene.ymap_list[scene.ymap_list_index]
-        ymap_obj: Object = ymap.ymap_object
-        ymap_eg: Object = next((ent_group for ent_group in ymap_obj.children if ent_group.vicho_type == "vicho_ymap_entities"), None) or create_ymap_entities_group(ymap_obj)
+        ymap, ymap_obj, ymap_eg = self.get_ymap(context), self.get_ymap_obj(context), self.get_ymap_ent_group_obj(context)
         ymap.ymap_entity_group_object = ymap_eg
-
         if ymap_obj:
             new_entity = ymap.entities.add()
             new_entity.name = "New Entity"
@@ -264,7 +265,7 @@ class VICHO_OT_add_entity(bpy.types.Operator):
             self.report({'INFO'}, f"Added new entity to {ymap_obj.name} YMAP")
             return {'FINISHED'}
 
-class VICHO_OT_add_entity_from_selection(bpy.types.Operator):
+class VICHO_OT_add_entity_from_selection(bpy.types.Operator, YmapData):
     """Add(s) selected objects as entities to the YMAP"""
     bl_idname = "ymap.add_sel_objs_as_entity"
     bl_label = "Add entities from selection"
@@ -277,10 +278,8 @@ class VICHO_OT_add_entity_from_selection(bpy.types.Operator):
     def execute(self, context):
         scene = context.scene
         selected_objs: list[Object] = [obj for obj in bpy.context.selected_objects if obj.type == 'EMPTY' and obj.sollum_type in COMPAT_SOLL_TYPES]
-        ymap = scene.ymap_list[scene.ymap_list_index]
-        ymap_obj = ymap.ymap_object
+        ymap, ymap_obj, ymap_eg = self.get_ymap(context), self.get_ymap_obj(context), self.get_ymap_ent_group_obj(context)
         if ymap_obj:
-            ymap_eg = next((ent_group for ent_group in ymap_obj.children if ent_group.vicho_type == "vicho_ymap_entities"), None) or create_ymap_entities_group(ymap_obj)
             added_entities: str = ""
             for obj in selected_objs:
                 obj.parent = ymap_eg
@@ -294,7 +293,7 @@ class VICHO_OT_add_entity_from_selection(bpy.types.Operator):
             self.report({'INFO'}, f"Entities added to {ymap_obj.name} YMAP: {added_entities}")
             return {'FINISHED'}
 
-class VICHO_OT_remove_entity(bpy.types.Operator):
+class VICHO_OT_remove_entity(bpy.types.Operator, YmapData):
     """Removes the selected entity from the entity list"""
     bl_idname = "ymap.remove_entity"
     bl_label = "Removes an entity"
@@ -303,38 +302,32 @@ class VICHO_OT_remove_entity(bpy.types.Operator):
         name="Delete Object",
         default=False,
         description="Whether to delete the linked object from the scene when removing the entity",
-    )
+    ) # type: ignore
     
     @classmethod
     def poll(cls, context):
-        return len(context.scene.ymap_list) > 0 and len(context.scene.ymap_list[context.scene.ymap_list_index].entities) > 0
+        return len(context.scene.ymap_list[context.scene.ymap_list_index].entities) > 0
     
     def execute(self, context):
         scene = context.scene
         selected_entity_index = scene.entity_list_index
-        
-        if selected_entity_index >= 0:
-            entity = get_selected_entity(context)
-            ymap = get_selected_ymap(context)
-            if entity.linked_object:
-                saved_name: str = entity.linked_object.name
-                if self.delete_obj_from_scene:
-                    delete_hierarchy(entity.linked_object)
-                else:
-                    entity.linked_object.parent = None
-                    entity.linked_object.vicho_ymap_parent = None
-                self.report({'INFO'}, f"Entity {saved_name} removed from YMAP")
-            else :
-                self.report({'INFO'}, f"Entity removed from YMAP")
-            ymap.entities.remove(selected_entity_index)
-            scene.entity_list_index = max(0, selected_entity_index - 1)
-        else:
-            self.report({'ERROR'}, f"No entity selected to remove")
-        
+        ymap, entity = self.get_ymap(context), self.get_ent(context)
+        if entity.linked_object:
+            saved_name: str = entity.linked_object.name
+            if self.delete_obj_from_scene:
+                delete_hierarchy(entity.linked_object)
+            else:
+                entity.linked_object.parent = None
+                entity.linked_object.vicho_ymap_parent = None
+            self.report({'INFO'}, f"Entity {saved_name} removed from YMAP")
+        else :
+            self.report({'INFO'}, "Entity removed from YMAP")
+        ymap.entities.remove(selected_entity_index)
+        scene.entity_list_index = max(0, selected_entity_index - 1)
         return {'FINISHED'}
 
     def invoke(self, context, event):
-        if get_selected_entity(context).linked_object:
+        if self.get_ent(context).linked_object:
             return context.window_manager.invoke_props_dialog(self, width=300, title="Remove Entity Confirmation")
         else:
             return context.window_manager.invoke_confirm(self, event, message="Are you sure you want to remove this entity? It has no linked object.")
@@ -342,20 +335,16 @@ class VICHO_OT_remove_entity(bpy.types.Operator):
     def draw(self, context):
         layout = self.layout
         col = layout.column()
-        if get_selected_entity(context).linked_object:
-            col.prop(self, "delete_obj_from_scene", text=f"Fully remove {get_selected_entity(context).linked_object.name} from scene?")
+        if self.get_ent(context).linked_object:
+            col.prop(self, "delete_obj_from_scene", text=f"Fully remove {self.get_ent(context).linked_object.name} from scene?")
 
-class VICHO_OT_go_to_entity(bpy.types.Operator):
+class VICHO_OT_go_to_entity(bpy.types.Operator, YmapData):
     """It zooms in to selected entity in the 3D Viewport"""
     bl_idname = "ymap.go_to_entity"
     bl_label = "Go to entity"
     
     def execute(self, context):
-        scene = context.scene
-        selected_ymap_index = scene.ymap_list_index
-        ymap = scene.ymap_list[selected_ymap_index]
-        entity = ymap.entities[scene.entity_list_index]
-        
+        entity = self.get_ent(context)
         if entity.linked_object:
             bpy.context.view_layer.objects.active = entity.linked_object
             bpy.ops.object.select_all(action='DESELECT')
@@ -364,7 +353,7 @@ class VICHO_OT_go_to_entity(bpy.types.Operator):
         
         return {'FINISHED'}
     
-class VICHO_OT_calculate_ymap_extents(bpy.types.Operator):
+class VICHO_OT_calculate_ymap_extents(bpy.types.Operator, YmapData):
     """It calculates the extents of the current YMAP"""
     bl_idname = "ymap.calculate_extents"
     bl_label = "Calculate YMAP extents"
@@ -375,14 +364,11 @@ class VICHO_OT_calculate_ymap_extents(bpy.types.Operator):
         return len(scene.ymap_list) > 0
     
     def execute(self, context):
-        scene = context.scene
-        selected_ymap_index = scene.ymap_list_index
-        ymap = scene.ymap_list[selected_ymap_index]
-        
+        ymap = self.get_ymap(context)
         if ymap.entities:
             set_ymap_extents(ymap, ymap.entities)
-            self.report({'INFO'}, f"YMAP extents calculated")
+            self.report({'INFO'}, f"{ymap.name} extents calculated")
         else:
-            self.report({'WARNING'}, f"No entities in YMAP to calculate extents")
-        
+            self.report({'WARNING'}, f"No entities in {ymap.name} to calculate extents")
+
         return {'FINISHED'}

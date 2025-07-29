@@ -1,4 +1,6 @@
 import hashlib
+
+from ..misc.funcs import create_ymap_entities_group
 from ..vicho_dependencies import dependencies_manager as dm
 from .constants import (ENTITY_FLAGS_VALUES,
                         MAP_DATA_FLAGS_VALUES, 
@@ -10,15 +12,29 @@ from bpy.types import Object, Context
 from pathlib import Path
 import bpy
 
-class getYmapData:
-    def get_ymap_data(self, context):
+class YmapData:
+    def get_ymap(self, context):
         ymap = context.scene.ymap_list[context.scene.ymap_list_index]
         if ymap:
             return ymap
         return None
     
+    def get_ymap_obj(self, context):
+        if self.get_ymap(context):
+            return self.get_ymap(context).ymap_object
+        
+    def get_ymap_ent_group_obj(self, context):
+        ymap_obj = self.get_ymap_obj(context)
+        return next((ent_group for ent_group in ymap_obj.children if ent_group.vicho_type == "vicho_ymap_entities"), None) or create_ymap_entities_group(ymap_obj)
+    
+    def get_ent(self, context):
+        ymap = self.get_ymap(context)
+        if ymap and ymap.entities:
+            return ymap.entities[context.scene.entity_list_index]
+        return None
+    
     def execute_menu_op(self, context, op_id):
-        ymap = self.get_ymap_data(context)
+        ymap = self.get_ymap(context)
         if ymap:
             ymap.active_category = op_id
             return {"FINISHED"}
@@ -148,20 +164,6 @@ def get_scene_collection(scene) -> str:
     """Returns the name of the scene collection"""
     return scene.collection.name if scene.collection else "Scene Collection"
 
-def get_selected_ymap(context: Context) -> Object:
-    """Returns the currently selected YMAP object in the scene"""
-    ymap_list = context.scene.ymap_list
-    if ymap_list and context.scene.ymap_list_index < len(ymap_list):
-        return ymap_list[context.scene.ymap_list_index]
-    return None
-
-def get_selected_entity(context: Context) -> Object:
-    """Returns the currently selected entity in the scene"""
-    ymap = get_selected_ymap(context)
-    if ymap and ymap.entities:
-        return ymap.entities[context.scene.entity_list_index]
-    return None
-
 def unselect_entities_from_all_ymaps(context: Context):
     """Unselects all entities from all YMAPs in the scene"""
     for ymap in context.scene.ymap_list:
@@ -202,8 +204,8 @@ def update_linked_obj(self, context):
     if not self.linked_object:
         return
     if not self.linked_object.parent:
-        self.linked_object.parent = get_selected_ymap(context).ymap_entity_group_object
+        self.linked_object.parent = YmapData.get_ymap_ent_group_obj(context)
         if self.linked_object.sollum_type == "sollumz_bound_composite":
-            entity = get_selected_entity(context)
+            entity = YmapData.get_selected_entity(context)
             entity.sollum_type = "sollumz_bound_composite"
             entity.is_mlo_instance = True

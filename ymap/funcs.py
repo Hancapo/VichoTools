@@ -6,7 +6,7 @@ import bpy
 from .constants import COMPAT_SOLL_TYPES, OBJECT_TYPES, VALID_NON_POLY_BOUND_TYPES
 from bpy.types import Object, Scene
 from ..misc.funcs import create_ymap_empty, create_ymap_entities_group, delete_hierarchy, delete_mesh
-from mathutils import Vector, Matrix
+from mathutils import Vector
 
 def get_sollumz_extensions() -> list[str]:
     return ["ydr", "ydd", "yft", "ybn"]
