@@ -12,7 +12,8 @@ import time
 from .helper import (str_loaded_count, 
                      set_sollumz_export_settings, 
                      change_ent_parenting, 
-                     YmapData)
+                     YmapData,
+                     get_entity_sets_from_entity)
 from bpy.types import Object
 from .constants import COMPAT_SOLL_TYPES
 from ..vicho_dependencies import dependencies_manager as d
@@ -371,4 +372,63 @@ class VICHO_OT_calculate_ymap_extents(bpy.types.Operator, YmapData):
         else:
             self.report({'WARNING'}, f"No entities in {ymap.name} to calculate extents")
 
+        return {'FINISHED'}
+    
+class VICHO_OT_import_entity_sets(bpy.types.Operator, YmapData):
+    """Imports entity sets from the entity's MLO archetype definition"""
+    bl_idname = "ymap.import_entity_sets"
+    bl_label = "Import Entity Sets"
+    
+    entity_sets: bpy.props.CollectionProperty(type=bpy.types.PropertyGroup) # type: ignore
+    
+    @classmethod
+    def poll(cls, context):
+        scene = context.scene
+        return len(scene.ymap_list) > 0 and len(scene.ymap_list[scene.ymap_list_index].entities) > 0
+
+    def execute(self, context):
+        entity = self.get_ent(context)
+        for es in self.entity_sets:
+            if es["checked"]:
+                if not any(existing_es.name == es.name for existing_es in entity.default_entity_sets):
+                    entity.default_entity_sets.add().name = es.name
+                else:
+                    self.report({'WARNING'}, f"Entity set '{es.name}' already exists in default entity sets")
+        context.area.tag_redraw()
+        return {'FINISHED'}
+
+    def draw(self, context):
+        layout = self.layout
+        if len(self.entity_sets) == 0:
+            for es in get_entity_sets_from_entity(self, context):
+                item = self.entity_sets.add()
+                item.name = es
+                if not hasattr(item, "checked"):
+                    item["checked"] = False
+
+        for item in (self.entity_sets):
+            row = layout.row()
+            row.prop(item, '["checked"]', text=item.name)
+
+    def invoke(self, context, event):
+        return context.window_manager.invoke_props_dialog(self, width=300, title="Import Entity Sets")
+
+class VICHO_OT_remove_entity_set(bpy.types.Operator, YmapData):
+    """Removes the selected entity set from the entity's MLO archetype definition"""
+    bl_idname = "ymap.remove_entity_set"
+    bl_label = "Remove Entity Set"
+    
+    @classmethod
+    def poll(cls, context):
+        return len(context.scene.ymap_list[context.scene.ymap_list_index].entities) > 0
+    
+    def execute(self, context):
+        entity = self.get_ent(context)
+        if entity.default_entity_sets:
+            entity.default_entity_sets.remove(context.scene.default_entity_sets_index)
+            context.scene.default_entity_sets_index = max(0, context.scene.default_entity_sets_index - 1)
+            self.report({'INFO'}, "Entity set removed")
+        else:
+            self.report({'WARNING'}, "No entity sets to remove")
+        
         return {'FINISHED'}

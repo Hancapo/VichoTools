@@ -116,7 +116,7 @@ def str_loaded_count() -> int:
     else:
         return None
 
-def run_ops_without_view_layer_update(func):
+def run_ops_without_view_layer_update(func) -> None:
     from bpy.ops import _BPyOpsSubModOp
     view_layer_update = _BPyOpsSubModOp._view_layer_update
     def dummy_view_layer_update(context):
@@ -164,7 +164,7 @@ def get_scene_collection(scene) -> str:
     """Returns the name of the scene collection"""
     return scene.collection.name if scene.collection else "Scene Collection"
 
-def unselect_entities_from_all_ymaps(context: Context):
+def unselect_entities_from_all_ymaps(context: Context) -> None:
     """Unselects all entities from all YMAPs in the scene"""
     for ymap in context.scene.ymap_list:
         if ymap.entities:
@@ -185,7 +185,7 @@ def set_sollumz_export_settings() -> None:
     if preferences:
         preferences.export_settings.limit_to_selected = True
 
-def change_ent_parenting(objs: list[Object], do_parent = False):
+def change_ent_parenting(objs: list[Object], do_parent = False) -> None:
     """Changes the parenting of the selected objects to the YMAP entities group"""
     scene = bpy.context.scene
     ymap_obj = scene.ymap_list[scene.ymap_list_index].ymap_object
@@ -199,13 +199,24 @@ def change_ent_parenting(objs: list[Object], do_parent = False):
             else:
                 obj.parent = None
 
-def update_linked_obj(self, context):
+def update_linked_obj(self, context) -> None:
     """Updates the linked object for the entity"""
     if not self.linked_object:
         return
     if not self.linked_object.parent:
         self.linked_object.parent = YmapData.get_ymap_ent_group_obj(context)
         if self.linked_object.sollum_type == "sollumz_bound_composite":
-            entity = YmapData.get_selected_entity(context)
+            entity = YmapData.get_ent(context)
             entity.sollum_type = "sollumz_bound_composite"
             entity.is_mlo_instance = True
+            
+def get_entity_sets_from_entity(self, context) -> list[str]:
+    """Returns the entity sets from the entity's MLO archetype definition"""
+    entity = YmapData.get_ent(self, context)
+    linked_obj: Object = entity.linked_object
+    
+    for ytyp in context.scene.ytyps:
+        for arch in ytyp.archetypes:
+            if arch.type == "sollumz_archetype_mlo" and arch.name == linked_obj.name:
+                return [es.name for es in arch.entity_sets]
+    return []

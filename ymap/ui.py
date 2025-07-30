@@ -7,7 +7,9 @@ from .operators import (VICHO_OT_import_ymap,
                         VICHO_OT_add_entity_from_selection,
                         VICHO_OT_remove_entity,
                         VICHO_OT_export_ymap,
-                        VICHO_OT_calculate_ymap_extents)
+                        VICHO_OT_calculate_ymap_extents,
+                        VICHO_OT_import_entity_sets,
+                        VICHO_OT_remove_entity_set)
 from ..vicho_dependencies import dependencies_manager as d
 from ..vicho_operators import VICHO_OT_fake_op
 from .operators_menu import (YMAP_MENU_OPERATORS_GROUPS)
@@ -224,7 +226,8 @@ class YmapTools_Data_PT_Panel(bpy.types.Panel):
                                         header.label(text="Default Entity Sets", icon_value=get_icon("shape"))
                                         if panel:
                                             panel_col = panel.column()
-                                            panel_col.template_list(
+                                            row = panel_col.row(align=False)
+                                            row.template_list(
                                                 "GENERICNAME_UL_lists", 
                                                 "", 
                                                 selected_ent, 
@@ -232,6 +235,9 @@ class YmapTools_Data_PT_Panel(bpy.types.Panel):
                                                 scene, 
                                                 "default_entity_sets_index"
                                             )
+                                            col = row.column(align=True)
+                                            col.operator(VICHO_OT_import_entity_sets.bl_idname, text="", icon="ADD")
+                                            col.operator(VICHO_OT_remove_entity_set.bl_idname, text="", icon="REMOVE")
                                             
                                     else:
                                         row_box = col_box.row(align=True)
