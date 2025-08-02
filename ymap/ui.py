@@ -16,6 +16,7 @@ from .operators_menu import (YMAP_MENU_OPERATORS_GROUPS)
 from .constants import ENTITY_FLAGS_VALUES, MAP_DATA_CONTENT_FLAGS_VALUES, MAP_DATA_FLAGS_VALUES
 from ..icons_load import get_icon
 from .funcs import sanitize_name
+from .helper import YmapData
 
 class YMAPLIST_UL_list(bpy.types.UIList):
     bl_idname = "YMAPLIST_UL_list"
@@ -100,7 +101,7 @@ class YmapTools_PT_Panel(bpy.types.Panel):
                 icon="ERROR",
             )
 
-class YmapTools_Data_PT_Panel(bpy.types.Panel):
+class YmapTools_Data_PT_Panel(bpy.types.Panel, YmapData):
     bl_label = "Data"
     bl_idname = "VICHOTOOLS_PT_Ymap_Data"
     bl_parent_id = "VICHOTOOLS_PT_Ymap"
@@ -112,14 +113,11 @@ class YmapTools_Data_PT_Panel(bpy.types.Panel):
     def poll(cls, context):
         return len(context.scene.ymap_list) > 0 and d.available
     
-    def draw_header(self, context):
-        self.layout.label(text="", icon_value=get_icon("sitemap"))
-        
     def draw(self, context):
         layout = self.layout
         scene = context.scene
         if d.available:
-            ymap = scene.ymap_list[scene.ymap_list_index] if scene.ymap_list else None
+            ymap = YmapData.get_ymap(self, context)
             if ymap:
                 main_row = layout.row()
                 left_col = main_row.column()
@@ -141,6 +139,7 @@ class YmapTools_Data_PT_Panel(bpy.types.Panel):
                 
                 match ymap.active_category:
                     case "ymap.map_data_menu":
+                        self.bl_label = "Data"
                         data_flow = right_col.grid_flow(row_major=True, columns=3, even_columns=True, even_rows=True, align=True)
                         data_flow.prop(ymap, "data_category", expand=True, icon_only=True, emboss=True)
                         ymap_data_box = right_col.box()
@@ -172,6 +171,7 @@ class YmapTools_Data_PT_Panel(bpy.types.Panel):
                                 ext_col.operator(VICHO_OT_calculate_ymap_extents.bl_idname, text="Calculate Extents", icon="FILE_REFRESH")
                                 ext_col.separator(factor=17)
                     case "ymap.entities_menu":
+                        self.bl_label = "Entities"
                         right_col.template_list(ENTITYLIST_UL_list.bl_idname, "", ymap, "entities", scene, "entity_list_index")
                         tool_ent_col = main_row.column(align=True)
                         tool_ent_col.ui_units_x = 1
@@ -222,7 +222,7 @@ class YmapTools_Data_PT_Panel(bpy.types.Panel):
                                         col_box.prop(selected_ent, "mlo_inst_flags", text="Instance Flags")
                                         col_box.separator()
 
-                                        header, panel = col_box.panel("tesd", default_closed=True)
+                                        header, panel = col_box.panel("ent_default_entity_sets", default_closed=True)
                                         header.label(text="Default Entity Sets", icon_value=get_icon("shape"))
                                         if panel:
                                             panel_col = panel.column()
@@ -244,16 +244,23 @@ class YmapTools_Data_PT_Panel(bpy.types.Panel):
                                         row_box.alignment = 'CENTER'
                                         row_box.label(text="Not an MLO Instance", icon="ERROR")
                     case "ymap.occluders_menu":
+                        self.bl_label = "Occluders"
                         right_col.label(text="Occluders")
                     case "ymap.physics_dictionaries_menu":
+                        self.bl_label = "Physics Dictionaries"
                         right_col.label(text="Physics Dictionaries")
                     case "ymap.instanced_data_menu":
+                        self.bl_label = "Instanced Data"
                         right_col.label(text="Instanced Data")
                     case "ymap.timecycle_modifiers_menu":
+                        self.bl_label = "Timecycle Modifiers"
                         right_col.label(text="Timecycle Modifiers")
                     case "ymap.car_generators_menu":
+                        self.bl_label = "Car Generators"
                         right_col.label(text="Car Generators")
                     case "ymap.lod_lights_menu":
+                        self.bl_label = "Lod Lights"
                         right_col.label(text="Lod Lights")
                     case "ymap.distant_lights_menu":
+                        self.bl_label = "Distant Lights"
                         right_col.label(text="Distant Lights")
