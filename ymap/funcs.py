@@ -144,6 +144,7 @@ def import_ent_objs(scene: Scene, index: int, asset_path: str, ymap_group: Objec
         p: Path = Path(asset_path)
         print(f"Is MLO: {e.is_mlo_instance}")
         file_found: bool = False
+        xml_file: str = ""
         for ext in get_sollumz_extensions():
             if Path.exists(p / f"{e.archetype_name}.{ext}.xml"):
                 xml_file: str = f"{e.archetype_name}.{ext}.xml"
@@ -151,6 +152,7 @@ def import_ent_objs(scene: Scene, index: int, asset_path: str, ymap_group: Objec
                 break
         if not file_found:
             self.report({'ERROR'}, f"Could not find the XML file for {e.archetype_name}")
+            continue
         
         before_import: set[str] = set(bpy.data.objects.keys())
         if Path.exists(p / xml_file):
