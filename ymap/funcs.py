@@ -3,13 +3,11 @@ from ..vicho_dependencies import dependencies_manager as d
 from pathlib import Path
 from .helper import run_ops_without_view_layer_update, instance_obj_and_child, get_obj_from_scene, get_fn_wt_ext
 import bpy
-from .constants import COMPAT_SOLL_TYPES, OBJECT_TYPES, VALID_NON_POLY_BOUND_TYPES
+from .constants import COMPAT_SOLL_TYPES, OBJECT_TYPES, VALID_NON_POLY_BOUND_TYPES, SOLLUMZ_EXTS
 from bpy.types import Object, Scene
 from ..misc.funcs import create_ymap_empty, create_ymap_entities_group, delete_hierarchy, delete_mesh
 from mathutils import Vector
 
-def get_sollumz_extensions() -> list[str]:
-    return ["ydr", "ydd", "yft", "ybn"]
 
 def get_name(ymap) -> str:
     """Returns the name of the YMAP"""
@@ -144,8 +142,8 @@ def import_ent_objs(scene: Scene, index: int, asset_path: str, ymap_group: Objec
         p: Path = Path(asset_path)
         print(f"Is MLO: {e.is_mlo_instance}")
         file_found: bool = False
-        xml_file: str = ""
-        for ext in get_sollumz_extensions():
+        xml_file: str = None
+        for ext in SOLLUMZ_EXTS:
             if Path.exists(p / f"{e.archetype_name}.{ext}.xml"):
                 xml_file: str = f"{e.archetype_name}.{ext}.xml"
                 file_found = True

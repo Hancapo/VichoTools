@@ -12,6 +12,8 @@ VALID_NON_POLY_BOUND_TYPES: list[str] = [
     "sollumz_bound_cylinder",
 ]
 
+SOLLUMZ_EXTS: list[str] = ["ydr", "ydd", "yft", "ybn"]
+
 ENTITY_TYPES: list[tuple[str, str, str, str, int]] = (
     ("ENTITY", "Entity", "Entity", "OUTLINER_DATA_LIGHTPROBE", 0),
     ("MLOINSTANCE", "MLO Instance", "MLO Instance", "HOME", 1),

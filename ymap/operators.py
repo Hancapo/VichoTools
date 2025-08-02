@@ -61,7 +61,6 @@ class VICHO_OT_import_ymap(bpy.types.Operator, ImportHelper):
 
     def invoke(self, context, event):
         context.window_manager.fileselect_add(self)
-        self.asset_path = context.scene["folder_browser_path"]
         return {'RUNNING_MODAL'}
     
     def draw(self, context):
