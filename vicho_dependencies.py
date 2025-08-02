@@ -57,6 +57,9 @@ class DependenciesManager:
         self.JenkHash = None
         self.JenkIndex = None
         self.CMapData = None
+        
+        # KeepA stuff
+        self.FolderBrowser = None
 
     @property
     def ymap_list(self) -> List["YmapFile"]:
@@ -150,6 +153,7 @@ class DependenciesManager:
                 self.JenkHash,
                 self.JenkIndex,
                 self.CMapData,
+                self.FolderBrowser
             ]
         )
 
@@ -172,6 +176,7 @@ class DependenciesManager:
             clr.AddReference(rf"{libs_loc}\CodeWalker.Core.dll")
             clr.AddReference("System.Collections")
             clr.AddReference(rf"{libs_loc}\TeximpNet.dll")
+            clr.AddReference(rf"{libs_loc}\KeepA.dll")
             print("References added correctly")
 
             from System.Collections.Generic import List
@@ -205,6 +210,8 @@ class DependenciesManager:
             )
 
             from SharpDX import Vector3, Vector4
+            
+            from KeepA import FolderBrowser
 
             print("Modules OK")
 
@@ -243,6 +250,8 @@ class DependenciesManager:
             self.MipmapFilter = MipmapFilter
             self.ImageFilter = ImageFilter
             self.RoundMode = RoundMode
+            
+            self.FolderBrowser = FolderBrowser
 
             print("Dependencies loaded OK")
             print(f"dependencies.available: {self.available}")

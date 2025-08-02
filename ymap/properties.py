@@ -521,6 +521,13 @@ def register():
         name="Vicho Ymap Parent",
         type=bpy.types.Object,
     )
+    
+    bpy.types.Scene.ymap_assets_path = bpy.props.StringProperty(
+        name="Asset Path",
+        default="",
+        description="Sets the path to the asset folder",
+        maxlen=500,
+    )
 
 def unregister():
     del bpy.types.Scene.ymap_assets_path
@@ -530,3 +537,4 @@ def unregister():
     del bpy.types.Scene.default_entity_sets_index
     del bpy.types.Object.vicho_type
     del bpy.types.Object.vicho_ymap_parent
+    del bpy.types.Object.ymap_assets_path

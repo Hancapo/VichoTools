@@ -43,7 +43,6 @@ class VICHO_OT_import_ymap(bpy.types.Operator, ImportHelper):
     import_timecycle_mods: BoolProperty(name="Timecycle Modifiers", default=True, description="Import timecycle modifiers from the YMAP file(s)")
     import_car_generators: BoolProperty(name="Car Generators", default=True, description="Import car generators from the YMAP file(s)")
     
-    asset_path: StringProperty(name="Asset Path", default="")
     import_props: BoolProperty(name="Import Props", default=True, description="Whether or not to import props from the YMAP file(s)")
     
     @classmethod
@@ -53,17 +52,20 @@ class VICHO_OT_import_ymap(bpy.types.Operator, ImportHelper):
     def execute(self, context):
         scene = context.scene
         start_time = time.time()
+        
         for file in self.files:
             filepath: str = os.path.join(self.directory, file.name)
-            import_ymap_to_scene(scene, filepath, self.import_entities, self.import_occluders, self.import_timecycle_mods, self.import_car_generators, self.import_props, self, self.asset_path)
+            import_ymap_to_scene(scene, filepath, self.import_entities, self.import_occluders, self.import_timecycle_mods, self.import_car_generators, self.import_props, self, scene.ymap_assets_path)
         self.report({'INFO'}, f"YMAP file(s) imported in {time.time() - start_time:.2f} seconds")
         return {'FINISHED'}
 
     def invoke(self, context, event):
         context.window_manager.fileselect_add(self)
+        self.asset_path = context.scene["folder_browser_path"]
         return {'RUNNING_MODAL'}
     
     def draw(self, context):
+        scene = context.scene
         layout = self.layout
         box = layout.box()
         
@@ -84,7 +86,9 @@ class VICHO_OT_import_ymap(bpy.types.Operator, ImportHelper):
             row.prop(self, "show_assets", text="Assets", icon='TRIA_DOWN' if self.show_assets else 'TRIA_RIGHT', emboss=False)
             if self.show_assets:
                 col = box.column(align=True)
-                col.prop(self, "asset_path", icon="FILE_FOLDER")
+                row = col.row(align=True)
+                row.prop(scene, "ymap_assets_path")
+                row.operator(VICHO_OT_open_folder.bl_idname, text="", icon='FILE_FOLDER')
                 col.separator()
                 col.prop(self, "import_props")
 
@@ -432,3 +436,18 @@ class VICHO_OT_remove_entity_set(bpy.types.Operator, YmapData):
             self.report({'WARNING'}, "No entity sets to remove")
         
         return {'FINISHED'}
+    
+class VICHO_OT_open_folder(bpy.types.Operator):
+    """Opens a generic windows folder dialog"""
+    bl_idname = "ymap.open_folder"
+    bl_label = "Open Folder"
+    
+    def execute(self, context):
+        file_browser = d.FolderBrowser()
+        result = file_browser.GetSelectedPath()
+        if result:
+            context.scene.ymap_assets_path = result if result else ""
+            return {'FINISHED'}
+        else:
+            self.report({'ERROR'}, "No path selected")
+            return {'CANCELLED'}
