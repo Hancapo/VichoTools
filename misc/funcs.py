@@ -217,3 +217,10 @@ def delete_mesh(mesh: Mesh):
             if obj.data == mesh:
                 obj.data = None
         bpy.data.meshes.remove(mesh, do_unlink=True)
+        
+def try_parse_int(value: str) -> int | None:
+    """Try to parse a string as an integer."""
+    try:
+        return int(value)
+    except ValueError:
+        return None
