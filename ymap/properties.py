@@ -384,7 +384,6 @@ class EntityProps(bpy.types.PropertyGroup):
         name="Default Entity Sets",
         type=EntitySetsProps) # type: ignore
     
-
 class YmapProps(bpy.types.PropertyGroup):
     is_imported: bpy.props.BoolProperty(
         name="Is Imported",
@@ -410,6 +409,11 @@ class YmapProps(bpy.types.PropertyGroup):
         name="Ymap Physics Dictionaries",
         type=PhysicsGroup,
         description="Collection of YMAP physics dictionaries") # type: ignore
+    
+    ymap_phys_dicts_index: bpy.props.IntProperty(
+        name="Ymap Physics Dictionaries Index",
+        default=0,
+        description="Index of the selected YMAP physics dictionary")
     
     enabled: bpy.props.BoolProperty(
         name="Enabled",

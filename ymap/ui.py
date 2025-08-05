@@ -1,18 +1,20 @@
 import bpy
-from .operators import (VICHO_OT_import_ymap, 
-                        VICHO_OT_remove_ymap, 
-                        VICHO_OT_go_to_entity, 
-                        VICHO_OT_add_ymap, 
-                        VICHO_OT_add_entity,
-                        VICHO_OT_add_entity_from_selection,
-                        VICHO_OT_remove_entity,
-                        VICHO_OT_export_ymap,
-                        VICHO_OT_calculate_ymap_extents,
-                        VICHO_OT_import_entity_sets,
-                        VICHO_OT_remove_entity_set)
+from .operators.operators_entity import (VICHO_OT_add_entity,
+                                        VICHO_OT_add_entity_from_selection,
+                                        VICHO_OT_remove_entity,
+                                        VICHO_OT_go_to_entity,
+                                        VICHO_OT_import_entity_sets,
+                                        VICHO_OT_remove_entity_set)
+
+from .operators.operators_ymap import (VICHO_OT_import_ymap,
+                                       VICHO_OT_remove_ymap,
+                                       VICHO_OT_export_ymap,
+                                       VICHO_OT_add_ymap,
+                                       VICHO_OT_calculate_ymap_extents)
+
 from ..vicho_dependencies import dependencies_manager as d
 from ..vicho_operators import VICHO_OT_fake_op
-from .operators_menu import (YMAP_MENU_OPERATORS_GROUPS)
+from .operators.operators_menu import YMAP_MENU_OPERATORS_GROUPS
 from .constants import ENTITY_FLAGS_VALUES, MAP_DATA_CONTENT_FLAGS_VALUES, MAP_DATA_FLAGS_VALUES
 from ..icons_load import get_icon
 from .funcs import sanitize_name
@@ -248,7 +250,18 @@ class YmapTools_Data_PT_Panel(bpy.types.Panel, YmapData):
                         right_col.label(text="Occluders")
                     case "ymap.physics_dictionaries_menu":
                         self.bl_label = "Physics Dictionaries"
-                        right_col.label(text="Physics Dictionaries")
+                        new_row = right_col.row(align=False)
+                        new_row.template_list(
+                            "GENERICNAME_UL_lists", 
+                            "",
+                            ymap, 
+                            "ymap_phys_dicts", 
+                            ymap,
+                            "ymap_phys_dicts_index"
+                        )
+                        new_col = new_row.column(align=True)
+                        new_col.operator(VICHO_OT_fake_op.bl_idname, text="", icon="ADD")
+                        new_col.operator(VICHO_OT_fake_op.bl_idname, text="", icon="REMOVE")
                     case "ymap.instanced_data_menu":
                         self.bl_label = "Instanced Data"
                         right_col.label(text="Instanced Data")

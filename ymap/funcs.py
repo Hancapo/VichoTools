@@ -41,6 +41,13 @@ def get_ents_extents_max(ymap) -> tuple[float, float, float]:
     """Returns the entities extents max of the YMAP"""
     return (ymap.CMapData.entitiesExtentsMax.X, ymap.CMapData.entitiesExtentsMax.Y, ymap.CMapData.entitiesExtentsMax.Z)
 
+def get_ymap_phys_dicts(ymap) -> list:
+    """Returns the physics dictionaries of the YMAP"""
+    phys_dicts = []
+    for phys_dict in ymap.physicsDictionaries:
+        phys_dicts.append(phys_dict.ToString())
+    return phys_dicts
+
 def ymap_exist_in_scene(scene: Scene, new_ymap: str) -> bool:
     """Checks if a YMAP already exists in the scene"""
     fn: str = get_fn_wt_ext(new_ymap)
@@ -88,8 +95,15 @@ def add_ymap_to_scene(scene: Scene) -> None:
     scene.ymap_list.add()
     scene.ymap_list_index = len(scene.ymap_list) + 1
     
+def fill_physics_dicts_from_ymap(scene: Scene, index: int, current_ymap) -> None:
+    """Fills the physics dictionaries from the selected YMAP"""
+    if current_ymap.physicsDictionaries is not None:
+        for phys_dict in get_ymap_phys_dicts(current_ymap):
+            new_phys_dict = scene.ymap_list[index].ymap_phys_dicts.add()
+            new_phys_dict.name = phys_dict
+
 def fill_map_data_from_ymap(scene: Scene, index: int, current_ymap, do_props: bool) -> None:
-    """Fills the data from the selected YMAP"""
+    """Fills the data from the imported YMAP"""
     any_entities = any_ent_exists_in_ymap(current_ymap)
     scene.ymap_list[index].name = get_name(current_ymap)
     scene.ymap_list[index].parent = get_parent(current_ymap)
@@ -100,11 +114,13 @@ def fill_map_data_from_ymap(scene: Scene, index: int, current_ymap, do_props: bo
     scene.ymap_list[index].entities_extents_min = get_ents_extents_min(current_ymap)
     scene.ymap_list[index].entities_extents_max = get_ents_extents_max(current_ymap)
     scene.ymap_list[index].any_entities = any_entities
+    
+    fill_physics_dicts_from_ymap(scene, index, current_ymap)
     fill_ents_data_from_ymap(scene, index, current_ymap, any_entities, do_props)
         
 
 def fill_ents_data_from_ymap(scene: Scene, index: int, current_ymap, any_ents: bool, do_props: bool) -> None:
-    """Fills the entity data from the selected YMAP"""
+    """Fills the entity data from the imported YMAP"""
     if any_ents:
         for ent in get_all_ents_from_ymap(current_ymap):
             if not do_props and get_ent_lod_level(ent) == "LODTYPES_DEPTH_ORPHANHD" and not is_mlo_instance(ent):

@@ -1,6 +1,5 @@
 import bpy
-
-from .helper import YmapData
+from ..helper import YmapData
 
 class MAPDATA_Menu_OT_Operator(bpy.types.Operator, YmapData):
     bl_idname = "ymap.map_data_menu"
