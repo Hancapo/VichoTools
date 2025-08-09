@@ -12,6 +12,9 @@ from .operators.operators_ymap import (VICHO_OT_import_ymap,
                                        VICHO_OT_add_ymap,
                                        VICHO_OT_calculate_ymap_extents)
 
+from .operators.operators_phys_dict import (VICHO_OT_add_phys_dict,
+                                             VICHO_OT_remove_phys_dict)
+
 from ..vicho_dependencies import dependencies_manager as d
 from ..vicho_operators import VICHO_OT_fake_op
 from .operators.operators_menu import YMAP_MENU_OPERATORS_GROUPS
@@ -260,8 +263,8 @@ class YmapTools_Data_PT_Panel(bpy.types.Panel, YmapData):
                             "ymap_phys_dicts_index"
                         )
                         new_col = new_row.column(align=True)
-                        new_col.operator(VICHO_OT_fake_op.bl_idname, text="", icon="ADD")
-                        new_col.operator(VICHO_OT_fake_op.bl_idname, text="", icon="REMOVE")
+                        new_col.operator(VICHO_OT_add_phys_dict.bl_idname, text="", icon="ADD")
+                        new_col.operator(VICHO_OT_remove_phys_dict.bl_idname, text="", icon="REMOVE")
                     case "ymap.instanced_data_menu":
                         self.bl_label = "Instanced Data"
                         right_col.label(text="Instanced Data")

@@ -19,6 +19,12 @@ class YmapData:
             return ymap
         return None
     
+    def has_entities(self, context):
+        ymap = self.get_ymap(context)
+        if ymap and ymap.entities:
+            return True
+        return False
+
     def get_ymap_obj(self, context):
         if self.get_ymap(context):
             return self.get_ymap(context).ymap_object
@@ -38,6 +44,8 @@ class YmapData:
         if ymap:
             ymap.active_category = op_id
             return {"FINISHED"}
+        
+    
 
 def update_entity_flags_bool_properties(self, context):
     global ENTITY_FLAGS_UPDATING
