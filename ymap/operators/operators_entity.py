@@ -91,8 +91,7 @@ class VICHO_OT_remove_entity(bpy.types.Operator, YmapData):
     def invoke(self, context, event):
         if self.get_ent(context).linked_object:
             return context.window_manager.invoke_props_dialog(self, width=300, title="Remove Entity Confirmation")
-        else:
-            return context.window_manager.invoke_confirm(self, event, message="Are you sure you want to remove this entity? It has no linked object.")
+        return self.execute(context)
     
     def draw(self, context):
         layout = self.layout
