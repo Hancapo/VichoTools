@@ -8,6 +8,7 @@ import time
 import os
 from ..funcs import import_ymap_to_scene, remove_ymap_from_scene, create_ymap_empty, sanitize_name, calc_ymap_flags, set_ymap_extents
 from .operators import VICHO_OT_open_folder
+from ...misc.funcs import get_meta_hash
 
 class VICHO_OT_import_ymap(bpy.types.Operator, ImportHelper):
     """Import(s) all the selected YMAP file(s) from a given directory"""
@@ -132,6 +133,11 @@ class VICHO_OT_export_ymap(bpy.types.Operator):
             ymap_file._CMapData = new_map_data
 
             #Build entities
+            if ymap.ymap_phys_dicts:
+                phys_dicts = []
+                for phys_dict in ymap.ymap_phys_dicts:
+                    phys_dicts.append(get_meta_hash(phys_dict.name))
+                ymap_file.physicsDictionaries = phys_dicts
             if ymap.entities:
                 for entity in ymap.entities:
                     if entity.linked_object:
@@ -162,7 +168,7 @@ class VICHO_OT_export_ymap(bpy.types.Operator):
                             mlo_arch = d.MloArchetype()
                             mlo_inst_data = d.MloInstanceData(ymap_entity_def, mlo_arch)
                             if entity.default_entity_sets:
-                                mlo_inst_data.defaultEntitySets = [d.MetaHash(d.JenkHash.GenHash(des.name)) for des in entity.default_entity_sets]
+                                mlo_inst_data.defaultEntitySets = [get_meta_hash(des.name) for des in entity.default_entity_sets]
                             cmlo_inst = d.CMloInstanceDef()
                             cmlo_inst.groupId = entity.group_id
                             cmlo_inst.floorId = entity.floor_id

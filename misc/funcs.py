@@ -5,6 +5,7 @@ import time
 import uuid
 import random
 from bpy.types import Object, Collection, Mesh
+from ..vicho_dependencies import dependencies_manager as d
 
 def get_bounds_from_single_object(obj):
     corners = []
@@ -224,3 +225,8 @@ def try_parse_int(value: str) -> int | None:
         return int(value)
     except ValueError:
         return None
+
+def get_meta_hash(name: str):
+    """Get the meta hash for a given name."""
+    int_hash: int | None = try_parse_int(name)
+    return d.MetaHash(d.JenkHash.GenHash(name)) if int_hash is None else d.MetaHash(int_hash)
