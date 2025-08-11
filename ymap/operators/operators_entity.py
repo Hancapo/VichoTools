@@ -77,12 +77,15 @@ class VICHO_OT_remove_entity(bpy.types.Operator, YmapData):
         if entity.linked_object:
             saved_name: str = entity.linked_object.name
             if self.delete_obj_from_scene:
-                delete_hierarchy(entity.linked_object)
+                if entity.parent_index > -1:
+                    delete_hierarchy(entity.linked_object)
+                else:
+                    self.report({'WARNING'}, "Entities with a parent cannot be deleted since this will break lod parenting.")
             else:
                 entity.linked_object.parent = None
                 entity.linked_object.vicho_ymap_parent = None
             self.report({'INFO'}, f"Entity {saved_name} removed from YMAP")
-        else :
+        else:
             self.report({'INFO'}, "Entity removed from YMAP")
         ymap.entities.remove(selected_entity_index)
         scene.entity_list_index = max(0, selected_entity_index - 1)

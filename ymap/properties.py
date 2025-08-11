@@ -337,7 +337,7 @@ class EntityProps(bpy.types.PropertyGroup):
     lod_level: bpy.props.EnumProperty(
         name="LOD Level",
         items=LOD_LEVELS,
-        default="LODTYPES_DEPTH_HD",
+        default="LODTYPES_DEPTH_ORPHANHD",
         description="Level of Detail (LOD) for the entity",
     ) # type: ignore
     
