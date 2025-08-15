@@ -73,7 +73,7 @@ def import_ymap_to_scene(scene: Scene, new_ymap_path: str, i_ents: bool, i_occls
         new_ymap.ymap_object = ymap_obj
         if i_ents and assets_path is not None:
             ymap_ent_group: Object = create_ymap_entities_group(ymap_obj)
-            new_ymap.ymap_entities_group = ymap_ent_group
+            new_ymap.ymap_entity_group_object = ymap_ent_group
             import_ent_objs(scene, current_index, assets_path, ymap_ent_group, self)
         self.report({'INFO'}, f"YMAP {filename} added to scene")
         return True
@@ -81,13 +81,21 @@ def import_ymap_to_scene(scene: Scene, new_ymap_path: str, i_ents: bool, i_occls
         self.report({'ERROR'}, f"YMAP {filename} already exists in scene")
         return False
  
-def remove_ymap_from_scene(scene: Scene, index: int) -> bool:
+def remove_ymap_from_scene(scene: Scene, index: int, delete_all: bool) -> bool:
     """Removes a YMAP from the scene"""
     ymap_obj: Object = scene.ymap_list[index].ymap_object
-    if len(scene.ymap_list) > 0:
-        scene.ymap_list_index = max(0, index - 1)
-    bpy.data.objects.remove(ymap_obj, do_unlink=True)
-    scene.ymap_list.remove(index)
+    ymap_ent_grp: Object = scene.ymap_list[index].ymap_entity_group_object
+    if delete_all:
+        delete_hierarchy(ymap_obj)
+        return True
+
+    if ymap_ent_grp.children: 
+        for ent in ymap_ent_grp.children:
+            ent.parent = None
+            ent.vicho_ymap_parent = None
+
+    delete_hierarchy(ymap_obj)
+    
     return True
 
 def add_ymap_to_scene(scene: Scene) -> None:
@@ -334,7 +342,7 @@ def calc_ymap_flags(ymap) -> tuple[int, int]:
         
     return flags, content_flags
 
-def get_children_aabb(parent: bpy.types.Object):
+def get_children_aabb(parent: Object):
     """Calculates the axis-aligned bounding box of all children of the given parent object."""
     inf, ninf = float('inf'), float('-inf')
     bb_min = Vector(( inf,  inf,  inf))

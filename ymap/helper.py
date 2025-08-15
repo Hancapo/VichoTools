@@ -38,7 +38,10 @@ class YmapData:
         if ymap and ymap.entities:
             return ymap.entities[context.scene.entity_list_index]
         return None
-    
+
+    def ymap_count(self, context):
+        return len(context.scene.ymap_list)
+
     def execute_menu_op(self, context, op_id):
         ymap = self.get_ymap(context)
         if ymap:

@@ -35,7 +35,7 @@ class VICHO_OT_add_entity_from_selection(bpy.types.Operator, YmapData):
     @classmethod
     def poll(cls, context):
         scene = context.scene
-        return len(scene.ymap_list) > 0 and scene.ymap_list[scene.ymap_list_index].ymap_object
+        return cls.ymap_count(None, context) > 0 and scene.ymap_list[scene.ymap_list_index].ymap_object
 
     def execute(self, context):
         scene = context.scene
@@ -43,6 +43,7 @@ class VICHO_OT_add_entity_from_selection(bpy.types.Operator, YmapData):
         ymap, ymap_obj, ymap_eg = self.get_ymap(context), self.get_ymap_obj(context), self.get_ymap_ent_group_obj(context)
         if ymap_obj:
             added_entities: str = ""
+            self.get_ymap(context).ymap_entity_group_object = ymap_eg
             for obj in selected_objs:
                 obj.parent = ymap_eg
                 new_entity = scene.ymap_list[scene.ymap_list_index].entities.add()

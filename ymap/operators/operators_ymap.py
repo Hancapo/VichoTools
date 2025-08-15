@@ -203,31 +203,41 @@ class VICHO_OT_export_ymap(bpy.types.Operator):
         layout = self.layout
         layout.prop(self, "export_assets", text="Export Assets")
 
-class VICHO_OT_remove_ymap(bpy.types.Operator):
+class VICHO_OT_remove_ymap(bpy.types.Operator, YmapData):
     """Removes the selected YMAP from the list"""
     bl_idname = "ymap.remove_ymap"
     bl_label = "Removes a YMAP"
     
+    delete_hierarchy_from_scene: BoolProperty(
+        name="Delete Hierarchy from Scene",
+        default=False,
+        description="Whether to delete the YMAP hierarchy (Everything) from the scene when removing the YMAP",
+    ) # type: ignore
+
     @classmethod
     def poll(cls, context):
         return len(context.scene.ymap_list) > 0
     
     def execute(self, context):
         scene = context.scene
-        selected_ymap_index = scene.ymap_list_index 
-        if remove_ymap_from_scene(scene, selected_ymap_index):
+        selected_ymap_index = scene.ymap_list_index
+        if remove_ymap_from_scene(scene, selected_ymap_index, self.delete_hierarchy_from_scene):
+            scene.ymap_list.remove(selected_ymap_index)
+            if len(scene.ymap_list) > 0:
+                scene.ymap_list_index = max(0, selected_ymap_index - 1)
             self.report({'INFO'}, "YMAP removed from scene")
         else:
             self.report({'ERROR'}, "Error removing YMAP from scene")
         return {'FINISHED'}
     
-    # Confirmation dialog
     def invoke(self, context, event):
-        scene = context.scene
-        selected_ymap_index = scene.ymap_list_index
-        ymap_name = scene.ymap_list[selected_ymap_index].ymap_object.name if selected_ymap_index >= 0 else "YMAP"
-        message = f"Are you sure you want to remove the YMAP '{ymap_name}' from the scene?"
-        return context.window_manager.invoke_confirm(self, event, message=message)
+        return context.window_manager.invoke_props_dialog(self, width=600, title=" YMAP removal confirmation")
+
+    def draw(self, context):
+        layout = self.layout
+        col = layout.column()
+        if self.get_ymap(context).ymap_object:
+            col.prop(self, "delete_hierarchy_from_scene", text=f"Delete {self.get_ymap(context).ymap_object.name} entities?")
     
 class VICHO_OT_add_ymap(bpy.types.Operator):
     """Adds a new YMAP item to the scene/ymap list"""
