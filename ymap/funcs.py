@@ -420,4 +420,14 @@ def calc_extents(entities):
 
     return emin, emax, smin, smax
 
-    
+
+def get_soll_parent(obj: Object) -> Object | None:
+    """Get the parent of a Sollumz object."""
+    while obj.parent:
+        obj = obj.parent
+        if obj.sollum_type in COMPAT_SOLL_TYPES:
+            if obj.parent and obj.parent.sollum_type == COMPAT_SOLL_TYPES[1]:
+                continue
+            else:
+                return obj
+    return None

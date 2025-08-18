@@ -25,6 +25,12 @@ class YmapData:
             return True
         return False
 
+    def set_ent_idx(self, context, index):
+        context.scene.entity_list_index = index
+
+    def set_ymap_index(self, context, index):
+        context.scene.ymap_list_index = index
+
     def get_ymap_obj(self, context):
         if self.get_ymap(context):
             return self.get_ymap(context).ymap_object
@@ -47,7 +53,13 @@ class YmapData:
         if ymap:
             ymap.active_category = op_id
             return {"FINISHED"}
-        
+
+    def get_ent_from_sel(self, context, obj) -> tuple[Object, int, Object, int] | None:
+        for i_y, ymap in enumerate(context.scene.ymap_list):
+            for i_e, ent in enumerate(ymap.entities):
+                if ent.linked_object == obj:
+                    return ent, i_e, ymap, i_y
+        return None
     
 
 def update_entity_flags_bool_properties(self, context):

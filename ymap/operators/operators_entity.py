@@ -4,6 +4,7 @@ import bpy
 from ..helper import YmapData, get_entity_sets_from_entity
 from ..constants import COMPAT_SOLL_TYPES
 from ...misc.funcs import delete_hierarchy
+from ..funcs import get_soll_parent
 
 class VICHO_OT_add_entity(bpy.types.Operator, YmapData):
     """Adds a new entity to the YMAP"""
@@ -187,3 +188,39 @@ class VICHO_OT_remove_entity_set(bpy.types.Operator, YmapData):
             self.report({'WARNING'}, "No entity sets to remove")
         
         return {'FINISHED'}
+
+class VICHO_OT_select_entity_from_viewport(bpy.types.Operator, YmapData):
+    """Selects the entity linked to the currently active object in the viewport"""
+    bl_idname = "ymap.select_entity_from_viewport"
+    bl_label = "Select Entity from Viewport"
+    
+    @classmethod
+    def poll(cls, context):
+        return context.active_object.parent.vicho_type != "vicho_ymap_entities"
+
+    def execute(self, context):
+        active_object = context.active_object
+        if active_object:
+            actual_soll = get_soll_parent(active_object)
+            entity, e_idx, ymap, y_idx = self.get_ent_from_sel(context, actual_soll)
+            if entity and entity.linked_object.sollum_type in COMPAT_SOLL_TYPES:
+                self.set_ymap_index(context, y_idx)
+                ymap.active_category = "ENTITIES"
+                bpy.ops.ymap.map_data_menu(operator_id="ymap.entities_menu")
+                self.set_ent_idx(context, e_idx)
+                context.view_layer.objects.active = entity.linked_object
+                bpy.ops.object.select_all(action='DESELECT')
+                entity.linked_object.select_set(True)
+                return {'FINISHED'}
+        return {'CANCELLED'}
+    
+def draw_obj_ctx_menu(self, context):
+    layout = self.layout
+    layout.separator()
+    layout.operator(VICHO_OT_select_entity_from_viewport.bl_idname, text="Select Entity in Viewport")
+    
+def register():
+    bpy.types.VIEW3D_MT_object_context_menu.append(draw_obj_ctx_menu)
+
+def unregister():
+    bpy.types.VIEW3D_MT_object_context_menu.remove(draw_obj_ctx_menu)

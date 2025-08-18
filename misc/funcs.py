@@ -6,6 +6,7 @@ import uuid
 import random
 from bpy.types import Object, Collection, Mesh
 from ..vicho_dependencies import dependencies_manager as d
+from ..ymap.constants import COMPAT_SOLL_TYPES
 
 def get_bounds_from_single_object(obj):
     corners = []
