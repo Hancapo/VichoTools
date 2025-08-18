@@ -67,34 +67,45 @@ class VICHO_OT_remove_entity(bpy.types.Operator, YmapData):
         description="Whether to delete the linked object from the scene when removing the entity",
     ) # type: ignore
     
+    can_delete: BoolProperty(
+        name="Can Delete",
+        default=True,
+        description="Whether the entity can be deleted",
+    )
+    
     @classmethod
     def poll(cls, context):
         return len(context.scene.ymap_list[context.scene.ymap_list_index].entities) > 0
     
     def execute(self, context):
-        scene = context.scene
-        selected_entity_index = scene.entity_list_index
-        ymap, entity = self.get_ymap(context), self.get_ent(context)
-        if entity.linked_object:
-            saved_name: str = entity.linked_object.name
-            if self.delete_obj_from_scene:
-                if entity.parent_index > -1:
+        if self.can_delete:
+            scene = context.scene
+            selected_entity_index = scene.entity_list_index
+            ymap, entity = self.get_ymap(context), self.get_ent(context)
+            if entity.linked_object:
+                saved_name: str = entity.linked_object.name
+                if self.delete_obj_from_scene:
                     delete_hierarchy(entity.linked_object)
                 else:
-                    self.report({'WARNING'}, "Entities with a parent cannot be deleted since this will break lod parenting.")
+                    entity.linked_object.parent = None
+                    entity.linked_object.vicho_ymap_parent = None
+                self.report({'INFO'}, f"Entity {saved_name} removed from YMAP")
             else:
-                entity.linked_object.parent = None
-                entity.linked_object.vicho_ymap_parent = None
-            self.report({'INFO'}, f"Entity {saved_name} removed from YMAP")
+                self.report({'INFO'}, "Entity removed from YMAP")
+            ymap.entities.remove(selected_entity_index)
+            scene.entity_list_index = max(0, selected_entity_index - 1)
+            return {'FINISHED'}
         else:
-            self.report({'INFO'}, "Entity removed from YMAP")
-        ymap.entities.remove(selected_entity_index)
-        scene.entity_list_index = max(0, selected_entity_index - 1)
-        return {'FINISHED'}
+            return {'CANCELLED'}
 
     def invoke(self, context, event):
-        if self.get_ent(context).linked_object:
-            return context.window_manager.invoke_props_dialog(self, width=300, title="Remove Entity Confirmation")
+        entity = self.get_ent(context)
+        if entity.linked_object:
+            if entity.parent_index > -1:
+                self.can_delete = False
+                return context.window_manager.invoke_confirm(operator=self, event=event, message="This entity cannot be removed, since it's parented to another entity.")
+            else:
+                return context.window_manager.invoke_props_dialog(self, width=300, title="Remove Entity Confirmation")
         return self.execute(context)
     
     def draw(self, context):

@@ -6,7 +6,7 @@ from bpy.types import Object
 from ...vicho_dependencies import dependencies_manager as d
 import time
 import os
-from ..funcs import import_ymap_to_scene, remove_ymap_from_scene, create_ymap_empty, sanitize_name, calc_ymap_flags, set_ymap_extents
+from ..funcs import import_ymap_to_scene, remove_ymap_from_scene, create_ymap_empty, sanitize_name, calc_ymap_flags, set_ymap_ent_extents, set_ymap_strm_extents
 from .operators import VICHO_OT_open_folder
 from ...misc.funcs import get_meta_hash
 
@@ -106,6 +106,14 @@ class VICHO_OT_export_ymap(bpy.types.Operator):
         options={'HIDDEN'},
     )
     
+    show_export: BoolProperty(name="Settings", default=True)
+
+    calc_strm_extents: BoolProperty(name="Calculate Streaming Extents", default=True)
+    calc_ent_extents: BoolProperty(name="Calculate Entities Extents", default=True)
+
+    calc_flags: BoolProperty(name="Calculate Flags", default=True)
+    calc_content_flags: BoolProperty(name="Calculate Content Flags", default=True)
+
     @classmethod
     def poll(cls, context):
         return len(context.scene.ymap_list) > 0
@@ -114,17 +122,21 @@ class VICHO_OT_export_ymap(bpy.types.Operator):
         scene = context.scene
         ymap_list = scene.ymap_list
         for i, ymap in enumerate(ymap_list):
+            if self.calc_flags:
+                ymap.flags.total_flags, _ = calc_ymap_flags(ymap)
+            if self.calc_content_flags:
+                _, ymap.content_flags.total_flags = calc_ymap_flags(ymap)
+            if self.calc_strm_extents:
+                set_ymap_strm_extents(ymap, ymap.entities)
             
+            if self.calc_ent_extents:
+                set_ymap_ent_extents(ymap, ymap.entities)
+                
             ymap_file = d.YmapFile()
             ymap_file.Name = ymap.ymap_object.name
-            ymap.flags.total_flags, ymap.content_flags.total_flags = calc_ymap_flags(ymap)
-            
             new_map_data = d.CMapData()
             
-            set_ymap_extents(ymap, ymap.entities)
-            
             new_map_data.flags, new_map_data.contentFlags = ymap.flags.total_flags, ymap.content_flags.total_flags
-            
             new_map_data.streamingExtentsMin = d.Vector3(ymap.streaming_extents_min[0], ymap.streaming_extents_min[1], ymap.streaming_extents_min[2])
             new_map_data.streamingExtentsMax = d.Vector3(ymap.streaming_extents_max[0], ymap.streaming_extents_max[1], ymap.streaming_extents_max[2])
             new_map_data.entitiesExtentsMin = d.Vector3(ymap.entities_extents_min[0], ymap.entities_extents_min[1], ymap.entities_extents_min[2])
@@ -132,12 +144,12 @@ class VICHO_OT_export_ymap(bpy.types.Operator):
             
             ymap_file._CMapData = new_map_data
 
-            #Build entities
             if ymap.ymap_phys_dicts:
                 phys_dicts = []
                 for phys_dict in ymap.ymap_phys_dicts:
                     phys_dicts.append(get_meta_hash(phys_dict.name))
                 ymap_file.physicsDictionaries = phys_dicts
+            #Build entities
             if ymap.entities:
                 for entity in ymap.entities:
                     if entity.linked_object:
@@ -200,8 +212,22 @@ class VICHO_OT_export_ymap(bpy.types.Operator):
         return {'RUNNING_MODAL'}
     
     def draw(self, context):
+        scene = context.scene
         layout = self.layout
-        layout.prop(self, "export_assets", text="Export Assets")
+        layout.use_property_split = True
+        layout.use_property_decorate = False
+        header, body = layout.panel("YMAP_calc", default_closed=False)
+        header.label(text="Settings")
+        if body:
+            sublayout = body.column(heading="Calculate")
+            sublayout.prop(self, "calc_strm_extents", text="Streaming Extents")
+            sublayout.prop(self, "calc_ent_extents", text="Entities Extents")
+            sublayout.prop(self, "calc_flags", text="Flags")
+            sublayout.prop(self, "calc_content_flags", text="Content Flags")
+            sublayout.separator(type="LINE")
+            sublayout = body.column(heading="Export")
+            sublayout.prop(self, "show_export", text="YMAP Assets")
+            
 
 class VICHO_OT_remove_ymap(bpy.types.Operator, YmapData):
     """Removes the selected YMAP from the list"""
@@ -266,7 +292,7 @@ class VICHO_OT_calculate_ymap_extents(bpy.types.Operator, YmapData):
     def execute(self, context):
         ymap = self.get_ymap(context)
         if ymap.entities:
-            set_ymap_extents(ymap, ymap.entities)
+            set_ymap_ent_extents(ymap, ymap.entities)
             self.report({'INFO'}, f"{ymap.name} extents calculated")
         else:
             self.report({'WARNING'}, f"No entities in {ymap.name} to calculate extents")

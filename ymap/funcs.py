@@ -364,11 +364,15 @@ def get_children_aabb(parent: Object):
 
     return bb_min, bb_max
 
-def set_ymap_extents(ymap, entities):
-    """Sets the extents of the YMAP based on the given entities."""
-    emin, emax, smin, smax = calc_extents(entities)
+def set_ymap_ent_extents(ymap, entities):
+    """Sets the entity extents of the YMAP based on the given entities."""
+    emin, emax, _, _ = calc_extents(entities)
     ymap.entities_extents_min = emin
     ymap.entities_extents_max = emax
+    
+def set_ymap_strm_extents(ymap, entities):
+    """Sets the streaming extents of the YMAP based on the given entities."""
+    _, _, smin, smax = calc_extents(entities)
     ymap.streaming_extents_min = smin
     ymap.streaming_extents_max = smax
 
