@@ -136,6 +136,8 @@ class VICHO_OT_export_ymap(bpy.types.Operator):
             ymap_file.Name = ymap.ymap_object.name
             new_map_data = d.CMapData()
             
+            new_map_data.parent = get_meta_hash(ymap.parent)
+            
             new_map_data.flags, new_map_data.contentFlags = ymap.flags.total_flags, ymap.content_flags.total_flags
             new_map_data.streamingExtentsMin = d.Vector3(ymap.streaming_extents_min[0], ymap.streaming_extents_min[1], ymap.streaming_extents_min[2])
             new_map_data.streamingExtentsMax = d.Vector3(ymap.streaming_extents_max[0], ymap.streaming_extents_max[1], ymap.streaming_extents_max[2])
