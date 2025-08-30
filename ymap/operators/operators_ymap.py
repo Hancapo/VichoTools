@@ -105,8 +105,6 @@ class VICHO_OT_export_ymap(bpy.types.Operator):
         default=True,
         options={'HIDDEN'},
     )
-    
-    show_export: BoolProperty(name="Settings", default=True)
 
     calc_strm_extents: BoolProperty(name="Calculate Streaming Extents", default=True)
     calc_ent_extents: BoolProperty(name="Calculate Entities Extents", default=True)
@@ -116,11 +114,11 @@ class VICHO_OT_export_ymap(bpy.types.Operator):
 
     @classmethod
     def poll(cls, context):
-        return len(context.scene.ymap_list) > 0
-    
+        return len(context.scene.ymap_list) > 0 and any(ymap for ymap in context.scene.ymap_list if ymap.enabled)
+
     def execute(self, context):
         scene = context.scene
-        ymap_list = scene.ymap_list
+        ymap_list = [ymap for ymap in scene.ymap_list if ymap.enabled]
         for i, ymap in enumerate(ymap_list):
             if self.calc_flags:
                 ymap.flags.total_flags, _ = calc_ymap_flags(ymap)
@@ -198,7 +196,7 @@ class VICHO_OT_export_ymap(bpy.types.Operator):
             d.File.WriteAllBytes(f"{self.directory}/{ymap_file.Name}.ymap", ymap_file.Save())
             if self.export_assets:
                 set_sollumz_export_settings()
-                link_objs: list[Object] = [obj.linked_object for obj in ymap.entities if obj.linked_object]
+                link_objs: list[Object] = [obj.linked_object for obj in ymap.entities if obj.linked_object and '.' not in obj.linked_object.name]
                 change_ent_parenting(link_objs)
                 os.makedirs(self.directory + f"/{ymap.ymap_object.name}_assets", exist_ok=True)
                 scene.sollumz_export_path = f"{self.directory}{ymap.ymap_object.name}_assets"
@@ -214,7 +212,6 @@ class VICHO_OT_export_ymap(bpy.types.Operator):
         return {'RUNNING_MODAL'}
     
     def draw(self, context):
-        scene = context.scene
         layout = self.layout
         layout.use_property_split = True
         layout.use_property_decorate = False
@@ -228,9 +225,8 @@ class VICHO_OT_export_ymap(bpy.types.Operator):
             sublayout.prop(self, "calc_content_flags", text="Content Flags")
             sublayout.separator(type="LINE")
             sublayout = body.column(heading="Export")
-            sublayout.prop(self, "show_export", text="YMAP Assets")
+            sublayout.prop(self, "export_assets", text="YMAP Assets")
             
-
 class VICHO_OT_remove_ymap(bpy.types.Operator, YmapData):
     """Removes the selected YMAP from the list"""
     bl_idname = "ymap.remove_ymap"
