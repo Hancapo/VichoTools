@@ -122,7 +122,7 @@ class YmapTools_Data_PT_Panel(bpy.types.Panel, YmapData):
         layout = self.layout
         scene = context.scene
         if d.available:
-            ymap = YmapData.get_ymap(self, context)
+            ymap = self.get_ymap(context)
             if ymap:
                 main_row = layout.row()
                 left_col = main_row.column()
@@ -184,7 +184,7 @@ class YmapTools_Data_PT_Panel(bpy.types.Panel, YmapData):
                         tool_ent_col.operator(VICHO_OT_remove_entity.bl_idname, text="", icon="REMOVE")
                         tool_ent_col.separator()
                         tool_ent_col.operator(VICHO_OT_add_entity_from_selection.bl_idname, text="", icon_value=get_icon("arrow_collapse_left"))
-                        selected_ent = ymap.entities[scene.entity_list_index] if ymap.entities else None
+                        selected_ent = self.get_ent(context)
                         if selected_ent:
                             right_col.separator()
                             row_ent_cat = right_col.row(align=True)
