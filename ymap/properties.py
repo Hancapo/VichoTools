@@ -502,8 +502,9 @@ def register():
     
     bpy.types.Scene.ymap_list_index = bpy.props.IntProperty(
         name="Ymap Item",
-        default=0)
-    
+        default=0,
+        update=lambda self, context: setattr(context.scene, 'entity_list_index', 0))
+
     bpy.types.Scene.entity_list_index = bpy.props.IntProperty(
         name="Entity Item",
         default=0,

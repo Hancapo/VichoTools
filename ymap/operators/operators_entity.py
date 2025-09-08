@@ -196,7 +196,7 @@ class VICHO_OT_select_entity_from_viewport(bpy.types.Operator, YmapData):
     
     @classmethod
     def poll(cls, context):
-        return context.active_object.parent.vicho_type != "vicho_ymap_entities"
+        return context.active_object.parent and context.active_object.parent.vicho_type != "vicho_ymap_entities"
 
     def execute(self, context):
         active_object = context.active_object
