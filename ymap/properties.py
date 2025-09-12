@@ -312,26 +312,34 @@ class EntityProps(bpy.types.PropertyGroup):
     
     scale_xy: bpy.props.FloatProperty(
         name="Scale XY",
+        min=0.0,
         default=0.0) # type: ignore
     
     scale_z: bpy.props.FloatProperty(
         name="Scale Z",
+        min=0.0,
         default=0.0) # type: ignore
     
     parent_index: bpy.props.IntProperty(
         name="Parent Index",
+        min=-1,
         default=-1) # type: ignore
     
     lod_distance: bpy.props.FloatProperty(
         name="LOD Distance",
-        default=6000.0) # type: ignore
+        min=0.0,
+        subtype="UNSIGNED",
+        default=500.0) # type: ignore
     
     child_lod_distance: bpy.props.FloatProperty(
         name="Child LOD Distance",
+        min=0.0,
+        subtype="UNSIGNED",
         default=0.0) # type: ignore
     
     num_children: bpy.props.IntProperty(
         name="Num Children",
+        min=0,
         default=0) # type: ignore
     
     lod_level: bpy.props.EnumProperty(
@@ -350,33 +358,39 @@ class EntityProps(bpy.types.PropertyGroup):
     
     ambient_occlusion_multiplier: bpy.props.IntProperty(
         name="Ambient Occlusion Multiplier",
+        min=0,
         default=255) # type: ignore
     
     artificial_ambient_occlusion: bpy.props.IntProperty(
         name="Artificial Ambient Occlusion",
+        min=0,
         default=255) # type: ignore
     
     tint_value: bpy.props.IntProperty(
         name="Tint Value",
+        min=0,
         default=0) # type: ignore
     
     group_id: bpy.props.IntProperty(
         name="Group ID",
+        min=0,
         default=0) # type: ignore
     
     floor_id: bpy.props.IntProperty(
         name="Floor ID",
+        min=0,
         default=0) # type: ignore
     
     mlo_inst_flags: bpy.props.IntProperty(
         name="MLO Instance Flags",
-        default=0,
+        min=0,
         description="MLO Instance Flags"
     ) # type: ignore
     
     num_exit_portals: bpy.props.IntProperty(
         name="Number of Exit Portals",
         default=0,
+        min=0,
         description="Number of exit portals for MLO instances"
     ) # type: ignore
     
