@@ -161,13 +161,31 @@ class VICHO_OT_import_entity_sets(bpy.types.Operator, YmapData):
                 item.name = es
                 if not hasattr(item, "checked"):
                     item["checked"] = False
-
+ 
         for item in (self.entity_sets):
             row = layout.row()
+            row.label(text="", icon='SNAP_VOLUME')
             row.prop(item, '["checked"]', text=item.name)
 
     def invoke(self, context, event):
         return context.window_manager.invoke_props_dialog(self, width=300, title="Import Entity Sets")
+
+class VICHO_OT_add_entity_set(bpy.types.Operator, YmapData):
+    """Adds a new entity set to the entity's MLO archetype definition"""
+    bl_idname = "ymap.add_entity_set"
+    bl_label = "Add Entity Set"
+    
+    @classmethod
+    def poll(cls, context):
+        return len(context.scene.ymap_list[context.scene.ymap_list_index].entities) > 0
+    
+    def execute(self, context):
+        entity = self.get_ent(context)
+        new_entity_set = entity.default_entity_sets.add()
+        new_entity_set.name = "New Entity Set"
+        context.scene.default_entity_sets_index = len(entity.default_entity_sets) - 1
+        self.report({'INFO'}, "New entity set added")
+        return {'FINISHED'}
 
 class VICHO_OT_remove_entity_set(bpy.types.Operator, YmapData):
     """Removes the selected entity set from the entity's MLO archetype definition"""

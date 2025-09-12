@@ -3,6 +3,7 @@ from .operators.operators_entity import (VICHO_OT_add_entity,
                                         VICHO_OT_add_entity_from_selection,
                                         VICHO_OT_remove_entity,
                                         VICHO_OT_go_to_entity,
+                                        VICHO_OT_add_entity_set,
                                         VICHO_OT_import_entity_sets,
                                         VICHO_OT_remove_entity_set)
 
@@ -241,8 +242,10 @@ class YmapTools_Data_PT_Panel(bpy.types.Panel, YmapData):
                                                 "default_entity_sets_index"
                                             )
                                             col = row.column(align=True)
-                                            col.operator(VICHO_OT_import_entity_sets.bl_idname, text="", icon="ADD")
+                                            col.operator(VICHO_OT_add_entity_set.bl_idname, text="", icon="ADD")
                                             col.operator(VICHO_OT_remove_entity_set.bl_idname, text="", icon="REMOVE")
+                                            col.separator()
+                                            col.operator(VICHO_OT_import_entity_sets.bl_idname, text="", icon="AREA_JOIN_LEFT")
                                             
                                     else:
                                         row_box = col_box.row(align=True)
