@@ -22,7 +22,7 @@ from .operators.operators_menu import YMAP_MENU_OPERATORS_GROUPS
 from .constants import ENTITY_FLAGS_VALUES, MAP_DATA_CONTENT_FLAGS_VALUES, MAP_DATA_FLAGS_VALUES
 from ..icons_load import get_icon
 from .funcs import sanitize_name
-from .helper import YmapData
+from .helper import YmapMixin
 
 class YMAPLIST_UL_list(bpy.types.UIList):
     bl_idname = "YMAPLIST_UL_list"
@@ -107,7 +107,7 @@ class YmapTools_PT_Panel(bpy.types.Panel):
                 icon="ERROR",
             )
 
-class YmapTools_Data_PT_Panel(bpy.types.Panel, YmapData):
+class YmapTools_Data_PT_Panel(bpy.types.Panel, YmapMixin):
     bl_label = "Data"
     bl_idname = "VICHOTOOLS_PT_Ymap_Data"
     bl_parent_id = "VICHOTOOLS_PT_Ymap"

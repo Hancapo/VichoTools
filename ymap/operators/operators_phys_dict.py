@@ -1,8 +1,8 @@
-from .operators_ymap import YmapData
+from .operators_ymap import YmapMixin
 import bpy
 
 
-class VICHO_OT_add_phys_dict(bpy.types.Operator, YmapData):
+class VICHO_OT_add_phys_dict(bpy.types.Operator, YmapMixin):
     """Adds a new physical dictionary to the YMAP"""
     bl_idname = "ymap.add_phys_dict"
     bl_label = "Add Physical Dictionary"
@@ -17,7 +17,7 @@ class VICHO_OT_add_phys_dict(bpy.types.Operator, YmapData):
         new_pd.name = "New Physical Dictionary"
         return {'FINISHED'}
     
-class VICHO_OT_remove_phys_dict(bpy.types.Operator, YmapData):
+class VICHO_OT_remove_phys_dict(bpy.types.Operator, YmapMixin):
     """Removes the selected physics dictionary from the YMAP"""
     bl_idname = "ymap.remove_phys_dict"
     bl_label = "Remove Physics Dictionary"

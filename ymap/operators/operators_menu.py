@@ -1,7 +1,7 @@
 import bpy
-from ..helper import YmapData
+from ..helper import YmapMixin
 
-class MAPDATA_Menu_OT_Operator(bpy.types.Operator, YmapData):
+class MAPDATA_Menu_OT_Operator(bpy.types.Operator, YmapMixin):
     bl_idname = "ymap.map_data_menu"
     bl_label = "Map Data Menu"
     bl_description = "Where all the map data is stored"
@@ -12,7 +12,7 @@ class MAPDATA_Menu_OT_Operator(bpy.types.Operator, YmapData):
     def execute(self, context):
         return self.execute_menu_op(context, self.operator_id)
     
-class ENTITIES_Menu_OT_Operator(bpy.types.Operator, YmapData):
+class ENTITIES_Menu_OT_Operator(bpy.types.Operator, YmapMixin):
     bl_idname = "ymap.entities_menu"
     bl_label = "Entities Menu"
     bl_description = "Where all the entities are stored"
@@ -23,7 +23,7 @@ class ENTITIES_Menu_OT_Operator(bpy.types.Operator, YmapData):
     def execute(self, context):
         return self.execute_menu_op(context, self.operator_id)
 
-class OCCLUDERS_Menu_OT_Operator(bpy.types.Operator, YmapData):
+class OCCLUDERS_Menu_OT_Operator(bpy.types.Operator, YmapMixin):
     bl_idname = "ymap.occluders_menu"
     bl_label = "Occluders Menu"
     bl_description = "Where all the occluders are stored"
@@ -34,7 +34,7 @@ class OCCLUDERS_Menu_OT_Operator(bpy.types.Operator, YmapData):
     def execute(self, context):
         return self.execute_menu_op(context, self.operator_id)
 
-class PHYSICSDICTIONARIES_Menu_OT_Operator(bpy.types.Operator, YmapData):
+class PHYSICSDICTIONARIES_Menu_OT_Operator(bpy.types.Operator, YmapMixin):
     bl_idname = "ymap.physics_dictionaries_menu"
     bl_label = "Physics Dictionaries Menu"
     bl_description = "Where all the physics dictionaries are stored"
@@ -45,7 +45,7 @@ class PHYSICSDICTIONARIES_Menu_OT_Operator(bpy.types.Operator, YmapData):
     def execute(self, context):
         return self.execute_menu_op(context, self.operator_id)
 
-class INSTANCEDDATA_Menu_OT_Operator(bpy.types.Operator, YmapData):
+class INSTANCEDDATA_Menu_OT_Operator(bpy.types.Operator, YmapMixin):
     bl_idname = "ymap.instanced_data_menu"
     bl_label = "Instanced Data Menu"
     bl_description = "Where all the instanced data is stored"
@@ -56,7 +56,7 @@ class INSTANCEDDATA_Menu_OT_Operator(bpy.types.Operator, YmapData):
     def execute(self, context):
         return self.execute_menu_op(context, self.operator_id)
 
-class TIMECYCLEMODIFIERS_Menu_OT_Operator(bpy.types.Operator, YmapData):
+class TIMECYCLEMODIFIERS_Menu_OT_Operator(bpy.types.Operator, YmapMixin):
     bl_idname = "ymap.timecycle_modifiers_menu"
     bl_label = "Timecycle Modifiers Menu"
     bl_description = "Where all the timecycle modifiers are stored"
@@ -67,7 +67,7 @@ class TIMECYCLEMODIFIERS_Menu_OT_Operator(bpy.types.Operator, YmapData):
     def execute(self, context):
         return self.execute_menu_op(context, self.operator_id)
 
-class CARGENERATORS_Menu_OT_Operator(bpy.types.Operator, YmapData):
+class CARGENERATORS_Menu_OT_Operator(bpy.types.Operator, YmapMixin):
     bl_idname = "ymap.car_generators_menu"
     bl_label = "Car Generators Menu"
     bl_description = "Where all the car generators are stored"
@@ -78,7 +78,7 @@ class CARGENERATORS_Menu_OT_Operator(bpy.types.Operator, YmapData):
     def execute(self, context):
         return self.execute_menu_op(context, self.operator_id)
 
-class LODLIGHTS_Menu_OT_Operator(bpy.types.Operator, YmapData):
+class LODLIGHTS_Menu_OT_Operator(bpy.types.Operator, YmapMixin):
     bl_idname = "ymap.lod_lights_menu"
     bl_label = "Lod Lights Menu"
     bl_description = "Where all the lod lights are stored"
@@ -89,7 +89,7 @@ class LODLIGHTS_Menu_OT_Operator(bpy.types.Operator, YmapData):
     def execute(self, context):
         return self.execute_menu_op(context, self.operator_id)
     
-class DISTANTLIGHTS_Menu_OT_Operator(bpy.types.Operator, YmapData):
+class DISTANTLIGHTS_Menu_OT_Operator(bpy.types.Operator, YmapMixin):
     bl_idname = "ymap.distant_lights_menu"
     bl_label = "Distant Lights Menu"
     bl_description = "Where all the distant lights are stored"

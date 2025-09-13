@@ -1,7 +1,7 @@
 import bpy
 from bpy.props import BoolProperty, StringProperty
 from bpy_extras.io_utils import ImportHelper
-from ..helper import str_loaded_count, set_sollumz_export_settings, change_ent_parenting, YmapData
+from ..helper import str_loaded_count, set_sollumz_export_settings, change_ent_parenting, YmapMixin
 from bpy.types import Object
 from ...vicho_dependencies import dependencies_manager as d
 import time
@@ -227,7 +227,7 @@ class VICHO_OT_export_ymap(bpy.types.Operator):
             sublayout = body.column(heading="Export")
             sublayout.prop(self, "export_assets", text="YMAP Assets")
             
-class VICHO_OT_remove_ymap(bpy.types.Operator, YmapData):
+class VICHO_OT_remove_ymap(bpy.types.Operator, YmapMixin):
     """Removes the selected YMAP from the list"""
     bl_idname = "ymap.remove_ymap"
     bl_label = "Removes a YMAP"
@@ -277,7 +277,7 @@ class VICHO_OT_add_ymap(bpy.types.Operator):
         self.report({'INFO'}, "YMAP added to scene")
         return {'FINISHED'}
     
-class VICHO_OT_calculate_ymap_extents(bpy.types.Operator, YmapData):
+class VICHO_OT_calculate_ymap_extents(bpy.types.Operator, YmapMixin):
     """It calculates the extents of the current YMAP"""
     bl_idname = "ymap.calculate_extents"
     bl_label = "Calculate YMAP extents"
