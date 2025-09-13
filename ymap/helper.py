@@ -269,8 +269,6 @@ def get_sel_objs_list(context: Context) -> list[Object]:
             if obj.parent.sollum_type in COMPAT_SOLL_TYPES and obj.parent.type == 'EMPTY':
                 objs.append(obj)
         else:
-            if obj.type == 'MESH':
-                objs.append(obj)
-            if obj.type == 'EMPTY' and obj.sollum_type in COMPAT_SOLL_TYPES:
+            if obj.type == 'MESH' or (obj.type == 'EMPTY' and obj.sollum_type in COMPAT_SOLL_TYPES):
                 objs.append(obj)
     return objs

@@ -120,13 +120,14 @@ class VICHO_OT_go_to_entity(bpy.types.Operator, YmapMixin):
     bl_label = "Go to entity"
     
     def execute(self, context):
-        entity = self.get_ent(context)
-        if entity.linked_object:
-            bpy.context.view_layer.objects.active = entity.linked_object
-            bpy.ops.object.select_all(action='DESELECT')
-            entity.linked_object.select_set(True)
+        bpy.ops.object.select_all(action='DESELECT')
+        ent = self.get_ent(context)
+        lo: Object = ent.linked_object
+        if lo and lo.children_recursive:
+            [child.select_set(True) for child in lo.children_recursive if child.type == 'MESH']
             bpy.ops.view3d.view_selected()
-        
+            bpy.ops.object.select_all(action='DESELECT')
+            lo.select_set(True)
         return {'FINISHED'}
     
 class VICHO_OT_import_entity_sets(bpy.types.Operator, YmapMixin):
