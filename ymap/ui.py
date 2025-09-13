@@ -5,7 +5,8 @@ from .operators.operators_entity import (VICHO_OT_add_entity,
                                         VICHO_OT_go_to_entity,
                                         VICHO_OT_add_entity_set,
                                         VICHO_OT_import_entity_sets,
-                                        VICHO_OT_remove_entity_set)
+                                        VICHO_OT_remove_entity_set,
+                                        VICHO_OT_convert_entity_type)
 
 from .operators.operators_ymap import (VICHO_OT_import_ymap,
                                        VICHO_OT_remove_ymap,
@@ -251,6 +252,10 @@ class YmapTools_Data_PT_Panel(bpy.types.Panel, YmapMixin):
                                         row_box = col_box.row(align=True)
                                         row_box.alignment = 'CENTER'
                                         row_box.label(text="Not an MLO Instance", icon="ERROR")
+                                    col_box.separator()
+                                    to_s = "MLO Instance" if not selected_ent.is_mlo_instance else "Entity"
+                                    col_box.alert = True
+                                    col_box.operator(VICHO_OT_convert_entity_type.bl_idname, text=f"Convert to {to_s}", icon="FILE_REFRESH")
                     case "ymap.occluders_menu":
                         self.bl_label = "Occluders"
                         right_col.label(text="Occluders")

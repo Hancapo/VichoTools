@@ -231,6 +231,25 @@ class VICHO_OT_select_entity_from_viewport(bpy.types.Operator, YmapMixin):
                 entity.linked_object.select_set(True)
                 return {'FINISHED'}
         return {'CANCELLED'}
+
+class VICHO_OT_convert_entity_type(bpy.types.Operator, YmapMixin):
+    """Converts the selected entity to/from an MLO instance"""
+    bl_idname = "ymap.convert_entity_type"
+    bl_label = "Convert Entity Type"
+    
+    @classmethod
+    def poll(cls, context):
+        return cls.get_ent(context) is not None
+    
+    def execute(self, context):
+        entity = self.get_ent(context)
+        if entity.is_mlo_instance:
+            entity.is_mlo_instance = False
+            self.report({'INFO'}, f"Entity {entity.linked_object.name} converted to an entity")
+        else:
+            entity.is_mlo_instance = True
+            self.report({'INFO'}, f"Entity {entity.linked_object.name} converted to an MLO instance")
+        return {'FINISHED'}
     
 def draw_obj_ctx_menu(self, context):
     layout = self.layout
