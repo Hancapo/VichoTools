@@ -75,7 +75,7 @@ class VICHO_OT_remove_entity(bpy.types.Operator, YmapMixin):
     
     @classmethod
     def poll(cls, context):
-        return len(context.scene.ymap_list[context.scene.ymap_list_index].entities) > 0
+        return cls.get_ymap_ent_count(context) > 0
     
     def execute(self, context):
         if self.can_delete:
@@ -216,10 +216,10 @@ class VICHO_OT_select_entity_from_viewport(bpy.types.Operator, YmapMixin):
         return context.active_object.parent and context.active_object.parent.vicho_type != "vicho_ymap_entities"
 
     def execute(self, context):
-        active_object = context.active_object
-        if active_object:
-            actual_soll = get_soll_parent(active_object)
-            entity, e_idx, ymap, y_idx = self.get_ent_from_sel(context, actual_soll)
+        active_obj = context.active_object
+        if active_obj:
+            soll_parent = get_soll_parent(active_obj)
+            entity, e_idx, ymap, y_idx = self.get_ent_from_sel(context, soll_parent)
             if entity and entity.linked_object.sollum_type in COMPAT_SOLL_TYPES:
                 self.set_ymap_index(context, y_idx)
                 ymap.active_category = "ENTITIES"

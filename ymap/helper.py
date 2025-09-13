@@ -46,6 +46,13 @@ class YmapMixin:
         ymap_obj = YmapMixin.get_ymap_obj(context)
         return next((ent_group for ent_group in ymap_obj.children 
                      if ent_group.vicho_type == "vicho_ymap_entities"), None) or create_ymap_entities_group(ymap_obj)
+        
+    @staticmethod
+    def get_ymap_ent_count(context):
+        ymap = YmapMixin.get_ymap(context)
+        if ymap and ymap.entities:
+            return len(ymap.entities)
+        return 0
 
     @staticmethod
     def get_ent(context):
@@ -264,5 +271,6 @@ def get_sel_objs_list(context: Context) -> list[Object]:
         else:
             if obj.type == 'MESH':
                 objs.append(obj)
+            if obj.type == 'EMPTY' and obj.sollum_type in COMPAT_SOLL_TYPES:
+                objs.append(obj)
     return objs
-                
