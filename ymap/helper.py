@@ -7,49 +7,59 @@ from .constants import (ENTITY_FLAGS_VALUES,
                         MAP_DATA_CONTENT_FLAGS_VALUES, 
                         ENTITY_FLAGS_UPDATING, 
                         YMAP_FLAGS_UPDATING, 
-                        YMAP_CONTENT_FLAGS_UPDATING)
+                        YMAP_CONTENT_FLAGS_UPDATING,
+                        COMPAT_SOLL_TYPES)
 from bpy.types import Object, Context
 from pathlib import Path
 import bpy
 
-class YmapData:
-    def get_ymap(self, context):
+class YmapMixin:
+    @staticmethod
+    def get_ymap(context):
         ymap = context.scene.ymap_list[context.scene.ymap_list_index]
         if ymap:
             return ymap
         return None
-    
-    def has_entities(self, context):
-        ymap = self.get_ymap(context)
+
+    @staticmethod
+    def has_entities(context):
+        ymap = YmapMixin.get_ymap(context)
         if ymap and ymap.entities:
             return True
         return False
 
-    def set_ent_idx(self, context, index):
+    @staticmethod
+    def set_ent_idx(context, index):
         context.scene.entity_list_index = index
 
-    def set_ymap_index(self, context, index):
+    @staticmethod
+    def set_ymap_index(context, index):
         context.scene.ymap_list_index = index
 
-    def get_ymap_obj(self, context):
-        if self.get_ymap(context):
-            return self.get_ymap(context).ymap_object
-        
-    def get_ymap_ent_group_obj(self, context):
-        ymap_obj = self.get_ymap_obj(context)
-        return next((ent_group for ent_group in ymap_obj.children if ent_group.vicho_type == "vicho_ymap_entities"), None) or create_ymap_entities_group(ymap_obj)
-    
-    def get_ent(self, context):
-        ymap = self.get_ymap(context)
+    @staticmethod
+    def get_ymap_obj(context):
+        if YmapMixin.get_ymap(context):
+            return YmapMixin.get_ymap(context).ymap_object
+
+    @staticmethod
+    def get_ymap_ent_group_obj(context):
+        ymap_obj = YmapMixin.get_ymap_obj(context)
+        return next((ent_group for ent_group in ymap_obj.children 
+                     if ent_group.vicho_type == "vicho_ymap_entities"), None) or create_ymap_entities_group(ymap_obj)
+
+    @staticmethod
+    def get_ent(context):
+        ymap = YmapMixin.get_ymap(context)
         if ymap and ymap.entities:
             return ymap.entities[context.scene.entity_list_index]
         return None
 
-    def ymap_count(self, context):
+    @staticmethod
+    def ymap_count(context):
         return len(context.scene.ymap_list)
 
     def execute_menu_op(self, context, op_id):
-        ymap = self.get_ymap(context)
+        ymap = YmapMixin.get_ymap(context)
         if ymap:
             ymap.active_category = op_id
             return {"FINISHED"}
@@ -227,15 +237,15 @@ def update_linked_obj(self, context) -> None:
     if not self.linked_object:
         return
     if not self.linked_object.parent:
-        self.linked_object.parent = YmapData.get_ymap_ent_group_obj(context)
+        self.linked_object.parent = YmapMixin.get_ymap_ent_group_obj(context)
         if self.linked_object.sollum_type == "sollumz_bound_composite":
-            entity = YmapData.get_ent(context)
+            entity = YmapMixin.get_ent(context)
             entity.sollum_type = "sollumz_bound_composite"
             entity.is_mlo_instance = True
             
 def get_entity_sets_from_entity(self, context) -> list[str]:
     """Returns the entity sets from the entity's MLO archetype definition"""
-    entity = YmapData.get_ent(self, context)
+    entity = YmapMixin.get_ent(self, context)
     linked_obj: Object = entity.linked_object
     
     for ytyp in context.scene.ytyps:
@@ -243,3 +253,16 @@ def get_entity_sets_from_entity(self, context) -> list[str]:
             if arch.type == "sollumz_archetype_mlo" and arch.name == linked_obj.name:
                 return [es.name for es in arch.entity_sets]
     return []
+
+def get_sel_objs_list(context: Context) -> list[Object]:
+    """Returns a list of selected objects in the context"""
+    objs: list[Object] = []
+    for obj in context.selected_objects:
+        if obj.parent:
+            if obj.parent.sollum_type in COMPAT_SOLL_TYPES and obj.parent.type == 'EMPTY':
+                objs.append(obj)
+        else:
+            if obj.type == 'MESH':
+                objs.append(obj)
+    return objs
+                

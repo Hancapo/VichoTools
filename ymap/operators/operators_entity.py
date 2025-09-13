@@ -1,12 +1,12 @@
 from bpy.types import Object
 from bpy.props import BoolProperty
 import bpy
-from ..helper import YmapData, get_entity_sets_from_entity
+from ..helper import YmapMixin, get_entity_sets_from_entity, get_sel_objs_list
 from ..constants import COMPAT_SOLL_TYPES
 from ...misc.funcs import delete_hierarchy
 from ..funcs import get_soll_parent
 
-class VICHO_OT_add_entity(bpy.types.Operator, YmapData):
+class VICHO_OT_add_entity(bpy.types.Operator, YmapMixin):
     """Adds a new entity to the YMAP"""
     bl_idname = "ymap.add_entity"
     bl_label = "Creates a new entity"
@@ -28,19 +28,18 @@ class VICHO_OT_add_entity(bpy.types.Operator, YmapData):
             self.report({'INFO'}, f"Added new entity to {ymap_obj.name} YMAP")
             return {'FINISHED'}
 
-class VICHO_OT_add_entity_from_selection(bpy.types.Operator, YmapData):
+class VICHO_OT_add_entity_from_selection(bpy.types.Operator, YmapMixin):
     """Add(s) selected objects as entities to the YMAP"""
     bl_idname = "ymap.add_sel_objs_as_entity"
     bl_label = "Add entities from selection"
     
     @classmethod
     def poll(cls, context):
-        scene = context.scene
-        return cls.ymap_count(None, context) > 0 and scene.ymap_list[scene.ymap_list_index].ymap_object
+        return cls.ymap_count(context) > 0 and cls.get_ymap_obj(context) and get_sel_objs_list(context)
 
     def execute(self, context):
         scene = context.scene
-        selected_objs: list[Object] = [obj for obj in bpy.context.selected_objects if obj.type == 'EMPTY' and obj.sollum_type in COMPAT_SOLL_TYPES]
+        selected_objs: list[Object] = get_sel_objs_list(context)
         ymap, ymap_obj, ymap_eg = self.get_ymap(context), self.get_ymap_obj(context), self.get_ymap_ent_group_obj(context)
         if ymap_obj:
             added_entities: str = ""
@@ -57,7 +56,7 @@ class VICHO_OT_add_entity_from_selection(bpy.types.Operator, YmapData):
             self.report({'INFO'}, f"Entities added to {ymap_obj.name} YMAP: {added_entities}")
             return {'FINISHED'}
 
-class VICHO_OT_remove_entity(bpy.types.Operator, YmapData):
+class VICHO_OT_remove_entity(bpy.types.Operator, YmapMixin):
     """Removes the selected entity from the entity list"""
     bl_idname = "ymap.remove_entity"
     bl_label = "Removes an entity"
@@ -115,7 +114,7 @@ class VICHO_OT_remove_entity(bpy.types.Operator, YmapData):
         if self.get_ent(context).linked_object:
             col.prop(self, "delete_obj_from_scene", text=f"Fully remove {self.get_ent(context).linked_object.name} from scene?")
 
-class VICHO_OT_go_to_entity(bpy.types.Operator, YmapData):
+class VICHO_OT_go_to_entity(bpy.types.Operator, YmapMixin):
     """It zooms in to selected entity in the 3D Viewport"""
     bl_idname = "ymap.go_to_entity"
     bl_label = "Go to entity"
@@ -130,7 +129,7 @@ class VICHO_OT_go_to_entity(bpy.types.Operator, YmapData):
         
         return {'FINISHED'}
     
-class VICHO_OT_import_entity_sets(bpy.types.Operator, YmapData):
+class VICHO_OT_import_entity_sets(bpy.types.Operator, YmapMixin):
     """Imports entity sets from the entity's MLO archetype definition"""
     bl_idname = "ymap.import_entity_sets"
     bl_label = "Import Entity Sets"
@@ -170,7 +169,7 @@ class VICHO_OT_import_entity_sets(bpy.types.Operator, YmapData):
     def invoke(self, context, event):
         return context.window_manager.invoke_props_dialog(self, width=300, title="Import Entity Sets")
 
-class VICHO_OT_add_entity_set(bpy.types.Operator, YmapData):
+class VICHO_OT_add_entity_set(bpy.types.Operator, YmapMixin):
     """Adds a new entity set to the entity's MLO archetype definition"""
     bl_idname = "ymap.add_entity_set"
     bl_label = "Add Entity Set"
@@ -187,7 +186,7 @@ class VICHO_OT_add_entity_set(bpy.types.Operator, YmapData):
         self.report({'INFO'}, "New entity set added")
         return {'FINISHED'}
 
-class VICHO_OT_remove_entity_set(bpy.types.Operator, YmapData):
+class VICHO_OT_remove_entity_set(bpy.types.Operator, YmapMixin):
     """Removes the selected entity set from the entity's MLO archetype definition"""
     bl_idname = "ymap.remove_entity_set"
     bl_label = "Remove Entity Set"
@@ -207,7 +206,7 @@ class VICHO_OT_remove_entity_set(bpy.types.Operator, YmapData):
         
         return {'FINISHED'}
 
-class VICHO_OT_select_entity_from_viewport(bpy.types.Operator, YmapData):
+class VICHO_OT_select_entity_from_viewport(bpy.types.Operator, YmapMixin):
     """Selects the entity linked to the currently active object in the viewport"""
     bl_idname = "ymap.select_entity_from_viewport"
     bl_label = "Select Entity from Viewport"
