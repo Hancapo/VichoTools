@@ -369,15 +369,18 @@ def get_object_aabb(obj: Object):
     inf, ninf = float('inf'), float('-inf')
     bb_min = Vector(( inf,  inf,  inf))
     bb_max = Vector((ninf, ninf, ninf))
+    
+    inv_parent = obj.matrix_world.inverted()
 
     for corner in obj.bound_box:
         world_pt = obj.matrix_world @ Vector(corner)
-        bb_min.x = min(bb_min.x, world_pt.x)
-        bb_min.y = min(bb_min.y, world_pt.y)
-        bb_min.z = min(bb_min.z, world_pt.z)
-        bb_max.x = max(bb_max.x, world_pt.x)
-        bb_max.y = max(bb_max.y, world_pt.y)
-        bb_max.z = max(bb_max.z, world_pt.z)
+        local_pt = inv_parent @ world_pt
+        bb_min.x = min(bb_min.x, local_pt.x)
+        bb_min.y = min(bb_min.y, local_pt.y)
+        bb_min.z = min(bb_min.z, local_pt.z)
+        bb_max.x = max(bb_max.x, local_pt.x)
+        bb_max.y = max(bb_max.y, local_pt.y)
+        bb_max.z = max(bb_max.z, local_pt.z)
 
     return bb_min, bb_max
 
