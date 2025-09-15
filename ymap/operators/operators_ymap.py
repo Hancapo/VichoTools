@@ -284,15 +284,12 @@ class VICHO_OT_calculate_ymap_extents(bpy.types.Operator, YmapMixin):
     
     @classmethod
     def poll(cls, context):
-        scene = context.scene
-        return len(scene.ymap_list) > 0
+        return cls.get_ymap_ent_count(context)
     
     def execute(self, context):
         ymap = self.get_ymap(context)
         if ymap.entities:
             set_ymap_ent_extents(ymap, ymap.entities)
-            self.report({'INFO'}, f"{ymap.name} extents calculated")
-        else:
-            self.report({'WARNING'}, f"No entities in {ymap.name} to calculate extents")
+            self.report({'INFO'}, f"{ymap.ymap_object.name} extents calculated")
 
         return {'FINISHED'}

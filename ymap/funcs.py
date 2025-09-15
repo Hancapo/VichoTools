@@ -364,6 +364,23 @@ def get_children_aabb(parent: Object):
 
     return bb_min, bb_max
 
+def get_object_aabb(obj: Object):
+    """Calculates the axis-aligned bounding box of the given object."""
+    inf, ninf = float('inf'), float('-inf')
+    bb_min = Vector(( inf,  inf,  inf))
+    bb_max = Vector((ninf, ninf, ninf))
+
+    for corner in obj.bound_box:
+        world_pt = obj.matrix_world @ Vector(corner)
+        bb_min.x = min(bb_min.x, world_pt.x)
+        bb_min.y = min(bb_min.y, world_pt.y)
+        bb_min.z = min(bb_min.z, world_pt.z)
+        bb_max.x = max(bb_max.x, world_pt.x)
+        bb_max.y = max(bb_max.y, world_pt.y)
+        bb_max.z = max(bb_max.z, world_pt.z)
+
+    return bb_min, bb_max
+
 def set_ymap_ent_extents(ymap, entities):
     """Sets the entity extents of the YMAP based on the given entities."""
     emin, emax, _, _ = calc_extents(entities)
@@ -389,7 +406,12 @@ def calc_extents(entities):
         obj = ent.linked_object
         mw = obj.matrix_world
         lod_dist = ent.lod_distance
-        bb_min_loc, bb_max_loc = get_children_aabb(obj)
+        
+        if obj.children and len(obj.children) > 0:
+            bb_min_loc, bb_max_loc = get_children_aabb(obj)
+        else:
+            bb_min_loc, bb_max_loc = get_object_aabb(obj)
+            
         corners = [
             Vector((x, y, z))
             for x in (bb_min_loc.x, bb_max_loc.x)
