@@ -316,13 +316,13 @@ def set_bit(value: int, bit: int) -> int:
 # This function is almost a copy of the CodeWalker's one.
 def calc_ymap_flags(ymap) -> tuple[int, int]:
     """Calculates all flags for the YMAP"""
-    flags = 0
-    content_flags = 0
+    flags: int = 0
+    content_flags: int = 0
     
     if ymap.entities:
         for ent in ymap.entities:
             match ent.lod_level:
-                case "LODTYPES_DEPTH_HD":
+                case "LODTYPES_DEPTH_HD" | "LODTYPES_DEPTH_ORPHANHD":
                     content_flags = set_bit(content_flags, 0)
                     break
                 case "LODTYPES_DEPTH_LOD":
@@ -332,13 +332,16 @@ def calc_ymap_flags(ymap) -> tuple[int, int]:
                     content_flags = set_bit(content_flags, 4)
                     flags = set_bit(flags, 1)
                     break
-                case "LODTYPES_DEPTH_SLOD4":
+                case "LODTYPES_DEPTH_SLOD2" | "LODTYPES_DEPTH_SLOD3" | "LODTYPES_DEPTH_SLOD4":
                     content_flags = set_bit(content_flags, 2)
                     content_flags = set_bit(content_flags, 4)
                     flags = set_bit(flags, 1)
                     break
             if ent.is_mlo_instance:
                 content_flags = set_bit(content_flags, 3)
+    
+    if ymap.ymap_phys_dicts:
+        content_flags = set_bit(content_flags, 6)
         
     return flags, content_flags
 
