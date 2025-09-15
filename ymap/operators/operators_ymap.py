@@ -290,6 +290,7 @@ class VICHO_OT_calculate_ymap_extents(bpy.types.Operator, YmapMixin):
         ymap = self.get_ymap(context)
         if ymap.entities:
             set_ymap_ent_extents(ymap, ymap.entities)
+            set_ymap_strm_extents(ymap, ymap.entities)
             self.report({'INFO'}, f"{ymap.ymap_object.name} extents calculated")
 
         return {'FINISHED'}
