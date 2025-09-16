@@ -6,7 +6,8 @@ from .operators.operators_entity import (VICHO_OT_add_entity,
                                         VICHO_OT_add_entity_set,
                                         VICHO_OT_import_entity_sets,
                                         VICHO_OT_remove_entity_set,
-                                        VICHO_OT_convert_entity_type)
+                                        VICHO_OT_convert_entity_type,
+                                        VICHO_OT_entity_selection)
 
 from .operators.operators_ymap import (VICHO_OT_import_ymap,
                                        VICHO_OT_remove_ymap,
@@ -38,23 +39,52 @@ class YMAPLIST_UL_list(bpy.types.UIList):
                 layout.prop(item, "enabled", text="", emboss=False, icon="CHECKBOX_HLT" if item.enabled else "CHECKBOX_DEHLT")
                 layout.prop(item.ymap_object, "name", text="", emboss=False, icon_value=get_icon("island"))
 
-class ENTITYLIST_UL_list(bpy.types.UIList):
+class ENTITYLIST_UL_list(bpy.types.UIList, YmapMixin):
     bl_idname = "ENTITYLIST_UL_list"
+    
+    def get_selected_state(self, context, item) -> tuple[bool, bool]:
+        if self.get_ymap(context).entity_multi_select:
+            if item.is_multi_selected:
+                return True, False
+            else:
+                return False, False
+        return False, True
     
     def draw_item(
         self, context, layout, data, item, icon, active_data, active_propname, index
     ):
-        scene = context.scene
-        ymap_list = scene.ymap_list
         if self.layout_type in {"DEFAULT", "COMPACT"}:
-            if ymap_list:
+            col = layout.column()
+            row = col.row(align=True)
+            
+            col2 = row.column(align=True)
+            row2 = col2.row(align=True)
+            
+            col3 = row2.column(align=True)
+            row3 = col3.row(align=True)
+            
+            col4 = row3.column(align=True)
+            row4 = col4.row(align=True)
+            
+            row2.alignment = 'LEFT'
+            
+            sel_state = self.get_selected_state(context, item)
+            op1 = row.operator(VICHO_OT_entity_selection.bl_idname, text="", emboss=sel_state[0], depress=sel_state[1])
+            if item.linked_object:
+                op2 = row2.operator(VICHO_OT_entity_selection.bl_idname, text=sanitize_name(item.linked_object.name), emboss=sel_state[0], depress=sel_state[1], icon_value=get_icon("home") if item.is_mlo_instance else get_icon("nature_people"))
+            else:
+                op2 = row2.operator(VICHO_OT_entity_selection.bl_idname, text="Unassigned Entity", emboss=sel_state[0], depress=sel_state[1], icon="ERROR")
+
+            op1.index, op2.index = index, index
+            
+            """ if ymap_list:
                 ymap = ymap_list[scene.ymap_list_index]
                 entity = ymap.entities[index]
                 if entity.linked_object:
                     layout.prop(item, "enabled", text="", emboss=False, icon="CHECKBOX_HLT" if item.enabled else "CHECKBOX_DEHLT")
                     layout.label(text=sanitize_name(entity.linked_object.name), icon_value=get_icon("home") if entity.is_mlo_instance else get_icon("nature_people"))
                 else:
-                    layout.label(text="Unassigned Entity", icon="ERROR")
+                    layout.label(text="Unassigned Entity", icon="ERROR") """
 
     def filter_items(self, context, data, property):
         items = getattr(data, property)

@@ -11,7 +11,8 @@ from .helper import (update_entity_flags_bool_properties,
                      update_ymap_flags, 
                      update_ymap_content_flags_bool_properties, 
                      update_ymap_content_flags,
-                     update_linked_obj)
+                     update_linked_obj,
+                     update_prop_value)
 
 
 class PhysicsGroup(bpy.types.PropertyGroup):
@@ -323,7 +324,8 @@ class EntityProps(bpy.types.PropertyGroup):
     parent_index: bpy.props.IntProperty(
         name="Parent Index",
         min=-1,
-        default=-1) # type: ignore
+        default=-1,
+        update=lambda self, context: update_prop_value(self, context, "parent_index")) # type: ignore
     
     lod_distance: bpy.props.FloatProperty(
         name="LOD Distance",
@@ -397,6 +399,10 @@ class EntityProps(bpy.types.PropertyGroup):
     default_entity_sets: bpy.props.CollectionProperty(
         name="Default Entity Sets",
         type=EntitySetsProps) # type: ignore
+    
+    is_multi_selected: bpy.props.BoolProperty(
+        name="Is Multi Selected",
+        default=False) # type: ignore
     
 class YmapProps(bpy.types.PropertyGroup):
     is_imported: bpy.props.BoolProperty(
@@ -501,6 +507,11 @@ class YmapProps(bpy.types.PropertyGroup):
         name="Entity Data Toggle",
         items=ENTITY_TOGGLES # type: ignore
     )
+    
+    entity_multi_select: bpy.props.BoolProperty(
+        name="Entity Multi Select",
+        default=False,
+        description="Whether multi-selection is being used for entities") # type: ignore
 
 def register():
     bpy.types.Scene.ymap_assets_path = bpy.props.StringProperty(

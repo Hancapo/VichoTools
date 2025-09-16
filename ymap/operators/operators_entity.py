@@ -1,5 +1,5 @@
 from bpy.types import Object
-from bpy.props import BoolProperty
+from bpy.props import BoolProperty, IntProperty
 import bpy
 from ..helper import YmapMixin, get_entity_sets_from_entity, get_sel_objs_list
 from ..constants import COMPAT_SOLL_TYPES
@@ -216,7 +216,7 @@ class VICHO_OT_select_entity_from_viewport(bpy.types.Operator, YmapMixin):
         active_obj = context.active_object
         if active_obj:
             soll_parent = get_soll_parent(active_obj)
-            entity, e_idx, ymap, y_idx = self.get_ent_from_sel(context, soll_parent)
+            entity, e_idx, ymap, y_idx = self.get_ent_from_viewport_select(context, soll_parent)
             if entity and entity.linked_object.sollum_type in COMPAT_SOLL_TYPES:
                 self.set_ymap_index(context, y_idx)
                 ymap.active_category = "ENTITIES"
@@ -245,6 +245,122 @@ class VICHO_OT_convert_entity_type(bpy.types.Operator, YmapMixin):
         else:
             self.report({'INFO'}, f"Entity {entity.linked_object.name} converted to an entity")
         return {'FINISHED'}
+
+class VICHO_OT_entity_selection(bpy.types.Operator, YmapMixin):
+    """WIP"""
+    bl_idname = "ymap.entity_selection"
+    bl_label = "Entity Selection"
+    
+    index: bpy.props.IntProperty(default=0) # type: ignore
+    
+    shift_pressed: BoolProperty() # type: ignore
+    ctrl_pressed: BoolProperty() # type: ignore
+    
+    first_idx: IntProperty(default=-1) # type: ignore
+    last_idx: IntProperty(default=-1) # type: ignore
+    
+    selection_count: IntProperty(default=0) # type: ignore
+    
+    def clear_selection (self, context):
+        for ent in self.get_ymap(context).entities:
+            ent.is_multi_selected = False
+            
+    def execute(self, context):
+        
+        ymap = self.get_ymap(context)
+        entities = ymap.entities
+
+        if not hasattr(ymap, "selected_entity_index"):
+            ymap.selected_entity_index = []
+        
+        if self.ctrl_pressed:
+            if entities[self.index].is_multi_selected:
+                entities[self.index].is_multi_selected = False
+                self.selection_count -= 1
+            else:
+                entities[self.index].is_multi_selected = True
+                self.selection_count += 1
+            
+            selected_idx = [i for i, ent in enumerate(entities) if ent.is_multi_selected]
+            ymap["selected_entity_index"] = selected_idx
+            
+            ymap.entity_multi_select = True if self.selection_count > 1 else False
+            return {'FINISHED'}
+        
+        if self.shift_pressed:
+            self.last_idx = self.index
+            
+            if self.first_idx > self.last_idx:
+                self.first_idx, self.last_idx = self.last_idx, self.first_idx
+                
+            for i in range(self.first_idx, self.last_idx + 1):
+                entities[i].is_multi_selected = True
+                self.selection_count += 1
+                
+            ymap.entity_multi_select = True
+            selected_idx = [i for i, ent in enumerate(entities) if ent.is_multi_selected]
+            ymap.selected_entity_index = selected_idx
+        else:
+            ymap.entity_multi_select = False
+            self.clear_selection(context)
+            self.set_ent_idx(context, self.index)
+            self.get_ent(context).is_multi_selected = True
+            self.first_idx = self.index
+        
+        return {'FINISHED'}
+    
+    def invoke(self, context, event):
+        self.shift_pressed = event.shift
+        self.ctrl_pressed = event.ctrl
+
+        return self.execute(context)
+    
+class VICHO_OT_select_all_entities(bpy.types.Operator, YmapMixin):
+    """Selects all entities in the YMAP"""
+    bl_idname = "ymap.select_all_entities"
+    bl_label = "Select All Entities"
+    
+    @classmethod
+    def poll(cls, context):
+        return cls.get_ymap_ent_count(context) > 0
+    
+    def execute(self, context):
+        ymap = self.get_ymap(context)
+        entities = ymap.entities
+        
+        ymap.entity_multi_select = True
+        
+        for ent in entities:
+            ent.is_multi_selected = True
+            
+        for area in context.screen.areas:
+            if area.type == 'VIEW_3D':
+                area.tag_redraw()
+        return {'FINISHED'}
+
+class VICHO_OT_deselect_all_entities(bpy.types.Operator, YmapMixin):
+    """Deselects all entities in the YMAP"""
+    bl_idname = "ymap.deselect_all_entities"
+    bl_label = "Deselect All Entities"
+    
+    @classmethod
+    def poll(cls, context):
+        return cls.get_ymap_ent_count(context) > 0
+    
+    def execute(self, context):
+        ymap = self.get_ymap(context)
+        entities = ymap.entities
+        print("Deselecting all entities")
+        
+        ymap.entity_multi_select = False
+        
+        for ent in entities:
+            ent.is_multi_selected = False
+            
+        for area in context.screen.areas:
+            if area.type == 'VIEW_3D':
+                area.tag_redraw()
+        return {'FINISHED'}  
     
 def draw_obj_ctx_menu(self, context):
     layout = self.layout

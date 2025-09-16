@@ -21,15 +21,19 @@ from . import auto_load
 from . import icons_load
 from .vicho_dependencies import dependencies_manager as d, is_pythonnet_loaded, is_dotnet_installed
 
+from .ymap import key_maps
+
 auto_load.init()
 
 def register():
     icons_load.init_icons()
     icons_load.load_icons()
     auto_load.register()
+    key_maps.register()
     if is_pythonnet_loaded() and is_dotnet_installed():
         d.load_dependencies()
 
 def unregister():
+    key_maps.unregister()
     auto_load.unregister()
     icons_load.unregister_icons()
