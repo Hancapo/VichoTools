@@ -13,18 +13,16 @@ class VICHO_OT_add_entity(bpy.types.Operator, YmapMixin):
     
     @classmethod
     def poll(cls, context):
-        scene = context.scene
-        return len(scene.ymap_list) > 0 and scene.ymap_list[scene.ymap_list_index].ymap_object
+        return cls.get_ymap_count(context) > 0 and cls.get_ymap_obj(context) is not None
 
     def execute(self, context):
-        scene = context.scene
         ymap, ymap_obj, ymap_eg = self.get_ymap(context), self.get_ymap_obj(context), self.get_ymap_ent_group_obj(context)
         ymap.ymap_entity_group_object = ymap_eg
         if ymap_obj:
             new_entity = ymap.entities.add()
             new_entity.name = "New Entity"
             new_entity.flags.total_flags = 1572864
-            scene.entity_list_index = len(ymap.entities) - 1
+            self.set_ent_idx(context, len(ymap.entities) - 1)
             self.report({'INFO'}, f"Added new entity to {ymap_obj.name} YMAP")
             return {'FINISHED'}
 
@@ -35,10 +33,9 @@ class VICHO_OT_add_entity_from_selection(bpy.types.Operator, YmapMixin):
     
     @classmethod
     def poll(cls, context):
-        return cls.ymap_count(context) > 0 and cls.get_ymap_obj(context) and get_sel_objs_list(context)
+        return cls.get_ymap_count(context) > 0 and cls.get_ymap_obj(context) and get_sel_objs_list(context)
 
     def execute(self, context):
-        scene = context.scene
         selected_objs: list[Object] = get_sel_objs_list(context)
         ymap, ymap_obj, ymap_eg = self.get_ymap(context), self.get_ymap_obj(context), self.get_ymap_ent_group_obj(context)
         if ymap_obj:
@@ -46,12 +43,12 @@ class VICHO_OT_add_entity_from_selection(bpy.types.Operator, YmapMixin):
             self.get_ymap(context).ymap_entity_group_object = ymap_eg
             for obj in selected_objs:
                 obj.parent = ymap_eg
-                new_entity = scene.ymap_list[scene.ymap_list_index].entities.add()
+                new_entity = ymap.entities.add()
                 new_entity.linked_object = obj
                 new_entity.linked_object.vicho_ymap_parent = ymap_obj
                 new_entity.flags.total_flags = 1572864  # Default flags
                 new_entity.is_mlo_instance = True if obj.sollum_type == 'sollumz_bound_composite' else False
-                scene.entity_list_index = len(ymap.entities) - 1
+                self.set_ent_idx(context, len(ymap.entities) - 1)
                 added_entities += f"{obj.name}, "
             self.report({'INFO'}, f"Entities added to {ymap_obj.name} YMAP: {added_entities}")
             return {'FINISHED'}
@@ -139,8 +136,7 @@ class VICHO_OT_import_entity_sets(bpy.types.Operator, YmapMixin):
     
     @classmethod
     def poll(cls, context):
-        scene = context.scene
-        return len(scene.ymap_list) > 0 and len(scene.ymap_list[scene.ymap_list_index].entities) > 0
+        return cls.get_ymap_count(context) > 0 and cls.has_entities(context)
 
     def execute(self, context):
         entity = self.get_ent(context)
@@ -177,7 +173,7 @@ class VICHO_OT_add_entity_set(bpy.types.Operator, YmapMixin):
     
     @classmethod
     def poll(cls, context):
-        return len(context.scene.ymap_list[context.scene.ymap_list_index].entities) > 0
+        return cls.has_entities(context)
     
     def execute(self, context):
         entity = self.get_ent(context)
@@ -194,8 +190,8 @@ class VICHO_OT_remove_entity_set(bpy.types.Operator, YmapMixin):
     
     @classmethod
     def poll(cls, context):
-        return len(context.scene.ymap_list[context.scene.ymap_list_index].entities) > 0
-    
+        return cls.has_entities(context)
+
     def execute(self, context):
         entity = self.get_ent(context)
         if entity.default_entity_sets:
@@ -243,12 +239,11 @@ class VICHO_OT_convert_entity_type(bpy.types.Operator, YmapMixin):
     
     def execute(self, context):
         entity = self.get_ent(context)
+        entity.is_mlo_instance = not entity.is_mlo_instance
         if entity.is_mlo_instance:
-            entity.is_mlo_instance = False
-            self.report({'INFO'}, f"Entity {entity.linked_object.name} converted to an entity")
-        else:
-            entity.is_mlo_instance = True
             self.report({'INFO'}, f"Entity {entity.linked_object.name} converted to an MLO instance")
+        else:
+            self.report({'INFO'}, f"Entity {entity.linked_object.name} converted to an entity")
         return {'FINISHED'}
     
 def draw_obj_ctx_menu(self, context):

@@ -9,7 +9,7 @@ class VICHO_OT_add_phys_dict(bpy.types.Operator, YmapMixin):
     
     @classmethod
     def poll(cls, context):
-        return context.scene.ymap_list and context.scene.ymap_list_index >= 0
+        return cls.get_ymap(context) is not None
 
     def execute(self, context):
         ymap = self.get_ymap(context)
@@ -24,7 +24,7 @@ class VICHO_OT_remove_phys_dict(bpy.types.Operator, YmapMixin):
     
     @classmethod
     def poll(cls, context):
-        return len(context.scene.ymap_list[context.scene.ymap_list_index].ymap_phys_dicts) > 0
+        return cls.get_ymap_phys_dict_count(context) > 0
 
     def execute(self, context):
         ymap = self.get_ymap(context)

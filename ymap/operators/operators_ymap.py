@@ -43,7 +43,6 @@ class VICHO_OT_import_ymap(bpy.types.Operator, ImportHelper):
     def execute(self, context):
         scene = context.scene
         start_time = time.time()
-        
         for file in self.files:
             filepath: str = os.path.join(self.directory, file.name)
             import_ymap_to_scene(scene, filepath, self.import_entities, self.import_occluders, self.import_timecycle_mods, self.import_car_generators, self.import_props, self, scene.ymap_assets_path)
@@ -82,7 +81,7 @@ class VICHO_OT_import_ymap(bpy.types.Operator, ImportHelper):
                 col.separator()
                 col.prop(self, "import_props")
 
-class VICHO_OT_export_ymap(bpy.types.Operator):
+class VICHO_OT_export_ymap(bpy.types.Operator, YmapMixin):
     """Export(s) all the selected YMAP file(s) to a given directory"""
     bl_idname = "ymap.export_ymap"
     bl_label = "Export YMAP file(s)"
@@ -240,7 +239,7 @@ class VICHO_OT_remove_ymap(bpy.types.Operator, YmapMixin):
 
     @classmethod
     def poll(cls, context):
-        return len(context.scene.ymap_list) > 0
+        return cls.get_ymap
     
     def execute(self, context):
         scene = context.scene
