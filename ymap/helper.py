@@ -83,7 +83,7 @@ class YmapMixin:
         context.scene.entity_list_index = index
     
     @staticmethod
-    def get_ent_from_viewport_select(self, context, obj) -> tuple[Object, int, Object, int] | None:
+    def get_ent_from_viewport_select(context, obj) -> tuple[Object, int, Object, int] | None:
         """Returns the entity and its index from the selected object, along with the YMAP and its index"""
         for i_y, ymap in enumerate(context.scene.ymap_list):
             for i_e, ent in enumerate(ymap.entities):
