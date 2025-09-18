@@ -70,8 +70,8 @@ class ENTITYLIST_UL_list(bpy.types.UIList, YmapMixin):
             
             sel_state = self.get_selected_state(context, item)
             op1 = row.operator(VICHO_OT_entity_selection.bl_idname, text="", emboss=sel_state[0], depress=sel_state[1])
-            row2.prop(item, "is_visible", text="", emboss=False, icon="HIDE_OFF" if item.is_visible else "HIDE_ON")
             if item.linked_object:
+                row2.prop(item, "is_visible", text="", emboss=False, icon="HIDE_OFF" if item.is_visible else "HIDE_ON")
                 op2 = row2.operator(VICHO_OT_entity_selection.bl_idname, text=sanitize_name(item.linked_object.name), emboss=sel_state[0], depress=sel_state[1], icon_value=get_icon("home") if item.is_mlo_instance else get_icon("nature_people"))
             else:
                 op2 = row2.operator(VICHO_OT_entity_selection.bl_idname, text="Unassigned Entity", emboss=sel_state[0], depress=sel_state[1], icon="ERROR")
