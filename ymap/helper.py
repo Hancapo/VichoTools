@@ -90,6 +90,19 @@ class YmapMixin:
                 if ent.linked_object == obj:
                     return ent, i_e, ymap, i_y
         return None
+    
+    @staticmethod
+    def toggle_ent_visibility(context) -> None:
+        """Toggles the visibility of the currently selected entity"""
+        entity = YmapMixin.get_ent(context)
+        linked_obj: Object = entity.linked_object
+        if entity and linked_obj:
+            linked_obj.hide_set(not entity.is_visible)
+            if linked_obj.children:
+                for child in linked_obj.children_recursive:
+                    child.hide_set(not entity.is_visible)
+            entity.is_visible = not entity.is_visible
+
 
     @staticmethod
     def execute_menu_op(context, op_id):
@@ -293,7 +306,11 @@ def get_sel_objs_list(context: Context) -> list[Object]:
                 objs.append(obj)
     return objs
 
+
 def update_prop_value(self, context, prop_name: str) -> None:
     """Updates the property value"""
-    # give property name to update
-    print(self[prop_name])
+    match prop_name:
+        case "is_visible":
+            YmapMixin.toggle_ent_visibility(context)
+        case _:
+            pass

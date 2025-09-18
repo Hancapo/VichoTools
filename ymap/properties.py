@@ -404,6 +404,11 @@ class EntityProps(bpy.types.PropertyGroup):
         name="Is Multi Selected",
         default=False) # type: ignore
     
+    is_visible: bpy.props.BoolProperty(
+        name="Is Visible",
+        default=True,
+        update=lambda self, context: update_prop_value(self, context, "is_visible")) # type: ignore
+    
 class YmapProps(bpy.types.PropertyGroup):
     is_imported: bpy.props.BoolProperty(
         name="Is Imported",
@@ -504,7 +509,7 @@ class YmapProps(bpy.types.PropertyGroup):
     ) # type: ignore
     
     entity_data_category: bpy.props.EnumProperty(
-        name="Entity Data Toggle",
+        name="Entity Category Toggle",
         items=ENTITY_TOGGLES # type: ignore
     )
     

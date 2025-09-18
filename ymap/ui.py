@@ -70,6 +70,7 @@ class ENTITYLIST_UL_list(bpy.types.UIList, YmapMixin):
             
             sel_state = self.get_selected_state(context, item)
             op1 = row.operator(VICHO_OT_entity_selection.bl_idname, text="", emboss=sel_state[0], depress=sel_state[1])
+            row2.prop(item, "is_visible", text="", emboss=False, icon="HIDE_OFF" if item.is_visible else "HIDE_ON")
             if item.linked_object:
                 op2 = row2.operator(VICHO_OT_entity_selection.bl_idname, text=sanitize_name(item.linked_object.name), emboss=sel_state[0], depress=sel_state[1], icon_value=get_icon("home") if item.is_mlo_instance else get_icon("nature_people"))
             else:
@@ -220,7 +221,7 @@ class YmapTools_Data_PT_Panel(bpy.types.Panel, YmapMixin):
                         if selected_ent:
                             right_col.separator()
                             row_ent_cat = right_col.row(align=True)
-                            entity_data_flow = row_ent_cat.grid_flow(row_major=True, columns=5, even_columns=True, even_rows=True, align=True)
+                            entity_data_flow = row_ent_cat.grid_flow(row_major=True, columns=6, even_columns=True, even_rows=True, align=True)
                             entity_data_flow.prop(ymap, "entity_data_category", expand=True, icon_only=True, emboss=True)
                             entity_box = right_col.box()
                             col_box = entity_box.column(align=True)
