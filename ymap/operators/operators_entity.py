@@ -299,7 +299,7 @@ class VICHO_OT_entity_selection(bpy.types.Operator, YmapMixin):
                 
             ymap.entity_multi_select = True
             selected_idx = [i for i, ent in enumerate(entities) if ent.is_multi_selected]
-            ymap.selected_entity_index = selected_idx
+            ymap["selected_entity_index"] = selected_idx
         else:
             ymap.entity_multi_select = False
             self.clear_selection(context)

@@ -71,6 +71,14 @@ class YmapMixin:
         if ymap and ymap.entities:
             return ymap.entities[context.scene.entity_list_index]
         return None
+    
+    @staticmethod
+    def get_ent_by_index(context, index):
+        """Returns the currently selected entity in the current YMAP by index"""
+        ymap = YmapMixin.get_ymap(context)
+        if ymap and ymap.entities and index < len(ymap.entities):
+            return ymap.entities[index]
+        return None
 
     @staticmethod
     def has_entities(context):
@@ -92,9 +100,8 @@ class YmapMixin:
         return None
     
     @staticmethod
-    def toggle_ent_visibility(context) -> None:
+    def toggle_ent_visibility(context, entity) -> None:
         """Toggles the visibility of the currently selected entity"""
-        entity = YmapMixin.get_ent(context)
         linked_obj: Object = entity.linked_object
         if entity and linked_obj:
             linked_obj.hide_set(not entity.is_visible)
@@ -311,6 +318,14 @@ def update_prop_value(self, context, prop_name: str) -> None:
     """Updates the property value"""
     match prop_name:
         case "is_visible":
-            YmapMixin.toggle_ent_visibility(context)
+            ymap = YmapMixin.get_ymap(context)
+            if ymap.entity_multi_select:
+                for ent in ymap["selected_entity_index"]:
+                    entity = YmapMixin.get_ent_by_index(context, ent)
+                    if entity and entity.is_visible != self.is_visible:
+                        YmapMixin.toggle_ent_visibility(context, entity)
+            else:
+                entity = YmapMixin.get_ent(context)
+                YmapMixin.toggle_ent_visibility(context, entity)
         case _:
             pass
