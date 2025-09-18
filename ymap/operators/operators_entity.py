@@ -322,7 +322,7 @@ class VICHO_OT_select_all_entities(bpy.types.Operator, YmapMixin):
     
     @classmethod
     def poll(cls, context):
-        return cls.get_ymap_ent_count(context) > 0
+        return cls.get_ymap_ent_count(context) > 0 and context.region and context.region.type == 'UI'
     
     def execute(self, context):
         ymap = self.get_ymap(context)
@@ -345,13 +345,11 @@ class VICHO_OT_deselect_all_entities(bpy.types.Operator, YmapMixin):
     
     @classmethod
     def poll(cls, context):
-        return cls.get_ymap_ent_count(context) > 0
+        return cls.get_ymap_ent_count(context) > 0 and context.region and context.region.type == 'UI'
     
     def execute(self, context):
         ymap = self.get_ymap(context)
         entities = ymap.entities
-        print("Deselecting all entities")
-        
         ymap.entity_multi_select = False
         
         for ent in entities:

@@ -29,11 +29,9 @@ def register():
     icons_load.init_icons()
     icons_load.load_icons()
     auto_load.register()
-    key_maps.register()
     if is_pythonnet_loaded() and is_dotnet_installed():
         d.load_dependencies()
 
 def unregister():
-    key_maps.unregister()
     auto_load.unregister()
     icons_load.unregister_icons()
