@@ -100,16 +100,14 @@ class YmapMixin:
         return None
     
     @staticmethod
-    def toggle_ent_visibility(context, entity) -> None:
+    def toggle_ent_visibility(visibility, entity) -> None:
         """Toggles the visibility of the currently selected entity"""
         linked_obj: Object = entity.linked_object
         if entity and linked_obj:
-            linked_obj.hide_set(not entity.is_visible)
+            linked_obj.hide_set(not visibility)
             if linked_obj.children:
                 for child in linked_obj.children_recursive:
-                    child.hide_set(not entity.is_visible)
-            entity.is_visible = not entity.is_visible
-
+                    child.hide_set(not visibility)
 
     @staticmethod
     def execute_menu_op(context, op_id):
@@ -290,9 +288,9 @@ def update_linked_obj(self, context) -> None:
             entity.sollum_type = "sollumz_bound_composite"
             entity.is_mlo_instance = True
             
-def get_entity_sets_from_entity(self, context) -> list[str]:
+def get_entity_sets_from_entity(context) -> list[str]:
     """Returns the entity sets from the entity's MLO archetype definition"""
-    entity = YmapMixin.get_ent(self, context)
+    entity = YmapMixin.get_ent(context)
     linked_obj: Object = entity.linked_object
     
     for ytyp in context.scene.ytyps:
@@ -314,18 +312,15 @@ def get_sel_objs_list(context: Context) -> list[Object]:
     return objs
 
 
-def update_prop_value(self, context, prop_name: str) -> None:
+def update_entity_prop_value(self, context, prop_name: str) -> None:
     """Updates the property value"""
     match prop_name:
         case "is_visible":
+            print(f"Updating visibility to {self.is_visible}")
             ymap = YmapMixin.get_ymap(context)
             if ymap.entity_multi_select:
-                for ent in ymap["selected_entity_index"]:
-                    entity = YmapMixin.get_ent_by_index(context, ent)
-                    if entity and entity.is_visible != self.is_visible:
-                        YmapMixin.toggle_ent_visibility(context, entity)
+                pass
             else:
-                entity = YmapMixin.get_ent(context)
-                YmapMixin.toggle_ent_visibility(context, entity)
+                YmapMixin.toggle_ent_visibility(self.is_visible, self)
         case _:
             pass

@@ -12,7 +12,7 @@ from .helper import (update_entity_flags_bool_properties,
                      update_ymap_content_flags_bool_properties, 
                      update_ymap_content_flags,
                      update_linked_obj,
-                     update_prop_value)
+                     update_entity_prop_value)
 
 
 class PhysicsGroup(bpy.types.PropertyGroup):
@@ -325,7 +325,7 @@ class EntityProps(bpy.types.PropertyGroup):
         name="Parent Index",
         min=-1,
         default=-1,
-        update=lambda self, context: update_prop_value(self, context, "parent_index")) # type: ignore
+        update=lambda self, context: update_entity_prop_value(self, context, "parent_index")) # type: ignore
     
     lod_distance: bpy.props.FloatProperty(
         name="LOD Distance",
@@ -407,8 +407,13 @@ class EntityProps(bpy.types.PropertyGroup):
     is_visible: bpy.props.BoolProperty(
         name="Is Visible",
         default=True,
-        update=lambda self, context: update_prop_value(self, context, "is_visible")) # type: ignore
+        update=lambda self, context: update_entity_prop_value(self, context, "is_visible")) # type: ignore
     
+    ent_index: bpy.props.IntProperty(
+        name="Entity Index",
+        default=-1,
+    ) # type: ignore
+
 class YmapProps(bpy.types.PropertyGroup):
     is_imported: bpy.props.BoolProperty(
         name="Is Imported",

@@ -122,6 +122,7 @@ def fill_map_data_from_ymap(scene: Scene, index: int, current_ymap, do_props: bo
     scene.ymap_list[index].entities_extents_min = get_ents_extents_min(current_ymap)
     scene.ymap_list[index].entities_extents_max = get_ents_extents_max(current_ymap)
     scene.ymap_list[index].any_entities = any_entities
+    scene.ymap_list[index].is_imported = True
     
     fill_physics_dicts_from_ymap(scene, index, current_ymap)
     fill_ents_data_from_ymap(scene, index, current_ymap, any_entities, do_props)
@@ -158,6 +159,7 @@ def fill_ents_data_from_ymap(scene: Scene, index: int, current_ymap, any_ents: b
             new_entity.artificial_ambient_occlusion = ent._CEntityDef.artificialAmbientOcclusion
             new_entity.tintValue = ent._CEntityDef.tintValue
             new_entity.type = get_ent_type(ent)
+            new_entity.ent_index = len(scene.ymap_list[index].entities) - 1
     
 
 def import_ent_objs(scene: Scene, index: int, asset_path: str, ymap_group: Object, self) -> None:
