@@ -275,6 +275,8 @@ def get_ent_priority_level(entity) -> str:
 def fill_default_entity_sets(entity, bld_entity) -> None:
     """Returns the default entity sets of the MLO instance"""
     if entity.MloInstance:
+        if entity.MloInstance.defaultEntitySets is None:
+            return
         sets = [ent_set.ToString() for ent_set in entity.MloInstance.defaultEntitySets]
         
     if sets:
