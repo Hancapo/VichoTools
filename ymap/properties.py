@@ -523,8 +523,7 @@ def register():
         name="Asset Path",
         default="",
         description="Sets the path to the asset folder",
-        maxlen=60,
-        subtype="DIR_PATH")
+        maxlen=150)
     
     bpy.types.Scene.ymap_list = bpy.props.CollectionProperty(
         name="Ymaps",
