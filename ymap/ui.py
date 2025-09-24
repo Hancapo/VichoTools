@@ -56,27 +56,33 @@ class ENTITYLIST_UL_list(bpy.types.UIList, YmapMixin):
         if self.layout_type in {"DEFAULT", "COMPACT"}:
             col = layout.column()
             row = col.row(align=True)
+            col.scale_x = 0.5
             
-            col2 = row.column(align=True)
+            col2 = layout.column(align=True)
             row2 = col2.row(align=True)
+            col2.scale_x = 0.5
             
-            col3 = row2.column(align=True)
+            col3 = layout.column(align=True)
             row3 = col3.row(align=True)
             
             col4 = row3.column(align=True)
             row4 = col4.row(align=True)
             
-            row2.alignment = 'LEFT'
-            
             sel_state = self.get_selected_state(context, item)
-            op1 = row.operator(VICHO_OT_entity_selection.bl_idname, text="", emboss=sel_state[0], depress=sel_state[1])
+            row4.alignment = 'LEFT'
+            op1 = row3.operator(VICHO_OT_entity_selection.bl_idname, text="", emboss=sel_state[0], depress=sel_state[1])
             if item.linked_object:
-                row2.prop(item, "is_visible", text="", emboss=False, icon="HIDE_OFF" if item.is_visible else "HIDE_ON")
-                op2 = row2.operator(VICHO_OT_entity_selection.bl_idname, text=sanitize_name(item.linked_object.name), emboss=sel_state[0], depress=sel_state[1], icon_value=get_icon("home") if item.is_mlo_instance else get_icon("nature_people"))
+                row.prop(item, "is_visible", text="", emboss=False, icon="HIDE_OFF" if item.is_visible else "HIDE_ON")
+                row2.operator(VICHO_OT_go_to_entity.bl_idname, text="", icon="VIEWZOOM", emboss=False)
+                op2 = row4.operator(VICHO_OT_entity_selection.bl_idname, text=sanitize_name(item.linked_object.name), emboss=sel_state[0], depress=sel_state[1], icon_value=get_icon("home") if item.is_mlo_instance else get_icon("nature_people"))
             else:
-                op2 = row2.operator(VICHO_OT_entity_selection.bl_idname, text="Unassigned Entity", emboss=sel_state[0], depress=sel_state[1], icon="ERROR")
-
+                op2 = row4.operator(VICHO_OT_entity_selection.bl_idname, text="Unassigned Entity", emboss=sel_state[0], depress=sel_state[1], icon="ERROR")
             op1.index, op2.index = index, index
+            
+            
+            if self.get_ymap(context).entity_multi_select and not item.is_multi_selected:
+                row2.enabled = False
+                row.enabled = False
             
             """ if ymap_list:
                 ymap = ymap_list[scene.ymap_list_index]
