@@ -116,9 +116,11 @@ class VICHO_OT_go_to_entity(bpy.types.Operator, YmapMixin):
     bl_idname = "ymap.go_to_entity"
     bl_label = "Go to entity"
     
+    index: IntProperty(default=-1) # type: ignore
+    
     def execute(self, context):
         bpy.ops.object.select_all(action='DESELECT')
-        ent = self.get_ent(context)
+        ent = self.get_ent_by_index(context, self.index)
         lo: Object = ent.linked_object
         if lo and lo.children_recursive:
             [child.select_set(True) for child in lo.children_recursive if child.type == 'MESH']

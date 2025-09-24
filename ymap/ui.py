@@ -73,12 +73,12 @@ class ENTITYLIST_UL_list(bpy.types.UIList, YmapMixin):
             op1 = row3.operator(VICHO_OT_entity_selection.bl_idname, text="", emboss=sel_state[0], depress=sel_state[1])
             if item.linked_object:
                 row.prop(item, "is_visible", text="", emboss=False, icon="HIDE_OFF" if item.is_visible else "HIDE_ON")
-                row2.operator(VICHO_OT_go_to_entity.bl_idname, text="", icon="VIEWZOOM", emboss=False)
+                go_to_op = row2.operator(VICHO_OT_go_to_entity.bl_idname, text="", icon="VIEWZOOM", emboss=False)
+                go_to_op.index = index
                 op2 = row4.operator(VICHO_OT_entity_selection.bl_idname, text=sanitize_name(item.linked_object.name), emboss=sel_state[0], depress=sel_state[1], icon_value=get_icon("home") if item.is_mlo_instance else get_icon("nature_people"))
             else:
                 op2 = row4.operator(VICHO_OT_entity_selection.bl_idname, text="Unassigned Entity", emboss=sel_state[0], depress=sel_state[1], icon="ERROR")
             op1.index, op2.index = index, index
-            
             
             if self.get_ymap(context).entity_multi_select and not item.is_multi_selected:
                 row2.enabled = False
@@ -235,11 +235,7 @@ class YmapTools_Data_PT_Panel(bpy.types.Panel, YmapMixin):
                                 case "DATA":
                                     obj_row = col_box.row(align=True)
                                     ent_data_flow = obj_row.grid_flow(row_major=True, columns=1, even_columns=True, even_rows=True, align=False)
-                                    if selected_ent.linked_object:
-                                        ent_data_flow.prop(selected_ent, "linked_object", icon="OBJECT_DATA")
-                                        ent_data_flow.operator(VICHO_OT_go_to_entity.bl_idname, icon="VIEWZOOM", text="")
-                                    else:
-                                        ent_data_flow.prop(selected_ent, "linked_object", icon="OBJECT_DATA")
+                                    ent_data_flow.prop(selected_ent, "linked_object", icon="OBJECT_DATA")
                                 case "FLAGS":
                                     entity_flags_flow = col_box.grid_flow(row_major=True, columns=4, even_columns=True, even_rows=False, align=False)
                                     for flag in ENTITY_FLAGS_VALUES:
