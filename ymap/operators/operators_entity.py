@@ -68,7 +68,7 @@ class VICHO_OT_remove_entity(bpy.types.Operator, YmapMixin):
         name="Can Delete",
         default=True,
         description="Whether the entity can be deleted",
-    )
+    ) # type: ignore
     
     @classmethod
     def poll(cls, context):
@@ -365,12 +365,20 @@ class VICHO_OT_deselect_all_entities(bpy.types.Operator, YmapMixin):
             if area.type == 'VIEW_3D':
                 area.tag_redraw()
         return {'FINISHED'}  
-    
+
+class VICHO_MT_entity_submenu(bpy.types.Menu):
+    bl_label = "Vicho's Tools"
+    bl_idname = "VICHO_MT_entity_submenu"
+
+    def draw(self, context):
+        layout = self.layout
+        layout.operator(VICHO_OT_select_entity_from_viewport.bl_idname)
+
 def draw_obj_ctx_menu(self, context):
     layout = self.layout
     layout.separator()
-    layout.operator(VICHO_OT_select_entity_from_viewport.bl_idname, text="Select Entity in Viewport")
-    
+    layout.menu(VICHO_MT_entity_submenu.bl_idname)
+
 def register():
     bpy.types.VIEW3D_MT_object_context_menu.append(draw_obj_ctx_menu)
 
