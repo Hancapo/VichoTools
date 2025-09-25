@@ -31,6 +31,7 @@ class VichoToolsAddonProperties(bpy.types.AddonPreferences):
         if not is_dotnet_installed():
             col.operator(VICHO_OT_install_dotnet.bl_idname, text="Install first: .NET 9 runtime", icon="SCRIPTPLUGINS")
         else:
+            d.load_dependencies()
             col.label(text=".NET 9 x64 Runtime is already installed.")
         col.separator()
         if d.available:
