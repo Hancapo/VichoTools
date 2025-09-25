@@ -141,7 +141,7 @@ class YmapTools_PT_Panel(bpy.types.Panel):
             col.template_list(YMAPLIST_UL_list.bl_idname, "", scene, "ymap_list", scene, "ymap_list_index")
         else:
             layout.label(
-                text="PythonNET or .NET 9 runtime aren't installed, please make sure you check the Add-on's preference menu",
+                text=".NET 9 runtime isn't installed, please make sure you check the Add-on's preference menu",
                 icon="ERROR",
             )
 

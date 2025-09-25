@@ -149,6 +149,6 @@ class TextureTools_PT_Panel(bpy.types.Panel):
                 
         else:
             layout.label(
-                text="PythonNET or .NET 8 runtime aren't installed, please make sure you check the Add-on's preference menu",
+                text=".NET 9 runtime isn't installed, please make sure you check the Add-on's preference menu",
                 icon="ERROR",
             )
