@@ -12,7 +12,7 @@ def register():
 
     km = kc.keymaps.get("Window")
     if not km:
-        km = kc.keymaps.new(name="Window", space_type='WINDOW')
+        km = kc.keymaps.new(name="Window", space_type='EMPTY')
 
     kmi = km.keymap_items.new(VICHO_OT_select_all_entities.bl_idname, 'A', 'PRESS', ctrl=True)
     addon_keymaps.append((km, kmi))
