@@ -122,8 +122,12 @@ class VICHO_OT_go_to_entity(bpy.types.Operator, YmapMixin):
         bpy.ops.object.select_all(action='DESELECT')
         ent = self.get_ent_by_index(context, self.index)
         lo: Object = ent.linked_object
-        if lo and lo.children_recursive:
-            [child.select_set(True) for child in lo.children_recursive if child.type == 'MESH']
+        zoom_objects = []
+        if lo:
+            zoom_objects.append(lo)
+            if lo.children_recursive:
+                zoom_objects.extend([child for child in lo.children_recursive if child.type == 'MESH'])
+            [obj.select_set(True) for obj in zoom_objects]
             bpy.ops.view3d.view_selected()
             bpy.ops.object.select_all(action='DESELECT')
             lo.select_set(True)
