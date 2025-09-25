@@ -311,7 +311,6 @@ def get_sel_objs_list(context: Context) -> list[Object]:
                 objs.append(obj)
     return objs
 
-
 def update_entity_prop_value(self, context, prop_name: str) -> None:
     """Updates the property value"""
     match prop_name:

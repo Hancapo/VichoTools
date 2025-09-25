@@ -1,5 +1,5 @@
 import bpy
-from bpy.props import BoolProperty, StringProperty
+from bpy.props import BoolProperty, StringProperty, CollectionProperty, PointerProperty
 from bpy_extras.io_utils import ImportHelper
 from ..helper import str_loaded_count, set_sollumz_export_settings, change_ent_parenting, YmapMixin
 from bpy.types import Object
@@ -9,6 +9,17 @@ import os
 from ..funcs import import_ymap_to_scene, remove_ymap_from_scene, create_ymap_empty, sanitize_name, calc_ymap_flags, set_ymap_ent_extents, set_ymap_strm_extents
 from .operators import VICHO_OT_open_folder
 from ...misc.funcs import get_meta_hash
+
+class ImportSettings(bpy.types.PropertyGroup):
+    import_entities: BoolProperty(name="Entities", default=True, description="Import entities from the YMAP file(s)")
+    import_occluders: BoolProperty(name="Occluders", default=True, description="Import occluders including box and model occluders from the YMAP file(s)")
+    import_extensions: BoolProperty(name="Entity Extensions", default=True, description="Import entity extensions from the YMAP file(s)")
+    import_timecycle_mods: BoolProperty(name="Timecycle Modifiers", default=True, description="Import timecycle modifiers from the YMAP file(s)")
+    import_car_generators: BoolProperty(name="Car Generators", default=True, description="Import car generators from the YMAP file(s)")
+    import_props: BoolProperty(name="Import Props", default=True, description="Whether or not to import props from the YMAP file(s)")
+    remove_cols: BoolProperty(name="Remove Collision", default=True, description="Whether or not to remove collision from imported props")
+    remove_lights: BoolProperty(name="Remove Lights", default=True, description="Whether or not to remove lights from imported props")
+    remove_non_high: BoolProperty(name="Remove Non-High LOD", default=True, description="Whether or not to remove non-high LOD from imported props")
 
 class VICHO_OT_import_ymap(bpy.types.Operator, ImportHelper):
     """Import(s) all the selected YMAP file(s) from a given directory"""
@@ -21,20 +32,12 @@ class VICHO_OT_import_ymap(bpy.types.Operator, ImportHelper):
         default="*.ymap",
         options={"HIDDEN"}
     )
-    files: bpy.props.CollectionProperty(type=bpy.types.OperatorFileListElement)
+    
+    import_settings: PointerProperty(type=ImportSettings)
+    
+    files: CollectionProperty(type=bpy.types.OperatorFileListElement)
     
     directory: StringProperty(maxlen=1024, default="", subtype='DIR_PATH')
-    
-    show_import: BoolProperty(name="Show Include", default=True)
-    show_assets: BoolProperty(name="Show Assets", default=True)
-    
-    import_entities: BoolProperty(name="Entities", default=True, description="Import entities from the YMAP file(s)")
-    import_occluders: BoolProperty(name="Occluders", default=True, description="Import occluders including box and model occluders from the YMAP file(s)")
-    import_extensions: BoolProperty(name="Entity Extensions", default=True, description="Import entity extensions from the YMAP file(s)")
-    import_timecycle_mods: BoolProperty(name="Timecycle Modifiers", default=True, description="Import timecycle modifiers from the YMAP file(s)")
-    import_car_generators: BoolProperty(name="Car Generators", default=True, description="Import car generators from the YMAP file(s)")
-    
-    import_props: BoolProperty(name="Import Props", default=True, description="Whether or not to import props from the YMAP file(s)")
     
     @classmethod
     def poll(cls, context):
@@ -45,7 +48,7 @@ class VICHO_OT_import_ymap(bpy.types.Operator, ImportHelper):
         start_time = time.time()
         for file in self.files:
             filepath: str = os.path.join(self.directory, file.name)
-            import_ymap_to_scene(scene, filepath, self.import_entities, self.import_occluders, self.import_timecycle_mods, self.import_car_generators, self.import_props, self, scene.ymap_assets_path)
+            import_ymap_to_scene(scene, filepath, self.import_settings, self, scene.ymap_assets_path)
         self.report({'INFO'}, f"YMAP file(s) imported in {time.time() - start_time:.2f} seconds")
         return {'FINISHED'}
 
@@ -56,30 +59,33 @@ class VICHO_OT_import_ymap(bpy.types.Operator, ImportHelper):
     def draw(self, context):
         scene = context.scene
         layout = self.layout
-        box = layout.box()
+        layout.use_property_decorate = False
+        layout.use_property_split = True
         
-        row = box.row()
-        row.prop(self, "show_import", text="Include", icon='TRIA_DOWN' if self.show_import else 'TRIA_RIGHT', emboss=False)
+        header, body = layout.panel("YMAP_import", default_closed=False)
+        header.label(text="Import Settings")
+        if body:
+            sublayout = body.column(heading="Include")
+            sublayout.prop(self.import_settings, "import_entities", text="Entities")
+            sublayout.prop(self.import_settings, "import_occluders", text="Occluders")
+            sublayout.prop(self.import_settings, "import_extensions", text="Entity Extensions")
+            sublayout.prop(self.import_settings, "import_timecycle_mods", text="Timecycle Modifiers")
+            sublayout.prop(self.import_settings, "import_car_generators", text="Car Generators")
+            if self.import_settings.import_entities:
+                sublayout.separator(type="LINE")
+                sublayout.prop(scene, "ymap_assets_path", text="Assets Path")
+                sublayout = body.row()
+                sublayout.operator(VICHO_OT_open_folder.bl_idname, text="Open Assets Folder", icon='FILE_FOLDER')
         
-        if self.show_import:
-            col = box.column(align=True)
-            col.prop(self, "import_entities", icon="OUTLINER_OB_GROUP_INSTANCE")
-            col.prop(self, "import_occluders", icon="GP_CAPS_ROUND")
-            col.prop(self, "import_extensions", icon="MODIFIER")
-            col.prop(self, "import_timecycle_mods", icon="TIME")
-            col.prop(self, "import_car_generators", icon="AUTO")
-        
-        if self.import_entities:
-            box = layout.box()
-            row = box.row()
-            row.prop(self, "show_assets", text="Assets", icon='TRIA_DOWN' if self.show_assets else 'TRIA_RIGHT', emboss=False)
-            if self.show_assets:
-                col = box.column(align=True)
-                row = col.row(align=True)
-                row.prop(scene, "ymap_assets_path")
-                row.operator(VICHO_OT_open_folder.bl_idname, text="", icon='FILE_FOLDER')
-                col.separator()
-                col.prop(self, "import_props")
+        if self.import_settings.import_entities:
+            header, body = layout.panel("YMAP_purify", default_closed=True) 
+            header.label(text="Purify Settings")
+            
+            if body:
+                sublayout = body.column(heading="Remove")
+                sublayout.prop(self.import_settings, "remove_cols", text="Collisions")
+                sublayout.prop(self.import_settings, "remove_lights", text="Lights")
+                sublayout.prop(self.import_settings, "remove_non_high", text="Non-High LOD")
 
 class VICHO_OT_export_ymap(bpy.types.Operator, YmapMixin):
     """Export(s) all the selected YMAP file(s) to a given directory"""

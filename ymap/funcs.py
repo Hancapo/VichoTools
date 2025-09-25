@@ -58,7 +58,7 @@ def ymap_exist_in_scene(scene: Scene, new_ymap: str) -> bool:
                 return True
     return False
             
-def import_ymap_to_scene(scene: Scene, new_ymap_path: str, i_ents: bool, i_occls: bool, i_timemods: bool, i_cargens: bool, do_props: bool, self, assets_path: str = None) -> bool:
+def import_ymap_to_scene(scene: Scene, new_ymap_path: str, import_settings, self, asset_path: str) -> bool:
     p: Path = Path(new_ymap_path)
     filename = p.stem
     if not ymap_exist_in_scene(scene, new_ymap_path):
@@ -68,13 +68,13 @@ def import_ymap_to_scene(scene: Scene, new_ymap_path: str, i_ents: bool, i_occls
         bpy.ops.ymap.map_data_menu(operator_id="ymap.map_data_menu")
         current_index = len(scene.ymap_list) - 1
         ymap_file = get_ymap_from_file(new_ymap_path)
-        fill_map_data_from_ymap(scene, current_index, ymap_file, do_props)
+        fill_map_data_from_ymap(scene, current_index, ymap_file, import_settings.import_props)
         ymap_obj: Object = create_ymap_empty(filename)
         new_ymap.ymap_object = ymap_obj
-        if i_ents and assets_path is not None:
+        if import_settings.import_entities and asset_path is not None:
             ymap_ent_group: Object = create_ymap_entities_group(ymap_obj)
             new_ymap.ymap_entity_group_object = ymap_ent_group
-            import_ent_objs(scene, current_index, assets_path, ymap_ent_group, self)
+            import_ent_objs(import_settings, scene, current_index, asset_path, ymap_ent_group, self)
         self.report({'INFO'}, f"YMAP {filename} added to scene")
         return True
     else:
@@ -162,7 +162,7 @@ def fill_ents_data_from_ymap(scene: Scene, index: int, current_ymap, any_ents: b
             new_entity.ent_index = len(scene.ymap_list[index].entities) - 1
     
 
-def import_ent_objs(scene: Scene, index: int, asset_path: str, ymap_group: Object, self) -> None:
+def import_ent_objs(import_settings, scene: Scene, index: int, asset_path: str, ymap_group: Object, self) -> None:
     entities: list[EntityProps] = scene.ymap_list[index].entities
     for e in entities:
         p: Path = Path(asset_path)
@@ -195,7 +195,7 @@ def import_ent_objs(scene: Scene, index: int, asset_path: str, ymap_group: Objec
             apply_transforms_to_obj_from_entity(working_obj, e)
             working_obj.parent = ymap_group
             working_obj.vicho_ymap_parent = ymap_group.parent
-            purify_asset(working_obj)
+            purify_asset(import_settings.remove_cols, import_settings.remove_lights, import_settings.remove_non_high, working_obj)
 
 def get_obj_soll_parent(filename: str, new_objs: list[Object]) -> Object:
     return next((x for x in new_objs if filename in x.name and
@@ -210,14 +210,17 @@ def get_imported_asset(before_import, entity) -> None:
     imported_obj: Object = get_obj_soll_parent(entity.archetype_name, new_objs)
     return imported_obj
 
-def purify_asset(obj: Object) -> None:
+def purify_asset(del_cols: bool, del_lights: bool, del_non_high: bool, obj: Object) -> None:
     print(f"Purifying asset: {obj.name}")
-    delete_all_cols(obj)
-    delete_all_lights(obj)
-    draw_models: list[Object] = [child for child in obj.children if child.sollum_type == "sollumz_drawable_model"]
-    if draw_models:
-        for draw_model in draw_models:
-            remove_non_high_meshes(draw_model)
+    if del_cols:
+        delete_all_cols(obj)
+    if del_lights:  
+        delete_all_lights(obj)
+    if del_non_high:
+        draw_models: list[Object] = [child for child in obj.children_recursive if child.sollum_type == "sollumz_drawable_model"]
+        if draw_models:
+            for draw_model in draw_models:
+                remove_non_high_meshes(draw_model)
 
 def delete_all_cols(obj: Object) -> None:
     """Deletes all collision objects from the given object"""
