@@ -267,6 +267,8 @@ class VICHO_OT_entity_selection(bpy.types.Operator, YmapMixin):
     
     selection_count: IntProperty(default=0) # type: ignore
     
+    filter_string: bpy.props.StringProperty(default="") # type: ignore
+    
     def clear_selection (self, context):
         for ent in self.get_ymap(context).entities:
             ent.is_multi_selected = False
@@ -275,7 +277,8 @@ class VICHO_OT_entity_selection(bpy.types.Operator, YmapMixin):
         
         ymap = self.get_ymap(context)
         entities = ymap.entities
-
+        filtered_entities: list[int] = [i for i, ent in enumerate(entities) if self.filter_string.lower() in ent.archetype_name.lower()] if self.filter_string != "" else []
+        
         if not hasattr(ymap, "selected_entity_index"):
             ymap.selected_entity_index = []
         
@@ -298,10 +301,12 @@ class VICHO_OT_entity_selection(bpy.types.Operator, YmapMixin):
             
             if self.first_idx > self.last_idx:
                 self.first_idx, self.last_idx = self.last_idx, self.first_idx
-                
-            for i in range(self.first_idx, self.last_idx + 1):
-                entities[i].is_multi_selected = True
-                self.selection_count += 1
+            
+            indices = range(self.first_idx, self.last_idx + 1)
+            for i in indices:
+                if self.filter_string == "" or i in filtered_entities:
+                    entities[i].is_multi_selected = True
+                    self.selection_count += 1
                 
             ymap.entity_multi_select = True
             selected_idx = [i for i, ent in enumerate(entities) if ent.is_multi_selected]

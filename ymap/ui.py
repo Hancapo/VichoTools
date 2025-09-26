@@ -79,19 +79,11 @@ class ENTITYLIST_UL_list(bpy.types.UIList, YmapMixin):
             else:
                 op2 = row4.operator(VICHO_OT_entity_selection.bl_idname, text="Unassigned Entity", emboss=sel_state[0], depress=sel_state[1], icon="ERROR")
             op1.index, op2.index = index, index
+            op1.filter_string, op2.filter_string = self.filter_name, self.filter_name
             
             if self.get_ymap(context).entity_multi_select and not item.is_multi_selected:
                 row2.enabled = False
                 row.enabled = False
-            
-            """ if ymap_list:
-                ymap = ymap_list[scene.ymap_list_index]
-                entity = ymap.entities[index]
-                if entity.linked_object:
-                    layout.prop(item, "enabled", text="", emboss=False, icon="CHECKBOX_HLT" if item.enabled else "CHECKBOX_DEHLT")
-                    layout.label(text=sanitize_name(entity.linked_object.name), icon_value=get_icon("home") if entity.is_mlo_instance else get_icon("nature_people"))
-                else:
-                    layout.label(text="Unassigned Entity", icon="ERROR") """
 
     def filter_items(self, context, data, property):
         items = getattr(data, property)
