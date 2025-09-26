@@ -331,7 +331,8 @@ class EntityProps(bpy.types.PropertyGroup):
         name="LOD Distance",
         min=0.0,
         subtype="UNSIGNED",
-        default=500.0) # type: ignore
+        default=500.0,
+        update=lambda self, context: update_entity_prop_value(self, context, "lod_distance")) # type: ignore
     
     child_lod_distance: bpy.props.FloatProperty(
         name="Child LOD Distance",

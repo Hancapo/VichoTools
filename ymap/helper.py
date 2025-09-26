@@ -353,5 +353,17 @@ def update_entity_prop_value(self, context, prop_name: str) -> None:
                     YmapMixin.toggle_ent_visibility(self.is_visible, self)
             finally:
                 _is_updating_entity_prop = False
+        case "lod_distance":
+            try:
+                print(f"Updating LOD distance to {self.lod_distance}")
+                ymap = YmapMixin.get_ymap(context)
+                if ymap.entity_multi_select:
+                    _is_updating_entity_prop = True
+                    for idx in ymap["selected_entity_index"]:
+                        ent = YmapMixin.get_ent_by_index(context, idx)
+                        if ent:
+                            ent.lod_distance = self.lod_distance
+            finally:
+                _is_updating_entity_prop = False
         case _:
             pass
