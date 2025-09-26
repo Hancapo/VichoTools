@@ -13,6 +13,8 @@ from bpy.types import Object, Context
 from pathlib import Path
 import bpy
 
+_is_updating_entity_prop:bool = False
+
 class YmapMixin:
     
     """Mixin class to provide common YMAP related functionality"""
@@ -329,13 +331,27 @@ def get_sel_objs_list(context: Context) -> list[Object]:
 
 def update_entity_prop_value(self, context, prop_name: str) -> None:
     """Updates the property value"""
+    global _is_updating_entity_prop
+    
+    if _is_updating_entity_prop:
+        return
+    
     match prop_name:
         case "is_visible":
-            print(f"Updating visibility to {self.is_visible}")
-            ymap = YmapMixin.get_ymap(context)
-            if ymap.entity_multi_select:
-                pass
-            else:
-                YmapMixin.toggle_ent_visibility(self.is_visible, self)
+            try:
+                print(f"Updating visibility to {self.is_visible}")
+                ymap = YmapMixin.get_ymap(context)
+                if ymap.entity_multi_select:
+                    _is_updating_entity_prop = True
+                    for idx in ymap["selected_entity_index"]:
+                        ent = YmapMixin.get_ent_by_index(context, idx)
+                        if ent:
+                            ent.is_visible = self.is_visible
+                            YmapMixin.toggle_ent_visibility(self.is_visible, ent)
+                else:
+                    _is_updating_entity_prop = True
+                    YmapMixin.toggle_ent_visibility(self.is_visible, self)
+            finally:
+                _is_updating_entity_prop = False
         case _:
             pass
