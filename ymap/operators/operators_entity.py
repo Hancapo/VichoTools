@@ -268,16 +268,12 @@ class VICHO_OT_entity_selection(bpy.types.Operator, YmapMixin):
     selection_count: IntProperty(default=0) # type: ignore
     
     filter_string: bpy.props.StringProperty(default="") # type: ignore
-    
-    def clear_selection (self, context):
-        for ent in self.get_ymap(context).entities:
-            ent.is_multi_selected = False
             
     def execute(self, context):
         
         ymap = self.get_ymap(context)
         entities = ymap.entities
-        filtered_entities: list[int] = [i for i, ent in enumerate(entities) if self.filter_string.lower() in ent.archetype_name.lower()] if self.filter_string != "" else []
+        filtered_entities: list[int] = self.get_filtered_entities_idx(context, self.filter_string)
         
         if not hasattr(ymap, "selected_entity_index"):
             ymap.selected_entity_index = []
@@ -313,7 +309,7 @@ class VICHO_OT_entity_selection(bpy.types.Operator, YmapMixin):
             ymap["selected_entity_index"] = selected_idx
         else:
             ymap.entity_multi_select = False
-            self.clear_selection(context)
+            YmapMixin.clear_entities_selection(context)
             self.set_ent_idx(context, self.index)
             self.get_ent(context).is_multi_selected = True
             self.first_idx = self.index
@@ -331,6 +327,9 @@ class VICHO_OT_select_all_entities(bpy.types.Operator, YmapMixin):
     bl_idname = "ymap.select_all_entities"
     bl_label = "Select All Entities"
     
+    
+    filter_string: bpy.props.StringProperty(default="") # type: ignore
+    
     @classmethod
     def poll(cls, context):
         return cls.get_ymap_ent_count(context) > 0 and context.region and context.region.type == 'UI'
@@ -342,8 +341,13 @@ class VICHO_OT_select_all_entities(bpy.types.Operator, YmapMixin):
         ymap.entity_multi_select = True
         
         for ent in entities:
-            ent.is_multi_selected = True
-            
+            if self.filter_string == "":
+                ent.is_multi_selected = True
+            else:
+                filtered_entities: list[int] = self.get_filtered_entities_idx(context, self.filter_string)
+                if entities.find(ent.ent_index) in filtered_entities:
+                    ent.is_multi_selected = True
+
         for area in context.screen.areas:
             if area.type == 'VIEW_3D':
                 area.tag_redraw()

@@ -108,6 +108,22 @@ class YmapMixin:
             if linked_obj.children:
                 for child in linked_obj.children_recursive:
                     child.hide_set(not visibility)
+                    
+    @staticmethod
+    def get_filtered_entities_idx(context, filter_string: str) -> list[int]:
+        """Returns a list of indices of entities that match the filter string"""
+        ymap = YmapMixin.get_ymap(context)
+        if ymap and ymap.entities and filter_string:
+            return [i for i, ent in enumerate(ymap.entities) if filter_string in ent.archetype_name.lower()]
+        return []
+    
+    @staticmethod
+    def clear_entities_selection(context) -> None:
+        """Clears the selection of all entities in the current YMAP"""
+        ymap = YmapMixin.get_ymap(context)
+        if ymap and ymap.entities:
+            for ent in ymap.entities:
+                ent.is_multi_selected = False
 
     @staticmethod
     def execute_menu_op(context, op_id):
