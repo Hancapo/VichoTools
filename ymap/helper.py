@@ -135,6 +135,9 @@ class YmapMixin:
             ymap.active_category = op_id
             return {"FINISHED"}
 
+
+
+
 def update_entity_flags_bool_properties(self, context):
     global ENTITY_FLAGS_UPDATING
     if ENTITY_FLAGS_UPDATING:
@@ -143,6 +146,10 @@ def update_entity_flags_bool_properties(self, context):
     for key, value in ENTITY_FLAGS_VALUES.items():
         setattr(self, key, bool(self.total_flags & value))
     ENTITY_FLAGS_UPDATING = False
+
+def update_flags_on_entities(self, context, prop_name: str) -> None:
+    update_entity_flags_bool_properties(self, context)
+    update_entity_prop_value(self, context, prop_name)
 
 def update_entity_flags(self, context):
     global ENTITY_FLAGS_UPDATING
@@ -355,7 +362,7 @@ def update_entity_prop_value(self, context, prop_name: str) -> None:
                 _is_updating_entity_prop = False
         case "lod_distance":
             try:
-                print(f"Updating LOD distance to {self.lod_distance}")
+                #print(f"Updating LOD distance to {self.lod_distance}")
                 ymap = YmapMixin.get_ymap(context)
                 if ymap.entity_multi_select:
                     _is_updating_entity_prop = True
@@ -363,6 +370,19 @@ def update_entity_prop_value(self, context, prop_name: str) -> None:
                         ent = YmapMixin.get_ent_by_index(context, idx)
                         if ent:
                             ent.lod_distance = self.lod_distance
+            finally:
+                _is_updating_entity_prop = False
+        case "total_flags":
+            #print("Flags are being updated")
+            try:
+                entity_data_str: str = self.path_from_id().rsplit(".", 1)[0]
+                ymap = self.id_data.path_resolve(entity_data_str.rsplit(".", 1)[0])
+                if ymap.entity_multi_select:
+                    _is_updating_entity_prop = True
+                    for idx in ymap["selected_entity_index"]:
+                        ent = YmapMixin.get_ent_by_index(context, idx)
+                        if ent:
+                            ent.flags.total_flags = self.total_flags
             finally:
                 _is_updating_entity_prop = False
         case _:

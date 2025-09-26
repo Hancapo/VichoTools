@@ -12,7 +12,8 @@ from .helper import (update_entity_flags_bool_properties,
                      update_ymap_content_flags_bool_properties, 
                      update_ymap_content_flags,
                      update_linked_obj,
-                     update_entity_prop_value)
+                     update_entity_prop_value,
+                     update_flags_on_entities)
 
 
 class PhysicsGroup(bpy.types.PropertyGroup):
@@ -28,8 +29,8 @@ class EntityFlags(bpy.types.PropertyGroup):
         name="Flags",
         default=0, # part of a "hack" since I can't trigger the update on the first load.
         min=0,
-        description="Total Flags number",
-        update=update_entity_flags_bool_properties) # type: ignore
+        description="Total Flags",
+        update=lambda self, context: update_flags_on_entities(self, context, "total_flags")) # type: ignore
     
     allow_full_rotation: bpy.props.BoolProperty(
         name="Allow Full Rotation",
@@ -444,7 +445,7 @@ class YmapProps(bpy.types.PropertyGroup):
     ymap_phys_dicts_index: bpy.props.IntProperty(
         name="Ymap Physics Dictionaries Index",
         default=0,
-        description="Index of the selected YMAP physics dictionary")
+        description="Index of the selected YMAP physics dictionary") # type: ignore
     
     enabled: bpy.props.BoolProperty(
         name="Enabled",
