@@ -287,6 +287,14 @@ def set_sollumz_export_settings() -> None:
     preferences = get_sollumz_settings()
     if preferences:
         preferences.export_settings.limit_to_selected = True
+        
+def set_sollumz_import_settings() -> None:
+    """Sets the proper settings needed for assets import"""
+    preferences = get_sollumz_settings()
+    if preferences:
+        preferences.import_settings.import_as_asset = False
+        preferences.import_settings.split_by_group = False
+        preferences.import_settings.import_ext_skeleton = False
 
 def change_ent_parenting(objs: list[Object], do_parent = False) -> None:
     """Changes the parenting of the selected objects to the YMAP entities group"""

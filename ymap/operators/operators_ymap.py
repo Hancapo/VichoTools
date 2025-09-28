@@ -1,25 +1,35 @@
 import bpy
 from bpy.props import BoolProperty, StringProperty, CollectionProperty, PointerProperty
 from bpy_extras.io_utils import ImportHelper
-from ..helper import str_loaded_count, set_sollumz_export_settings, change_ent_parenting, YmapMixin
+from ..helper import (str_loaded_count, 
+                      set_sollumz_export_settings,
+                      set_sollumz_import_settings,
+                      change_ent_parenting, 
+                      YmapMixin)
 from bpy.types import Object
 from ...vicho_dependencies import dependencies_manager as d
 import time
 import os
-from ..funcs import import_ymap_to_scene, remove_ymap_from_scene, create_ymap_empty, sanitize_name, calc_ymap_flags, set_ymap_ent_extents, set_ymap_strm_extents
+from ..funcs import (import_ymap_to_scene,
+                     remove_ymap_from_scene,
+                     create_ymap_empty,
+                     sanitize_name,
+                     calc_ymap_flags,
+                     set_ymap_ent_extents,
+                     set_ymap_strm_extents)
 from .operators import VICHO_OT_open_folder
 from ...misc.funcs import get_meta_hash
 
 class ImportSettings(bpy.types.PropertyGroup):
-    import_entities: BoolProperty(name="Entities", default=True, description="Import entities from the YMAP file(s)")
-    import_occluders: BoolProperty(name="Occluders", default=True, description="Import occluders including box and model occluders from the YMAP file(s)")
-    import_extensions: BoolProperty(name="Entity Extensions", default=True, description="Import entity extensions from the YMAP file(s)")
-    import_timecycle_mods: BoolProperty(name="Timecycle Modifiers", default=True, description="Import timecycle modifiers from the YMAP file(s)")
-    import_car_generators: BoolProperty(name="Car Generators", default=True, description="Import car generators from the YMAP file(s)")
-    import_props: BoolProperty(name="Import Props", default=True, description="Whether or not to import props from the YMAP file(s)")
-    remove_cols: BoolProperty(name="Remove Collision", default=True, description="Whether or not to remove collision from imported props")
-    remove_lights: BoolProperty(name="Remove Lights", default=True, description="Whether or not to remove lights from imported props")
-    remove_non_high: BoolProperty(name="Remove Non-High LOD", default=True, description="Whether or not to remove non-high LOD from imported props")
+    import_entities: BoolProperty(name="Entities", default=True, description="Import entities from the YMAP file(s)") # type: ignore
+    import_occluders: BoolProperty(name="Occluders", default=True, description="Import occluders including box and model occluders from the YMAP file(s)") # type: ignore
+    import_extensions: BoolProperty(name="Entity Extensions", default=True, description="Import entity extensions from the YMAP file(s)") # type: ignore
+    import_timecycle_mods: BoolProperty(name="Timecycle Modifiers", default=True, description="Import timecycle modifiers from the YMAP file(s)") # type: ignore
+    import_car_generators: BoolProperty(name="Car Generators", default=True, description="Import car generators from the YMAP file(s)") # type: ignore
+    import_props: BoolProperty(name="Import Props", default=True, description="Whether or not to import props from the YMAP file(s)") # type: ignore
+    remove_cols: BoolProperty(name="Remove Collision", default=True, description="Whether or not to remove collision from imported props") # type: ignore
+    remove_lights: BoolProperty(name="Remove Lights", default=True, description="Whether or not to remove lights from imported props") # type: ignore
+    remove_non_high: BoolProperty(name="Remove Non-High LOD", default=True, description="Whether or not to remove non-high LOD from imported props") # type: ignore
 
 class VICHO_OT_import_ymap(bpy.types.Operator, ImportHelper):
     """Import(s) all the selected YMAP file(s) from a given directory"""
@@ -31,13 +41,13 @@ class VICHO_OT_import_ymap(bpy.types.Operator, ImportHelper):
     filter_glob: StringProperty(
         default="*.ymap",
         options={"HIDDEN"}
-    )
+    ) # type: ignore
     
-    import_settings: PointerProperty(type=ImportSettings)
+    import_settings: PointerProperty(type=ImportSettings) # type: ignore
     
-    files: CollectionProperty(type=bpy.types.OperatorFileListElement)
+    files: CollectionProperty(type=bpy.types.OperatorFileListElement) # type: ignore
     
-    directory: StringProperty(maxlen=1024, default="", subtype='DIR_PATH')
+    directory: StringProperty(maxlen=1024, default="", subtype='DIR_PATH') # type: ignore
     
     @classmethod
     def poll(cls, context):
@@ -46,6 +56,7 @@ class VICHO_OT_import_ymap(bpy.types.Operator, ImportHelper):
     def execute(self, context):
         scene = context.scene
         start_time = time.time()
+        set_sollumz_import_settings()
         for file in self.files:
             filepath: str = os.path.join(self.directory, file.name)
             import_ymap_to_scene(scene, filepath, self.import_settings, self, scene.ymap_assets_path)
@@ -97,25 +108,25 @@ class VICHO_OT_export_ymap(bpy.types.Operator, YmapMixin):
         name="Export Assets",
         default=False,
         description="Whether or not to export assets linked to the YMAP entities",
-    )
-    
+    ) # type: ignore
+     
     directory: StringProperty(
         name="Export Directory",
         description="Directory to export YMAP files to",
         subtype='DIR_PATH'
-    )
+    ) # type: ignore
     
     filter_folder: BoolProperty(
         name="Filter Folder",
         default=True,
         options={'HIDDEN'},
-    )
+    ) # type: ignore
 
-    calc_strm_extents: BoolProperty(name="Calculate Streaming Extents", default=True)
-    calc_ent_extents: BoolProperty(name="Calculate Entities Extents", default=True)
+    calc_strm_extents: BoolProperty(name="Calculate Streaming Extents", default=True) # type: ignore
+    calc_ent_extents: BoolProperty(name="Calculate Entities Extents", default=True) # type: ignore
 
-    calc_flags: BoolProperty(name="Calculate Flags", default=True)
-    calc_content_flags: BoolProperty(name="Calculate Content Flags", default=True)
+    calc_flags: BoolProperty(name="Calculate Flags", default=True) # type: ignore
+    calc_content_flags: BoolProperty(name="Calculate Content Flags", default=True) # type: ignore
 
     @classmethod
     def poll(cls, context):
