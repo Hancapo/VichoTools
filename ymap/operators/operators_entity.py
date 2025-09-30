@@ -1,10 +1,15 @@
 from bpy.types import Object
-from bpy.props import BoolProperty, IntProperty
+from bpy.props import BoolProperty, IntProperty, StringProperty
 import bpy
-from ..helper import YmapMixin, get_entity_sets_from_entity, get_sel_objs_list
+from ..helper import (YmapMixin, get_entity_sets_from_entity, 
+                      get_sel_objs_list, change_ent_parenting, 
+                      set_sollumz_export_path, 
+                      set_sollumz_export_settings,
+                      clear_sollumz_export_path)
 from ..constants import COMPAT_SOLL_TYPES
 from ...misc.funcs import delete_hierarchy
 from ..funcs import get_soll_parent
+import os
 
 class VICHO_OT_add_entity(bpy.types.Operator, YmapMixin):
     """Adds a new entity to the YMAP"""
@@ -382,6 +387,51 @@ class VICHO_MT_entity_submenu(bpy.types.Menu):
     def draw(self, context):
         layout = self.layout
         layout.operator(VICHO_OT_select_entity_from_viewport.bl_idname)
+
+class VICHO_OT_export_entity_asset(bpy.types.Operator, YmapMixin):
+    """Exports the selected entity's linked object as a Sollumz asset"""
+    bl_idname = "ymap.export_entity_asset"
+    bl_label = "Export Entity Asset"
+    
+    index: IntProperty(default=-1) # type: ignore
+    
+    directory: StringProperty(
+        name="Export Directory",
+        description="Directory to export YMAP files to",
+        subtype='DIR_PATH'
+    ) # type: ignore
+    
+    filter_folder: BoolProperty(
+        name="Filter Folder",
+        default=True,
+        options={'HIDDEN'},
+    ) # type: ignore
+    
+    def execute(self, context):
+        entity = self.get_ent_by_index(context, self.index)
+        ymap = self.get_ymap(context)
+        lo: Object = entity.linked_object
+        if lo and lo.sollum_type in COMPAT_SOLL_TYPES:
+            change_ent_parenting([lo])
+            ymap_asset_folder = self.directory + f"/{ymap.ymap_object.name}_assets"
+            os.makedirs(ymap_asset_folder, exist_ok=True)
+            set_sollumz_export_path(ymap_asset_folder)
+            bpy.ops.sollumz.export_assets(directory=ymap_asset_folder)
+            change_ent_parenting([lo], do_parent=True)
+            clear_sollumz_export_path()
+        else:
+            self.report({'WARNING'}, "The selected entity does not have a valid linked object to export")
+            return {'CANCELLED'}
+        return {'FINISHED'}
+    
+    def invoke(self, context, event):
+        context.window_manager.fileselect_add(self)
+        return {'RUNNING_MODAL'}
+    
+    def draw(self, context):
+        layout = self.layout
+        entity = self.get_ent_by_index(context, self.index)
+        layout.label(text=f"Exporting: {entity.archetype_name}")
 
 def draw_obj_ctx_menu(self, context):
     layout = self.layout

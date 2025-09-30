@@ -7,7 +7,8 @@ from .operators.operators_entity import (VICHO_OT_add_entity,
                                         VICHO_OT_import_entity_sets,
                                         VICHO_OT_remove_entity_set,
                                         VICHO_OT_convert_entity_type,
-                                        VICHO_OT_entity_selection)
+                                        VICHO_OT_entity_selection,
+                                        VICHO_OT_export_entity_asset)
 
 from .operators.operators_ymap import (VICHO_OT_import_ymap,
                                        VICHO_OT_remove_ymap,
@@ -64,6 +65,7 @@ class ENTITYLIST_UL_list(bpy.types.UIList, YmapMixin):
             
             col3 = layout.column(align=True)
             row3 = col3.row(align=True)
+            #col3.scale_x = 0.5
             
             col4 = row3.column(align=True)
             row4 = col4.row(align=True)
@@ -74,16 +76,18 @@ class ENTITYLIST_UL_list(bpy.types.UIList, YmapMixin):
             if item.linked_object:
                 row.prop(item, "is_visible", text="", emboss=False, icon="HIDE_OFF" if item.is_visible else "HIDE_ON")
                 go_to_op = row2.operator(VICHO_OT_go_to_entity.bl_idname, text="", icon="VIEWZOOM", emboss=False)
-                go_to_op.index = index
+                export_op = row4.operator(VICHO_OT_export_entity_asset.bl_idname, text="", icon="EXPORT", emboss=False)
+                go_to_op.index, export_op.index = index, index
                 op2 = row4.operator(VICHO_OT_entity_selection.bl_idname, text=sanitize_name(item.linked_object.name), emboss=sel_state[0], depress=sel_state[1], icon_value=get_icon("home") if item.is_mlo_instance else get_icon("nature_people"))
             else:
                 op2 = row4.operator(VICHO_OT_entity_selection.bl_idname, text="Unassigned Entity", emboss=sel_state[0], depress=sel_state[1], icon="ERROR")
-            op1.index, op2.index = index, index
+            op1.index, op2.index  = index, index
             op1.filter_string, op2.filter_string = self.filter_name, self.filter_name
             
             if self.get_ymap(context).entity_multi_select and not item.is_multi_selected:
                 row2.enabled = False
                 row.enabled = False
+                row4.enabled = False
 
     def filter_items(self, context, data, property):
         items = getattr(data, property)

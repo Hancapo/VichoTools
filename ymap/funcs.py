@@ -276,7 +276,6 @@ def get_ent_priority_level(entity) -> str:
     """Returns the priority level of the entity"""
     return str(entity._CEntityDef.priorityLevel)
 
-
 def fill_default_entity_sets(entity, bld_entity) -> None:
     """Returns the default entity sets of the MLO instance"""
     if entity.MloInstance:
@@ -296,7 +295,6 @@ def build_default_entity_sets_list(dels: list[str]) -> None:
 def is_mlo_instance(entity) -> bool:
     """Returns if the entity is a MLO instance"""
     return entity.IsMlo
-
 
 def get_ymap_from_file(ymap_path: str):
     """Returns the YMAP object from the file"""
@@ -454,7 +452,6 @@ def calc_extents(entities):
         smax = Vector((max(smax[i], sbmax_w[i]) for i in range(3)))
 
     return emin, emax, smin, smax
-
 
 def get_soll_parent(obj: Object) -> Object | None:
     """Get the parent of a Sollumz object."""

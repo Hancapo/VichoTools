@@ -135,9 +135,6 @@ class YmapMixin:
             ymap.active_category = op_id
             return {"FINISHED"}
 
-
-
-
 def update_entity_flags_bool_properties(self, context):
     global ENTITY_FLAGS_UPDATING
     if ENTITY_FLAGS_UPDATING:
@@ -296,6 +293,16 @@ def set_sollumz_import_settings() -> None:
         preferences.import_settings.split_by_group = False
         preferences.import_settings.import_ext_skeleton = False
 
+def set_sollumz_export_path(export_path: str) -> None:
+    """Sets the export path for Sollumz"""
+    scene = bpy.context.scene
+    scene.sollumz_export_path = export_path
+
+def clear_sollumz_export_path() -> None:
+    """Clears the export path for Sollumz"""
+    scene = bpy.context.scene
+    scene.sollumz_export_path = ""
+
 def change_ent_parenting(objs: list[Object], do_parent = False) -> None:
     """Changes the parenting of the selected objects to the YMAP entities group"""
     scene = bpy.context.scene
@@ -354,7 +361,6 @@ def update_entity_prop_value(self, context, prop_name: str) -> None:
     match prop_name:
         case "is_visible":
             try:
-                print(f"Updating visibility to {self.is_visible}")
                 ymap = YmapMixin.get_ymap(context)
                 if ymap.entity_multi_select:
                     _is_updating_entity_prop = True
