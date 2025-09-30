@@ -5,7 +5,9 @@ from ..helper import (str_loaded_count,
                       set_sollumz_export_settings,
                       set_sollumz_import_settings,
                       change_ent_parenting, 
-                      YmapMixin)
+                      YmapMixin,
+                      set_sollumz_export_path,
+                      clear_sollumz_export_path)
 from bpy.types import Object
 from ...vicho_dependencies import dependencies_manager as d
 import time
@@ -214,10 +216,12 @@ class VICHO_OT_export_ymap(bpy.types.Operator, YmapMixin):
                 set_sollumz_export_settings()
                 link_objs: list[Object] = [obj.linked_object for obj in ymap.entities if obj.linked_object and '.' not in obj.linked_object.name]
                 change_ent_parenting(link_objs)
-                os.makedirs(self.directory + f"/{ymap.ymap_object.name}_assets", exist_ok=True)
-                scene.sollumz_export_path = f"{self.directory}{ymap.ymap_object.name}_assets"
-                bpy.ops.sollumz.export_assets(directory=self.directory + f"/{ymap.ymap_object.name}_assets")
+                ymap_asset_folder = f"/{ymap.ymap_object.name}_assets"
+                os.makedirs(self.directory + ymap_asset_folder, exist_ok=True)
+                set_sollumz_export_path(ymap_asset_folder)
+                bpy.ops.sollumz.export_assets(directory=ymap_asset_folder)
                 change_ent_parenting(link_objs, do_parent=True)
+                clear_sollumz_export_path()
                 
             self.report({'INFO'}, f"YMAP '{ymap_file.Name}' exported successfully")
         #create dir

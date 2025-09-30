@@ -300,8 +300,7 @@ def set_sollumz_export_path(export_path: str) -> None:
 
 def clear_sollumz_export_path() -> None:
     """Clears the export path for Sollumz"""
-    scene = bpy.context.scene
-    scene.sollumz_export_path = ""
+    set_sollumz_export_path("")
 
 def change_ent_parenting(objs: list[Object], do_parent = False) -> None:
     """Changes the parenting of the selected objects to the YMAP entities group"""

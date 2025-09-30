@@ -408,6 +408,7 @@ class VICHO_OT_export_entity_asset(bpy.types.Operator, YmapMixin):
     ) # type: ignore
     
     def execute(self, context):
+        set_sollumz_export_settings()
         entity = self.get_ent_by_index(context, self.index)
         ymap = self.get_ymap(context)
         lo: Object = entity.linked_object
