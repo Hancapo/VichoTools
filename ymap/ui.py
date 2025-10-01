@@ -14,7 +14,8 @@ from .operators.operators_ymap import (VICHO_OT_import_ymap,
                                        VICHO_OT_remove_ymap,
                                        VICHO_OT_export_ymap,
                                        VICHO_OT_add_ymap,
-                                       VICHO_OT_calculate_ymap_extents)
+                                       VICHO_OT_calculate_ymap_extents,
+                                       VICHO_OT_calculate_ymap_flags)
 
 from .operators.operators_phys_dict import (VICHO_OT_add_phys_dict,
                                              VICHO_OT_remove_phys_dict)
@@ -202,6 +203,7 @@ class YmapTools_Data_PT_Panel(bpy.types.Panel, YmapMixin):
                                 for flag in MAP_DATA_FLAGS_VALUES:
                                     flags_grid.alignment = 'CENTER'
                                     flags_grid.prop(ymap.flags, flag)
+                                right_col.operator(VICHO_OT_calculate_ymap_flags.bl_idname, text="Calculate Flags")
                                 f_box.separator(factor=17)
                             case "EXTENTS":
                                 ext_col = ymap_data_box.column(align=True)

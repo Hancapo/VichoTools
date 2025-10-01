@@ -329,19 +329,17 @@ def calc_ymap_flags(ymap) -> tuple[int, int]:
             match ent.lod_level:
                 case "LODTYPES_DEPTH_HD" | "LODTYPES_DEPTH_ORPHANHD":
                     content_flags = set_bit(content_flags, 0)
-                    break
                 case "LODTYPES_DEPTH_LOD":
                     content_flags = set_bit(content_flags, 1)
-                    break
                 case "LODTYPES_DEPTH_SLOD1":
                     content_flags = set_bit(content_flags, 4)
                     flags = set_bit(flags, 1)
-                    break
                 case "LODTYPES_DEPTH_SLOD2" | "LODTYPES_DEPTH_SLOD3" | "LODTYPES_DEPTH_SLOD4":
                     content_flags = set_bit(content_flags, 2)
                     content_flags = set_bit(content_flags, 4)
                     flags = set_bit(flags, 1)
-                    break
+                case _:
+                    pass
             if ent.is_mlo_instance:
                 content_flags = set_bit(content_flags, 3)
     

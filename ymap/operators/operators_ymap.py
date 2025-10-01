@@ -298,19 +298,34 @@ class VICHO_OT_add_ymap(bpy.types.Operator):
         return {'FINISHED'}
     
 class VICHO_OT_calculate_ymap_extents(bpy.types.Operator, YmapMixin):
-    """It calculates the extents of the current YMAP"""
+    """Calculates current YMAP's streaming and entities extents"""
     bl_idname = "ymap.calculate_extents"
     bl_label = "Calculate YMAP extents"
     
     @classmethod
     def poll(cls, context):
-        return cls.get_ymap_ent_count(context)
+        return cls.has_entities(context)
     
     def execute(self, context):
         ymap = self.get_ymap(context)
-        if ymap.entities:
-            set_ymap_ent_extents(ymap, ymap.entities)
-            set_ymap_strm_extents(ymap, ymap.entities)
-            self.report({'INFO'}, f"{ymap.ymap_object.name} extents calculated")
+        set_ymap_ent_extents(ymap, ymap.entities)
+        set_ymap_strm_extents(ymap, ymap.entities)
+        self.report({'INFO'}, f"{ymap.ymap_object.name} extents calculated")
 
+        return {'FINISHED'}
+    
+class VICHO_OT_calculate_ymap_flags(bpy.types.Operator, YmapMixin):
+    """Calculates current YMAP's flags"""
+    
+    bl_idname = "ymap.calculate_flags"
+    bl_label = "Calculate YMAP flags"
+    
+    @classmethod
+    def poll(cls, context):
+        return cls.has_entities(context)
+    
+    def execute(self, context):
+        ymap = self.get_ymap(context)
+        ymap.flags.total_flags, ymap.content_flags.total_flags = calc_ymap_flags(ymap)
+        self.report({'INFO'}, f"{ymap.ymap_object.name} flags calculated")
         return {'FINISHED'}
