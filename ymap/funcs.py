@@ -307,6 +307,7 @@ def get_z_axis_ent(ent):
     return ent._CEntityDef.rotation.Z if not is_mlo_instance(ent) else -ent._CEntityDef.rotation.Z
 
 def sanitize_name(name: str) -> str:
+    """Gets the name before any dots"""
     new_name: str = ""
     if '.' in name:
         new_name = name.split('.')[0]
@@ -348,48 +349,6 @@ def calc_ymap_flags(ymap) -> tuple[int, int]:
         
     return flags, content_flags
 
-def get_children_aabb(parent: Object):
-    """Calculates the axis-aligned bounding box of all children of the given parent object."""
-    inf, ninf = float('inf'), float('-inf')
-    bb_min = Vector(( inf,  inf,  inf))
-    bb_max = Vector((ninf, ninf, ninf))
-    inv_parent = parent.matrix_world.inverted()
-
-    for child in parent.children_recursive:
-        if child.type != 'MESH' and child.sollum_type != "sollumz_drawable_model":
-            continue
-        for corner in child.bound_box:
-            world_pt = child.matrix_world @ Vector(corner)
-            local_pt = inv_parent @ world_pt
-            bb_min.x = min(bb_min.x, local_pt.x)
-            bb_min.y = min(bb_min.y, local_pt.y)
-            bb_min.z = min(bb_min.z, local_pt.z)
-            bb_max.x = max(bb_max.x, local_pt.x)
-            bb_max.y = max(bb_max.y, local_pt.y)
-            bb_max.z = max(bb_max.z, local_pt.z)
-
-    return bb_min, bb_max
-
-def get_object_aabb(obj: Object):
-    """Calculates the axis-aligned bounding box of the given object."""
-    inf, ninf = float('inf'), float('-inf')
-    bb_min = Vector(( inf,  inf,  inf))
-    bb_max = Vector((ninf, ninf, ninf))
-    
-    inv_parent = obj.matrix_world.inverted()
-
-    for corner in obj.bound_box:
-        world_pt = obj.matrix_world @ Vector(corner)
-        local_pt = inv_parent @ world_pt
-        bb_min.x = min(bb_min.x, local_pt.x)
-        bb_min.y = min(bb_min.y, local_pt.y)
-        bb_min.z = min(bb_min.z, local_pt.z)
-        bb_max.x = max(bb_max.x, local_pt.x)
-        bb_max.y = max(bb_max.y, local_pt.y)
-        bb_max.z = max(bb_max.z, local_pt.z)
-
-    return bb_min, bb_max
-
 def set_ymap_ent_extents(ymap, entities):
     """Sets the entity extents of the YMAP based on the given entities."""
     emin, emax, _, _ = calc_extents(entities)
@@ -402,10 +361,16 @@ def set_ymap_strm_extents(ymap, entities):
     ymap.streaming_extents_min = smin
     ymap.streaming_extents_max = smax
 
-# I don't understand this function tbh, thanks dexy and ChatGPT, I guess. I don't have high expectations for this one anyway (it worked lmao).
+def _world_corners_of(obj):
+    """Return the 8 world-space corners of the object's bounding box."""
+    bb = obj.bound_box
+    if not bb:
+        return ()
+    return (obj.matrix_world @ Vector(c) for c in bb)
+
 def calc_extents(entities):
-    """Calculates the extents of the entities in the YMAP."""
-    inf, ninf = float('inf'), float('-inf')
+    """Calculates entities' and streaming extents for the YMAP."""
+    inf, ninf = float("inf"), float("-inf")
     emin = Vector(( inf,  inf,  inf))
     emax = Vector((ninf, ninf, ninf))
     smin = Vector(( inf,  inf,  inf))
@@ -413,39 +378,26 @@ def calc_extents(entities):
 
     for ent in entities:
         obj = ent.linked_object
-        mw = obj.matrix_world
-        lod_dist = ent.lod_distance
-        
-        if obj.children and len(obj.children) > 0:
-            bb_min_loc, bb_max_loc = get_children_aabb(obj)
-        else:
-            bb_min_loc, bb_max_loc = get_object_aabb(obj)
-            
-        corners = [
-            Vector((x, y, z))
-            for x in (bb_min_loc.x, bb_max_loc.x)
-            for y in (bb_min_loc.y, bb_max_loc.y)
-            for z in (bb_min_loc.z, bb_max_loc.z)
-        ]
-        world_c = [mw @ v for v in corners]
-        bbmin_w = Vector((min(v[i] for v in world_c) for i in range(3)))
-        bbmax_w = Vector((max(v[i] for v in world_c) for i in range(3)))
+        if obj is None:
+            continue
+
+        corners_world = []
+        corners_world.extend(_world_corners_of(obj))
+        for ch in obj.children_recursive:
+            corners_world.extend(_world_corners_of(ch))
+
+        if not corners_world:
+            continue
+
+        bbmin_w = Vector((min(v[i] for v in corners_world) for i in range(3)))
+        bbmax_w = Vector((max(v[i] for v in corners_world) for i in range(3)))
 
         emin = Vector((min(emin[i], bbmin_w[i]) for i in range(3)))
         emax = Vector((max(emax[i], bbmax_w[i]) for i in range(3)))
 
-        inf_min = bb_min_loc - Vector((lod_dist,)*3)
-        inf_max = bb_max_loc + Vector((lod_dist,)*3)
-        stream_corners = [
-            Vector((x, y, z))
-            for x in (inf_min.x, inf_max.x)
-            for y in (inf_min.y, inf_max.y)
-            for z in (inf_min.z, inf_max.z)
-        ]
-        world_s = [mw @ v for v in stream_corners]
-        sbmin_w = Vector((min(v[i] for v in world_s) for i in range(3)))
-        sbmax_w = Vector((max(v[i] for v in world_s) for i in range(3)))
-
+        lod_dist = ent.lod_distance if ent.lod_distance else 0.0
+        sbmin_w = bbmin_w - Vector((lod_dist,)*3)
+        sbmax_w = bbmax_w + Vector((lod_dist,)*3)
         smin = Vector((min(smin[i], sbmin_w[i]) for i in range(3)))
         smax = Vector((max(smax[i], sbmax_w[i]) for i in range(3)))
 
