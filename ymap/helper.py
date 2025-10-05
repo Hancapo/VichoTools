@@ -285,11 +285,11 @@ def set_sollumz_export_settings() -> None:
     if preferences:
         preferences.export_settings.limit_to_selected = True
         
-def set_sollumz_import_settings() -> None:
+def set_sollumz_import_settings(as_asset: bool = False) -> None:
     """Sets the proper settings needed for assets import"""
     preferences = get_sollumz_settings()
     if preferences:
-        preferences.import_settings.import_as_asset = False
+        preferences.import_settings.import_as_asset = as_asset
         preferences.import_settings.split_by_group = False
         preferences.import_settings.import_ext_skeleton = False
 

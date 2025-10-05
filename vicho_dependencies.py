@@ -24,6 +24,12 @@ class DependenciesManager:
         self.File = None
         self.Enum = None
         self.UInt32 = None
+        self.Action = None
+        self.Task = None
+        self.CollectTextures = None
+        self.WriteTexturesAsync = None
+        self.HashSet = None
+        self.String = None
 
         # TeximpNet stuff
         self.Surface = None
@@ -38,6 +44,9 @@ class DependenciesManager:
         # CodeWalker stuff
         self.GameFiles = None
         self.Utils = None
+        self.GTA5Keys = None
+        self.GameFileCache = None
+        self.MetaXml = None
 
         # SharpDX stuff
         self.Vector3 = None
@@ -60,6 +69,16 @@ class DependenciesManager:
         
         # KeepA stuff
         self.FolderBrowser = None
+        
+        self.gamecache = None
+        
+    @property
+    def gamecache(self):
+        return self._gamecache
+    
+    @gamecache.setter
+    def gamecache(self, value):
+        self._gamecache = value
 
     @property
     def ymap_list(self) -> List["YmapFile"]:
@@ -69,6 +88,7 @@ class DependenciesManager:
         actual_ymap_list: List["YmapFile"] = []
         for ymap_bytes in ymap_bytes_list:
             ymap = self.YmapFile()
+            
             ymap.Load(ymap_bytes)
             actual_ymap_list.append(ymap)
         return actual_ymap_list
@@ -128,6 +148,12 @@ class DependenciesManager:
                 self.File,
                 self.Enum,
                 self.UInt32,
+                self.Action,
+                self.Task,
+                self.HashSet,
+                self.String,
+                self.CollectTextures,
+                self.WriteTexturesAsync,
                 self.Surface,
                 self.Compressor,
                 self.CompressionFormat,
@@ -137,6 +163,9 @@ class DependenciesManager:
                 self.ImageFilter,
                 self.RoundMode,
                 self.GameFiles,
+                self.GTA5Keys,
+                self.GameFileCache,
+                self.MetaXml,
                 self.Utils,
                 self.Vector3,
                 self.Vector4,
@@ -177,10 +206,12 @@ class DependenciesManager:
             clr.AddReference("System.Collections")
             clr.AddReference(rf"{libs_loc}\TeximpNet.dll")
             clr.AddReference(rf"{libs_loc}\KeepA.dll")
+            clr.AddReference(rf"{libs_loc}\CWUtils.dll")
             print("References added correctly")
 
-            from System.Collections.Generic import List
-            from System import Enum, UInt32
+            from System.Collections.Generic import List, HashSet
+            from System import Enum, UInt32, Action, String
+            from System.Threading.Tasks import Task
             import CodeWalker.GameFiles as GameFiles
             from System.IO import File
             from CodeWalker.GameFiles import (
@@ -197,6 +228,9 @@ class DependenciesManager:
                 JenkHash,
                 JenkIndex,
                 CMapData,
+                GTA5Keys,
+                GameFileCache,
+                MetaXml
             )
             import CodeWalker.Utils as Utils
             from TeximpNet import Surface as Surface, ImageFilter as ImageFilter
@@ -212,6 +246,8 @@ class DependenciesManager:
             from SharpDX import Vector3, Vector4
             
             from KeepA import FolderBrowser
+            
+            from CWUtils import Utils
 
             print("Modules OK")
 
@@ -221,6 +257,11 @@ class DependenciesManager:
             self.Utils = Utils
             self.Enum = Enum
             self.UInt32 = UInt32
+            self.Action = Action
+            self.Task = Task
+            self.String = String
+            self.CollectTextures = Utils.CollectTextures
+            self.WriteTexturesAsync = Utils.WriteTexturesAsync
 
             self.Vector3 = Vector3
             self.Vector4 = Vector4
@@ -238,9 +279,13 @@ class DependenciesManager:
             self.JenkHash = JenkHash
             self.JenkIndex = JenkIndex
             self.CMapData = CMapData
+            self.GTA5Keys = GTA5Keys
+            self.GameFileCache = GameFileCache
+            self.MetaXml = MetaXml
 
             self.List = List
             self.File = File
+            self.HashSet = HashSet
 
             self.Surface = Surface
             self.Compressor = Compressor
@@ -261,6 +306,12 @@ class DependenciesManager:
             print(f"Utils: {self.Utils}")
             print(f"Surface: {self.Surface}")
             print(f"Compressor: {self.Compressor}")
+            print(f"Action: {self.Action}")
+            print(f"Task: {self.Task}")
+            print(f"CollectTextures: {self.CollectTextures}")
+            print(f"WriteTexturesAsync: {self.WriteTexturesAsync}")
+            print(f"HashSet: {self.HashSet}")
+            print(f"MetaXml: {self.MetaXml}")
 
             return True
         except Exception as e:
