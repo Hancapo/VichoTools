@@ -30,6 +30,7 @@ def stop_server():
         try:
             server.shutdown()
             server.server_close()
+            t1.join()
         except Exception as e:
             print("Error al cerrar el servidor:", e)
         server = None
@@ -40,6 +41,7 @@ class VICHO_OT_start_asset_server(bpy.types.Operator):
     bl_label = "Starts the HTTP server"
     
     def execute(self, context):
+        
         scene = context.scene
         global t1, server
         is_server_loaded = scene.is_vicho_server_running
