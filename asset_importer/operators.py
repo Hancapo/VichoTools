@@ -32,7 +32,7 @@ def stop_server():
             server.server_close()
             t1.join()
         except Exception as e:
-            print("Error al cerrar el servidor:", e)
+            print("Error:", e)
         server = None
 
 class VICHO_OT_start_asset_server(bpy.types.Operator):
@@ -61,8 +61,6 @@ class VICHO_OT_start_asset_server(bpy.types.Operator):
     
 class VICHO_OT_load_game_files(bpy.types.Operator):
     """Load Game Files"""
-    
-    
     bl_idname = "assetimporter.load_game_files"
     bl_label = "Load GTA V Files"
     
