@@ -4,7 +4,6 @@ from pathlib import Path
 from ..ymap.helper import set_sollumz_import_settings
 import bpy
 
-
 def update_status():
     return d.Action[str](lambda x: print(x))
 
@@ -104,6 +103,8 @@ def import_asset_from_pm(name: str, gamecache) -> bool:
 
 
 def import_asset_sollumz(p: str):
+    if bpy.context.mode != 'OBJECT':
+        bpy.ops.object.mode_set(mode='OBJECT')
     bpy.ops.object.select_all(action='DESELECT')
     set_sollumz_import_settings(True)
     p_path = Path(p)
