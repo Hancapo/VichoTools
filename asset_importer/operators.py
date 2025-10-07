@@ -3,7 +3,7 @@ from . import http_server
 from http.server import HTTPServer
 from .helper import load_gta_cache
 from threading import Thread
-from .helper import import_asset_from_pm
+from .helper import import_asset_from_pm, add_entity_to_scene
 from ..vicho_dependencies import dependencies_manager as d
 
 t1: Thread = None
@@ -16,11 +16,7 @@ def import_loop():
         print("Received " + http_server.imported_asset)
         import_asset_from_pm(http_server.imported_asset, d.gamecache)
         if bpy.context.scene.add_asset_to_scene:
-            asset = bpy.data.objects.get(http_server.imported_asset)
-            if asset:
-                new_obj = asset.copy()
-                new_obj.data = asset.data.copy()
-                bpy.context.collection.objects.link(new_obj)
+            add_entity_to_scene(http_server.imported_asset)
         http_server.imported_asset = ""
     return 0.1
 

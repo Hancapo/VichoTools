@@ -8,6 +8,19 @@ import bpy
 def update_status():
     return d.Action[str](lambda x: print(x))
 
+def add_entity_to_scene(name) -> bool:
+    if bpy.context.scene.add_asset_to_scene:
+        asset = bpy.data.objects.get(name)
+        if not asset:
+            asset = next((obj for obj in bpy.data.objects if name in obj.name), None)
+            
+        if asset and asset.asset_data:
+            new_obj = asset.copy()
+            new_obj.data = asset.data.copy()
+            bpy.context.collection.objects.link(new_obj)
+            return True
+    return False
+            
 def load_gta_cache(path: str) -> bool:
     try:
         d.GTA5Keys.LoadFromPath(path)
