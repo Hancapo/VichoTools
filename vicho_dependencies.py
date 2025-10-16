@@ -70,6 +70,7 @@ class DependenciesManager:
         # KeepA stuff
         self.FolderBrowser = None
         
+        self.CWUtils = None
         self.gamecache = None
         
     @property
@@ -167,6 +168,7 @@ class DependenciesManager:
                 self.GameFileCache,
                 self.MetaXml,
                 self.Utils,
+                self.CWUtils,
                 self.Vector3,
                 self.Vector4,
                 self.YmapFile,
@@ -247,7 +249,7 @@ class DependenciesManager:
             
             from KeepA import FolderBrowser
             
-            from CWUtils import Utils
+            from CWUtils import Utils as CWUtils
 
             print("Modules OK")
 
@@ -260,8 +262,8 @@ class DependenciesManager:
             self.Action = Action
             self.Task = Task
             self.String = String
-            self.CollectTextures = Utils.CollectTextures
-            self.WriteTexturesAsync = Utils.WriteTexturesAsync
+            self.CollectTextures = CWUtils.CollectTextures
+            self.WriteTexturesAsync = CWUtils.WriteTexturesAsync
 
             self.Vector3 = Vector3
             self.Vector4 = Vector4
@@ -297,6 +299,8 @@ class DependenciesManager:
             self.RoundMode = RoundMode
             
             self.FolderBrowser = FolderBrowser
+            
+            self.CWUtils = CWUtils
 
             print("Dependencies loaded OK")
             print(f"dependencies.available: {self.available}")
