@@ -179,7 +179,9 @@ class VICHO_OT_export_ymap(bpy.types.Operator, YmapMixin):
                         name_meta = d.MetaHash(d.JenkHash.GenHash(sanitize_name(lo.name)))
                         ent_def.archetypeName = name_meta
                         ent_def.position = d.Vector3(lo.location.x, lo.location.y, lo.location.z)
-                        ent_def.rotation = d.Vector4(lo.rotation_quaternion.x, lo.rotation_quaternion.y, lo.rotation_quaternion.z, -lo.rotation_quaternion.w if lo.rotation_quaternion.w != 1 else lo.rotation_quaternion.w)
+                        ent_def.rotation = d.Vector4(lo.rotation_quaternion.x, lo.rotation_quaternion.y, 
+                                                     -lo.rotation_quaternion.z if entity.is_mlo_instance else lo.rotation_quaternion.z, 
+                                                     -lo.rotation_quaternion.w if lo.rotation_quaternion.w != 1 else lo.rotation_quaternion.w)
                         ent_def.scaleXY = lo.scale.x
                         ent_def.scaleZ = lo.scale.z
                         ent_def.lodLevel = d.Enum.Parse(d.rage__eLodType, entity.lod_level)
