@@ -163,7 +163,7 @@ class VICHO_OT_import_entity_sets(bpy.types.Operator, YmapMixin):
     def draw(self, context):
         layout = self.layout
         if len(self.entity_sets) == 0:
-            for es in get_entity_sets_from_entity(self, context):
+            for es in get_entity_sets_from_entity(context):
                 item = self.entity_sets.add()
                 item.name = es
                 if not hasattr(item, "checked"):
