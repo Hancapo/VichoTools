@@ -89,10 +89,11 @@ def remove_ymap_from_scene(scene: Scene, index: int, delete_all: bool) -> bool:
         delete_hierarchy(ymap_obj)
         return True
 
-    if ymap_ent_grp.children: 
-        for ent in ymap_ent_grp.children:
-            ent.parent = None
-            ent.vicho_ymap_parent = None
+    if ymap_ent_grp:
+        if ymap_ent_grp.children: 
+            for ent in ymap_ent_grp.children:
+                ent.parent = None
+                ent.vicho_ymap_parent = None
 
     delete_hierarchy(ymap_obj)
     

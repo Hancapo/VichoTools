@@ -277,7 +277,7 @@ class VICHO_OT_remove_ymap(bpy.types.Operator, YmapMixin):
         return {'FINISHED'}
     
     def invoke(self, context, event):
-        return context.window_manager.invoke_props_dialog(self, width=600, title=" YMAP removal confirmation")
+        return context.window_manager.invoke_props_dialog(self, width=600, title="YMAP removal confirmation")
 
     def draw(self, context):
         layout = self.layout
