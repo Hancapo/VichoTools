@@ -169,23 +169,23 @@ def import_ent_objs(import_settings, scene: Scene, index: int, asset_path: str, 
         p: Path = Path(asset_path)
         print(f"Is MLO: {e.is_mlo_instance}")
         file_found: bool = False
-        xml_file: str = None
+        bin_file: str = None
         for ext in SOLLUMZ_EXTS:
-            if Path.exists(p / f"{e.archetype_name}.{ext}.xml"):
-                xml_file: str = f"{e.archetype_name}.{ext}.xml"
+            if Path.exists(p / f"{e.archetype_name}.{ext}"):
+                bin_file: str = f"{e.archetype_name}.{ext}"
                 file_found = True
                 break
         if not file_found:
-            self.report({'ERROR'}, f"Could not find the XML file for {e.archetype_name}")
+            self.report({'ERROR'}, f"Could not find the binary file for {e.archetype_name}")
             continue
         
         before_import: set[str] = set(bpy.data.objects.keys())
-        if Path.exists(p / xml_file):
+        if Path.exists(p / bin_file):
             working_obj: Object = None
             if not get_obj_from_scene(scene, e.archetype_name):
                 def fast_import():
-                    print(f"Trying to import {xml_file}")
-                    bpy.ops.sollumz.import_assets(directory=str(p), files=[{"name": xml_file}])
+                    print(f"Trying to import {bin_file}")
+                    bpy.ops.sollumz.import_assets(directory=str(p), files=[{"name": bin_file}])
                 run_ops_without_view_layer_update(fast_import)
                 working_obj: Object = get_imported_asset(before_import, e)
                 print(f"Working obj: {working_obj}")
