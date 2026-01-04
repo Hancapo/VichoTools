@@ -417,6 +417,12 @@ class VICHO_OT_export_entity_asset(bpy.types.Operator, YmapMixin):
         options={'ENUM_FLAG'}
 
     ) # type: ignore
+
+    export_inside_ymap_folder: BoolProperty(
+        name="Export Inside YMAP Folder",
+        default=True,
+        description="Export assets inside a folder named after the YMAP",
+    ) # type: ignore
     
     def execute(self, context):
         set_sollumz_export_settings()
@@ -425,13 +431,12 @@ class VICHO_OT_export_entity_asset(bpy.types.Operator, YmapMixin):
         lo: Object = entity.linked_object
         if lo and lo.sollum_type in COMPAT_SOLL_TYPES:
             change_ent_parenting([lo])
-            ymap_asset_folder = self.directory + f"/{ymap.ymap_object.name}_assets"
-            os.makedirs(ymap_asset_folder, exist_ok=True)
-            #set_sollumz_export_path(ymap_asset_folder)
+            final_folder = self.directory + f"/{ymap.ymap_object.name}_assets" if self.export_inside_ymap_folder else self.directory
+            os.makedirs(final_folder, exist_ok=True)
             set_sollumz_export_format_to_binary()
             print(self.version)
             set_sollumz_gen_ver(self.version)
-            bpy.ops.sollumz.export_assets(directory=ymap_asset_folder)
+            bpy.ops.sollumz.export_assets(directory=final_folder)
             change_ent_parenting([lo], do_parent=True)
             clear_sollumz_export_path()
         else:
@@ -447,6 +452,8 @@ class VICHO_OT_export_entity_asset(bpy.types.Operator, YmapMixin):
         layout = self.layout
         entity = self.get_ent(context)
         layout.label(text=f"Exporting: {entity.archetype_name}")
+        col = layout.column(align=True)
+        col.prop(self, "export_inside_ymap_folder")
         col = layout.column(align=True)
         for f in {'Legacy', 'Enhanced'}:
             col.prop_enum(self, "version", f)
