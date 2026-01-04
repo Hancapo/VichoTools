@@ -31,9 +31,9 @@ class ImportSettings(bpy.types.PropertyGroup):
     import_timecycle_mods: BoolProperty(name="Timecycle Modifiers", default=True, description="Import timecycle modifiers from the YMAP file(s)") # type: ignore
     import_car_generators: BoolProperty(name="Car Generators", default=True, description="Import car generators from the YMAP file(s)") # type: ignore
     import_props: BoolProperty(name="Import Props", default=True, description="Whether or not to import props from the YMAP file(s)") # type: ignore
-    remove_cols: BoolProperty(name="Remove Collision", default=True, description="Whether or not to remove collision from imported props") # type: ignore
-    remove_lights: BoolProperty(name="Remove Lights", default=True, description="Whether or not to remove lights from imported props") # type: ignore
-    remove_non_high: BoolProperty(name="Remove Non-High LOD", default=True, description="Whether or not to remove non-high LOD from imported props") # type: ignore
+    remove_cols: BoolProperty(name="Remove Collision", default=False, description="Whether or not to remove collision from imported props") # type: ignore
+    remove_lights: BoolProperty(name="Remove Lights", default=False, description="Whether or not to remove lights from imported props") # type: ignore
+    remove_non_high: BoolProperty(name="Remove Non-High LOD", default=False, description="Whether or not to remove non-high LOD from imported props") # type: ignore
 
 class VICHO_OT_import_ymap(bpy.types.Operator, ImportHelper):
     """Import(s) all the selected YMAP file(s) from a given directory"""
