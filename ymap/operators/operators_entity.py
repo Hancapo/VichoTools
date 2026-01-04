@@ -414,7 +414,8 @@ class VICHO_OT_export_entity_asset(bpy.types.Operator, YmapMixin):
             ('Legacy', "Legacy", "Export asset for GTA V Legacy"),
             ('Enhanced', "Enhanced", "Export asset for GTA V Enhanced Edition"),
         ],
-        options={'ENUM_FLAG'}
+        options={'ENUM_FLAG'},
+        default=set({'Enhanced'}),
 
     ) # type: ignore
 
