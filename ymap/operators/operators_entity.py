@@ -1,11 +1,13 @@
 from bpy.types import Object
-from bpy.props import BoolProperty, IntProperty, StringProperty
+from bpy.props import BoolProperty, IntProperty, StringProperty, EnumProperty
 import bpy
 from ..helper import (YmapMixin, get_entity_sets_from_entity, 
                       get_sel_objs_list, change_ent_parenting, 
                       set_sollumz_export_path, 
                       set_sollumz_export_settings,
-                      clear_sollumz_export_path)
+                      clear_sollumz_export_path,
+                      set_sollumz_export_format_to_binary,
+                      set_sollumz_gen_ver)
 from ..constants import COMPAT_SOLL_TYPES
 from ...misc.funcs import delete_hierarchy
 from ..funcs import get_soll_parent
@@ -393,8 +395,6 @@ class VICHO_OT_export_entity_asset(bpy.types.Operator, YmapMixin):
     bl_idname = "ymap.export_entity_asset"
     bl_label = "Export Entity Asset"
     
-    index: IntProperty(default=-1) # type: ignore
-    
     directory: StringProperty(
         name="Export Directory",
         description="Directory to export YMAP files to",
@@ -406,17 +406,31 @@ class VICHO_OT_export_entity_asset(bpy.types.Operator, YmapMixin):
         default=True,
         options={'HIDDEN'},
     ) # type: ignore
+
+    version: EnumProperty(
+        name="Game Version",
+        description="Select the game version for the exported asset",
+        items=[
+            ('Legacy', "Legacy", "Export asset for GTA V Legacy"),
+            ('Enhanced', "Enhanced", "Export asset for GTA V Enhanced Edition"),
+        ],
+        options={'ENUM_FLAG'}
+
+    ) # type: ignore
     
     def execute(self, context):
         set_sollumz_export_settings()
-        entity = self.get_ent_by_index(context, self.index)
+        entity = self.get_ent(context)
         ymap = self.get_ymap(context)
         lo: Object = entity.linked_object
         if lo and lo.sollum_type in COMPAT_SOLL_TYPES:
             change_ent_parenting([lo])
             ymap_asset_folder = self.directory + f"/{ymap.ymap_object.name}_assets"
             os.makedirs(ymap_asset_folder, exist_ok=True)
-            set_sollumz_export_path(ymap_asset_folder)
+            #set_sollumz_export_path(ymap_asset_folder)
+            set_sollumz_export_format_to_binary()
+            print(self.version)
+            set_sollumz_gen_ver(self.version)
             bpy.ops.sollumz.export_assets(directory=ymap_asset_folder)
             change_ent_parenting([lo], do_parent=True)
             clear_sollumz_export_path()
@@ -431,8 +445,11 @@ class VICHO_OT_export_entity_asset(bpy.types.Operator, YmapMixin):
     
     def draw(self, context):
         layout = self.layout
-        entity = self.get_ent_by_index(context, self.index)
+        entity = self.get_ent(context)
         layout.label(text=f"Exporting: {entity.archetype_name}")
+        col = layout.column(align=True)
+        for f in {'Legacy', 'Enhanced'}:
+            col.prop_enum(self, "version", f)
 
 def draw_obj_ctx_menu(self, context):
     layout = self.layout

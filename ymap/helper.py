@@ -278,12 +278,37 @@ def get_sollumz_settings() -> bpy.types.AddonPreferences:
         if "sollumz" in addon.module:
             return loaded_addons[addon.module].preferences
     return None
-                
+
+def set_sollumz_export_format_to_binary() -> bpy.types.AddonPreferences:
+    """Returns the Sollumz target formats for export"""
+    preferences = get_sollumz_settings()
+    if preferences:
+        preferences.export_settings.target_formats = {'NATIVE'}
+
+def set_sollumz_gen_ver(gen_version: str) -> None:
+    """Sets the GTA V version for export. 
+    
+    Versions
+    --------------- 
+    * 8 -> Legacy
+    * 9 -> Enhanced"""
+
+    versions: tuple = tuple()
+    if "Legacy" in gen_version:
+        versions += ('GEN8',)
+    if "Enhanced" in gen_version:
+        versions += ('GEN9',)
+
+    preferences = get_sollumz_settings()
+    if preferences:
+        preferences.export_settings.target_versions = set(versions)
+
 def set_sollumz_export_settings() -> None:
     """Sets the proper settings needed for assets export"""
     preferences = get_sollumz_settings()
     if preferences:
         preferences.export_settings.limit_to_selected = True
+        preferences.export_settings.apply_transforms = False
         
 def set_sollumz_import_settings() -> None:
     """Sets the proper settings needed for assets import"""

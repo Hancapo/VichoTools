@@ -20,6 +20,8 @@ from .operators.operators_ymap import (VICHO_OT_import_ymap,
 from .operators.operators_phys_dict import (VICHO_OT_add_phys_dict,
                                              VICHO_OT_remove_phys_dict)
 
+from .menus.menu_entity import VICHO_MT_entity_menu
+
 from ..vicho_dependencies import dependencies_manager as d
 from ..vicho_operators import VICHO_OT_fake_op
 from .operators.operators_menu import YMAP_MENU_OPERATORS_GROUPS
@@ -77,8 +79,7 @@ class ENTITYLIST_UL_list(bpy.types.UIList, YmapMixin):
             if item.linked_object:
                 row.prop(item, "is_visible", text="", emboss=False, icon="HIDE_OFF" if item.is_visible else "HIDE_ON")
                 go_to_op = row2.operator(VICHO_OT_go_to_entity.bl_idname, text="", icon="VIEWZOOM", emboss=False)
-                export_op = row4.operator(VICHO_OT_export_entity_asset.bl_idname, text="", icon="EXPORT", emboss=False)
-                go_to_op.index, export_op.index = index, index
+                go_to_op.index = index
                 op2 = row4.operator(VICHO_OT_entity_selection.bl_idname, text=sanitize_name(item.linked_object.name), emboss=sel_state[0], depress=sel_state[1], icon_value=get_icon("home") if item.is_mlo_instance else get_icon("nature_people"))
             else:
                 op2 = row4.operator(VICHO_OT_entity_selection.bl_idname, text="Unassigned Entity", emboss=sel_state[0], depress=sel_state[1], icon="ERROR")
@@ -221,6 +222,9 @@ class YmapTools_Data_PT_Panel(bpy.types.Panel, YmapMixin):
                         tool_ent_col.operator(VICHO_OT_remove_entity.bl_idname, text="", icon="REMOVE")
                         tool_ent_col.separator()
                         tool_ent_col.operator(VICHO_OT_add_entity_from_selection.bl_idname, text="", icon_value=get_icon("arrow_collapse_left"))
+                        tool_ent_col.separator()
+                        tool_ent_col.menu(VICHO_MT_entity_menu.bl_idname, text="", icon='DOWNARROW_HLT')
+
                         selected_ent = self.get_ent(context)
                         if selected_ent:
                             right_col.separator()
