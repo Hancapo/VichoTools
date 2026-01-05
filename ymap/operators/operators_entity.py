@@ -382,14 +382,6 @@ class VICHO_OT_deselect_all_entities(bpy.types.Operator, YmapMixin):
                 area.tag_redraw()
         return {'FINISHED'}  
 
-class VICHO_MT_entity_submenu(bpy.types.Menu):
-    bl_label = "Vicho's Tools"
-    bl_idname = "VICHO_MT_entity_submenu"
-
-    def draw(self, context):
-        layout = self.layout
-        layout.operator(VICHO_OT_select_entity_from_viewport.bl_idname)
-
 class VICHO_OT_export_entity_asset(bpy.types.Operator, YmapMixin):
     """Exports the selected entity's linked object as a Sollumz asset"""
     bl_idname = "ymap.export_entity_asset"
