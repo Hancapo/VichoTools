@@ -451,13 +451,3 @@ class VICHO_OT_export_entity_asset(bpy.types.Operator, YmapMixin):
         for f in {'Legacy', 'Enhanced'}:
             col.prop_enum(self, "version", f)
 
-def draw_obj_ctx_menu(self, context):
-    layout = self.layout
-    layout.separator()
-    layout.menu(VICHO_MT_entity_submenu.bl_idname)
-
-def register():
-    bpy.types.VIEW3D_MT_object_context_menu.append(draw_obj_ctx_menu)
-
-def unregister():
-    bpy.types.VIEW3D_MT_object_context_menu.remove(draw_obj_ctx_menu)
