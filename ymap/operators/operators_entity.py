@@ -10,7 +10,7 @@ from ..helper import (YmapMixin, get_entity_sets_from_entity,
                       set_sollumz_gen_ver)
 from ..constants import COMPAT_SOLL_TYPES
 from ...misc.funcs import delete_hierarchy
-from ..funcs import get_soll_parent
+from ..funcs import get_soll_parent, sanitize_name
 import os
 
 class VICHO_OT_add_entity(bpy.types.Operator, YmapMixin):
@@ -452,7 +452,7 @@ class VICHO_OT_export_entity_asset(bpy.types.Operator, YmapMixin):
     def draw(self, context):
         layout = self.layout
         entity = self.get_ent(context)
-        layout.label(text=f"Exporting: {entity.archetype_name}")
+        layout.label(text=f"Exporting: {sanitize_name(entity.linked_object.name)}")
         col = layout.column(align=True)
         col.prop(self, "export_inside_ymap_folder")
         col = layout.column(align=True)
