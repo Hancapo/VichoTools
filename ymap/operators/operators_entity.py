@@ -261,7 +261,7 @@ class VICHO_OT_convert_entity_type(bpy.types.Operator, YmapMixin):
         return {'FINISHED'}
 
 class VICHO_OT_entity_selection(bpy.types.Operator, YmapMixin):
-    """WIP"""
+    """Entity Selection"""
     bl_idname = "ymap.entity_selection"
     bl_label = "Entity Selection"
     

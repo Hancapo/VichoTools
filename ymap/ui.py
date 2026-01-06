@@ -57,6 +57,7 @@ class ENTITYLIST_UL_list(bpy.types.UIList, YmapMixin):
     def draw_item(
         self, context, layout, data, item, icon, active_data, active_propname, index
     ):
+        current_ymap = self.get_ymap(context)
         if self.layout_type in {"DEFAULT", "COMPACT"}:
             col = layout.column()
             row = col.row(align=True)
@@ -86,7 +87,7 @@ class ENTITYLIST_UL_list(bpy.types.UIList, YmapMixin):
             op1.index, op2.index  = index, index
             op1.filter_string, op2.filter_string = self.filter_name, self.filter_name
             
-            if self.get_ymap(context).entity_multi_select and not item.is_multi_selected:
+            if current_ymap.entity_multi_select and not item.is_multi_selected:
                 row2.enabled = False
                 row.enabled = False
                 row4.enabled = True
