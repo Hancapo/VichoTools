@@ -73,6 +73,8 @@ class ENTITYLIST_UL_list(bpy.types.UIList, YmapMixin):
             
             col4 = row3.column(align=True)
             row4 = col4.row(align=True)
+
+            multi_sel_count: int = len([ent for ent in current_ymap.entities if ent.is_multi_selected])
             
             sel_state = self.get_selected_state(context, item)
             row4.alignment = 'LEFT'
@@ -91,8 +93,11 @@ class ENTITYLIST_UL_list(bpy.types.UIList, YmapMixin):
                 row2.enabled = False
                 row.enabled = False
                 row4.enabled = True
-            if item.is_multi_selected:
+            if multi_sel_count > 1:
                 row2.enabled = False
+                row2.separator(factor=3)
+            else:
+                row2.enabled = True
 
     def filter_items(self, context, data, property):
         items = getattr(data, property)
