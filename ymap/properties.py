@@ -3,7 +3,10 @@ from .constants import (LOD_LEVELS,
                         ENTITY_TYPES, 
                         YMAP_MAP_DATA_TOGGLES, 
                         ENTITY_TOGGLES, 
-                        PRIORITY_LEVELS)
+                        PRIORITY_LEVELS,
+                        MAPENTITY_FLAGS,
+                        MAPDATA_CONTENTFLAGS,
+                        MAPDATA_FLAGS)
 
 from .helper import (update_entity_flags_bool_properties, 
                      update_entity_flags, 
@@ -13,7 +16,9 @@ from .helper import (update_entity_flags_bool_properties,
                      update_ymap_content_flags,
                      update_linked_obj,
                      update_entity_prop_value,
-                     update_flags_on_entities)
+                     update_flags_on_entities,
+                     get_mask,
+                     set_mask)
 
 
 class PhysicsGroup(bpy.types.PropertyGroup):
@@ -25,144 +30,23 @@ class PhysicsGroup(bpy.types.PropertyGroup):
     ) # type: ignore
  
 class EntityFlags(bpy.types.PropertyGroup):
+
+    flags: bpy.props.EnumProperty(
+        name="Entity Flags",
+        items=MAPENTITY_FLAGS,
+        options={'ENUM_FLAG'},
+        description="Entity flags for this entity",
+        update=lambda self, context: update_entity_prop_value(self, context, "total_flags")
+    ) # type: ignore
+
     total_flags: bpy.props.IntProperty(
         name="Flags",
-        default=0, # part of a "hack" since I can't trigger the update on the first load.
         min=0,
         description="Total Flags",
-        update=lambda self, context: update_flags_on_entities(self, context, "total_flags")) # type: ignore
-    
-    allow_full_rotation: bpy.props.BoolProperty(
-        name="Allow Full Rotation",
-        default=False,
-        description="Allow Full Rotation",
-        update=update_entity_flags) # type: ignore
-    
-    stream_low_priority: bpy.props.BoolProperty(
-        name="Stream Low Priority",
-        default=False,
-        description="Stream Low Priority",
-        update=update_entity_flags) # type: ignore
-    
-    disable_embedded_collision: bpy.props.BoolProperty(
-        name="Disable Embedded Collision",
-        default=False,
-        description="Disable Embedded Collision",
-        update=update_entity_flags) # type: ignore
-    
-    lod_in_parent_map: bpy.props.BoolProperty(
-        name="LOD In Parent Map",
-        default=False,
-        description="LOD In Parent Map",
-        update=update_entity_flags) # type: ignore
-    
-    lod_adopt_me: bpy.props.BoolProperty(
-        name="LOD Adopt Me",
-        default=False,
-        description="LOD Adopt Me",
-        update=update_entity_flags) # type: ignore
-    
-    static_entity: bpy.props.BoolProperty(
-        name="Static Entity",
-        default=False,
-        description="Static Entity",
-        update=update_entity_flags) # type: ignore
-    
-    interior_lod: bpy.props.BoolProperty(
-        name="Interior LOD",
-        default=False,
-        description="Interior LOD",
-        update=update_entity_flags) # type: ignore
-    
-    lod_use_alt_fade: bpy.props.BoolProperty(
-        name="LOD Use Alt Fade",
-        default=False,
-        description="LOD Use Alt Fade",
-        update=update_entity_flags) # type: ignore
-    
-    underwater: bpy.props.BoolProperty(
-        name="Underwater",
-        default=False,
-        description="Underwater",
-        update=update_entity_flags) # type: ignore
-    
-    doesnt_touch_water: bpy.props.BoolProperty(
-        name="Doesn't Touch Water",
-        default=False,
-        description="Doesn't Touch Water",
-        update=update_entity_flags) # type: ignore
-    
-    doesnt_spawn_peds: bpy.props.BoolProperty(
-        name="Doesn't Spawn Peds",
-        default=False,
-        description="Doesn't Spawn Peds",
-        update=update_entity_flags) # type: ignore
-    
-    cast_static_shadows: bpy.props.BoolProperty(
-        name="Cast Static Shadows",
-        default=False,
-        description="Cast Static Shadows",
-        update=update_entity_flags) # type: ignore
-    
-    cast_dynamic_shadows: bpy.props.BoolProperty(
-        name="Cast Dynamic Shadows",
-        default=False,
-        description="Cast Dynamic Shadows",
-        update=update_entity_flags) # type: ignore
-    
-    ignore_time_settings: bpy.props.BoolProperty(
-        name="Ignore Time Settings",
-        default=False,
-        description="Ignore Time Settings",
-        update=update_entity_flags) # type: ignore
-    
-    dont_render_shadows: bpy.props.BoolProperty(
-        name="Don't Render Shadows",
-        default=False,
-        description="Don't Render Shadows",
-        update=update_entity_flags) # type: ignore
-    
-    only_render_shadows: bpy.props.BoolProperty(
-        name="Only Render Shadows",
-        default=False,
-        description="Only Render Shadows",
-        update=update_entity_flags) # type: ignore
-    
-    dont_render_reflections: bpy.props.BoolProperty(
-        name="Don't Render Reflections",
-        default=False,
-        description="Don't Render Reflections",
-        update=update_entity_flags)  # type: ignore
-    
-    only_render_reflections: bpy.props.BoolProperty(
-        name="Only Render Reflections",
-        default=False,
-        description="Only Render Reflections",
-        update=update_entity_flags)  # type: ignore
-    
-    dont_render_water_reflections: bpy.props.BoolProperty(
-        name="Don't Render Water Reflections",
-        default=False,
-        description="Don't Render Water Reflections",
-        update=update_entity_flags) # type: ignore
-    
-    only_render_water_reflections: bpy.props.BoolProperty(
-        name="Only Render Water Reflections",
-        default=False,
-        description="Only Render Water Reflections",
-        update=update_entity_flags) # type: ignore
-    
-    dont_render_mirror_reflections: bpy.props.BoolProperty(
-        name="Don't Render Mirror Reflections",
-        default=False,
-        description="Don't Render Mirror Reflections",
-        update=update_entity_flags) # type: ignore
-    
-    only_render_mirror_reflections: bpy.props.BoolProperty(
-        name="Only Render Mirror Reflections",
-        default=False,
-        description="Only Render Mirror Reflections",
-        update=update_entity_flags) # type: ignore
+        get=get_mask,
+        set=set_mask,
+        update=lambda self, context: update_entity_prop_value(self, context, "total_flags")
+        ) # type: ignore
 
 class EntitySetsProps(bpy.types.PropertyGroup):
     name: bpy.props.StringProperty(
@@ -295,7 +179,7 @@ class EntityProps(bpy.types.PropertyGroup):
         description="Archetype Name") # type: ignore
     
     flags: bpy.props.PointerProperty(
-        type=EntityFlags
+        type=EntityFlags,
     ) # type: ignore
     
     guid: bpy.props.StringProperty(

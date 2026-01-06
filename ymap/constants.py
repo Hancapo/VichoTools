@@ -101,3 +101,47 @@ COMPAT_SOLL_TYPES: tuple[str, ...] = (
 )
 
 OBJECT_TYPES: list[str] = ['EMPTY', 'ARMATURE']
+
+MAPENTITY_FLAGS: list[tuple[str, str, str]] = [
+    ("1", "Allow Full Rotation", "Allow Full Rotation"),
+    ("2", "Stream Low Priority", "Stream Low Priority"),
+    ("4", "Disable Embedded Collision", "Disable Embedded Collision"),
+    ("8", "LOD In Parent Map", "LOD In Parent Map"),
+    ("16", "LOD Adopt Me", "LOD Adopt Me"),
+    ("32", "Static Entity", "Static Entity"),
+    ("64", "Interior LOD", "Interior LOD"),
+    ("32768", "LOD Use Alt Fade", "LOD Use Alt Fade"),
+    ("65536", "Underwater", "Underwater"),
+    ("131072", "Doesn't Touch Water", "Doesn't Touch Water"),
+    ("262144", "Doesn't Spawn Peds", "Doesn't Spawn Peds"),
+    ("524288", "Cast Static Shadows", "Cast Static Shadows"),
+    ("1048576", "Cast Dynamic Shadows", "Cast Dynamic Shadows"),
+    ("2097152", "Ignore Time Settings", "Ignore Time Settings"),
+    ("4194304", "Don't Render Shadows", "Don't Render Shadows"),
+    ("8388608", "Only Render Shadows", "Only Render Shadows"),
+    ("16777216", "Don't Render Reflections", "Don't Render Reflections"),
+    ("33554432", "Only Render Reflections", "Only Render Reflections"),
+    ("67108864", "Don't Render Water Reflections", "Don't Render Water Reflections"),
+    ("134217728", "Only Render Water Reflections", "Only Render Water Reflections"),
+    ("268435456", "Don't Render Mirror Reflections", "Don't Render Mirror Reflections"),
+    ("536870912", "Only Render Mirror Reflections", "Only Render Mirror Reflections"),
+]
+
+MAPDATA_CONTENTFLAGS: list[tuple[str, str, str]] = [
+    ("1", "HD", "HD"),
+    ("2", "LOD", "LOD"),
+    ("4", "SLOD2 Plus", "SLOD2 Plus"),
+    ("8", "Interior", "Interior"),
+    ("16", "SLOD", "SLOD"),
+    ("32", "Occlusion", "Occlusion"),
+    ("64", "Physics", "Physics"),
+    ("128", "LOD Lights", "LOD Lights"),
+    ("256", "Distant Lights", "Distant Lights"),
+    ("512", "Critical", "Critical"),
+    ("1024", "Grass", "Grass"),
+]
+
+MAPDATA_FLAGS: list[tuple[str, str, str]] = [
+    ("1", "Script", "Script"),
+    ("2", "LOD", "LOD"),
+]

@@ -8,7 +8,8 @@ from .constants import (ENTITY_FLAGS_VALUES,
                         ENTITY_FLAGS_UPDATING, 
                         YMAP_FLAGS_UPDATING, 
                         YMAP_CONTENT_FLAGS_UPDATING,
-                        COMPAT_SOLL_TYPES)
+                        COMPAT_SOLL_TYPES,
+                        MAPENTITY_FLAGS)
 from bpy.types import Object, Context
 from pathlib import Path
 import bpy
@@ -411,7 +412,6 @@ def update_entity_prop_value(self, context, prop_name: str) -> None:
             finally:
                 _is_updating_entity_prop = False
         case "total_flags":
-            #print("Flags are being updated")
             try:
                 entity_data_str: str = self.path_from_id().rsplit(".", 1)[0]
                 ymap = self.id_data.path_resolve(entity_data_str.rsplit(".", 1)[0])
@@ -425,3 +425,23 @@ def update_entity_prop_value(self, context, prop_name: str) -> None:
                 _is_updating_entity_prop = False
         case _:
             pass
+
+VALID_MAPDATA_ENTITY_FLAGS = sum(int(i[0]) for i in MAPENTITY_FLAGS)
+
+def enum_to_mask(enum_set):
+    return sum(int(x) for x in enum_set)
+
+def mask_to_enum(mask: int):
+    out = set()
+    for ident, _name, _desc in MAPENTITY_FLAGS:
+        bit = int(ident)
+        if mask & bit:
+            out.add(ident)
+    return out
+
+def get_mask(self) -> int:
+    return enum_to_mask(self.flags)
+
+def set_mask(self, value: int) -> None:
+    m = int(value) & VALID_MAPDATA_ENTITY_FLAGS
+    self.flags = mask_to_enum(m)

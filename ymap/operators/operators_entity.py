@@ -334,7 +334,6 @@ class VICHO_OT_select_all_entities(bpy.types.Operator, YmapMixin):
     bl_idname = "ymap.select_all_entities"
     bl_label = "Select All Entities"
     
-    
     filter_string: bpy.props.StringProperty(default="") # type: ignore
     
     @classmethod

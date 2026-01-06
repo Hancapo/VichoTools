@@ -239,9 +239,8 @@ class YmapTools_Data_PT_Panel(bpy.types.Panel, YmapMixin):
                                     ent_data_flow = obj_row.grid_flow(row_major=True, columns=1, even_columns=True, even_rows=True, align=False)
                                     ent_data_flow.prop(selected_ent, "linked_object", icon="OBJECT_DATA")
                                 case "FLAGS":
-                                    entity_flags_flow = col_box.grid_flow(row_major=True, columns=4, even_columns=True, even_rows=False, align=False)
-                                    for flag in ENTITY_FLAGS_VALUES:
-                                        entity_flags_flow.prop(selected_ent.flags, flag)
+                                    entity_flags_flow = col_box.grid_flow(row_major=True, columns=4, even_columns=True, even_rows=False, align=True)
+                                    entity_flags_flow.prop(selected_ent.flags, "flags", icon="CHECKMARK")
                                     col_box.prop(selected_ent.flags, "total_flags", text="Total Flags", expand=False)
                                 case "LOD":
                                     col_box.prop(selected_ent, "lod_level", text="")
@@ -249,7 +248,7 @@ class YmapTools_Data_PT_Panel(bpy.types.Panel, YmapMixin):
                                     col_box.prop(selected_ent, "lod_distance", text="LOD Distance")
                                     col_box.separator()
                                     col_box.prop(selected_ent, "child_lod_distance", text="Child Distance")
-                                    col_box.prop(selected_ent, "num_children", text="Child Count")
+                                    col_box.prop(selected_ent, "num_children", text="Child Count")  
                                 case "MISC":
                                     col_box.prop(selected_ent, "ambient_occlusion_multiplier", text="AO Multiplier")
                                     col_box.prop(selected_ent, "artificial_ambient_occlusion", text="AO Artificial")
