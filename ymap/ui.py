@@ -74,7 +74,7 @@ class ENTITYLIST_UL_list(bpy.types.UIList, YmapMixin):
             col4 = row3.column(align=True)
             row4 = col4.row(align=True)
 
-            multi_sel_count: int = len([ent for ent in current_ymap.entities if ent.is_multi_selected])
+            multi_sel_count: int = sum(1 for ent in current_ymap.entities if ent.is_multi_selected)
             
             sel_state = self.get_selected_state(context, item)
             row4.alignment = 'LEFT'
