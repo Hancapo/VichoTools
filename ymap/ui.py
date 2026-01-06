@@ -89,7 +89,9 @@ class ENTITYLIST_UL_list(bpy.types.UIList, YmapMixin):
             if self.get_ymap(context).entity_multi_select and not item.is_multi_selected:
                 row2.enabled = False
                 row.enabled = False
-                row4.enabled = False
+                row4.enabled = True
+            if item.is_multi_selected:
+                row2.enabled = False
 
     def filter_items(self, context, data, property):
         items = getattr(data, property)
