@@ -95,9 +95,12 @@ class ENTITYLIST_UL_list(bpy.types.UIList, YmapMixin):
                 row4.enabled = True
             if multi_sel_count > 1:
                 row2.enabled = False
-                row2.separator(factor=3)
             else:
                 row2.enabled = True
+                
+            if item.is_multi_selected:   
+                row2.separator(factor=3)
+
 
     def filter_items(self, context, data, property):
         items = getattr(data, property)
