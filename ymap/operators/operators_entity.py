@@ -105,10 +105,9 @@ class VICHO_OT_remove_entity(bpy.types.Operator, YmapMixin):
         ymap, entity = self.get_ymap(context), self.get_ent(context)
         if self.can_delete:
             if ymap.entity_multi_select:
-                deleted_count: int = 0
                 ents_indices: list[int] = [i for i, ent in enumerate(ymap.entities) if ent.is_multi_selected]
+                deleted_count: int = len(ents_indices)
                 for i in sorted(ents_indices, reverse=True):
-                    deleted_count += 1
                     ent = ymap.entities[i]
                     self.delete_ent(context, ent, ymap)
                     ymap.entities.remove(i)
@@ -446,11 +445,8 @@ class VICHO_OT_export_entity_asset(bpy.types.Operator, YmapMixin):
         default=True,
         description="Export assets inside a folder named after the YMAP",
     ) # type: ignore
-    
-    def execute(self, context):
-        set_sollumz_export_settings()
-        entity = self.get_ent(context)
-        ymap = self.get_ymap(context)
+
+    def export_ent_asset(self, ymap, entity) -> bool:
         lo: Object = entity.linked_object
         if lo and lo.sollum_type in COMPAT_SOLL_TYPES:
             change_ent_parenting([lo])
@@ -461,10 +457,30 @@ class VICHO_OT_export_entity_asset(bpy.types.Operator, YmapMixin):
             set_sollumz_gen_ver(self.version)
             bpy.ops.sollumz.export_assets(directory=final_folder)
             change_ent_parenting([lo], do_parent=True)
-            clear_sollumz_export_path()
+            return True
+        
+    @classmethod
+    def poll(cls, context):
+        ent = cls.get_ent(context)
+        return ent.linked_object is not None
+    
+    def execute(self, context):
+        set_sollumz_export_settings()
+        entity = self.get_ent(context)
+        ymap = self.get_ymap(context)
+        if ymap.entity_multi_select:
+            selected_ents = [ent for ent in ymap.entities if ent.is_multi_selected]
+            exported_count: int = len(selected_ents)
+            for ent in selected_ents:
+                if not self.export_ent_asset(ymap, ent):
+                    self.report({'ERROR'}, f"Failed to export asset for entity {ent.linked_object.name}")
+            self.report({'INFO'}, f"Exported assets for {exported_count} entities.")
         else:
-            self.report({'WARNING'}, "The selected entity does not have a valid linked object to export")
-            return {'CANCELLED'}
+            if self.export_ent_asset(ymap, entity):
+                self.report({'INFO'}, f"Exported asset for entity {entity.linked_object.name}")
+            else:
+                self.report({'ERROR'}, "Failed to export asset.")
+                return {'CANCELLED'}
         return {'FINISHED'}
     
     def invoke(self, context, event):
@@ -473,11 +489,26 @@ class VICHO_OT_export_entity_asset(bpy.types.Operator, YmapMixin):
     
     def draw(self, context):
         layout = self.layout
-        entity = self.get_ent(context)
-        layout.label(text=f"Exporting: {sanitize_name(entity.linked_object.name)}")
         col = layout.column(align=True)
+        ymap = self.get_ymap(context)
+
         col.prop(self, "export_inside_ymap_folder")
         col = layout.column(align=True)
+
         for f in {'Legacy', 'Enhanced'}:
             col.prop_enum(self, "version", f)
+        
+        if ymap.entity_multi_select:
+            selected_ents = [ent for ent in ymap.entities if ent.is_multi_selected]
+            export_count: int = len(selected_ents)
+            col.label(text=f"Exporting {export_count} entities:")
+            for ent in selected_ents:
+                row = layout.row()
+                row.label(text=f"- {sanitize_name(ent.linked_object.name)}")
+        else:
+            entity = self.get_ent(context)
+            layout.label(text=f"Exporting: {sanitize_name(entity.linked_object.name)}")
+            col = layout.column(align=True)
+            
+        
 
