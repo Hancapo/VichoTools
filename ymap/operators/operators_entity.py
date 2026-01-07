@@ -77,28 +77,49 @@ class VICHO_OT_remove_entity(bpy.types.Operator, YmapMixin):
         default=True,
         description="Whether the entity can be deleted",
     ) # type: ignore
-    
+
+
     @classmethod
     def poll(cls, context):
         return cls.get_ymap_ent_count(context) > 0
     
-    def execute(self, context):
-        if self.can_delete:
-            scene = context.scene
-            selected_entity_index = scene.entity_list_index
-            ymap, entity = self.get_ymap(context), self.get_ent(context)
-            if entity.linked_object:
-                saved_name: str = entity.linked_object.name
-                if self.delete_obj_from_scene:
-                    delete_hierarchy(entity.linked_object)
-                else:
-                    entity.linked_object.parent = None
-                    entity.linked_object.vicho_ymap_parent = None
-                self.report({'INFO'}, f"Entity {saved_name} removed from YMAP")
+    def delete_ent(self, context, entity, ymap):
+        if entity.linked_object:
+            saved_name: str = entity.linked_object.name
+            if self.delete_obj_from_scene:
+                delete_hierarchy(entity.linked_object)
             else:
-                self.report({'INFO'}, "Entity removed from YMAP")
-            ymap.entities.remove(selected_entity_index)
-            scene.entity_list_index = max(0, selected_entity_index - 1)
+                entity.linked_object.parent = None
+                entity.linked_object.vicho_ymap_parent = None
+            self.report({'INFO'}, f"Entity {saved_name} removed from YMAP")
+        else:
+            self.report({'INFO'}, "Entity removed from YMAP")
+
+    def reset_selection(self, context):
+        scene = context.scene
+        selected_entity_index = scene.entity_list_index
+        scene.entity_list_index = max(0, selected_entity_index - 1)
+
+    
+    def execute(self, context):
+        ymap, entity = self.get_ymap(context), self.get_ent(context)
+        if self.can_delete:
+            if ymap.entity_multi_select:
+                deleted_count: int = 0
+                ents_indices: list[int] = [i for i, ent in enumerate(ymap.entities) if ent.is_multi_selected]
+                for i in sorted(ents_indices, reverse=True):
+                    deleted_count += 1
+                    ent = ymap.entities[i]
+                    self.delete_ent(context, ent, ymap)
+                    ymap.entities.remove(i)
+
+                self.reset_selection(context)
+                self.report({'INFO'}, f"Removed {deleted_count} entities from {ymap.ymap_object.name} YMAP")
+                return {'FINISHED'}
+            
+            else:
+                self.delete_ent(context, entity, ymap)
+                ymap.entities.remove(context.scene.entity_list_index)
             return {'FINISHED'}
         else:
             return {'CANCELLED'}
@@ -114,10 +135,19 @@ class VICHO_OT_remove_entity(bpy.types.Operator, YmapMixin):
         return self.execute(context)
     
     def draw(self, context):
+        ymap = self.get_ymap(context)
         layout = self.layout
         col = layout.column()
-        if self.get_ent(context).linked_object:
-            col.prop(self, "delete_obj_from_scene", text=f"Fully remove {self.get_ent(context).linked_object.name} from scene?")
+        col.label(text="Are you sure you want to remove the selected entities?")
+        col.prop(self, "delete_obj_from_scene", text="Fully remove from scene.")
+        if ymap.entity_multi_select:
+            selected_ents = [ent for ent in self.get_ymap(context).entities if ent.is_multi_selected]
+            for ent in selected_ents:
+                row = col.row()
+                row.label(text=f"- {ent.linked_object.name if ent.linked_object else 'Unnamed Entity'}")
+        else:
+            if self.get_ent(context).linked_object:
+                col.label(text=self.get_ent(context).linked_object.name)
 
 class VICHO_OT_go_to_entity(bpy.types.Operator, YmapMixin):
     """It zooms in to selected entity in the 3D Viewport"""
