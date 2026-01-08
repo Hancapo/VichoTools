@@ -10,7 +10,7 @@ class VICHO_MT_entity_menu(bpy.types.Menu, YmapMixin):
     def draw(self, context):
         layout = self.layout
         layout.operator(VICHO_OT_export_entity_asset.bl_idname, text="Export Asset(s)")
-        layout.prop(self.get_ent(context), "is_mesh_edited", text="Edited")
+        layout.prop(self.get_ent(context), "is_mesh_edited", text="Mark as Edited")
         layout.separator()
         layout.menu(VICHO_MT_entity_select.bl_idname, text="Select")
 
