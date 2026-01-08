@@ -54,7 +54,7 @@ class VICHO_OT_add_entity_from_selection(bpy.types.Operator, YmapMixin):
                 new_entity.flags.total_flags = 1572864  # Default flags
                 new_entity.is_mlo_instance = True if obj.sollum_type == 'sollumz_bound_composite' else False
                 new_entity.archetype_name = sanitize_name(obj.name)
-                self.set_ent_idx(context, len(ymap.entities) - 1)
+                new_entity.ent_index = len(ymap.entities) - 1
                 added_entities += f"{obj.name}, "
             self.report({'INFO'}, f"Entities added to {ymap_obj.name} YMAP: {added_entities}")
             return {'FINISHED'}
@@ -366,14 +366,47 @@ class VICHO_OT_select_all_entities(bpy.types.Operator, YmapMixin):
     
     @classmethod
     def poll(cls, context):
-        return cls.get_ymap_ent_count(context) > 0 and context.region and context.region.type == 'UI'
+        return cls.get_ymap_ent_count(context) > 0
     
     def execute(self, context):
         ymap = self.get_ymap(context)
         ymap.entity_multi_select = True
         ymap["selected_entity_index"] = [ent_idx for ent_idx in range(len(ymap.entities))]
-        for ent in enumerate(ymap.entities):
+        for ent in ymap.entities:
             ent.is_multi_selected = True
+
+        for area in context.screen.areas:
+            if area.type == 'VIEW_3D':
+                area.tag_redraw()
+        return {'FINISHED'}
+
+class VICHO_OT_invert_entity_selection(bpy.types.Operator, YmapMixin):
+    """Inverts the selection of entities in the YMAP"""
+    bl_idname = "ymap.invert_entity_selection"
+    bl_label = "Invert Entity Selection"
+
+    def execute(self, context):
+        ymap = self.get_ymap(context)
+        
+        if ymap.entity_multi_select:
+            selected_idx = [int(i) for i in ymap["selected_entity_index"]]
+            new_selected_idx: list[int] = []
+            if len(selected_idx) > 0:
+                print("Inverting selection...")
+                for i, ent in enumerate(ymap.entities):
+                    if i not in selected_idx:
+                        new_selected_idx.append(i)
+                    else:
+                        ent.is_multi_selected = False
+
+
+            ymap["selected_entity_index"] = new_selected_idx
+            for i in new_selected_idx:
+                ymap.entities[i].is_multi_selected = True
+
+            print("New selected indices:", new_selected_idx)
+
+            context.scene.entity_list_index = min([int(i) for i in ymap["selected_entity_index"]]) if len(new_selected_idx) > 0 else 0
 
         for area in context.screen.areas:
             if area.type == 'VIEW_3D':
@@ -387,21 +420,22 @@ class VICHO_OT_deselect_all_entities(bpy.types.Operator, YmapMixin):
     
     @classmethod
     def poll(cls, context):
-        return cls.get_ymap_ent_count(context) > 0 and context.region and context.region.type == 'UI'
+        return cls.get_ymap_ent_count(context) > 0
     
     def execute(self, context):
         ymap = self.get_ymap(context)
-        entities = ymap.entities
         ymap.entity_multi_select = False
+
+        ymap["selected_entity_index"] = []
         
-        for ent in entities:
+        for ent in ymap.entities:
             ent.is_multi_selected = False
             
         for area in context.screen.areas:
             if area.type == 'VIEW_3D':
                 area.tag_redraw()
-        return {'FINISHED'}  
-
+        return {'FINISHED'}
+    
 class VICHO_MT_entity_submenu(bpy.types.Menu):
     bl_label = "Vicho's Tools"
     bl_idname = "VICHO_MT_entity_submenu"
@@ -508,8 +542,6 @@ class VICHO_OT_export_entity_asset(bpy.types.Operator, YmapMixin):
             entity = self.get_ent(context)
             layout.label(text=f"Exporting: {sanitize_name(entity.linked_object.name)}")
             col = layout.column(align=True)
-            
-        
 
 def draw_obj_ctx_menu(self, context):
     layout = self.layout
