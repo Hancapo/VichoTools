@@ -423,6 +423,17 @@ def update_entity_prop_value(self, context, prop_name: str) -> None:
                             ent.flags.total_flags = self.total_flags
             finally:
                 _is_updating_entity_prop = False
+        case "is_marked":
+            try:
+                ymap = YmapMixin.get_ymap(context)
+                if ymap.entity_multi_select:
+                    _is_updating_entity_prop = True
+                    for idx in ymap["selected_entity_index"]:
+                        ent = YmapMixin.get_ent_by_index(context, idx)
+                        if ent:
+                            ent.is_mesh_edited = self.is_mesh_edited
+            finally:
+                _is_updating_entity_prop = False
         case _:
             pass
 

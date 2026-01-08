@@ -79,11 +79,15 @@ class ENTITYLIST_UL_list(bpy.types.UIList, YmapMixin):
             sel_state = self.get_selected_state(context, item)
             row4.alignment = 'LEFT'
             op1 = row3.operator(VICHO_OT_entity_selection.bl_idname, text="", emboss=sel_state[0], depress=sel_state[1])
+
+            home_icon: str = "home_marked" if item.is_mesh_edited else "home"
+            nature_people_icon: str = "nature_people_marked" if item.is_mesh_edited else "nature_people"
+
             if item.linked_object:
                 row.prop(item, "is_visible", text="", emboss=False, icon="HIDE_OFF" if item.is_visible else "HIDE_ON")
                 go_to_op = row2.operator(VICHO_OT_go_to_entity.bl_idname, text="", icon="VIEWZOOM", emboss=False)
                 go_to_op.index = index
-                op2 = row4.operator(VICHO_OT_entity_selection.bl_idname, text=sanitize_name(item.linked_object.name), emboss=sel_state[0], depress=sel_state[1], icon_value=get_icon("home") if item.is_mlo_instance else get_icon("nature_people"))
+                op2 = row4.operator(VICHO_OT_entity_selection.bl_idname, text=sanitize_name(item.linked_object.name), emboss=sel_state[0], depress=sel_state[1], icon_value=get_icon(home_icon) if item.is_mlo_instance else get_icon(nature_people_icon))
             else:
                 op2 = row4.operator(VICHO_OT_entity_selection.bl_idname, text="Unassigned Entity", emboss=sel_state[0], depress=sel_state[1], icon="ERROR")
             op1.index, op2.index  = index, index
@@ -98,7 +102,7 @@ class ENTITYLIST_UL_list(bpy.types.UIList, YmapMixin):
             else:
                 row2.enabled = True
                 
-            if item.is_multi_selected:   
+            if item.is_multi_selected:
                 row2.separator(factor=3)
 
 

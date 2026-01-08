@@ -300,6 +300,12 @@ class EntityProps(bpy.types.PropertyGroup):
         default=-1,
     ) # type: ignore
 
+    is_mesh_edited: bpy.props.BoolProperty(
+        name="Edit Mark",
+        default=False,
+        update=lambda self, context: update_entity_prop_value(self, context, "is_marked")
+    ) # type: ignore
+
 class YmapProps(bpy.types.PropertyGroup):
     is_imported: bpy.props.BoolProperty(
         name="Is Imported",
