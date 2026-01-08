@@ -6,7 +6,8 @@ from ..helper import (YmapMixin, get_entity_sets_from_entity,
                       set_sollumz_export_settings,
                       set_sollumz_export_format_to_binary,
                       set_sollumz_gen_ver,
-                      deselect_all_entities_in_ymap)
+                      deselect_all_entities_in_ymap,
+                      force_area_redraw)
 from ..constants import COMPAT_SOLL_TYPES
 from ...misc.funcs import delete_hierarchy
 from ..funcs import get_soll_parent, sanitize_name
@@ -376,9 +377,7 @@ class VICHO_OT_select_all_entities(bpy.types.Operator, YmapMixin):
         for ent in ymap.entities:
             ent.is_multi_selected = True
 
-        for area in context.screen.areas:
-            if area.type == 'VIEW_3D':
-                area.tag_redraw()
+        force_area_redraw(context)
         return {'FINISHED'}
 
 class VICHO_OT_invert_entity_selection(bpy.types.Operator, YmapMixin):
@@ -409,9 +408,7 @@ class VICHO_OT_invert_entity_selection(bpy.types.Operator, YmapMixin):
 
             context.scene.entity_list_index = min([int(i) for i in ymap["selected_entity_index"]]) if len(new_selected_idx) > 0 else 0
 
-        for area in context.screen.areas:
-            if area.type == 'VIEW_3D':
-                area.tag_redraw()
+        force_area_redraw(context)
         return {'FINISHED'}
 
 class VICHO_OT_deselect_all_entities(bpy.types.Operator, YmapMixin):
@@ -427,9 +424,7 @@ class VICHO_OT_deselect_all_entities(bpy.types.Operator, YmapMixin):
 
         deselect_all_entities_in_ymap(context)
             
-        for area in context.screen.areas:
-            if area.type == 'VIEW_3D':
-                area.tag_redraw()
+        force_area_redraw(context)
         return {'FINISHED'}
 
 class VICHO_OT_select_by_marked_entities(bpy.types.Operator, YmapMixin):
@@ -450,9 +445,7 @@ class VICHO_OT_select_by_marked_entities(bpy.types.Operator, YmapMixin):
         for ent in ent:
             ymap.entities[ent].is_multi_selected = True
         ymap.entity_multi_select = True
-        for area in context.screen.areas:
-            if area.type == 'VIEW_3D':
-                area.tag_redraw()
+        force_area_redraw(context)
         return {'FINISHED'}
 
 class VICHO_MT_entity_submenu(bpy.types.Menu):

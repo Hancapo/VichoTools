@@ -469,3 +469,9 @@ def deselect_all_entities_in_ymap(context, entity_scene_index = 0) -> None:
     ymap.entity_multi_select = False
 
     context.scene.entity_list_index = entity_scene_index
+
+def force_area_redraw(context) -> None:
+    """Forces a redraw of all areas in the context"""
+    for area in context.screen.areas:
+            if area.type == 'VIEW_3D':
+                area.tag_redraw()
