@@ -5,7 +5,8 @@ from ..helper import (YmapMixin, get_entity_sets_from_entity,
                       get_sel_objs_list, change_ent_parenting, 
                       set_sollumz_export_settings,
                       set_sollumz_export_format_to_binary,
-                      set_sollumz_gen_ver)
+                      set_sollumz_gen_ver,
+                      deselect_all_entities_in_ymap)
 from ..constants import COMPAT_SOLL_TYPES
 from ...misc.funcs import delete_hierarchy
 from ..funcs import get_soll_parent, sanitize_name
@@ -423,19 +424,37 @@ class VICHO_OT_deselect_all_entities(bpy.types.Operator, YmapMixin):
         return cls.get_ymap_ent_count(context) > 0
     
     def execute(self, context):
-        ymap = self.get_ymap(context)
-        ymap.entity_multi_select = False
 
-        ymap["selected_entity_index"] = []
-        
-        for ent in ymap.entities:
-            ent.is_multi_selected = False
+        deselect_all_entities_in_ymap(context)
             
         for area in context.screen.areas:
             if area.type == 'VIEW_3D':
                 area.tag_redraw()
         return {'FINISHED'}
+
+class VICHO_OT_select_by_marked_entities(bpy.types.Operator, YmapMixin):
+    """Selects entities that are marked in the YMAP"""
+    bl_idname = "ymap.select_by_marked_entities"
+    bl_label = "Select by Marked Entities"
     
+    @classmethod
+    def poll(cls, context):
+        return cls.get_ymap_ent_count(context) > 0 and any(ent.is_mesh_edited for ent in cls.get_ymap(context).entities)
+    
+    def execute(self, context):
+        ymap = self.get_ymap(context)
+        deselect_all_entities_in_ymap(context)
+        ent = [i for i, ent in enumerate(ymap.entities) if ent.is_mesh_edited]
+        ymap["selected_entity_index"] = ent
+        context.scene.entity_list_index = min([int(i) for i in ymap["selected_entity_index"]]) if len(ymap["selected_entity_index"]) > 0 else 0
+        for ent in ent:
+            ymap.entities[ent].is_multi_selected = True
+        ymap.entity_multi_select = True
+        for area in context.screen.areas:
+            if area.type == 'VIEW_3D':
+                area.tag_redraw()
+        return {'FINISHED'}
+
 class VICHO_MT_entity_submenu(bpy.types.Menu):
     bl_label = "Vicho's Tools"
     bl_idname = "VICHO_MT_entity_submenu"

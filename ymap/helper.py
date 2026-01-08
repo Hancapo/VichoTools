@@ -456,3 +456,16 @@ def get_mask(self) -> int:
 def set_mask(self, value: int) -> None:
     m = int(value) & VALID_MAPDATA_ENTITY_FLAGS
     self.flags = mask_to_enum(m)
+
+def deselect_all_entities_in_ymap(context, entity_scene_index = 0) -> None:
+    """Deselects all entities in the current YMAP"""
+    ymap = YmapMixin.get_ymap(context)
+
+    ymap["selected_entity_index"] = []
+
+    for ent in ymap.entities:
+        ent.is_multi_selected = False
+
+    ymap.entity_multi_select = False
+
+    context.scene.entity_list_index = entity_scene_index

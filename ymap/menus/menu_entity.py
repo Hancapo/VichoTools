@@ -1,5 +1,5 @@
 import bpy
-from ..operators.operators_entity import VICHO_OT_export_entity_asset, VICHO_OT_invert_entity_selection, VICHO_OT_select_all_entities, VICHO_OT_deselect_all_entities
+from ..operators.operators_entity import VICHO_OT_export_entity_asset, VICHO_OT_invert_entity_selection, VICHO_OT_select_all_entities, VICHO_OT_deselect_all_entities, VICHO_OT_select_by_marked_entities
 from ...vicho_operators import VICHO_OT_fake_op
 from ..helper import YmapMixin
 
@@ -32,7 +32,7 @@ class VICHO_MT_entity_select_by_type(bpy.types.Menu, YmapMixin):
 
     def draw(self, context):
         layout = self.layout
-        layout.operator(VICHO_OT_fake_op.bl_idname, text="Mark as Edited")
+        layout.operator(VICHO_OT_select_by_marked_entities.bl_idname, text="Mark as Edited")
         layout.operator(VICHO_OT_fake_op.bl_idname, text="MLO Instance(s)")
         layout.operator(VICHO_OT_fake_op.bl_idname, text="Entity(s)")
         layout.operator(VICHO_OT_fake_op.bl_idname, text="No Linked Object")
