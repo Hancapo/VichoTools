@@ -3,9 +3,7 @@ from bpy.props import BoolProperty, IntProperty, StringProperty, EnumProperty
 import bpy
 from ..helper import (YmapMixin, get_entity_sets_from_entity, 
                       get_sel_objs_list, change_ent_parenting, 
-                      set_sollumz_export_path, 
                       set_sollumz_export_settings,
-                      clear_sollumz_export_path,
                       set_sollumz_export_format_to_binary,
                       set_sollumz_gen_ver)
 from ..constants import COMPAT_SOLL_TYPES
@@ -323,7 +321,7 @@ class VICHO_OT_entity_selection(bpy.types.Operator, YmapMixin):
                 entities[self.index].is_multi_selected = True
                 self.selection_count += 1
             
-            selected_idx = [i for i, ent in enumerate(entities) if ent.is_multi_selected]
+            selected_idx: list[int] = [i for i, ent in enumerate(entities) if ent.is_multi_selected]
             ymap["selected_entity_index"] = selected_idx
             
             ymap.entity_multi_select = True if self.selection_count > 1 else False
@@ -342,7 +340,7 @@ class VICHO_OT_entity_selection(bpy.types.Operator, YmapMixin):
                     self.selection_count += 1
                 
             ymap.entity_multi_select = True
-            selected_idx = [i for i, ent in enumerate(entities) if ent.is_multi_selected]
+            selected_idx: list[int] = [i for i, ent in enumerate(entities) if ent.is_multi_selected]
             ymap["selected_entity_index"] = selected_idx
         else:
             ymap.entity_multi_select = False
@@ -372,17 +370,10 @@ class VICHO_OT_select_all_entities(bpy.types.Operator, YmapMixin):
     
     def execute(self, context):
         ymap = self.get_ymap(context)
-        entities = ymap.entities
-        
         ymap.entity_multi_select = True
-        
-        for ent in entities:
-            if self.filter_string == "":
-                ent.is_multi_selected = True
-            else:
-                filtered_entities: list[int] = self.get_filtered_entities_idx(context, self.filter_string)
-                if entities.find(ent.ent_index) in filtered_entities:
-                    ent.is_multi_selected = True
+        ymap["selected_entity_index"] = [ent_idx for ent_idx in range(len(ymap.entities))]
+        for ent in enumerate(ymap.entities):
+            ent.is_multi_selected = True
 
         for area in context.screen.areas:
             if area.type == 'VIEW_3D':
