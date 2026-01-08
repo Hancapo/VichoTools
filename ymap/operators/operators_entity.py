@@ -56,7 +56,8 @@ class VICHO_OT_add_entity_from_selection(bpy.types.Operator, YmapMixin):
                 new_entity.flags.total_flags = 1572864  # Default flags
                 new_entity.is_mlo_instance = True if obj.sollum_type == 'sollumz_bound_composite' else False
                 new_entity.archetype_name = sanitize_name(obj.name)
-                new_entity.ent_index = len(ymap.entities) - 1
+                new_entity.ent_index = 0 if len(ymap.entities) == -1 else len(ymap.entities) - 1
+                print(f"Entity Index: {new_entity.ent_index}")
                 added_entities += f"{obj.name}, "
             self.report({'INFO'}, f"Entities added to {ymap_obj.name} YMAP: {added_entities}")
             return {'FINISHED'}
