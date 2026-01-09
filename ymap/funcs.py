@@ -160,7 +160,7 @@ def fill_ents_data_from_ymap(scene: Scene, index: int, current_ymap, any_ents: b
             new_entity.artificial_ambient_occlusion = ent._CEntityDef.artificialAmbientOcclusion
             new_entity.tintValue = ent._CEntityDef.tintValue
             new_entity.type = get_ent_type(ent)
-            new_entity.ent_index = len(scene.ymap_list[index].entities) - 1
+            new_entity.ent_index = 0 if len(scene.ymap_list[index].entities) == -1 else len(scene.ymap_list[index].entities) - 1
     
 
 def import_ent_objs(import_settings, scene: Scene, index: int, asset_path: str, ymap_group: Object, self) -> None:
