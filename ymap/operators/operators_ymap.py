@@ -263,7 +263,7 @@ class VICHO_OT_remove_ymap(bpy.types.Operator, YmapMixin):
 
     @classmethod
     def poll(cls, context):
-        return cls.get_ymap
+        return context.scene.ymap_list_index >= 0 and len(context.scene.ymap_list) > 0
     
     def execute(self, context):
         scene = context.scene
