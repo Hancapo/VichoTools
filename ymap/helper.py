@@ -23,7 +23,11 @@ class YmapMixin:
     @staticmethod
     def get_ymap(context):
         """Returns the currently selected YMAP in the scene"""
-        ymap = context.scene.ymap_list[context.scene.ymap_list_index]
+        try:
+            ymap = context.scene.ymap_list[context.scene.ymap_list_index]
+        except (IndexError, AttributeError):
+            return None
+        
         if ymap:
             return ymap
         return None
