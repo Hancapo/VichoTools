@@ -145,3 +145,9 @@ MAPDATA_FLAGS: list[tuple[str, str, str]] = [
     ("1", "Script", "Script"),
     ("2", "LOD", "LOD"),
 ]
+
+
+GAME_VERSIONS: tuple[tuple[str, str, str], ...] = (
+            ('Legacy', "Legacy", "Export asset for GTA V Legacy"),
+            ('Enhanced', "Enhanced", "Export asset for GTA V Enhanced Edition"),
+)

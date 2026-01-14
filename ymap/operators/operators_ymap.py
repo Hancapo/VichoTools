@@ -1,13 +1,15 @@
 import bpy
-from bpy.props import BoolProperty, StringProperty, CollectionProperty, PointerProperty
+from bpy.props import (BoolProperty, 
+                       StringProperty, 
+                       CollectionProperty, 
+                       PointerProperty, 
+                       EnumProperty)
 from bpy_extras.io_utils import ImportHelper
 from ..helper import (str_loaded_count, 
                       set_sollumz_export_settings,
                       set_sollumz_import_settings,
                       change_ent_parenting, 
                       YmapMixin,
-                      set_sollumz_export_path,
-                      clear_sollumz_export_path,
                       set_sollumz_export_format_to_binary,
                       set_sollumz_gen_ver)
 from bpy.types import Object
@@ -23,6 +25,7 @@ from ..funcs import (import_ymap_to_scene,
                      set_ymap_strm_extents)
 from .operators import VICHO_OT_open_folder
 from ...misc.funcs import get_meta_hash
+from ..constants import GAME_VERSIONS
 
 class ImportSettings(bpy.types.PropertyGroup):
     import_entities: BoolProperty(name="Entities", default=True, description="Import entities from the YMAP file(s)") # type: ignore
@@ -126,6 +129,14 @@ class VICHO_OT_export_ymap(bpy.types.Operator, YmapMixin):
         options={'HIDDEN'},
     ) # type: ignore
 
+    version: EnumProperty(
+        name="Game Version",
+        description="Select the game version for the exported asset",
+        items=GAME_VERSIONS,
+        options={'ENUM_FLAG'},
+        default=set(['Legacy']),
+    ) # type: ignore
+
     calc_strm_extents: BoolProperty(name="Calculate Streaming Extents", default=True) # type: ignore
     calc_ent_extents: BoolProperty(name="Calculate Entities Extents", default=True) # type: ignore
 
@@ -219,7 +230,7 @@ class VICHO_OT_export_ymap(bpy.types.Operator, YmapMixin):
             if self.export_assets:
                 set_sollumz_export_settings()
                 set_sollumz_export_format_to_binary()
-                set_sollumz_gen_ver('Enhanced')
+                set_sollumz_gen_ver(self.version)
                 link_objs: list[Object] = [obj.linked_object for obj in ymap.entities if obj.linked_object and '.' not in obj.linked_object.name]
                 change_ent_parenting(link_objs)
                 ymap_asset_folder = f"/{ymap.ymap_object.name}_assets"
@@ -237,19 +248,28 @@ class VICHO_OT_export_ymap(bpy.types.Operator, YmapMixin):
     def draw(self, context):
         layout = self.layout
         layout.use_property_split = True
-        layout.use_property_decorate = False
         header, body = layout.panel("YMAP_calc", default_closed=False)
-        header.label(text="Settings")
+        header.label(text="Calculate")
         if body:
-            sublayout = body.column(heading="Calculate")
+            sublayout = body.column()
             sublayout.prop(self, "calc_strm_extents", text="Streaming Extents")
             sublayout.prop(self, "calc_ent_extents", text="Entities Extents")
             sublayout.prop(self, "calc_flags", text="Flags")
             sublayout.prop(self, "calc_content_flags", text="Content Flags")
-            sublayout.separator(type="LINE")
-            sublayout = body.column(heading="Export")
-            sublayout.prop(self, "export_assets", text="YMAP Assets")
-            
+        layout.use_property_split = False
+        header, body = layout.panel("YMAP_export_assets", default_closed=False)
+        header.prop(self, "export_assets", text="Export Assets")
+        if body:
+            body.enabled = self.export_assets
+            split = body.split(factor=0.35)
+            left = split.column()
+            right = split.column(align=True)
+            left.label(text="Game Version")
+            right.use_property_split = False
+            right.prop_enum(self, "version", 'Legacy',   icon='EVENT_NDOF_BUTTON_8')
+            right.prop_enum(self, "version", 'Enhanced', icon='EVENT_NDOF_BUTTON_9')
+
+
 class VICHO_OT_remove_ymap(bpy.types.Operator, YmapMixin):
     """Removes the selected YMAP from the list"""
     bl_idname = "ymap.remove_ymap"

@@ -8,7 +8,7 @@ from ..helper import (YmapMixin, get_entity_sets_from_entity,
                       set_sollumz_gen_ver,
                       deselect_all_entities_in_ymap,
                       force_area_redraw)
-from ..constants import COMPAT_SOLL_TYPES
+from ..constants import COMPAT_SOLL_TYPES, GAME_VERSIONS
 from ...misc.funcs import delete_hierarchy
 from ..funcs import get_soll_parent, sanitize_name
 import os
@@ -477,13 +477,9 @@ class VICHO_OT_export_entity_asset(bpy.types.Operator, YmapMixin):
     version: EnumProperty(
         name="Game Version",
         description="Select the game version for the exported asset",
-        items=[
-            ('Legacy', "Legacy", "Export asset for GTA V Legacy"),
-            ('Enhanced', "Enhanced", "Export asset for GTA V Enhanced Edition"),
-        ],
+        items=GAME_VERSIONS,
         options={'ENUM_FLAG'},
-        default=set({'Legacy'}),
-
+        default=set(['Legacy']),
     ) # type: ignore
 
     export_inside_ymap_folder: BoolProperty(
@@ -541,8 +537,8 @@ class VICHO_OT_export_entity_asset(bpy.types.Operator, YmapMixin):
         col.prop(self, "export_inside_ymap_folder")
         col = layout.column(align=True)
 
-        for f in {'Legacy', 'Enhanced'}:
-            col.prop_enum(self, "version", f)
+        for f in list(GAME_VERSIONS):
+            col.prop_enum(self, "version", f[0], icon='EVENT_NDOF_BUTTON_8' if f[0] == 'Legacy' else 'EVENT_NDOF_BUTTON_9')
         
         if ymap.entity_multi_select:
             selected_ents = [ent for ent in ymap.entities if ent.is_multi_selected]
