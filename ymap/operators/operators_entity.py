@@ -1,4 +1,4 @@
-from bpy.types import Object
+from bpy.types import Object, Operator, Menu
 from bpy.props import BoolProperty, IntProperty, StringProperty, EnumProperty
 import bpy
 from ..helper import (YmapMixin, get_entity_sets_from_entity, 
@@ -13,7 +13,7 @@ from ...misc.funcs import delete_hierarchy
 from ..funcs import get_soll_parent, sanitize_name
 import os
 
-class VICHO_OT_add_entity(bpy.types.Operator, YmapMixin):
+class VICHO_OT_add_entity(Operator, YmapMixin):
     """Adds a new entity to the YMAP"""
     bl_idname = "ymap.add_entity"
     bl_label = "Creates a new entity"
@@ -33,7 +33,7 @@ class VICHO_OT_add_entity(bpy.types.Operator, YmapMixin):
             self.report({'INFO'}, f"Added new entity to {ymap_obj.name} YMAP")
             return {'FINISHED'}
 
-class VICHO_OT_add_entity_from_selection(bpy.types.Operator, YmapMixin):
+class VICHO_OT_add_entity_from_selection(Operator, YmapMixin):
     """Add(s) selected objects as entities to the YMAP"""
     bl_idname = "ymap.add_sel_objs_as_entity"
     bl_label = "Add entities from selection"
@@ -62,7 +62,7 @@ class VICHO_OT_add_entity_from_selection(bpy.types.Operator, YmapMixin):
             self.report({'INFO'}, f"Entities added to {ymap_obj.name} YMAP: {added_entities}")
             return {'FINISHED'}
 
-class VICHO_OT_remove_entity(bpy.types.Operator, YmapMixin):
+class VICHO_OT_remove_entity(Operator, YmapMixin):
     """Removes the selected entity from the entity list"""
     bl_idname = "ymap.remove_entity"
     bl_label = "Removes an entity"
@@ -149,7 +149,7 @@ class VICHO_OT_remove_entity(bpy.types.Operator, YmapMixin):
             if self.get_ent(context).linked_object:
                 col.label(text=self.get_ent(context).linked_object.name)
 
-class VICHO_OT_go_to_entity(bpy.types.Operator, YmapMixin):
+class VICHO_OT_go_to_entity(Operator, YmapMixin):
     """It zooms in to selected entity in the 3D Viewport"""
     bl_idname = "ymap.go_to_entity"
     bl_label = "Go to entity"
@@ -170,8 +170,8 @@ class VICHO_OT_go_to_entity(bpy.types.Operator, YmapMixin):
             bpy.ops.object.select_all(action='DESELECT')
             lo.select_set(True)
         return {'FINISHED'}
-    
-class VICHO_OT_import_entity_sets(bpy.types.Operator, YmapMixin):
+
+class VICHO_OT_import_entity_sets(Operator, YmapMixin):
     """Imports entity sets from the entity's MLO archetype definition"""
     bl_idname = "ymap.import_entity_sets"
     bl_label = "Import Entity Sets"
@@ -210,7 +210,7 @@ class VICHO_OT_import_entity_sets(bpy.types.Operator, YmapMixin):
     def invoke(self, context, event):
         return context.window_manager.invoke_props_dialog(self, width=300, title="Import Entity Sets")
 
-class VICHO_OT_add_entity_set(bpy.types.Operator, YmapMixin):
+class VICHO_OT_add_entity_set(Operator, YmapMixin):
     """Adds a new entity set to the entity's MLO archetype definition"""
     bl_idname = "ymap.add_entity_set"
     bl_label = "Add Entity Set"
@@ -227,7 +227,7 @@ class VICHO_OT_add_entity_set(bpy.types.Operator, YmapMixin):
         self.report({'INFO'}, "New entity set added")
         return {'FINISHED'}
 
-class VICHO_OT_remove_entity_set(bpy.types.Operator, YmapMixin):
+class VICHO_OT_remove_entity_set(Operator, YmapMixin):
     """Removes the selected entity set from the entity's MLO archetype definition"""
     bl_idname = "ymap.remove_entity_set"
     bl_label = "Remove Entity Set"
@@ -247,7 +247,7 @@ class VICHO_OT_remove_entity_set(bpy.types.Operator, YmapMixin):
         
         return {'FINISHED'}
 
-class VICHO_OT_select_entity_from_viewport(bpy.types.Operator, YmapMixin):
+class VICHO_OT_select_entity_from_viewport(Operator, YmapMixin):
     """Selects the entity linked to the currently active object in the viewport"""
     bl_idname = "ymap.select_entity_from_viewport"
     bl_label = "Select Entity from Viewport"
@@ -272,7 +272,7 @@ class VICHO_OT_select_entity_from_viewport(bpy.types.Operator, YmapMixin):
                 return {'FINISHED'}
         return {'CANCELLED'}
 
-class VICHO_OT_convert_entity_type(bpy.types.Operator, YmapMixin):
+class VICHO_OT_convert_entity_type(Operator, YmapMixin):
     """Converts the selected entity to/from an MLO instance"""
     bl_idname = "ymap.convert_entity_type"
     bl_label = "Convert Entity Type"
@@ -290,7 +290,7 @@ class VICHO_OT_convert_entity_type(bpy.types.Operator, YmapMixin):
             self.report({'INFO'}, f"Entity {entity.linked_object.name} converted to an entity")
         return {'FINISHED'}
 
-class VICHO_OT_entity_selection(bpy.types.Operator, YmapMixin):
+class VICHO_OT_entity_selection(Operator, YmapMixin):
     """Entity Selection"""
     bl_idname = "ymap.entity_selection"
     bl_label = "Entity Selection"
@@ -360,7 +360,7 @@ class VICHO_OT_entity_selection(bpy.types.Operator, YmapMixin):
 
         return self.execute(context)
     
-class VICHO_OT_select_all_entities(bpy.types.Operator, YmapMixin):
+class VICHO_OT_select_all_entities(Operator, YmapMixin):
     """Selects all entities in the YMAP"""
     bl_idname = "ymap.select_all_entities"
     bl_label = "Select All Entities"
@@ -381,7 +381,7 @@ class VICHO_OT_select_all_entities(bpy.types.Operator, YmapMixin):
         force_area_redraw(context)
         return {'FINISHED'}
 
-class VICHO_OT_invert_entity_selection(bpy.types.Operator, YmapMixin):
+class VICHO_OT_invert_entity_selection(Operator, YmapMixin):
     """Inverts the selection of entities in the YMAP"""
     bl_idname = "ymap.invert_entity_selection"
     bl_label = "Invert Entity Selection"
@@ -412,7 +412,7 @@ class VICHO_OT_invert_entity_selection(bpy.types.Operator, YmapMixin):
         force_area_redraw(context)
         return {'FINISHED'}
 
-class VICHO_OT_deselect_all_entities(bpy.types.Operator, YmapMixin):
+class VICHO_OT_deselect_all_entities(Operator, YmapMixin):
     """Deselects all entities in the YMAP"""
     bl_idname = "ymap.deselect_all_entities"
     bl_label = "Deselect All Entities"
@@ -428,7 +428,8 @@ class VICHO_OT_deselect_all_entities(bpy.types.Operator, YmapMixin):
         force_area_redraw(context)
         return {'FINISHED'}
 
-class VICHO_OT_select_by_marked_entities(bpy.types.Operator, YmapMixin):
+
+class VICHO_OT_select_by_marked_entities(Operator, YmapMixin):
     """Selects entities that are marked in the YMAP"""
     bl_idname = "ymap.select_by_marked_entities"
     bl_label = "Select by Marked Entities"
@@ -449,7 +450,7 @@ class VICHO_OT_select_by_marked_entities(bpy.types.Operator, YmapMixin):
         force_area_redraw(context)
         return {'FINISHED'}
 
-class VICHO_MT_entity_submenu(bpy.types.Menu):
+class VICHO_MT_entity_submenu(Menu):
     bl_label = "Vicho's Tools"
     bl_idname = "VICHO_MT_entity_submenu"
 
@@ -457,7 +458,7 @@ class VICHO_MT_entity_submenu(bpy.types.Menu):
         layout = self.layout
         layout.operator(VICHO_OT_select_entity_from_viewport.bl_idname)
 
-class VICHO_OT_export_entity_asset(bpy.types.Operator, YmapMixin):
+class VICHO_OT_export_entity_asset(Operator, YmapMixin):
     """Exports the selected entity's linked object as a Sollumz asset"""
     bl_idname = "ymap.export_entity_asset"
     bl_label = "Export Entity Asset"
@@ -537,7 +538,7 @@ class VICHO_OT_export_entity_asset(bpy.types.Operator, YmapMixin):
         col.prop(self, "export_inside_ymap_folder")
         col = layout.column(align=True)
 
-        for f in list(GAME_VERSIONS):
+        for f in GAME_VERSIONS:
             col.prop_enum(self, "version", f[0], icon='EVENT_NDOF_BUTTON_8' if f[0] == 'Legacy' else 'EVENT_NDOF_BUTTON_9')
         
         if ymap.entity_multi_select:
