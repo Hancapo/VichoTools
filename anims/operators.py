@@ -1,12 +1,12 @@
 import bpy
 from .helper import (get_anim_objs_from_sel, 
                          create_anim_tree, 
-                         create_child, 
+                         create_anim_child, 
                          set_anim_properties, 
                          set_clip_properties,
                          get_arch_from_ytyps_by_obj)
 
-from ..misc.constants import ANIM_SOLLUM_TYPES
+from ..shared.constants import ANIM_SOLLUM_TYPES
 from .enums import ChildType, AnimationType
 
 class VICHO_OT_anim_create_ycd_from_selec(bpy.types.Operator):
@@ -46,11 +46,11 @@ class VICHO_OT_anim_create_ycd_from_selec(bpy.types.Operator):
                             anim_naming = f"{anim_obj.obj.name}@uv_anim_{target.material_idx}"
                             clip_naming = f"{anim_obj.obj.name}@uv_clip_{target.material_idx}"
                     # Create Animation
-                    new_anim = create_child(ChildType.ANIMATION, anim_naming)
+                    new_anim = create_anim_child(ChildType.ANIMATION, anim_naming)
                     new_anim.parent = anim_group
                     set_anim_properties(target, new_anim, anim_obj.obj)
                     # Create Clip
-                    new_clip = create_child(ChildType.CLIP, clip_naming)
+                    new_clip = create_anim_child(ChildType.CLIP, clip_naming)
                     new_clip.parent = clip_group
                     set_clip_properties(target, new_clip, new_anim, anim_obj.obj)
                 

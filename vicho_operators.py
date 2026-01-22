@@ -3,7 +3,7 @@ import webbrowser
 from bpy.props import StringProperty
 from bpy_extras.io_utils import ImportHelper
 from .vicho_dependencies import DOTNET_LINK
-from .ymap.helper import resolve_hashes_from_file, str_loaded_count
+from .shared.helper import resolve_hashes_from_file, str_loaded_count
 
 class ContextSelectionRestrictedHelper:
     @classmethod
@@ -165,8 +165,8 @@ class VICHO_OT_import_strings(bpy.types.Operator, ImportHelper):
     
     filename_ext = ".txt"
     
-    filter_glob: StringProperty(default="*.txt", options={"HIDDEN"})
-    load_on_startup: bpy.props.BoolProperty(name="Load on startup", default=False, description="Load strings on startup")
+    filter_glob: StringProperty(default="*.txt", options={"HIDDEN"}) # type: ignore
+    load_on_startup: bpy.props.BoolProperty(name="Load on startup", default=False, description="Load strings on startup") # type: ignore
     
     def execute(self, context):
         resolve_hashes_from_file(self.filepath)

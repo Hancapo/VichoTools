@@ -1,6 +1,5 @@
-from typing import List
 
-ENV_TEXTURES: List[str] = [
+ENV_TEXTURES: list[str] = [
     "env_bark",
     "env_cloth",
     "env_crusty",
@@ -12,7 +11,7 @@ ENV_TEXTURES: List[str] = [
     "env_woodgrain_2",
 ]
 
-SUPPORTED_FORMATS: List[str] = [
+SUPPORTED_FORMATS: list[str] = [
     ".png",
     ".jpg",
     ".bmp",
@@ -24,9 +23,4 @@ SUPPORTED_FORMATS: List[str] = [
     ".psd",
     ".gif",
     ".webp",
-]
-
-ARCH_TYPES: List[str] = [
-    "sollumz_archetype_base",
-    "sollumz_archetype_time",
 ]

@@ -1,5 +1,6 @@
 import bpy
-from .helper import ytd_index_changed, update_post
+from .helper import ytd_index_changed, update_post_ytd, update_ytd_path
+from ..shared.funcs import generate_power_of_two_enum
 
 process_type = [
     ("ALL", "All", "ALL"),
@@ -30,26 +31,16 @@ quality_settings = [
     ),
 ]
 
-def generate_power_of_two_enum(max_power):
-    return [(str(2**i), str(2**i), str(2**i)) for i in range(2, max_power + 1)]
-
-
-
-def update_path(self, context):
-    if self.ytd_export_path != '':
-        self.ytd_export_path = bpy.path.abspath(self.ytd_export_path)
-
-
 class ImageProp(bpy.types.PropertyGroup):
     """Group of properties for each image in the YTD item, including the image itself and some flags"""
-    img_path: bpy.props.StringProperty(name="Image Path", default="")
-    img_ext: bpy.props.StringProperty(name="Image Extension", default="")
-    img_name: bpy.props.StringProperty(name="Image Name", default="")
-    img_name_full: bpy.props.StringProperty(name="Image Name Full", default="")
+    img_path: bpy.props.StringProperty(name="Image Path", default="") # type: ignore
+    img_ext: bpy.props.StringProperty(name="Image Extension", default="") # type: ignore
+    img_name: bpy.props.StringProperty(name="Image Name", default="") # type: ignore
+    img_name_full: bpy.props.StringProperty(name="Image Name Full", default="") # type: ignore
     
-    flag_tint: bpy.props.BoolProperty(default=False, name="Is Tint?")
-    flag_0: bpy.props.BoolProperty(default=False, name="Reserved 1")
-    flag_1: bpy.props.BoolProperty(default=False, name="Reserved 2")
+    flag_tint: bpy.props.BoolProperty(default=False, name="Is Tint?") # type: ignore
+    flag_0: bpy.props.BoolProperty(default=False, name="Reserved 1") # type: ignore
+    flag_1: bpy.props.BoolProperty(default=False, name="Reserved 2") # type: ignore
 
 
 class MeshGroup(bpy.types.PropertyGroup):
@@ -57,9 +48,9 @@ class MeshGroup(bpy.types.PropertyGroup):
 
 
 class YtdItem(bpy.types.PropertyGroup):
-    img_data_list: bpy.props.CollectionProperty(type=ImageProp)
-    mesh_list: bpy.props.CollectionProperty(type=MeshGroup)
-    selected: bpy.props.BoolProperty(default=True, name="Check")
+    img_data_list: bpy.props.CollectionProperty(type=ImageProp) # type: ignore
+    mesh_list: bpy.props.CollectionProperty(type=MeshGroup) # type: ignore
+    selected: bpy.props.BoolProperty(default=True, name="Check") # type: ignore
     game_target: bpy.props.EnumProperty(
         items=[("GTA5", "GTA 5", "Grand Theft Auto V ITD")],
         default="GTA5",
@@ -73,7 +64,7 @@ class YtdGroupProps(bpy.types.PropertyGroup):
         default="",
         description="Path to export the YTD file(s)",
         subtype="DIR_PATH",
-        update=lambda self, context: update_path(self, context),
+        update=lambda self, context: update_ytd_path(self, context),
     )
 
     bpy.types.Scene.ytd_enum_process_type = bpy.props.EnumProperty(
@@ -130,7 +121,7 @@ def register():
     )
     bpy.types.Scene.mesh_list = bpy.props.CollectionProperty(type=MeshGroup)
     bpy.types.Scene.mesh_active_index = bpy.props.IntProperty(name="Active Index")
-    bpy.app.handlers.depsgraph_update_post.append(update_post)
+    bpy.app.handlers.depsgraph_update_post.append(update_post_ytd)
 
 
 def unregister():
@@ -138,4 +129,4 @@ def unregister():
     del bpy.types.Scene.ytd_active_index
     del bpy.types.Scene.mesh_list
     del bpy.types.Scene.mesh_active_index
-    bpy.app.handlers.depsgraph_update_post.remove(update_post)
+    bpy.app.handlers.depsgraph_update_post.remove(update_post_ytd)

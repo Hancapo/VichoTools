@@ -4,15 +4,15 @@ import bpy
 import time
 from ..vicho_preferences import get_addon_preferences as prefs
 from ..vicho_dependencies import dependencies_manager as d
-from .funcs import (
+from .helper import (
     add_meshes_to_ytd,
     add_ytd_to_list,
     auto_fill_ytd_field,
     export_img_packages,
     export_img_folders
 )
-from ..misc.constants import YTD_SOLLUM_TYPES
-from ..misc.funcs import abs_path
+from ..shared.constants import YTD_SOLLUM_TYPES
+from ..shared.helper import abs_path
 
 
 class VICHO_OT_export_pkgs_as_folders(bpy.types.Operator):

@@ -7,8 +7,7 @@ from .operators.operators_entity import (VICHO_OT_add_entity,
                                         VICHO_OT_import_entity_sets,
                                         VICHO_OT_remove_entity_set,
                                         VICHO_OT_convert_entity_type,
-                                        VICHO_OT_entity_selection,
-                                        VICHO_OT_export_entity_asset)
+                                        VICHO_OT_entity_selection)
 
 from .operators.operators_ymap import (VICHO_OT_import_ymap,
                                        VICHO_OT_remove_ymap,
@@ -25,10 +24,10 @@ from .menus.menu_entity import VICHO_MT_entity_menu
 from ..vicho_dependencies import dependencies_manager as d
 from ..vicho_operators import VICHO_OT_fake_op
 from .operators.operators_menu import YMAP_MENU_OPERATORS_GROUPS
-from .constants import ENTITY_FLAGS_VALUES, MAP_DATA_CONTENT_FLAGS_VALUES, MAP_DATA_FLAGS_VALUES
+from ..shared.constants import MAP_DATA_CONTENT_FLAGS_VALUES, MAP_DATA_FLAGS_VALUES
 from ..icons_load import get_icon
-from .funcs import sanitize_name
-from .helper import YmapMixin
+from .ymap_mixin import YmapMixin
+from ..shared.funcs import sanitize_name
 
 class YMAPLIST_UL_list(bpy.types.UIList):
     bl_idname = "YMAPLIST_UL_list"

@@ -5,27 +5,29 @@ from bpy.props import (BoolProperty,
                        PointerProperty, 
                        EnumProperty)
 from bpy_extras.io_utils import ImportHelper
-from ..helper import (str_loaded_count, 
+
+from ..ymap_mixin import YmapMixin
+from ...shared.helper import (str_loaded_count, 
                       set_sollumz_export_settings,
                       set_sollumz_import_settings,
-                      change_ent_parenting, 
-                      YmapMixin,
                       set_sollumz_export_format_to_binary,
-                      set_sollumz_gen_ver)
+                      set_sollumz_gen_ver,
+                      get_meta_hash)
 from bpy.types import Object
 from ...vicho_dependencies import dependencies_manager as d
 import time
 import os
-from ..funcs import (import_ymap_to_scene,
+from ..helper import (import_ymap_to_scene,
                      remove_ymap_from_scene,
                      create_ymap_empty,
-                     sanitize_name,
                      calc_ymap_flags,
                      set_ymap_ent_extents,
-                     set_ymap_strm_extents)
+                     set_ymap_strm_extents,
+                     change_ymap_ent_parenting)
+
+from ...shared.funcs import sanitize_name
 from .operators import VICHO_OT_open_folder
-from ...misc.funcs import get_meta_hash
-from ..constants import GAME_VERSIONS
+from ...shared.constants import GAME_VERSIONS
 
 class ImportSettings(bpy.types.PropertyGroup):
     import_entities: BoolProperty(name="Entities", default=True, description="Import entities from the YMAP file(s)") # type: ignore
@@ -232,11 +234,11 @@ class VICHO_OT_export_ymap(bpy.types.Operator, YmapMixin):
                 set_sollumz_export_format_to_binary()
                 set_sollumz_gen_ver(self.version)
                 link_objs: list[Object] = [obj.linked_object for obj in ymap.entities if obj.linked_object and '.' not in obj.linked_object.name]
-                change_ent_parenting(link_objs)
+                change_ymap_ent_parenting(link_objs)
                 ymap_asset_folder = f"/{ymap.ymap_object.name}_assets"
                 os.makedirs(self.directory + ymap_asset_folder, exist_ok=True)
                 bpy.ops.sollumz.export_assets(directory=self.directory + f'/{ymap_asset_folder}' )
-                change_ent_parenting(link_objs, do_parent=True)
+                change_ymap_ent_parenting(link_objs, do_parent=True)
             self.report({'INFO'}, f"YMAP '{ymap_file.Name}' exported successfully")
         #create dir
         return {'FINISHED'}

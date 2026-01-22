@@ -1,26 +1,26 @@
 import bpy
 from .vicho_dependencies import is_dotnet_installed, dependencies_manager as d
 from .vicho_operators import VICHO_OT_install_dotnet, VICHO_OT_import_strings
-from .ymap.helper import str_loaded_count
+from .shared.helper import str_loaded_count
 
 class VichoToolsAddonProperties(bpy.types.AddonPreferences):
     bl_idname = __package__
     add_nonsollumz_to_ytd: bpy.props.BoolProperty(
         name="Add Non-Sollumz objects in texture package(s)", default=False, description="Non-Sollumz objects will be able to be added to texture package(s) as long as they are meshes"
-    )
+    )  # type: ignore
     enable_folder_export: bpy.props.BoolProperty(
         name="Enable folders export", default=False, description="If enabled, the export of folders will be available"
-    )
+    )  # type: ignore
     
     skip_environment_textures: bpy.props.BoolProperty(
         name="Skip environment textures", default=True, description="If enabled, environment textures will be skipped"
-    )
+    )  # type: ignore
     resize_dds: bpy.props.BoolProperty(
         name="Resize DDS textures", default=True, description="If enabled, DDS Textures will be affected by the resize settings"
-    )
+    )  # type: ignore
     
     load_strings_on_startup: bpy.props.BoolProperty(
-        name="Load strings on startup", default=False, description="If enabled, strings will be loaded on startup")
+        name="Load strings on startup", default=False, description="If enabled, strings will be loaded on startup")  # type: ignore
         
     def draw(self, context):
         layout = self.layout

@@ -1,25 +1,18 @@
 import bpy
-from .constants import (LOD_LEVELS,
+
+from ..shared.constants import (LOD_LEVELS,
                         ENTITY_TYPES, 
                         YMAP_MAP_DATA_TOGGLES, 
                         ENTITY_TOGGLES, 
                         PRIORITY_LEVELS,
-                        MAPENTITY_FLAGS,
-                        MAPDATA_CONTENTFLAGS,
-                        MAPDATA_FLAGS)
+                        MAPENTITY_FLAGS)
 
-from .helper import (update_entity_flags_bool_properties, 
-                     update_entity_flags, 
-                     update_ymap_flags_bool_properties, 
+from .helper import (get_total_flags, set_total_flags, update_ymap_flags_bool_properties, 
                      update_ymap_flags, 
                      update_ymap_content_flags_bool_properties, 
                      update_ymap_content_flags,
-                     update_linked_obj,
-                     update_entity_prop_value,
-                     update_flags_on_entities,
-                     get_mask,
-                     set_mask)
-
+                     update_ymap_entity_prop_value,
+                     update_ymap_ent_linked_obj,)
 
 class PhysicsGroup(bpy.types.PropertyGroup):
     name: bpy.props.StringProperty(
@@ -36,16 +29,16 @@ class EntityFlags(bpy.types.PropertyGroup):
         items=MAPENTITY_FLAGS,
         options={'ENUM_FLAG'},
         description="Entity flags for this entity",
-        update=lambda self, context: update_entity_prop_value(self, context, "total_flags")
+        update=lambda self, context: update_ymap_entity_prop_value(self, context, "total_flags")
     ) # type: ignore
 
     total_flags: bpy.props.IntProperty(
         name="Flags",
         min=0,
         description="Total Flags",
-        get=get_mask,
-        set=set_mask,
-        update=lambda self, context: update_entity_prop_value(self, context, "total_flags")
+        get=get_total_flags,
+        set=set_total_flags,
+        update=lambda self, context: update_ymap_entity_prop_value(self, context, "total_flags")
         ) # type: ignore
 
 class EntitySetsProps(bpy.types.PropertyGroup):
@@ -161,7 +154,7 @@ class EntityProps(bpy.types.PropertyGroup):
         name="Linked Object",
         type=bpy.types.Object,
         description="The linked object for this entity from the scene",
-        update=update_linked_obj
+        update=update_ymap_ent_linked_obj
     )# type: ignore
     
     is_mlo_instance: bpy.props.BoolProperty(
@@ -210,14 +203,14 @@ class EntityProps(bpy.types.PropertyGroup):
         name="Parent Index",
         min=-1,
         default=-1,
-        update=lambda self, context: update_entity_prop_value(self, context, "parent_index")) # type: ignore
+        update=lambda self, context: update_ymap_entity_prop_value(self, context, "parent_index")) # type: ignore
     
     lod_distance: bpy.props.FloatProperty(
         name="LOD Distance",
         min=0.0,
         subtype="UNSIGNED",
         default=500.0,
-        update=lambda self, context: update_entity_prop_value(self, context, "lod_distance")) # type: ignore
+        update=lambda self, context: update_ymap_entity_prop_value(self, context, "lod_distance")) # type: ignore
     
     child_lod_distance: bpy.props.FloatProperty(
         name="Child LOD Distance",
@@ -293,7 +286,7 @@ class EntityProps(bpy.types.PropertyGroup):
     is_visible: bpy.props.BoolProperty(
         name="Is Visible",
         default=True,
-        update=lambda self, context: update_entity_prop_value(self, context, "is_visible")) # type: ignore
+        update=lambda self, context: update_ymap_entity_prop_value(self, context, "is_visible")) # type: ignore
     
     ent_index: bpy.props.IntProperty(
         name="Entity Index",
@@ -303,7 +296,7 @@ class EntityProps(bpy.types.PropertyGroup):
     is_mesh_edited: bpy.props.BoolProperty(
         name="Edit Mark",
         default=False,
-        update=lambda self, context: update_entity_prop_value(self, context, "is_marked")
+        update=lambda self, context: update_ymap_entity_prop_value(self, context, "is_marked")
     ) # type: ignore
 
 class YmapProps(bpy.types.PropertyGroup):

@@ -1,12 +1,11 @@
 import bpy
-from .funcs import update_transform_index
-
+from .helper import update_transform_index
 
 class TransformItem(bpy.types.PropertyGroup):
-    name: bpy.props.StringProperty(name="Name", default="NewTransform")
-    location: bpy.props.FloatVectorProperty(name="Location", subtype='TRANSLATION', size=3, default=(0.0, 0.0, 0.0))
-    rotation: bpy.props.FloatVectorProperty(name="Rotation", subtype='EULER', size=3, default=(0.0, 0.0, 0.0))
-    scale: bpy.props.FloatVectorProperty(name="Scale", subtype='XYZ', size=3, default=(1.0, 1.0, 1.0))
+    name: bpy.props.StringProperty(name="Name", default="NewTransform")  # type: ignore
+    location: bpy.props.FloatVectorProperty(name="Location", subtype='TRANSLATION', size=3, default=(0.0, 0.0, 0.0)) # type: ignore
+    rotation: bpy.props.FloatVectorProperty(name="Rotation", subtype='EULER', size=3, default=(0.0, 0.0, 0.0)) # type: ignore
+    scale: bpy.props.FloatVectorProperty(name="Scale", subtype='XYZ', size=3, default=(1.0, 1.0, 1.0)) # type: ignore
 
 
 def register():

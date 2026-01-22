@@ -1,8 +1,6 @@
-YMAP_FLAGS_UPDATING: bool = False
-YMAP_CONTENT_FLAGS_UPDATING: bool = False
-ENTITY_FLAGS_UPDATING: bool = False
+from __future__ import annotations
 
-VALID_NON_POLY_BOUND_TYPES: list[str] = [
+VALID_NON_POLY_BOUND_TYPES: tuple[str, ...] = (
     "sollumz_bound_sphere",
     "sollumz_bound_box",
     "sollumz_bound_capsule",
@@ -10,39 +8,39 @@ VALID_NON_POLY_BOUND_TYPES: list[str] = [
     "sollumz_bound_geometry",
     "sollumz_bound_plane",
     "sollumz_bound_cylinder",
-]
+)
 
-SOLLUMZ_EXTS: list[str] = ["ydr", "ydd", "yft", "ybn"]
+YMAP_ASSET_EXTS: tuple[str, ...] = ("ydr", "ydd", "yft", "ybn")
 
-ENTITY_TYPES: list[tuple[str, str, str, str, int]] = (
+ENTITY_TYPES: tuple[tuple[str, str, str, str, int], ...] = (
     ("ENTITY", "Entity", "Entity", "OUTLINER_DATA_LIGHTPROBE", 0),
     ("MLOINSTANCE", "MLO Instance", "MLO Instance", "HOME", 1),
 )
 
-LOD_LEVELS: list[tuple[str, str, str, str, int]] = (
+LOD_LEVELS: tuple[tuple[str, str, str, str, int], ...] = (
     ("LODTYPES_DEPTH_ORPHANHD", "Depth Orphan HD", "Depth Orphan HD", "EVENT_O", 0),
     ("LODTYPES_DEPTH_HD", "Depth HD", "Depth HD", "EVENT_H", 1),
     ("LODTYPES_DEPTH_LOD", "Depth LOD", "Depth LOD", "EVENT_L", 2),
     ("LODTYPES_DEPTH_SLOD1", "Depth SLOD1", "Depth SLOD1", "EVENT_ONEKEY", 3),
     ("LODTYPES_DEPTH_SLOD2", "Depth SLOD2", "Depth SLOD2", "EVENT_TWOKEY", 4),
     ("LODTYPES_DEPTH_SLOD3", "Depth SLOD3", "Depth SLOD3", "EVENT_THREEKEY", 5),
-    ("LODTYPES_DEPTH_SLOD4", "Depth SLOD4", "Depth SLOD4", "EVENT_FOURKEY", 6)
+    ("LODTYPES_DEPTH_SLOD4", "Depth SLOD4", "Depth SLOD4", "EVENT_FOURKEY", 6),
 )
 
-PRIORITY_LEVELS: list[tuple[str, str, str, str, int]] = (
+PRIORITY_LEVELS: tuple[tuple[str, str, str, str, int], ...] = (
     ("PRI_OPTIONAL_HIGH", "Priority Optional High", "Priority Optional High", "OUTLINER_DATA_LIGHTPROBE", 0),
     ("PRI_OPTIONAL_MEDIUM", "Priority Optional Medium", "Priority Optional Medium", "OUTLINER_OB_GROUP_INSTANCE", 1),
     ("PRI_OPTIONAL_LOW", "Priority Optional Low", "Priority Optional Low", "OUTLINER_OB_GROUP_INSTANCE", 2),
     ("PRI_REQUIRED", "Priority Required", "Priority Required", "OUTLINER_OB_GROUP_INSTANCE", 3),
 )
 
-YMAP_MAP_DATA_TOGGLES: list[tuple[str, str, str, str, int]] = (
+YMAP_MAP_DATA_TOGGLES: tuple[tuple[str, str, str, str, int], ...] = (
     ("DATA", "Data", "Data", "ALIGN_LEFT", 0),
     ("FLAGS", "Flags", "Flags", "PLAY", 2),
-    ("EXTENTS", "Extents", "Extents", "AXIS_FRONT", 3)
+    ("EXTENTS", "Extents", "Extents", "AXIS_FRONT", 3),
 )
 
-ENTITY_TOGGLES: list[tuple[str, str, str, str, int]] = (
+ENTITY_TOGGLES: tuple[tuple[str, str, str, str, int], ...] = (
     ("DATA", "Data", "Data", "ALIGN_LEFT", 0),
     ("FLAGS", "Flags", "Flags", "PLAY", 1),
     ("LOD", "LOD", "Lod", "MOD_EXPLODE", 2),
@@ -61,7 +59,7 @@ MAP_DATA_CONTENT_FLAGS_VALUES: dict[str, int] = {
     "lod_lights": 128,
     "distant_lights": 256,
     "critical": 512,
-    "grass": 1024
+    "grass": 1024,
 }
 
 MAP_DATA_FLAGS_VALUES: dict[str, int] = {
@@ -94,13 +92,25 @@ ENTITY_FLAGS_VALUES: dict[str, int] = {
     "only_render_mirror_reflections": 536870912,
 }
 
-COMPAT_SOLL_TYPES: tuple[str, ...] = (
-    "sollumz_drawable",
-    "sollumz_fragment",
-    "sollumz_bound_composite",
+SOLL_DRAWABLE: str = "sollumz_drawable"
+SOLL_FRAGMENT: str = "sollumz_fragment"
+SOLL_DRAWABLE_MODEL: str = "sollumz_drawable_model"
+SOLL_DRAWABLE_DICTIONARY: str = "sollumz_drawable_dictionary"
+SOLL_BOUND_COMPOSITE: str = "sollumz_bound_composite"
+
+SOLLUM_TYPES: tuple[str, ...] = (
+    SOLL_DRAWABLE,
+    SOLL_FRAGMENT,
+    SOLL_DRAWABLE_MODEL,
+    SOLL_DRAWABLE_DICTIONARY,
+    SOLL_BOUND_COMPOSITE,
 )
 
-OBJECT_TYPES: list[str] = ['EMPTY', 'ARMATURE']
+YTD_SOLLUM_TYPES: tuple[str, ...] = (SOLL_DRAWABLE, SOLL_FRAGMENT, SOLL_DRAWABLE_DICTIONARY)
+ANIM_SOLLUM_TYPES: tuple[str, ...] = (SOLL_DRAWABLE, SOLL_FRAGMENT)
+YMAP_ENTITY_SOLLUM_TYPES: tuple[str, ...] = (SOLL_DRAWABLE, SOLL_FRAGMENT, SOLL_BOUND_COMPOSITE)
+
+COMPAT_OBJECT_TYPES: tuple[str, ...] = ("EMPTY", "ARMATURE")
 
 MAPENTITY_FLAGS: list[tuple[str, str, str]] = [
     ("1", "Allow Full Rotation", "Allow Full Rotation"),
@@ -127,27 +137,14 @@ MAPENTITY_FLAGS: list[tuple[str, str, str]] = [
     ("536870912", "Only Render Mirror Reflections", "Only Render Mirror Reflections"),
 ]
 
-MAPDATA_CONTENTFLAGS: list[tuple[str, str, str]] = [
-    ("1", "HD", "HD"),
-    ("2", "LOD", "LOD"),
-    ("4", "SLOD2 Plus", "SLOD2 Plus"),
-    ("8", "Interior", "Interior"),
-    ("16", "SLOD", "SLOD"),
-    ("32", "Occlusion", "Occlusion"),
-    ("64", "Physics", "Physics"),
-    ("128", "LOD Lights", "LOD Lights"),
-    ("256", "Distant Lights", "Distant Lights"),
-    ("512", "Critical", "Critical"),
-    ("1024", "Grass", "Grass"),
-]
-
-MAPDATA_FLAGS: list[tuple[str, str, str]] = [
-    ("1", "Script", "Script"),
-    ("2", "LOD", "LOD"),
-]
-
-
 GAME_VERSIONS: tuple[tuple[str, str, str], ...] = (
-            ('Legacy', "Legacy", "Export asset for GTA V Legacy"),
-            ('Enhanced', "Enhanced", "Export asset for GTA V Enhanced Edition"),
+    ("Legacy", "Legacy", "Export asset for GTA V Legacy"),
+    ("Enhanced", "Enhanced", "Export asset for GTA V Enhanced Edition"),
 )
+
+ARCH_TYPES: tuple[str, ...] = (
+    "sollumz_archetype_base",
+    "sollumz_archetype_time",
+)
+
+VALID_MAPDATA_ENTITY_FLAGS: int = sum(int(i[0]) for i in MAPENTITY_FLAGS)

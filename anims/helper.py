@@ -1,17 +1,15 @@
-from typing import List
 from .anim_object import AnimObject
-from ..misc.constants import ANIM_SOLLUM_TYPES
-from ..misc.funcs import is_drawable_model, is_drawable
 from .target import Target
 from .enums import AnimationType, GroupType, ChildType
 import bpy
 from bpy.types import Object, Action
 from .uv_anim import UvAnim
+from ..shared.helper import is_drawable, is_drawable_model
 
-def get_anim_objs_from_sel(objs: List[Object]) -> List[AnimObject]:
+def get_anim_objs_from_sel(objs: list[Object]) -> list[AnimObject]:
     """Create a list of AnimObjects from a list of selected objects"""
 
-    anim_objs: List[AnimObject] = []
+    anim_objs: list[AnimObject] = []
 
     if not objs:
         return []
@@ -19,7 +17,7 @@ def get_anim_objs_from_sel(objs: List[Object]) -> List[AnimObject]:
     for obj in filter(lambda obj: obj.sollum_type in ANIM_SOLLUM_TYPES, objs):
         new_anim_obj: AnimObject = AnimObject(obj, 0, obj.sollum_type, False, False, [], False)
         anim_objs.append(new_anim_obj)
-        draw_models: List[Object] = get_drawable_models_from_parent(obj)
+        draw_models: list[Object] = get_drawable_models_from_parent(obj)
         armature_action = get_action_from_armature(obj)
         if armature_action:
             new_anim_obj.skel_anims = True
@@ -29,7 +27,7 @@ def get_anim_objs_from_sel(objs: List[Object]) -> List[AnimObject]:
             continue
         
         for child in draw_models:
-            animated_mats: List[UvAnim] = get_data_from_materials(child)
+            animated_mats: list[UvAnim] = get_data_from_materials(child)
             if animated_mats:
                 new_anim_obj.uv_anims = True
                 for data in animated_mats:
@@ -56,9 +54,9 @@ def calc_basic_anim_flags(uv_anims: bool, skel_anims: bool, obj: Object, sollum_
                 flags += 512
     return flags
     
-def get_drawable_models_from_parent(obj: Object) -> List[Object]:
+def get_drawable_models_from_parent(obj: Object) -> list[Object]:
     """Get all drawable models from a parent object"""
-    child_drawable_list: List[Object] = []
+    child_drawable_list: list[Object] = []
 
     sollum_type: str = obj.sollum_type
 
@@ -78,9 +76,9 @@ def get_drawable_models_from_parent(obj: Object) -> List[Object]:
                             
     return child_drawable_list
 
-def get_data_from_materials(obj: Object) -> List[UvAnim]:
+def get_data_from_materials(obj: Object) -> list[UvAnim]:
     """Get all actions and their corresponding materials from materials"""
-    data: List[UvAnim] = []
+    data: list[UvAnim] = []
 
     for idx, slot in enumerate(obj.material_slots):
         if slot.material.animation_data and slot.material.animation_data.action:
@@ -123,7 +121,7 @@ def create_ycd_groups(enum: GroupType):
             parent.name = 'Clips'
     return parent
 
-def create_child(enum: ChildType, name: str = None) -> Object:
+def create_anim_child(enum: ChildType, name: str = None) -> Object:
     """Create a child object"""
     child_obj = bpy.data.objects.new('new_child', None)
     if name:

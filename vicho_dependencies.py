@@ -4,7 +4,6 @@ import subprocess
 import shutil
 import traceback
 import importlib.util
-from typing import List
 
 DOTNET_LINK = "https://builds.dotnet.microsoft.com/dotnet/Runtime/9.0.6/dotnet-runtime-9.0.6-win-x64.exe"
 
@@ -62,11 +61,11 @@ class DependenciesManager:
         self.FolderBrowser = None
 
     @property
-    def ymap_list(self) -> List["YmapFile"]:
+    def ymap_list(self) -> list:
         """Returns the list of YMAPs in the scene as YmapFile objects"""
         scene = bpy.context.scene
-        ymap_bytes_list: List[bytes] = scene.get("ymap_list", [])
-        actual_ymap_list: List["YmapFile"] = []
+        ymap_bytes_list: list[bytes] = scene.get("ymap_list", [])
+        actual_ymap_list: list = []
         for ymap_bytes in ymap_bytes_list:
             ymap = self.YmapFile()
             ymap.Load(ymap_bytes)
@@ -74,14 +73,14 @@ class DependenciesManager:
         return actual_ymap_list
     
     @property
-    def ymap_list_bytes(self) -> List[bytes]:
+    def ymap_list_bytes(self) -> list[bytes]:
         """Returns the list of YMAPs in the scene as bytes"""
         scene = bpy.context.scene
-        ymap_bytes_list: List[bytes] = scene.get("ymap_list", [])
+        ymap_bytes_list: list[bytes] = scene.get("ymap_list", [])
         return ymap_bytes_list
     
     @ymap_list.setter
-    def ymap_list(self, value: List["YmapFile"]):
+    def ymap_list(self, value: list):
         scene = bpy.context.scene
         scene["ymap_list"] = value
     
@@ -89,7 +88,7 @@ class DependenciesManager:
         """Adds a YMAP to the scene as bytes"""
         scene = bpy.context.scene
         ymap_bytes: bytes = bytes(self.File.ReadAllBytes(ymap_path))
-        ymap_bytes_list: List[bytes] = scene.get("ymap_list", [])
+        ymap_bytes_list: list[bytes] = scene.get("ymap_list", [])
         try:
             ymap_list_bytes = list(ymap_bytes_list)
             ymap_list_bytes.append(ymap_bytes)
@@ -102,7 +101,7 @@ class DependenciesManager:
     def remove_ymap(self, index: int) -> bool:
         """Removes a YMAP from the scene"""
         scene = bpy.context.scene
-        ymap_bytes_list: List[bytes] = scene.get("ymap_list", [])
+        ymap_bytes_list: list[bytes] = scene.get("ymap_list", [])
         try:
             ymap_bytes_list.pop(index)
             scene["ymap_list"] = ymap_bytes_list
@@ -111,7 +110,7 @@ class DependenciesManager:
             print(f"Error removing ymap: {e}")
             return False
 
-    def get_ymap(self, index: int) -> "YmapFile":
+    def get_ymap(self, index: int):
         """Returns the YmapFile object at the specified index"""
         return self.ymap_list[index]
     

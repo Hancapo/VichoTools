@@ -1,17 +1,12 @@
+from ..ymap_mixin import YmapMixin
+import bpy
 from bpy.types import Object, Operator, Menu
 from bpy.props import BoolProperty, IntProperty, StringProperty, EnumProperty
-import bpy
-from ..helper import (YmapMixin, get_entity_sets_from_entity, 
-                      get_sel_objs_list, change_ent_parenting, 
-                      set_sollumz_export_settings,
-                      set_sollumz_export_format_to_binary,
-                      set_sollumz_gen_ver,
-                      deselect_all_entities_in_ymap,
-                      force_area_redraw)
-from ..constants import COMPAT_SOLL_TYPES, GAME_VERSIONS
-from ...misc.funcs import delete_hierarchy
-from ..funcs import get_soll_parent, sanitize_name
+from ...shared.constants import YMAP_ENTITY_SOLLUM_TYPES, GAME_VERSIONS
 import os
+from ...shared.funcs import sanitize_name
+from ...shared.helper import find_soll_ancestor, get_sel_objs_list, delete_hierarchy, force_area_redraw, set_sollumz_export_settings, set_sollumz_export_format_to_binary, set_sollumz_gen_ver
+from ..helper import deselect_all_entities_in_ymap, get_entity_sets_from_entity, change_ymap_ent_parenting
 
 class VICHO_OT_add_entity(Operator, YmapMixin):
     """Adds a new entity to the YMAP"""
@@ -259,9 +254,9 @@ class VICHO_OT_select_entity_from_viewport(Operator, YmapMixin):
     def execute(self, context):
         active_obj = context.active_object
         if active_obj:
-            soll_parent = get_soll_parent(active_obj)
+            soll_parent = find_soll_ancestor(active_obj)
             entity, e_idx, ymap, y_idx = self.get_ent_from_viewport_select(context, soll_parent)
-            if entity and entity.linked_object.sollum_type in COMPAT_SOLL_TYPES:
+            if entity and entity.linked_object.sollum_type in YMAP_ENTITY_SOLLUM_TYPES:
                 self.set_ymap_index(context, y_idx)
                 ymap.active_category = "ENTITIES"
                 bpy.ops.ymap.map_data_menu(operator_id="ymap.entities_menu")
@@ -491,15 +486,15 @@ class VICHO_OT_export_entity_asset(Operator, YmapMixin):
 
     def export_ent_asset(self, ymap, entity) -> bool:
         lo: Object = entity.linked_object
-        if lo and lo.sollum_type in COMPAT_SOLL_TYPES:
-            change_ent_parenting([lo])
+        if lo and lo.sollum_type in YMAP_ENTITY_SOLLUM_TYPES:
+            change_ymap_ent_parenting([lo])
             final_folder = self.directory + f"/{ymap.ymap_object.name}_assets" if self.export_inside_ymap_folder else self.directory
             os.makedirs(final_folder, exist_ok=True)
             set_sollumz_export_format_to_binary()
             print(self.version)
             set_sollumz_gen_ver(self.version)
             bpy.ops.sollumz.export_assets(directory=final_folder)
-            change_ent_parenting([lo], do_parent=True)
+            change_ymap_ent_parenting([lo], do_parent=True)
             return True
         
     @classmethod

@@ -1,4 +1,4 @@
-from .operators_ymap import YmapMixin
+from ..ymap_mixin import YmapMixin
 import bpy
 
 
