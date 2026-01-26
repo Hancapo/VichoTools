@@ -578,20 +578,27 @@ def import_occl_objs(scene: Scene, index: int, ymap_file, ymap_obj: Object, self
         if box_occls:
             box_occls_group: Object = create_ymap_box_occluders_group(ymap_occl_group)
             for box_occl in box_occls:
-                fill_box_occl_data_from_ymap(scene, index, ymap_file, box_occls_group, box_occl)
+                fill_box_occl_data_from_ymap(scene, index, box_occls_group, box_occl)
 
         if model_occls:
             model_occls_group: Object = create_ymap_models_occluders_group(ymap_occl_group)
             for model_occl in model_occls:
-                fill_model_occl_data_from_ymap(scene, index, ymap_file, model_occls_group, model_occl)
+                fill_model_occl_data_from_ymap(scene, index, model_occls_group, model_occl)
 
-def fill_model_occl_data_from_ymap(scene: Scene, index: int, current_ymap, group_obj: Object, model_occl) -> None:
+def fill_model_occl_data_from_ymap(scene: Scene, index: int, group_obj: Object, model_occl) -> None:
     new_model_occl = scene.ymap_list[index].ymap_model_occluders.add()
     new_model_occl.name = f"ModelOccl_{model_occl.Index}"
     new_model_occl.flags = model_occl.Flags.Value
     new_obj = create_model_occluder_obj(model_occl.Index, model_occl)
     new_obj.parent = group_obj
+    new_model_occl.linked_obj = new_obj
 
+def fill_box_occl_data_from_ymap(scene: Scene, index: int, group_obj: Object, box_occl) -> None:
+    new_box_occl = scene.ymap_list[index].ymap_box_occluders.add()
+    new_box_occl.name = f"BoxOccl{box_occl.Index}"
+    new_obj = create_box_occluder_obj(box_occl.Index, box_occl)
+    new_obj.parent = group_obj
+    new_box_occl.linked_obj = new_obj
 
 def create_model_occluder_obj(index, model_occl) -> Object:
     faces = indices_to_faces(model_occl.Indices)
@@ -636,12 +643,7 @@ def create_box_occluder_obj(index: int, box_occl) -> Object:
     return new_obj
 
 
-def fill_box_occl_data_from_ymap(scene: Scene, index: int, current_ymap, group_obj: Object, box_occl) -> None:
-    new_box_occl = scene.ymap_list[index].ymap_box_occluders.add()
-    new_box_occl.name = f"BoxOccl{box_occl.Index}"
-    new_obj = create_box_occluder_obj(box_occl.Index, box_occl)
-    assign_mat
-    new_obj.parent = group_obj
+
     
 
 def get_imported_asset(before_import, entity) -> None:

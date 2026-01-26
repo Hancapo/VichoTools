@@ -58,7 +58,23 @@ class YmapMixin:
         if ymap and ymap.ymap_model_occluders or ymap.ymap_box_occluders:
             return len(ymap.occlusion_culling) + len(ymap.ymap_box_occluders)
         return 0
-
+    
+    @staticmethod
+    def get_box_occl(context) -> Object:
+        """Returns the box occlusion culling object by index in the currently selected YMAP"""
+        ymap = YmapMixin.get_ymap(context)
+        if ymap and ymap.ymap_box_occluders:
+            return ymap.ymap_box_occluders[ymap.ymap_box_occluders_index]
+        return None
+    
+    @staticmethod
+    def get_model_occl(context) -> Object:
+        """Returns the model occlusion culling object by index in the currently selected YMAP"""
+        ymap = YmapMixin.get_ymap(context)
+        if ymap and ymap.ymap_model_occluders:
+            return ymap.ymap_model_occluders[ymap.ymap_model_occluders_index]
+        return None
+    
     @staticmethod
     def get_ymap_count(context):
         """Returns the number of YMAPs in the scene"""

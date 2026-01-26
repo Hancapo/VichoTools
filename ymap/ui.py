@@ -317,19 +317,27 @@ class YmapTools_Data_PT_Panel(bpy.types.Panel, YmapMixin):
                         self.bl_label = "Occluders"
                         occluder_cat_flow = right_col.grid_flow(row_major=True, columns=2, even_columns=True, even_rows=True, align=True)
                         occluder_cat_flow.prop(ymap, "occluder_category", expand=True, icon_only=True, emboss=True)
+                        selected_box_occl = self.get_box_occl(context)
+                        selected_model_occl = self.get_model_occl(context)
                         match ymap.occluder_category:
                             case "BOX":
                                 right_col.template_list(OCCLUDERSLIST_UL_list.bl_idname, "", ymap, "ymap_box_occluders", ymap, "ymap_box_occluders_index")
+                                if selected_box_occl:
+                                    right_col.separator()
+                                    box_col = right_col.column(align=True)
+                                    box_col.prop(selected_box_occl, "linked_obj", text="Linked Object", icon="OBJECT_DATA")
                             case "MODEL":
                                 right_col.template_list(OCCLUDERSLIST_UL_list.bl_idname, "", ymap, "ymap_model_occluders", ymap, "ymap_model_occluders_index")
+                                right_col.separator()
+                                if selected_model_occl:
+                                    model_col = right_col.column(align=True)
+                                    model_col.prop(selected_model_occl, "flags", text="Flags")
+                                    model_col.separator()
+                                    model_col.prop(selected_model_occl, "linked_obj", text="Linked Object", icon="OBJECT_DATA")
                         right_col = main_row.column(align=True)
                         right_col.ui_units_x = 1
                         right_col.operator(VICHO_OT_fake_op.bl_idname, text="", icon="ADD")
                         right_col.operator(VICHO_OT_fake_op.bl_idname, text="", icon="REMOVE")
-                        right_col.separator()
-                        right_col.operator(VICHO_OT_fake_op.bl_idname, text="", icon_value=get_icon("arrow_collapse_left"))
-                        right_col.separator()
-                        right_col.menu(VICHO_OT_fake_op.bl_idname, text="", icon='DOWNARROW_HLT')
                     case "ymap.physics_dictionaries_menu":
                         self.bl_label = "Physics Dictionaries"
                         new_row = right_col.row(align=False)

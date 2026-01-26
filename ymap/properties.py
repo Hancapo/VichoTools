@@ -30,12 +30,12 @@ class ModelOccludersGroup(bpy.types.PropertyGroup):
         name="Flags",
         default=0) # type: ignore
     
-    model: bpy.props.PointerProperty(
+    linked_obj: bpy.props.PointerProperty(
         name="Model",
         type=bpy.types.Object) # type: ignore
 
 class BoxOccludersGroup(bpy.types.PropertyGroup):
-    box: bpy.props.PointerProperty(
+    linked_obj: bpy.props.PointerProperty(
         name="Box",
         type=bpy.types.Object) # type: ignore
 
