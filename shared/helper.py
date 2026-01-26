@@ -72,6 +72,22 @@ def is_obj_in_any_collection(obj: Object) -> bool:
     return any(obj.name in collection.objects for collection in bpy.data.collections)
 
 
+def create_obj(name: str, link_to_scene: bool = False, mesh: Mesh = None) -> Object:
+    """Create a new object with the given name and optional mesh data."""
+    new_obj = bpy.data.objects.new(name, mesh)
+    if link_to_scene:
+        link_obj_to_main_collection(new_obj)
+    return new_obj
+
+def create_mesh_from_data(name: str, verts: list[Vector], faces: list[tuple], edges: list[tuple] = None) -> Mesh:
+    """Create a new mesh from given vertex, edge, and face data."""
+    if edges is None:
+        edges = []
+    mesh = bpy.data.meshes.new(name)
+    mesh.from_pydata(verts, edges, faces)
+    mesh.update()
+    return mesh
+
 def get_top_parent(obj: Object) -> Object:
     """Get the top-most parent of the given object."""
     while obj.parent:
@@ -195,8 +211,6 @@ def world_corners_of(obj):
     if not bb:
         return ()
     return (obj.matrix_world @ Vector(c) for c in bb)
-
-
 
 def force_area_redraw(context) -> None:
     """Forces a redraw of all areas in the context"""

@@ -2,12 +2,15 @@ import bpy
 
 from ..shared.constants import (LOD_LEVELS,
                         ENTITY_TYPES, 
-                        YMAP_MAP_DATA_TOGGLES, 
-                        ENTITY_TOGGLES, 
                         PRIORITY_LEVELS,
-                        MAPENTITY_FLAGS)
+                        MAPENTITY_FLAGS,
+                        YMAP_MAP_DATA_TOGGLES,
+                        ENTITY_TOGGLES,
+                        OCCLUDERS_TOGGLES)
 
-from .helper import (get_total_flags, set_total_flags, update_ymap_flags_bool_properties, 
+from .helper import (get_total_flags, 
+                     set_total_flags, 
+                     update_ymap_flags_bool_properties, 
                      update_ymap_flags, 
                      update_ymap_content_flags_bool_properties, 
                      update_ymap_content_flags,
@@ -21,6 +24,21 @@ class PhysicsGroup(bpy.types.PropertyGroup):
         description="Name of the physics group",
         maxlen=60,
     ) # type: ignore
+
+class ModelOccludersGroup(bpy.types.PropertyGroup):
+    flags: bpy.props.IntProperty(
+        name="Flags",
+        default=0) # type: ignore
+    
+    model: bpy.props.PointerProperty(
+        name="Model",
+        type=bpy.types.Object) # type: ignore
+
+class BoxOccludersGroup(bpy.types.PropertyGroup):
+    box: bpy.props.PointerProperty(
+        name="Box",
+        type=bpy.types.Object) # type: ignore
+
  
 class EntityFlags(bpy.types.PropertyGroup):
 
@@ -320,6 +338,36 @@ class YmapProps(bpy.types.PropertyGroup):
         type=bpy.types.Object,
         description="Object that contains the YMAP occluders group data") # type: ignore
     
+    ymap_model_occluders_group_object: bpy.props.PointerProperty(
+        name="Ymap Model Occluders Group Object",
+        type=bpy.types.Object,
+        description="Object that contains the YMAP model occluders group data") # type: ignore
+    
+    ymap_box_occluders_group_object: bpy.props.PointerProperty(
+        name="Ymap Box Occluders Group Object",
+        type=bpy.types.Object,
+        description="Object that contains the YMAP box occluders group data") # type: ignore
+    
+    ymap_model_occluders: bpy.props.CollectionProperty(
+        name="Ymap Model Occluder(s)",
+        type=ModelOccludersGroup,
+        description="Collection of YMAP model occluders") # type: ignore
+    
+    ymap_model_occluders_index: bpy.props.IntProperty(
+        name="Ymap Model Occluders Index",
+        default=0,
+        description="Index of the selected YMAP model occluder") # type: ignore
+    
+    ymap_box_occluders: bpy.props.CollectionProperty(
+        name="Ymap Box Occluder(s)",
+        type=BoxOccludersGroup,
+        description="Collection of YMAP box occluders") # type: ignore
+    
+    ymap_box_occluders_index: bpy.props.IntProperty(
+        name="Ymap Box Occluders Index",
+        default=0,
+        description="Index of the selected YMAP box occluder") # type: ignore
+    
     ymap_phys_dicts: bpy.props.CollectionProperty(
         name="Ymap Physics Dictionaries",
         type=PhysicsGroup,
@@ -401,6 +449,11 @@ class YmapProps(bpy.types.PropertyGroup):
     entity_data_category: bpy.props.EnumProperty(
         name="Entity Category Toggle",
         items=ENTITY_TOGGLES # type: ignore
+    )
+
+    occluder_category: bpy.props.EnumProperty(
+        name="Occluder Category Toggle",
+        items=OCCLUDERS_TOGGLES # type: ignore
     )
     
     entity_multi_select: bpy.props.BoolProperty(

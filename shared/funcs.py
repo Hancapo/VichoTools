@@ -204,3 +204,12 @@ def get_hash_from_bytes(data: bytes, algorithm:str = "sha256") -> str:
     hash_object = hashlib.new(algorithm)
     hash_object.update(data)
     return hash_object.hexdigest()
+
+def sharpdx_vec_to_tuple(vec) -> tuple[float, float, float]:
+    """Convert a SharpDX vector to a tuple."""
+    return (vec.X, vec.Y, vec.Z)
+
+def indices_to_faces(indices):
+    """Convert a list of indices to a list of faces (triplets)."""
+    return [(indices[i], indices[i+1], indices[i+2])
+            for i in range(0, len(indices), 3)]

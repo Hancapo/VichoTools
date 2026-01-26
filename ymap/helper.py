@@ -11,7 +11,9 @@ from ..shared.helper import (
     delete_hierarchy,
     delete_mesh,
     set_mask,
-    get_mask
+    get_mask,
+    create_mesh_from_data,
+    create_obj
 )
 import bpy
 from ..shared.constants import (
@@ -22,7 +24,7 @@ from ..shared.constants import (
     VALID_NON_POLY_BOUND_TYPES,
     MAPENTITY_FLAGS
 )
-from ..shared.funcs import get_fn_wt_ext, set_bit
+from ..shared.funcs import get_fn_wt_ext, set_bit, indices_to_faces, sharpdx_vec_to_tuple
 from ..vicho_dependencies import dependencies_manager as d
 
 _is_updating_entity_prop: bool = False
@@ -35,7 +37,6 @@ def create_ymap_empty(name: str, collection: Collection = None):
     ymap_obj.vicho_type = "vicho_ymap_base"
     return ymap_obj
 
-
 def create_ymap_entities_group(parent_ymap_obj: Object):
     """Create a group for YMAP entities."""
     ymap_entities_group = create_empty_obj(f"{parent_ymap_obj.name}.entities")
@@ -43,6 +44,26 @@ def create_ymap_entities_group(parent_ymap_obj: Object):
     ymap_entities_group.parent = parent_ymap_obj
     return ymap_entities_group
 
+def create_ymap_occluders_group(parent_ymap_obj: Object):
+    """Create a group for YMAP occluders."""
+    ymap_occluders_group = create_empty_obj(f"{parent_ymap_obj.name}.occluders")
+    ymap_occluders_group.vicho_type = "vicho_ymap_occluders"
+    ymap_occluders_group.parent = parent_ymap_obj
+    return ymap_occluders_group
+
+def create_ymap_box_occluders_group(parent_occl_obj: Object):
+    """Create a group for YMAP box occluders."""
+    ymap_box_occluders_group = create_empty_obj(f"{parent_occl_obj.name}.boxes")
+    ymap_box_occluders_group.vicho_type = "vicho_ymap_box_occluders"
+    ymap_box_occluders_group.parent = parent_occl_obj
+    return ymap_box_occluders_group
+
+def create_ymap_models_occluders_group(parent_occl_obj: Object):
+    """Create a group for YMAP models occluders."""
+    ymap_models_occluders_group = create_empty_obj(f"{parent_occl_obj.name}.models")
+    ymap_models_occluders_group.vicho_type = "vicho_ymap_models_occluders"
+    ymap_models_occluders_group.parent = parent_occl_obj
+    return ymap_models_occluders_group
 
 def calc_ymap_extents(entities):
     """Calculates entities' and streaming extents for a YMAP."""
@@ -371,6 +392,9 @@ def import_ymap_to_scene(
             import_ent_objs(
                 import_settings, scene, current_index, asset_path, ymap_ent_group, self
             )
+        if import_settings.import_occluders:
+            import_occl_objs(
+                scene, current_index, ymap_file, ymap_obj, self)
         self.report({"INFO"}, f"YMAP {filename} added to scene")
         return True
     else:
@@ -540,6 +564,37 @@ def import_ent_objs(
                 working_obj,
             )
 
+def import_occl_objs(scene: Scene, index: int, ymap_file, ymap_obj: Object, self) -> None:
+
+    if any_occl_exists_in_ymap(ymap_file):
+        ymap_occl_group: Object = create_ymap_occluders_group(ymap_obj)
+
+        box_occls = get_all_box_occls_from_ymap(ymap_file)
+        model_occls = get_all_occls_models_from_ymap(ymap_file)
+
+        if box_occls:
+            box_occls_group: Object = create_ymap_box_occluders_group(ymap_occl_group)
+
+        if model_occls:
+            model_occls_group: Object = create_ymap_models_occluders_group(ymap_occl_group)
+            for model_occl in model_occls:
+                fill_model_occl_data_from_ymap(scene, index, ymap_file, model_occls_group, model_occl)
+
+def fill_model_occl_data_from_ymap(scene: Scene, index: int, current_ymap, group_obj: Object, model_occl) -> None:
+    new_model_occl = scene.ymap_list[index].ymap_model_occluders.add()
+    new_model_occl.name = f"ModelOccl_{model_occl.Index}"
+    new_model_occl.flags = model_occl.Flags.Value
+    faces = indices_to_faces(model_occl.Indices)
+    verts = [sharpdx_vec_to_tuple(v) for v in model_occl.Vertices]
+    new_mesh = create_mesh_from_data(f"ModelOccl_{model_occl.Index}_Mesh", verts, faces)
+    new_obj = create_obj(f"ModelOccl_{model_occl.Index}", True, new_mesh)
+    new_obj.parent = group_obj
+
+
+
+def fill_box_occl_data_from_ymap(scene: Scene, index: int, current_ymap, group_obj: Object, box_occl) -> None:
+    pass
+    
 
 def get_imported_asset(before_import, entity) -> None:
     after_import: set[str] = set(bpy.data.objects.keys())
@@ -623,13 +678,35 @@ def apply_transforms_to_obj_from_entity(obj: Object, entity) -> None:
 
 def any_ent_exists_in_ymap(ymap) -> bool:
     """Checks if any entity exists in the YMAP"""
-    return ymap.AllEntities is not None
+    return get_all_ents_from_ymap(ymap) is not None
 
 
 def get_all_ents_from_ymap(ymap) -> list:
     """Returns all the entities from the YMAP"""
     return ymap.AllEntities
 
+def get_all_occls_models_from_ymap(ymap) -> list:
+    """Returns all the occluder models from the YMAP"""
+    return ymap.OccludeModels
+
+def get_all_box_occls_from_ymap(ymap) -> list:
+    """Returns all the box occluders from the YMAP"""
+    return ymap.BoxOccluders
+
+
+def any_occl_exists_in_ymap(ymap) -> bool:
+    """Checks if any occluder exists in the YMAP"""
+    return (
+        any_box_occl_exists_in_ymap(ymap) or any_model_occl_exists_in_ymap(ymap)
+    )
+
+def any_box_occl_exists_in_ymap(ymap) -> bool:
+    """Checks if any box occluder exists in the YMAP"""
+    return get_all_box_occls_from_ymap(ymap) is not None
+
+def any_model_occl_exists_in_ymap(ymap) -> bool:
+    """Checks if any model occluder exists in the YMAP"""
+    return get_all_occls_models_from_ymap(ymap) is not None
 
 def get_ent_type(entity) -> str:
     """Returns the entity type"""

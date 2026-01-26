@@ -50,6 +50,14 @@ class YmapMixin:
         if ymap and ymap.ymap_phys_dicts:
             return len(ymap.ymap_phys_dicts)
         return 0
+    
+    @staticmethod
+    def get_ymap_occl_count(context) -> int:
+        """Returns the number of occlusion culling objects in the currently selected YMAP"""
+        ymap = YmapMixin.get_ymap(context)
+        if ymap and ymap.ymap_model_occluders or ymap.ymap_box_occluders:
+            return len(ymap.occlusion_culling) + len(ymap.ymap_box_occluders)
+        return 0
 
     @staticmethod
     def get_ymap_count(context):
