@@ -26,7 +26,8 @@ from ..shared.funcs import get_fn_wt_ext, set_bit
 from ..vicho_dependencies import dependencies_manager as d
 
 _is_updating_entity_prop: bool = False
-
+YMAP_FLAGS_UPDATING: bool = False
+YMAP_CONTENT_FLAGS_UPDATING: bool = False
 
 def create_ymap_empty(name: str, collection: Collection = None):
     """Create an empty object for a YMAP."""
