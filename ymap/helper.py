@@ -1,5 +1,5 @@
 from pathlib import Path
-from bpy.types import Object, Collection, Scene
+from bpy.types import Object, Collection, Scene, Mesh
 from mathutils import Vector
 from ..shared.helper import (
     world_corners_of,
@@ -13,7 +13,9 @@ from ..shared.helper import (
     set_mask,
     get_mask,
     create_mesh_from_data,
-    create_obj
+    create_obj,
+    assign_mat,
+    get_mat
 )
 import bpy
 from ..shared.constants import (
@@ -24,8 +26,9 @@ from ..shared.constants import (
     VALID_NON_POLY_BOUND_TYPES,
     MAPENTITY_FLAGS
 )
-from ..shared.funcs import get_fn_wt_ext, set_bit, indices_to_faces, sharpdx_vec_to_tuple
+from ..shared.funcs import get_fn_wt_ext, set_bit, indices_to_faces, sharpdx_vec_to_tuple, sharpdx_quat_to_blender_quat
 from ..vicho_dependencies import dependencies_manager as d
+from mathutils import Quaternion
 
 _is_updating_entity_prop: bool = False
 YMAP_FLAGS_UPDATING: bool = False
@@ -574,6 +577,8 @@ def import_occl_objs(scene: Scene, index: int, ymap_file, ymap_obj: Object, self
 
         if box_occls:
             box_occls_group: Object = create_ymap_box_occluders_group(ymap_occl_group)
+            for box_occl in box_occls:
+                fill_box_occl_data_from_ymap(scene, index, ymap_file, box_occls_group, box_occl)
 
         if model_occls:
             model_occls_group: Object = create_ymap_models_occluders_group(ymap_occl_group)
@@ -584,16 +589,59 @@ def fill_model_occl_data_from_ymap(scene: Scene, index: int, current_ymap, group
     new_model_occl = scene.ymap_list[index].ymap_model_occluders.add()
     new_model_occl.name = f"ModelOccl_{model_occl.Index}"
     new_model_occl.flags = model_occl.Flags.Value
-    faces = indices_to_faces(model_occl.Indices)
-    verts = [sharpdx_vec_to_tuple(v) for v in model_occl.Vertices]
-    new_mesh = create_mesh_from_data(f"ModelOccl_{model_occl.Index}_Mesh", verts, faces)
-    new_obj = create_obj(f"ModelOccl_{model_occl.Index}", True, new_mesh)
+    new_obj = create_model_occluder_obj(model_occl.Index, model_occl)
     new_obj.parent = group_obj
 
 
+def create_model_occluder_obj(index, model_occl) -> Object:
+    faces = indices_to_faces(model_occl.Indices)
+    verts = [sharpdx_vec_to_tuple(v) for v in model_occl.Vertices]
+    mesh = create_mesh_from_data(f"ModelOccl{index}", verts, faces)
+    new_obj: Object = create_obj(f"ModelOccl{index}", True, mesh)
+    assign_mat(new_obj, get_mat("ModelOccluderMat", (1, 0.5, 0, 1), 0.895, 1))
+    return new_obj
+
+def create_box_occluder_obj(index: int, box_occl) -> Object:
+    xmin, ymin, zmin = sharpdx_vec_to_tuple(box_occl.BBMin)
+    xmax, ymax, zmax = sharpdx_vec_to_tuple(box_occl.BBMax)
+    position: Vector = sharpdx_vec_to_tuple(box_occl.Position)
+    rotation: Quaternion = sharpdx_quat_to_blender_quat(box_occl.Orientation)
+
+    verts: list[tuple[float, float, float]] = [
+        (xmin, ymin, zmin),
+        (xmax, ymin, zmin),
+        (xmax, ymax, zmin),
+        (xmin, ymax, zmin),
+        (xmin, ymin, zmax),
+        (xmax, ymin, zmax),
+        (xmax, ymax, zmax),
+        (xmin, ymax, zmax)
+    ]
+
+    faces = [
+        (0, 1, 2, 3),
+        (4, 5, 6, 7),
+        (0, 1, 5, 4),
+        (1, 2, 6, 5),
+        (2, 3, 7, 6),
+        (3, 0, 4, 7),
+    ]
+
+    mesh: Mesh = create_mesh_from_data(f"BoxOccl{index}", verts, faces)
+    new_obj: Object = create_obj(f"BoxOccl{index}", True, mesh)
+    new_obj.location = position
+    new_obj.rotation_mode = "QUATERNION"
+    new_obj.rotation_quaternion = rotation
+    assign_mat(new_obj, get_mat("BoxOccluderMat", (0, 1, 0, 1), 0.5, 1))
+    return new_obj
+
 
 def fill_box_occl_data_from_ymap(scene: Scene, index: int, current_ymap, group_obj: Object, box_occl) -> None:
-    pass
+    new_box_occl = scene.ymap_list[index].ymap_box_occluders.add()
+    new_box_occl.name = f"BoxOccl{box_occl.Index}"
+    new_obj = create_box_occluder_obj(box_occl.Index, box_occl)
+    assign_mat
+    new_obj.parent = group_obj
     
 
 def get_imported_asset(before_import, entity) -> None:

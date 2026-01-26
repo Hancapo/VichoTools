@@ -88,6 +88,9 @@ def create_mesh_from_data(name: str, verts: list[Vector], faces: list[tuple], ed
     mesh.update()
     return mesh
 
+def create_cube_mesh(verts, faces) -> Mesh:
+    return create_mesh_from_data("Cube", verts, faces)
+
 def get_top_parent(obj: Object) -> Object:
     """Get the top-most parent of the given object."""
     while obj.parent:
@@ -369,3 +372,25 @@ def find_imported_soll_root(filename: str, new_objs: list[Object]) -> Object:
                  x.type in COMPAT_OBJECT_TYPES and
                  x.sollum_type in YMAP_ENTITY_SOLLUM_TYPES and
                  not x.parent), None)
+
+
+def get_mat(name, color, rough = 0.0, metallic = 0.0) -> bpy.types.Material:
+    mat = bpy.data.materials.get(name)
+    if mat:
+        return mat
+    
+    mat = bpy.data.materials.new(name)
+    mat.use_nodes = True
+    bsdf = mat.node_tree.nodes["Principled BSDF"]
+    bsdf.inputs[0].default_value = color
+
+    #metallic
+    bsdf.inputs[1].default_value = metallic
+    #roughness
+    bsdf.inputs[2].default_value = rough
+
+    return mat
+
+def assign_mat(obj, mat):
+    obj.data.materials.clear()
+    obj.data.materials.append(mat)

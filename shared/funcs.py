@@ -1,6 +1,6 @@
 import hashlib
 import shutil
-from mathutils import Vector
+from mathutils import Vector, Quaternion
 import string
 import uuid
 import random
@@ -213,3 +213,7 @@ def indices_to_faces(indices):
     """Convert a list of indices to a list of faces (triplets)."""
     return [(indices[i], indices[i+1], indices[i+2])
             for i in range(0, len(indices), 3)]
+
+def sharpdx_quat_to_blender_quat(quat) -> Quaternion:
+    """Convert a SharpDX quaternion to a Blender quaternion."""
+    return Quaternion((quat.W, quat.X, quat.Y, quat.Z))
