@@ -587,7 +587,7 @@ def import_occl_objs(scene: Scene, index: int, ymap_file, ymap_obj: Object, self
 
 def fill_model_occl_data_from_ymap(scene: Scene, index: int, group_obj: Object, model_occl) -> None:
     new_model_occl = scene.ymap_list[index].ymap_model_occluders.add()
-    new_model_occl.name = f"ModelOccl_{model_occl.Index}"
+    new_model_occl.name = f"Occluder Model {model_occl.Index}"
     new_model_occl.flags = model_occl.Flags.Value
     new_obj = create_model_occluder_obj(model_occl.Index, model_occl)
     new_obj.parent = group_obj
@@ -595,7 +595,7 @@ def fill_model_occl_data_from_ymap(scene: Scene, index: int, group_obj: Object, 
 
 def fill_box_occl_data_from_ymap(scene: Scene, index: int, group_obj: Object, box_occl) -> None:
     new_box_occl = scene.ymap_list[index].ymap_box_occluders.add()
-    new_box_occl.name = f"BoxOccl{box_occl.Index}"
+    new_box_occl.name = f"Box Occluder {box_occl.Index}"
     new_obj = create_box_occluder_obj(box_occl.Index, box_occl)
     new_obj.parent = group_obj
     new_box_occl.linked_obj = new_obj
