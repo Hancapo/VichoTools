@@ -1,7 +1,8 @@
 import bpy
-from .vicho_dependencies import is_dotnet_installed, dependencies_manager as d
+from .vicho_dependencies import dependencies_manager as d
 from .vicho_operators import VICHO_OT_install_dotnet, VICHO_OT_import_strings
 from .shared.helper import str_loaded_count
+from .misc.helper import is_dotnet_installed
 
 class VichoToolsAddonProperties(bpy.types.AddonPreferences):
     bl_idname = __package__

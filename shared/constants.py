@@ -153,3 +153,4 @@ ARCH_TYPES: tuple[str, ...] = (
 )
 
 VALID_MAPDATA_ENTITY_FLAGS: int = sum(int(i[0]) for i in MAPENTITY_FLAGS)
+DOTNET_LINK = "https://builds.dotnet.microsoft.com/dotnet/Runtime/9.0.6/dotnet-runtime-9.0.6-win-x64.exe"

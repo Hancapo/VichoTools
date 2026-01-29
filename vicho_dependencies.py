@@ -1,11 +1,5 @@
 import os
-import bpy
-import subprocess
-import shutil
-import traceback
-import importlib.util
 
-DOTNET_LINK = "https://builds.dotnet.microsoft.com/dotnet/Runtime/9.0.6/dotnet-runtime-9.0.6-win-x64.exe"
 
 class DependenciesManager:
     _instance = None
@@ -56,67 +50,15 @@ class DependenciesManager:
         self.JenkHash = None
         self.JenkIndex = None
         self.CMapData = None
+
+        self.BoxOccluder = None
+        self.YmapBoxOccluder = None
+        self.OccludeModel = None
+        self.YmapOccludeModel = None
+        self.FlagsUint = None
         
         # KeepA stuff
         self.FolderBrowser = None
-
-    @property
-    def ymap_list(self) -> list:
-        """Returns the list of YMAPs in the scene as YmapFile objects"""
-        scene = bpy.context.scene
-        ymap_bytes_list: list[bytes] = scene.get("ymap_list", [])
-        actual_ymap_list: list = []
-        for ymap_bytes in ymap_bytes_list:
-            ymap = self.YmapFile()
-            ymap.Load(ymap_bytes)
-            actual_ymap_list.append(ymap)
-        return actual_ymap_list
-    
-    @property
-    def ymap_list_bytes(self) -> list[bytes]:
-        """Returns the list of YMAPs in the scene as bytes"""
-        scene = bpy.context.scene
-        ymap_bytes_list: list[bytes] = scene.get("ymap_list", [])
-        return ymap_bytes_list
-    
-    @ymap_list.setter
-    def ymap_list(self, value: list):
-        scene = bpy.context.scene
-        scene["ymap_list"] = value
-    
-    def add_ymap(self, ymap_path: str) -> bool:
-        """Adds a YMAP to the scene as bytes"""
-        scene = bpy.context.scene
-        ymap_bytes: bytes = bytes(self.File.ReadAllBytes(ymap_path))
-        ymap_bytes_list: list[bytes] = scene.get("ymap_list", [])
-        try:
-            ymap_list_bytes = list(ymap_bytes_list)
-            ymap_list_bytes.append(ymap_bytes)
-            scene["ymap_list"] = ymap_list_bytes
-            return True
-        except Exception as e:
-            print(f"Error adding ymap: {e}")
-            return False
-        
-    def remove_ymap(self, index: int) -> bool:
-        """Removes a YMAP from the scene"""
-        scene = bpy.context.scene
-        ymap_bytes_list: list[bytes] = scene.get("ymap_list", [])
-        try:
-            ymap_bytes_list.pop(index)
-            scene["ymap_list"] = ymap_bytes_list
-            return True
-        except Exception as e:
-            print(f"Error removing ymap: {e}")
-            return False
-
-    def get_ymap(self, index: int):
-        """Returns the YmapFile object at the specified index"""
-        return self.ymap_list[index]
-    
-    def get_ymap_bytes(self, index: int) -> bytes:
-        """Returns the YmapFile bytes at the specified index"""
-        return self.ymap_list_bytes[index]
 
     @property
     def available(self):
@@ -152,7 +94,12 @@ class DependenciesManager:
                 self.JenkHash,
                 self.JenkIndex,
                 self.CMapData,
-                self.FolderBrowser
+                self.FolderBrowser,
+                self.BoxOccluder,
+                self.YmapBoxOccluder,
+                self.OccludeModel,
+                self.YmapOccludeModel,
+                self.FlagsUint
             ]
         )
 
@@ -196,6 +143,11 @@ class DependenciesManager:
                 JenkHash,
                 JenkIndex,
                 CMapData,
+                BoxOccluder,
+                YmapBoxOccluder,
+                OccludeModel,
+                YmapOccludeModel,
+                FlagsUint
             )
             import CodeWalker.Utils as Utils
             from TeximpNet import Surface as Surface, ImageFilter as ImageFilter
@@ -238,6 +190,12 @@ class DependenciesManager:
             self.JenkIndex = JenkIndex
             self.CMapData = CMapData
 
+            self.BoxOccluder = BoxOccluder
+            self.YmapBoxOccluder = YmapBoxOccluder
+            self.FlagsUint = FlagsUint
+            self.OccludeModel = OccludeModel
+            self.YmapOccludeModel = YmapOccludeModel
+
             self.List = List
             self.File = File
 
@@ -260,6 +218,7 @@ class DependenciesManager:
             print(f"Utils: {self.Utils}")
             print(f"Surface: {self.Surface}")
             print(f"Compressor: {self.Compressor}")
+            print(f"YmapOccludeModel: {self.YmapBoxOccluder}")
 
             return True
         except Exception as e:
@@ -271,32 +230,3 @@ class DependenciesManager:
 
 
 dependencies_manager = DependenciesManager()
-
-
-def is_dotnet_installed():
-    try:
-        dotnet_path = shutil.which("dotnet")
-        if dotnet_path is None:
-            print(
-                "The 'dotnet' command was not found. Please ensure .NET is installed and the PATH environment variable is set correctly."
-            )
-            return False
-
-        result = subprocess.run(
-            [dotnet_path, "--list-runtimes"], capture_output=True, text=True
-        )
-        if result.returncode != 0:
-            return False
-
-        for line in result.stdout.splitlines():
-            if "Microsoft.NETCore.App 9" in line:
-                return True
-        return False
-    except Exception as e:
-        print(f"Error checking .NET installation: {e}")
-        traceback.print_exc()
-        return False
-
-
-def is_pythonnet_loaded():
-    return importlib.util.find_spec("pythonnet") is not None

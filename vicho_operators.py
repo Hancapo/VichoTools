@@ -2,7 +2,7 @@ import bpy
 import webbrowser
 from bpy.props import StringProperty
 from bpy_extras.io_utils import ImportHelper
-from .vicho_dependencies import DOTNET_LINK
+from .shared.constants import DOTNET_LINK
 from .shared.helper import resolve_hashes_from_file, str_loaded_count
 
 class ContextSelectionRestrictedHelper:

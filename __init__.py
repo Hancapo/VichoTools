@@ -13,15 +13,17 @@ def reload_vicho_tools():
             
 if "auto_load" in locals():
     reload_vicho_tools()
-    from .vicho_dependencies import dependencies_manager as d, is_pythonnet_loaded, is_dotnet_installed
+    from .vicho_dependencies import dependencies_manager as d
+    from .misc.helper import is_pythonnet_loaded, is_dotnet_installed
     if is_pythonnet_loaded() and is_dotnet_installed():
         d.load_dependencies()
 
-from . import auto_load
-from . import icons_load
-from .vicho_dependencies import dependencies_manager as d, is_pythonnet_loaded, is_dotnet_installed
+from . import auto_load  # noqa: E402
+from . import icons_load # noqa: E402
+from .vicho_dependencies import dependencies_manager as d # noqa: E402
+from .misc.helper import is_pythonnet_loaded, is_dotnet_installed # noqa: E402
 
-from .ymap import key_maps
+from .ymap import key_maps # noqa: E402
 
 auto_load.init()
 

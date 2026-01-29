@@ -1,5 +1,9 @@
+import importlib
+import subprocess
+import traceback
 from bpy.types import Object
 from ..shared.helper import get_active_obj, zoom_to_objs
+import shutil
 
 def add_transform_item(self, context):
     obj: Object = context.active_object
@@ -48,3 +52,31 @@ def update_transform_index(self, context) -> None:
 def any_transform_items() -> bool:
     active_obj = get_active_obj()
     return active_obj is not None and len(active_obj.transforms_list) > 0
+
+def is_dotnet_installed():
+    try:
+        dotnet_path = shutil.which("dotnet")
+        if dotnet_path is None:
+            print(
+                "The 'dotnet' command was not found. Please ensure .NET is installed and the PATH environment variable is set correctly."
+            )
+            return False
+
+        result = subprocess.run(
+            [dotnet_path, "--list-runtimes"], capture_output=True, text=True
+        )
+        if result.returncode != 0:
+            return False
+
+        for line in result.stdout.splitlines():
+            if "Microsoft.NETCore.App 9" in line:
+                return True
+        return False
+    except Exception as e:
+        print(f"Error checking .NET installation: {e}")
+        traceback.print_exc()
+        return False
+
+
+def is_pythonnet_loaded():
+    return importlib.util.find_spec("pythonnet") is not None
