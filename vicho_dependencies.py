@@ -56,6 +56,7 @@ class DependenciesManager:
         self.OccludeModel = None
         self.YmapOccludeModel = None
         self.FlagsUint = None
+        self.YmapOccludeModelTriangle = None
         
         # KeepA stuff
         self.FolderBrowser = None
@@ -99,7 +100,8 @@ class DependenciesManager:
                 self.YmapBoxOccluder,
                 self.OccludeModel,
                 self.YmapOccludeModel,
-                self.FlagsUint
+                self.FlagsUint,
+                self.YmapOccludeModelTriangle
             ]
         )
 
@@ -147,7 +149,8 @@ class DependenciesManager:
                 YmapBoxOccluder,
                 OccludeModel,
                 YmapOccludeModel,
-                FlagsUint
+                FlagsUint,
+                YmapOccludeModelTriangle
             )
             import CodeWalker.Utils as Utils
             from TeximpNet import Surface as Surface, ImageFilter as ImageFilter
@@ -161,7 +164,6 @@ class DependenciesManager:
             )
 
             from SharpDX import Vector3, Vector4
-            
             from KeepA import FolderBrowser
 
             print("Modules OK")
@@ -195,6 +197,7 @@ class DependenciesManager:
             self.FlagsUint = FlagsUint
             self.OccludeModel = OccludeModel
             self.YmapOccludeModel = YmapOccludeModel
+            self.YmapOccludeModelTriangle = YmapOccludeModelTriangle
 
             self.List = List
             self.File = File
