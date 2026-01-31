@@ -15,6 +15,9 @@ from ...shared.helper import (str_loaded_count,
                       get_meta_hash)
 from bpy.types import Object
 from ...vicho_dependencies import dependencies_manager as d
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    import CodeWalker.GameFiles as gf # type: ignore
 import time
 import os
 from ..helper import (import_ymap_to_scene,
@@ -163,22 +166,22 @@ class VICHO_OT_export_ymap(bpy.types.Operator, YmapMixin):
             if self.calc_ent_extents:
                 set_ymap_ent_extents(ymap, ymap.entities)
                 
-            ymap_file = d.YmapFile()
+            ymap_file: "gf.YmapFile" = d.YmapFile()
             ymap_file.Name = ymap.ymap_object.name
-            new_map_data = d.CMapData()
+            new_cmapdata: "gf.CMapData" = d.CMapData()
             
-            new_map_data.parent = get_meta_hash(ymap.parent)
+            new_cmapdata.parent = get_meta_hash(ymap.parent)
             
-            new_map_data.flags, new_map_data.contentFlags = ymap.flags.total_flags, ymap.content_flags.total_flags
-            new_map_data.streamingExtentsMin = d.Vector3(ymap.streaming_extents_min[0], ymap.streaming_extents_min[1], ymap.streaming_extents_min[2])
-            new_map_data.streamingExtentsMax = d.Vector3(ymap.streaming_extents_max[0], ymap.streaming_extents_max[1], ymap.streaming_extents_max[2])
-            new_map_data.entitiesExtentsMin = d.Vector3(ymap.entities_extents_min[0], ymap.entities_extents_min[1], ymap.entities_extents_min[2])
-            new_map_data.entitiesExtentsMax = d.Vector3(ymap.entities_extents_max[0], ymap.entities_extents_max[1], ymap.entities_extents_max[2])
+            new_cmapdata.flags, new_cmapdata.contentFlags = ymap.flags.total_flags, ymap.content_flags.total_flags
+            new_cmapdata.streamingExtentsMin = d.Vector3(ymap.streaming_extents_min[0], ymap.streaming_extents_min[1], ymap.streaming_extents_min[2])
+            new_cmapdata.streamingExtentsMax = d.Vector3(ymap.streaming_extents_max[0], ymap.streaming_extents_max[1], ymap.streaming_extents_max[2])
+            new_cmapdata.entitiesExtentsMin = d.Vector3(ymap.entities_extents_min[0], ymap.entities_extents_min[1], ymap.entities_extents_min[2])
+            new_cmapdata.entitiesExtentsMax = d.Vector3(ymap.entities_extents_max[0], ymap.entities_extents_max[1], ymap.entities_extents_max[2])
             
-            ymap_file._CMapData = new_map_data
+            ymap_file._CMapData = new_cmapdata
 
             if ymap.ymap_phys_dicts:
-                phys_dicts = []
+                phys_dicts: list["gf.MetaHash"] = []
                 for phys_dict in ymap.ymap_phys_dicts:
                     phys_dicts.append(get_meta_hash(phys_dict.name))
                 ymap_file.physicsDictionaries = phys_dicts
@@ -189,9 +192,9 @@ class VICHO_OT_export_ymap(bpy.types.Operator, YmapMixin):
                         lo: Object = entity.linked_object
                         if lo.rotation_mode != 'QUATERNION':
                             lo.rotation_mode = 'QUATERNION'
-                        ymap_entity_def = d.YmapEntityDef()
-                        ent_def = d.CEntityDef()
-                        name_meta = d.MetaHash(d.JenkHash.GenHash(sanitize_name(lo.name)))
+                        ymap_entity_def: "gf.YmapEntityDef" = d.YmapEntityDef()
+                        ent_def: "gf.CEntityDef" = d.CEntityDef()
+                        name_meta: "gf.MetaHash" = d.MetaHash(d.JenkHash.GenHash(sanitize_name(lo.name)))
                         ent_def.archetypeName = name_meta
                         ent_def.position = d.Vector3(lo.location.x, lo.location.y, lo.location.z)
                         ent_def.rotation = d.Vector4(lo.rotation_quaternion.x, lo.rotation_quaternion.y, 
@@ -212,11 +215,11 @@ class VICHO_OT_export_ymap(bpy.types.Operator, YmapMixin):
                         ent_def.parentIndex = entity.parent_index
                         
                         if entity.is_mlo_instance:
-                            mlo_arch = d.MloArchetype()
-                            mlo_inst_data = d.MloInstanceData(ymap_entity_def, mlo_arch)
+                            mlo_arch: "gf.MloArchetype" = d.MloArchetype()
+                            mlo_inst_data: "gf.MloInstanceData" = d.MloInstanceData(ymap_entity_def, mlo_arch)
                             if entity.default_entity_sets:
                                 mlo_inst_data.defaultEntitySets = [get_meta_hash(des.name) for des in entity.default_entity_sets]
-                            cmlo_inst = d.CMloInstanceDef()
+                            cmlo_inst: "gf.CMloInstanceDef" = d.CMloInstanceDef()
                             cmlo_inst.groupId = entity.group_id
                             cmlo_inst.floorId = entity.floor_id
                             cmlo_inst.MLOInstflags = entity.mlo_inst_flags
