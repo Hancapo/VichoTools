@@ -2,6 +2,12 @@ import shutil
 import bpy
 from bpy.app.handlers import persistent
 from ..vicho_dependencies import dependencies_manager as d
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from CodeWalker.GameFiles import Texture, TextureDictionary, YtdFile
+    from System.Collections.Generic import List
+    from TeximpNet import Surface
+    from TeximpNet.Compression import Compressor
 import os
 from .constants import SUPPORTED_FORMATS, ENV_TEXTURES
 from pathlib import Path
@@ -55,8 +61,8 @@ def update_post_ytd(scene, depsgraph):
     remove_invalid_meshes(scene)
 
 
-def texture_list_from_dds_files(ddsFiles: list[str]):
-    textureList = d.List[d.GameFiles.Texture]()
+def texture_list_from_dds_files(ddsFiles: list[str]) -> "List[Texture]":
+    textureList: "List[gf.Texture]" = d.List[d.GameFiles.Texture]()
     for ddsFile in ddsFiles:
         fn = ddsFile
         if not os.path.exists(fn):
@@ -64,9 +70,9 @@ def texture_list_from_dds_files(ddsFiles: list[str]):
             continue
         try:
             with open(ddsFile, "rb") as dds_open:
-                content = dds_open.read()
-            byte_array = bytearray(content)
-            tex = d.Utils.DDSIO.GetTexture(byte_array)
+                content: bytes = dds_open.read()
+            byte_array: bytearray = bytearray(content)
+            tex: "gf.Texture" = d.Utils.DDSIO.GetTexture(byte_array)
             tex.Name = os.path.splitext(os.path.basename(ddsFile))[0]
             tex.NameHash = d.GameFiles.JenkHash.GenHash(str(tex.Name.lower()))
             d.GameFiles.JenkIndex.Ensure(tex.Name.lower())
@@ -77,23 +83,23 @@ def texture_list_from_dds_files(ddsFiles: list[str]):
     return textureList
 
 
-def textures_to_ytd(textureList, ytdFile):
-    textureDictionary = ytdFile.TextureDict
+def textures_to_ytd(textureList: "List[Texture]", ytdFile: "YtdFile"):
+    textureDictionary: "TextureDictionary" = ytdFile.TextureDict
     textureDictionary.BuildFromTextureList(textureList)
     return ytdFile
 
 
-def is_transparent(image) -> bool:
+def is_transparent(image: "Surface") -> bool:
     return image.IsTransparent
 
 
 def convert_folder_to_ytd(folder: str):
-    dds_files = get_files_by_ext(folder, "dds")
-    ytd = d.GameFiles.YtdFile()
+    dds_files: list[str] = get_files_by_ext(folder, "dds")
+    ytd: "YtdFile" = d.GameFiles.YtdFile()
     ytd.TextureDict = d.GameFiles.TextureDictionary()
     ytd.TextureDict.Textures = d.GameFiles.ResourcePointerList64[d.GameFiles.Texture]()
     ytd.TextureDict.TextureNameHashes = d.GameFiles.ResourceSimpleList64_uint()
-    final_ytd = textures_to_ytd(texture_list_from_dds_files(dds_files), ytd)
+    final_ytd: "YtdFile" = textures_to_ytd(texture_list_from_dds_files(dds_files), ytd)
     return final_ytd
 
 
@@ -109,10 +115,10 @@ def convert_img_to_dds(
     resize_dds: bool,
 ):
     adv = bpy.context.scene.ytd_advanced_mode
-    surface = None
-    compressor = d.Compressor()
+    surface: "Surface" = None
+    compressor: "Compressor" = d.Compressor()
 
-    img_filter = (
+    img_filter: filter[str] = (
         filter(lambda x: x != ".dds", SUPPORTED_FORMATS)
         if not resize_dds
         else SUPPORTED_FORMATS
@@ -121,7 +127,7 @@ def convert_img_to_dds(
     if file_ext in img_filter:
         try:
             print(f"Trying to load image {filepath}")
-            surface = d.Surface.LoadFromFile(filepath, True)
+            surface: "Surface" = d.Surface.LoadFromFile(filepath, True)
         except Exception:
             print(f"Error loading image {filepath}")
             return None
@@ -129,7 +135,8 @@ def convert_img_to_dds(
         print(f"Invalid file extension {file_ext}")
         return None
 
-    width, height = surface.Width, surface.Height
+    width: int = surface.Width
+    height: int = surface.Height
     if adv:
         if do_max_dimension:
             width, height = closest_pow2_dims(width, height, max_res, False)
@@ -139,7 +146,7 @@ def convert_img_to_dds(
             surface.Resize(width, height, d.ImageFilter.Lanczos3)
     else:
         width, height = closest_pow2(width), closest_pow2(height)
-    mip_levels = calculate_mipmaps_lvls(width, height)
+    mip_levels: int = calculate_mipmaps_lvls(width, height)
     compressor.Input.SetData(surface)
     compressor.Input.RoundMode = d.RoundMode.ToNearestPowerOfTwo
     if is_tint:
@@ -408,14 +415,13 @@ def export_img_packages(
                 threads[-1].start()
         for thread in threads:
             thread.join()
-        ytd_file = convert_folder_to_ytd(ytd_folder)
-        folder_path = Path(ytd_folder)
+        ytd_file: "YtdFile" = convert_folder_to_ytd(ytd_folder)
+        folder_path: Path = Path(ytd_folder)
         print(f"Folder Path: {folder_path.name}")
         output_file_path = Path(export_path) / f"{folder_path.name}.ytd"
         print(f"Output File Path: {output_file_path}")
         with open(f"{output_file_path}", "wb") as f:
-            bytes_data = ytd_file.Save()
-            byte_array = bytearray(list(bytes_data))
+            byte_array: bytearray = bytearray(list(ytd_file.Save()))
             f.write(byte_array)
     delete_folder(new_export_path)
 
