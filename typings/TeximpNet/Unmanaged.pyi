@@ -4,10 +4,6 @@ from typing import Any, ClassVar, TypeVar, overload
 import TeximpNet
 
 T = TypeVar("T")
-T1 = TypeVar("T1")
-T2 = TypeVar("T2")
-T3 = TypeVar("T3")
-T4 = TypeVar("T4")
 
 class BeginImageHandler:
     Target: Any

@@ -93,7 +93,7 @@ class Bool4:
     Z: bool
     W: bool
     SizeInBytes: ClassVar[int]
-    False: ClassVar[Bool4]
+    _False: ClassVar[Bool4]
     UnitX: ClassVar[Bool4]
     UnitY: ClassVar[Bool4]
     UnitZ: ClassVar[Bool4]
@@ -3438,7 +3438,7 @@ class Result:
     Success: bool
     Failure: bool
     Ok: ClassVar[Result]
-    False: ClassVar[Result]
+    _False: ClassVar[Result]
     Abort: ClassVar[ResultDescriptor]
     AccessDenied: ClassVar[ResultDescriptor]
     Fail: ClassVar[ResultDescriptor]

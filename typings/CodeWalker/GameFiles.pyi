@@ -5,10 +5,6 @@ import CodeWalker
 import SharpDX
 
 T = TypeVar("T")
-T1 = TypeVar("T1")
-T2 = TypeVar("T2")
-T3 = TypeVar("T3")
-T4 = TypeVar("T4")
 
 class AABB_s:
     Min: SharpDX.Vector4

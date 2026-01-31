@@ -1,14 +1,8 @@
 from __future__ import annotations
-from enum import IntEnum, IntFlag
-from typing import Any, ClassVar, Generic, TypeVar, overload
+from typing import Any, overload
 import CodeWalker
 import SharpDX
 
-T = TypeVar("T")
-T1 = TypeVar("T1")
-T2 = TypeVar("T2")
-T3 = TypeVar("T3")
-T4 = TypeVar("T4")
 
 class BoundingBoxExtensions:
     @staticmethod
