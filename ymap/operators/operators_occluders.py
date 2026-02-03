@@ -1,8 +1,8 @@
 import bpy
 from ..ymap_mixin import YmapMixin
 from bpy.types import Object
-from ...shared.helper import is_mesh_a_cube, assign_mat
-from ..helper import box_occluder_mat, occluder_model_mat
+from ...shared.helper import is_mesh_a_cube, assign_mat, create_cube_obj
+from ..helper import box_occluder_mat, occluder_model_mat, create_box_occluder_item
 
 
 class YMAP_OT_create_box_occluder(bpy.types.Operator, YmapMixin):
@@ -14,26 +14,27 @@ class YMAP_OT_create_box_occluder(bpy.types.Operator, YmapMixin):
     @classmethod
     def poll(cls, context):
         return cls.get_ymap(context) is not None
+    
 
     def execute(self, context):
         box_objs: list[Object] = [obj for obj in context.selected_objects if is_mesh_a_cube(obj)]
+        ymap, ymap_box_occl_group  = self.get_ymap(context), self.get_ymap_box_occl_group_obj(context)
         if len(box_objs) > 0:
-            ymap, ymap_box_occl_group  = self.get_ymap(context), self.get_ymap_box_occl_group_obj(context)
             for box_obj in box_objs:
                 if box_obj not in [occl.linked_obj for occl in ymap.ymap_box_occluders]:
-                    new_box_occl = ymap.ymap_box_occluders.add()
-                    new_box_occl.name = "Box Occluder"
-                    new_box_occl.linked_obj = box_obj
-                    box_obj.parent = ymap_box_occl_group
-                    assign_mat(box_obj, box_occluder_mat())
+                    create_box_occluder_item(box_obj, ymap, ymap_box_occl_group)
                 else:
                     self.report({'WARNING'}, f"{box_obj.name} is already a box occlusion culling object in {ymap.ymap_object.name} YMAP")
                     return {'CANCELLED'}
             self.report({'INFO'}, f"Created {len(box_objs)} box occlusion culling objects in {ymap.ymap_object.name} YMAP")
             return {'FINISHED'}
         else:
-            self.report({'WARNING'}, "No cube-shaped objects selected")
-            return {'CANCELLED'}
+            box_obj = create_cube_obj()
+            if box_obj not in [occl.linked_obj for occl in ymap.ymap_box_occluders]:
+                create_box_occluder_item(box_obj, ymap, ymap_box_occl_group)
+                self.report({'INFO'}, f"Created box occlusion culling object in {ymap.ymap_object.name} YMAP")
+                return {'FINISHED'}
+
 
 class YMAP_OT_remove_box_occluder(bpy.types.Operator, YmapMixin):
     """Removes a box occlusion culling object from the currently selected YMAP"""

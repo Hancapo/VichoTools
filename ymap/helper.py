@@ -742,3 +742,12 @@ def box_occluder_mat() -> Material:
 
 def occluder_model_mat() -> Material:
     return get_mat("ModelOccluderMat", (1, 0.5, 0, 1), 0.895, 1)
+
+def create_box_occluder_item(box_obj: Object, ymap, ymap_box_occl_group) -> None:
+    """Creates a box occlusion culling object in the YMAP"""
+    box_obj.name = "Box Occluder"
+    new_box_occl = ymap.ymap_box_occluders.add()
+    new_box_occl.name = "Box Occluder"
+    new_box_occl.linked_obj = box_obj
+    box_obj.parent = ymap_box_occl_group
+    assign_mat(box_obj, box_occluder_mat())

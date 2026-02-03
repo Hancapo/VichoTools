@@ -89,8 +89,29 @@ def create_mesh_from_data(name: str, verts: list[Vector], faces: list[tuple], ed
     mesh.update()
     return mesh
 
-def create_cube_mesh(verts, faces) -> Mesh:
+def create_cube_obj(name: str = None) -> Object:
+    if name is None:
+        name = "Cube"
+    return create_obj(name, True, create_cube_mesh())
+
+def create_cube_mesh(verts=None, faces=None) -> Mesh:
+    
+    if verts is None and faces is None:
+        s = 2.5
+        verts = [
+            ( s,  s,  s), (-s,  s,  s), (-s, -s,  s), ( s, -s,  s),
+            ( s,  s, -s), (-s,  s, -s), (-s, -s, -s), ( s, -s, -s)
+        ]
+        faces = [
+            (0, 1, 2, 3),
+            (4, 5, 6, 7),
+            (0, 1, 5, 4),
+            (1, 2, 6, 5),
+            (2, 3, 7, 6),
+            (3, 0, 4, 7)
+        ]
     return create_mesh_from_data("Cube", verts, faces)
+
 
 def get_top_parent(obj: Object) -> Object:
     """Get the top-most parent of the given object."""
