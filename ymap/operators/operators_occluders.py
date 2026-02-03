@@ -1,7 +1,7 @@
 import bpy
 from ..ymap_mixin import YmapMixin
 from bpy.types import Object
-from ...shared.helper import is_mesh_a_cube, assign_mat, create_cube_obj
+from ...shared.helper import is_mesh_a_cube, assign_mat, create_cube_obj, delete_obj
 from ..helper import box_occluder_mat, occluder_model_mat, create_box_occluder_item
 
 
@@ -47,10 +47,20 @@ class YMAP_OT_remove_box_occluder(bpy.types.Operator, YmapMixin):
         return cls.has_occluders(context) > 0 and cls.get_ymap_box_occl_index(context) > -1
 
     def execute(self, context):
+        ymap = self.get_ymap(context)
         if self.has_occluders(context):
-            box_occls = self.get_ymap_box_occls(context)
-            box_occls.remove(YmapMixin.get_ymap_box_occl_index(context))
-            self.report({'INFO'}, f"Removed box occlusion culling object from {self.get_ymap(context).ymap_object.name} YMAP")
+            index = self.get_ymap_box_occl_index(context)
+            box_occls = ymap.ymap_box_occluders
+            delete_obj(box_occls[index].linked_obj)
+            box_occls.remove(index)
+            ymap.ymap_box_occluders_index = max(0, ymap.ymap_box_occluders_index - 1)
+            if len(box_occls) == 0:
+                ymap.ymap_box_occluders_group_object = None
+                delete_obj(self.get_ymap_box_occl_group_obj(context))
+            if not self.has_occluders(context):
+                ymap.ymap_occluders_group_object = None
+                delete_obj(self.get_ymap_occl_group_obj(context))
+            self.report({'INFO'}, f"Removed box occlusion culling object from {ymap.ymap_object.name} YMAP")
             return {'FINISHED'}
 
 class YMAP_OT_create_model_occluder(bpy.types.Operator, YmapMixin):

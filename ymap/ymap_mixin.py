@@ -54,9 +54,7 @@ class YmapMixin:
     @staticmethod
     def get_ymap_occl_count(context) -> int:
         """Returns the number of occlusion culling objects in the currently selected YMAP"""
-        if YmapMixin.has_occluders(context):
-            return YmapMixin.get_ymap_box_occl_count(context) + YmapMixin.get_ymap_model_occl_count(context)
-        return 0
+        return YmapMixin.get_ymap_box_occl_count(context) + YmapMixin.get_ymap_model_occl_count(context)
     
     @staticmethod
     def get_ymap_box_occl_count(context) -> int:
