@@ -1,4 +1,4 @@
-from .helper import create_ymap_entities_group
+from .helper import create_ymap_entities_group, create_ymap_occluders_group, create_ymap_models_occluders_group, create_ymap_box_occluders_group
 from bpy.types import Object
 
 class YmapMixin:
@@ -54,26 +54,83 @@ class YmapMixin:
     @staticmethod
     def get_ymap_occl_count(context) -> int:
         """Returns the number of occlusion culling objects in the currently selected YMAP"""
-        ymap = YmapMixin.get_ymap(context)
-        if ymap and ymap.ymap_model_occluders or ymap.ymap_box_occluders:
-            return len(ymap.occlusion_culling) + len(ymap.ymap_box_occluders)
+        if YmapMixin.has_occluders(context):
+            return YmapMixin.get_ymap_box_occl_count(context) + YmapMixin.get_ymap_model_occl_count(context)
         return 0
     
     @staticmethod
-    def get_box_occl(context) -> Object:
+    def get_ymap_box_occl_count(context) -> int:
+        """Returns the number of box occlusion culling objects in the currently selected YMAP"""
+        ymap = YmapMixin.get_ymap(context)
+        if ymap and ymap.ymap_box_occluders:
+            return len(ymap.ymap_box_occluders)
+        return 0
+    
+    @staticmethod
+    def get_box_occl(context) -> Object | None:
         """Returns the box occlusion culling object by index in the currently selected YMAP"""
         ymap = YmapMixin.get_ymap(context)
         if ymap and ymap.ymap_box_occluders:
-            return ymap.ymap_box_occluders[ymap.ymap_box_occluders_index]
+            return ymap.ymap_box_occluders[YmapMixin.get_ymap_box_occl_index(context)]
         return None
+    
+    @staticmethod
+    def get_ymap_box_occl_index(context) -> int:
+        """Returns the index of the currently selected box occlusion culling object in the currently selected YMAP"""
+        ymap = YmapMixin.get_ymap(context)
+        if ymap and ymap.ymap_box_occluders:
+            return ymap.ymap_box_occluders_index
+        return 0
+    
+    @staticmethod
+    def get_ymap_occl_group_obj(context) -> Object:
+        """Returns the YMAP entities group object, creates it if it doesn't exist"""
+        ymap_obj: Object = YmapMixin.get_ymap_obj(context)
+        return next((ent_group for ent_group in ymap_obj.children
+                     if ent_group.vicho_type == "vicho_ymap_occluder_base"), None) or create_ymap_occluders_group(ymap_obj)
+    @staticmethod
+    def get_ymap_box_occl_group_obj(context) -> Object:
+        """Returns the YMAP entities group object, creates it if it doesn't exist"""
+        ymap_occl_obj = YmapMixin.get_ymap_occl_group_obj(context)
+        return next((ent_group for ent_group in ymap_occl_obj.children
+                     if ent_group.vicho_type == "vicho_ymap_box_occluders"), None) or create_ymap_box_occluders_group(ymap_occl_obj)
+    
+    @staticmethod
+    def get_ymap_model_occl_group_obj(context) -> Object:
+        """Returns the YMAP entities group object, creates it if it doesn't exist"""
+        ymap_occl_obj = YmapMixin.get_ymap_occl_group_obj(context)
+        return next((ent_group for ent_group in ymap_occl_obj.children
+                     if ent_group.vicho_type == "vicho_ymap_model_occluders"), None) or create_ymap_models_occluders_group(ymap_occl_obj)
+    
+    @staticmethod
+    def get_ymap_model_occl_count(context) -> int:
+        """Returns the number of model occlusion culling objects in the currently selected YMAP"""
+        ymap = YmapMixin.get_ymap(context)
+        if ymap and ymap.ymap_model_occluders:
+            return len(ymap.ymap_model_occluders)
+        return 0
+    
     
     @staticmethod
     def get_model_occl(context) -> Object:
         """Returns the model occlusion culling object by index in the currently selected YMAP"""
         ymap = YmapMixin.get_ymap(context)
         if ymap and ymap.ymap_model_occluders:
-            return ymap.ymap_model_occluders[ymap.ymap_model_occluders_index]
+            return ymap.ymap_model_occluders[YmapMixin.get_ymap_model_occl_index(context)]
         return None
+    
+    @staticmethod
+    def get_ymap_model_occl_index(context) -> int:
+        """Returns the index of the currently selected model occlusion culling object in the currently selected YMAP"""
+        ymap = YmapMixin.get_ymap(context)
+        if ymap and ymap.ymap_model_occluders:
+            return ymap.ymap_model_occluders_index
+        return 0
+    
+    @staticmethod
+    def has_occluders(context) -> bool:
+        """Returns True if the current YMAP has occlusion culling objects"""
+        return YmapMixin.get_ymap_occl_count(context) > 0
     
     @staticmethod
     def get_ymap_count(context):
@@ -97,12 +154,17 @@ class YmapMixin:
         return None
 
     @staticmethod
-    def has_entities(context):
+    def has_entities(context) -> bool:
         """Returns True if the current YMAP has entities"""
         return YmapMixin.get_ymap_ent_count(context) > 0
+    
+    @staticmethod
+    def has_physics_dictionaries(context):
+        """Returns True if the current YMAP has physicsDictionary"""
+        return YmapMixin.get_ymap_phys_dict_count(context) > 0
 
     @staticmethod
-    def set_ent_idx(context, index):
+    def set_ent_idx(context, index) -> None:
         """Sets the selected entity by index in the current YMAP"""
         context.scene.entity_list_index = index
 

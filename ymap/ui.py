@@ -19,6 +19,11 @@ from .operators.operators_ymap import (VICHO_OT_import_ymap,
 from .operators.operators_phys_dict import (VICHO_OT_add_phys_dict,
                                              VICHO_OT_remove_phys_dict)
 
+from .operators.operators_occluders import (YMAP_OT_create_box_occluder,
+                                            YMAP_OT_remove_box_occluder,
+                                            YMAP_OT_create_model_occluder,
+                                            YMAP_OT_remove_model_occluder)
+
 from .menus.menu_entity import VICHO_MT_entity_menu
 
 from ..vicho_dependencies import dependencies_manager as d
@@ -336,7 +341,7 @@ class YmapTools_Data_PT_Panel(bpy.types.Panel, YmapMixin):
                                     model_col.prop(selected_model_occl, "linked_obj", text="Linked Object", icon="OBJECT_DATA")
                         right_col = main_row.column(align=True)
                         right_col.ui_units_x = 1
-                        right_col.operator(VICHO_OT_fake_op.bl_idname, text="", icon="ADD")
+                        right_col.operator(YMAP_OT_create_box_occluder.bl_idname, text="", icon="ADD")
                         right_col.operator(VICHO_OT_fake_op.bl_idname, text="", icon="REMOVE")
                     case "ymap.physics_dictionaries_menu":
                         self.bl_label = "Physics Dictionaries"

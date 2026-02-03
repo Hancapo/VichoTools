@@ -1,6 +1,27 @@
 from pathlib import Path
-from bpy.types import Object, Collection, Scene, Mesh
+from bpy.types import Object, Collection, Scene, Mesh, Material
 from mathutils import Vector
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from CodeWalker.GameFiles import (YmapFile) # type: ignore
+
+from .ymap_core import (
+get_ymap_from_file, 
+any_ent_in_ymap, 
+get_all_ents_from_ymap, 
+get_all_box_occls_from_ymap, 
+get_name, 
+get_parent, 
+get_flags, 
+get_content_flags,
+get_ents_extents_max,
+get_ents_extents_min,
+get_streaming_extents_max,
+get_streaming_extents_min,
+get_ymap_phys_dicts,
+any_occl_exists_in_ymap,
+get_all_occls_models_from_ymap
+)
 from ..shared.helper import (
     world_corners_of,
     create_empty_obj,
@@ -27,7 +48,6 @@ from ..shared.constants import (
     MAPENTITY_FLAGS
 )
 from ..shared.funcs import get_fn_wt_ext, set_bit, indices_to_faces, sharpdx_vec_to_tuple, sharpdx_quat_to_blender_quat
-from ..vicho_dependencies import dependencies_manager as d
 from mathutils import Quaternion
 
 _is_updating_entity_prop: bool = False
@@ -50,7 +70,7 @@ def create_ymap_entities_group(parent_ymap_obj: Object):
 def create_ymap_occluders_group(parent_ymap_obj: Object):
     """Create a group for YMAP occluders."""
     ymap_occluders_group = create_empty_obj(f"{parent_ymap_obj.name}.occluders")
-    ymap_occluders_group.vicho_type = "vicho_ymap_occluders"
+    ymap_occluders_group.vicho_type = "vicho_ymap_occluder_base"
     ymap_occluders_group.parent = parent_ymap_obj
     return ymap_occluders_group
 
@@ -64,11 +84,11 @@ def create_ymap_box_occluders_group(parent_occl_obj: Object):
 def create_ymap_models_occluders_group(parent_occl_obj: Object):
     """Create a group for YMAP models occluders."""
     ymap_models_occluders_group = create_empty_obj(f"{parent_occl_obj.name}.models")
-    ymap_models_occluders_group.vicho_type = "vicho_ymap_models_occluders"
+    ymap_models_occluders_group.vicho_type = "vicho_ymap_model_occluders"
     ymap_models_occluders_group.parent = parent_occl_obj
     return ymap_models_occluders_group
 
-def calc_ymap_extents(entities):
+def calc_ymap_extents(entities) -> tuple[Vector, Vector, Vector, Vector]:
     """Calculates entities' and streaming extents for a YMAP."""
     inf, ninf = float("inf"), float("-inf")
     emin = Vector((inf, inf, inf))
@@ -297,70 +317,6 @@ def update_ymap_content_flags(self, context):
     YMAP_CONTENT_FLAGS_UPDATING = False
 
 
-def get_name(ymap) -> str:
-    """Returns the name of the YMAP"""
-    return ymap.CMapData.name.ToString()
-
-
-def get_parent(ymap) -> str:
-    """Returns the parent of the YMAP"""
-    return ymap.CMapData.parent.ToString()
-
-
-def get_flags(ymap) -> int:
-    """Returns the flags of the YMAP"""
-    return ymap.CMapData.flags
-
-
-def get_content_flags(ymap) -> int:
-    """Returns the content flags of the YMAP"""
-    return ymap.CMapData.contentFlags
-
-
-def get_streaming_extents_min(ymap) -> tuple[float, float, float]:
-    """Returns the streaming extents min of the YMAP"""
-    return (
-        ymap.CMapData.streamingExtentsMin.X,
-        ymap.CMapData.streamingExtentsMin.Y,
-        ymap.CMapData.streamingExtentsMin.Z,
-    )
-
-
-def get_streaming_extents_max(ymap) -> tuple[float, float, float]:
-    """Returns the streaming extents max of the YMAP"""
-    return (
-        ymap.CMapData.streamingExtentsMax.X,
-        ymap.CMapData.streamingExtentsMax.Y,
-        ymap.CMapData.streamingExtentsMax.Z,
-    )
-
-
-def get_ents_extents_min(ymap) -> tuple[float, float, float]:
-    """Returns the entities extents min of the YMAP"""
-    return (
-        ymap.CMapData.entitiesExtentsMin.X,
-        ymap.CMapData.entitiesExtentsMin.Y,
-        ymap.CMapData.entitiesExtentsMin.Z,
-    )
-
-
-def get_ents_extents_max(ymap) -> tuple[float, float, float]:
-    """Returns the entities extents max of the YMAP"""
-    return (
-        ymap.CMapData.entitiesExtentsMax.X,
-        ymap.CMapData.entitiesExtentsMax.Y,
-        ymap.CMapData.entitiesExtentsMax.Z,
-    )
-
-
-def get_ymap_phys_dicts(ymap) -> list:
-    """Returns the physics dictionaries of the YMAP"""
-    phys_dicts = []
-    for phys_dict in ymap.physicsDictionaries:
-        phys_dicts.append(phys_dict.ToString())
-    return phys_dicts
-
-
 def ymap_exist_in_scene(scene: Scene, new_ymap: str) -> bool:
     """Checks if a YMAP already exists in the scene"""
     fn: str = get_fn_wt_ext(new_ymap)
@@ -376,14 +332,14 @@ def import_ymap_to_scene(
     scene: Scene, new_ymap_path: str, import_settings, self, asset_path: str
 ) -> bool:
     p: Path = Path(new_ymap_path)
-    filename = p.stem
+    filename: str = p.stem
     if not ymap_exist_in_scene(scene, new_ymap_path):
         new_ymap = scene.ymap_list.add()
         scene.ymap_list_index = len(scene.ymap_list) - 1
         new_ymap.active_category = "DATA"
         bpy.ops.ymap.map_data_menu(operator_id="ymap.map_data_menu")
-        current_index = len(scene.ymap_list) - 1
-        ymap_file = get_ymap_from_file(new_ymap_path)
+        current_index: int = len(scene.ymap_list) - 1
+        ymap_file: "YmapFile" = get_ymap_from_file(new_ymap_path)
         fill_map_data_from_ymap(
             scene, current_index, ymap_file, import_settings.import_props
         )
@@ -442,7 +398,7 @@ def fill_map_data_from_ymap(
     scene: Scene, index: int, current_ymap, do_props: bool
 ) -> None:
     """Fills the data from the imported YMAP"""
-    any_entities = any_ent_exists_in_ymap(current_ymap)
+    any_entities = any_ent_in_ymap(current_ymap)
     scene.ymap_list[index].name = get_name(current_ymap)
     scene.ymap_list[index].parent = get_parent(current_ymap)
     scene.ymap_list[index].flags.total_flags = get_flags(current_ymap)
@@ -482,35 +438,35 @@ def fill_ents_data_from_ymap(
                 new_entity.mlo_inst_flags = ent.MloInstance.Instance.MLOInstflags
                 new_entity.num_exit_portals = ent.MloInstance.Instance.numExitPortals
                 fill_default_entity_sets(ent, new_entity)
-            new_entity.archetype_name = ent._CEntityDef.archetypeName.ToString()
-            new_entity.flags.total_flags = ent._CEntityDef.flags
-            new_entity.guid = str(ent._CEntityDef.guid)
+            new_entity.archetype_name = ent.CEntityDef.archetypeName.ToString()
+            new_entity.flags.total_flags = ent.CEntityDef.flags
+            new_entity.guid = str(ent.CEntityDef.guid)
             new_entity.position = (
-                ent._CEntityDef.position.X,
-                ent._CEntityDef.position.Y,
-                ent._CEntityDef.position.Z,
+                ent.CEntityDef.position.X,
+                ent.CEntityDef.position.Y,
+                ent.CEntityDef.position.Z,
             )
             new_entity.rotation = (
-                -ent._CEntityDef.rotation.W,
-                ent._CEntityDef.rotation.X,
-                ent._CEntityDef.rotation.Y,
+                -ent.CEntityDef.rotation.W,
+                ent.CEntityDef.rotation.X,
+                ent.CEntityDef.rotation.Y,
                 get_z_axis_ent(ent),
             )
-            new_entity.scale_xy = ent._CEntityDef.scaleXY
-            new_entity.scale_z = ent._CEntityDef.scaleZ
-            new_entity.parent_index = ent._CEntityDef.parentIndex
-            new_entity.lod_distance = ent._CEntityDef.lodDist
-            new_entity.child_lod_distance = ent._CEntityDef.childLodDist
-            new_entity.num_children = ent._CEntityDef.numChildren
+            new_entity.scale_xy = ent.CEntityDef.scaleXY
+            new_entity.scale_z = ent.CEntityDef.scaleZ
+            new_entity.parent_index = ent.CEntityDef.parentIndex
+            new_entity.lod_distance = ent.CEntityDef.lodDist
+            new_entity.child_lod_distance = ent.CEntityDef.childLodDist
+            new_entity.num_children = ent.CEntityDef.numChildren
             new_entity.lod_level = get_ent_lod_level(ent)
             new_entity.priority_level = get_ent_priority_level(ent)
             new_entity.ambient_occlusion_multiplier = (
-                ent._CEntityDef.ambientOcclusionMultiplier
+                ent.CEntityDef.ambientOcclusionMultiplier
             )
             new_entity.artificial_ambient_occlusion = (
-                ent._CEntityDef.artificialAmbientOcclusion
+                ent.CEntityDef.artificialAmbientOcclusion
             )
-            new_entity.tintValue = ent._CEntityDef.tintValue
+            new_entity.tintValue = ent.CEntityDef.tintValue
             new_entity.type = get_ent_type(ent)
             new_entity.ent_index = (
                 0
@@ -589,21 +545,21 @@ def fill_model_occl_data_from_ymap(scene: Scene, index: int, group_obj: Object, 
     new_model_occl = scene.ymap_list[index].ymap_model_occluders.add()
     new_model_occl.name = f"Occluder Model {model_occl.Index}"
     new_model_occl.flags = model_occl.Flags.Value
-    new_obj = create_model_occluder_obj(model_occl.Index, model_occl)
+    new_obj: Object = create_model_occluder_obj(model_occl.Index, model_occl)
     new_obj.parent = group_obj
     new_model_occl.linked_obj = new_obj
 
 def fill_box_occl_data_from_ymap(scene: Scene, index: int, group_obj: Object, box_occl) -> None:
     new_box_occl = scene.ymap_list[index].ymap_box_occluders.add()
     new_box_occl.name = f"Box Occluder {box_occl.Index}"
-    new_obj = create_box_occluder_obj(box_occl.Index, box_occl)
+    new_obj: Object = create_box_occluder_obj(box_occl.Index, box_occl)
     new_obj.parent = group_obj
     new_box_occl.linked_obj = new_obj
 
 def create_model_occluder_obj(index, model_occl) -> Object:
-    faces = indices_to_faces(model_occl.Indices)
-    verts = [sharpdx_vec_to_tuple(v) for v in model_occl.Vertices]
-    mesh = create_mesh_from_data(f"ModelOccl{index}", verts, faces)
+    faces: list[tuple] = indices_to_faces(model_occl.Indices)
+    verts: list[tuple[float, float, float]] = [sharpdx_vec_to_tuple(v) for v in model_occl.Vertices]
+    mesh: Mesh = create_mesh_from_data(f"ModelOccl{index}", verts, faces)
     new_obj: Object = create_obj(f"ModelOccl{index}", True, mesh)
     assign_mat(new_obj, get_mat("ModelOccluderMat", (1, 0.5, 0, 1), 0.895, 1))
     return new_obj
@@ -641,8 +597,6 @@ def create_box_occluder_obj(index: int, box_occl) -> Object:
     new_obj.rotation_quaternion = rotation
     assign_mat(new_obj, get_mat("BoxOccluderMat", (0, 1, 0, 1), 0.5, 1))
     return new_obj
-
-
 
     
 
@@ -726,100 +680,14 @@ def apply_transforms_to_obj_from_entity(obj: Object, entity) -> None:
         entity.linked_object.scale = (entity.scale_xy, entity.scale_xy, entity.scale_z)
 
 
-def any_ent_exists_in_ymap(ymap) -> bool:
-    """Checks if any entity exists in the YMAP"""
-    return get_all_ents_from_ymap(ymap) is not None
-
-
-def get_all_ents_from_ymap(ymap) -> list:
-    """Returns all the entities from the YMAP"""
-    return ymap.AllEntities
-
-def get_all_occls_models_from_ymap(ymap) -> list:
-    """Returns all the occluder models from the YMAP"""
-    return ymap.OccludeModels
-
-def get_all_box_occls_from_ymap(ymap) -> list:
-    """Returns all the box occluders from the YMAP"""
-    return ymap.BoxOccluders
-
-
-def any_occl_exists_in_ymap(ymap) -> bool:
-    """Checks if any occluder exists in the YMAP"""
-    return (
-        any_box_occl_exists_in_ymap(ymap) or any_model_occl_exists_in_ymap(ymap)
-    )
-
-def any_box_occl_exists_in_ymap(ymap) -> bool:
-    """Checks if any box occluder exists in the YMAP"""
-    return get_all_box_occls_from_ymap(ymap) is not None
-
-def any_model_occl_exists_in_ymap(ymap) -> bool:
-    """Checks if any model occluder exists in the YMAP"""
-    return get_all_occls_models_from_ymap(ymap) is not None
-
-def get_ent_type(entity) -> str:
-    """Returns the entity type"""
-    return "ENTITY" if entity.MloInstance is None else "MLOINSTANCE"
-
-
-def get_ent_lod_level(entity) -> str:
-    """Returns the LOD level of the entity"""
-    return str(entity._CEntityDef.lodLevel)
-
-
-def get_ent_priority_level(entity) -> str:
-    """Returns the priority level of the entity"""
-    return str(entity._CEntityDef.priorityLevel)
-
-
-def fill_default_entity_sets(entity, bld_entity) -> None:
-    """Returns the default entity sets of the MLO instance"""
-    if entity.MloInstance:
-        if entity.MloInstance.defaultEntitySets is None:
-            return
-        sets = [ent_set.ToString() for ent_set in entity.MloInstance.defaultEntitySets]
-
-    if sets:
-        for ent_set in sets:
-            new = bld_entity.default_entity_sets.add()
-            new.name = ent_set
-
-
-def build_default_entity_sets_list(dels: list[str]) -> None:
-    """Builds the list for the default entity sets property"""
-    return None
-
-
-def is_mlo_instance(entity) -> bool:
-    """Returns if the entity is a MLO instance"""
-    return entity.IsMlo
-
-
-def get_ymap_from_file(ymap_path: str):
-    """Returns the YMAP object from the file"""
-    ymap_file = d.YmapFile()
-    ymap_file.Load(d.File.ReadAllBytes(ymap_path))
-    return ymap_file
-
-
-def get_z_axis_ent(ent):
-    """Returns the Z axis of the entity as negative if it is not a MLO instance otherwise positive"""
-    return (
-        ent._CEntityDef.rotation.Z
-        if not is_mlo_instance(ent)
-        else -ent._CEntityDef.rotation.Z
-    )
-
-
 # This function is almost a copy of the CodeWalker's one.
-def calc_ymap_flags(ymap) -> tuple[int, int]:
+def calc_ymap_flags(bl_ymap) -> tuple[int, int]:
     """Calculates all flags for the YMAP"""
     flags: int = 0
     content_flags: int = 0
 
-    if ymap.entities:
-        for ent in ymap.entities:
+    if bl_ymap.entities:
+        for ent in bl_ymap.entities:
             match ent.lod_level:
                 case "LODTYPES_DEPTH_HD" | "LODTYPES_DEPTH_ORPHANHD":
                     content_flags = set_bit(content_flags, 0)
@@ -841,7 +709,7 @@ def calc_ymap_flags(ymap) -> tuple[int, int]:
             if ent.is_mlo_instance:
                 content_flags = set_bit(content_flags, 3)
 
-    if ymap.ymap_phys_dicts:
+    if bl_ymap.ymap_phys_dicts:
         content_flags = set_bit(content_flags, 6)
 
     return flags, content_flags
@@ -849,16 +717,17 @@ def calc_ymap_flags(ymap) -> tuple[int, int]:
 
 def set_ymap_ent_extents(ymap, entities):
     """Sets the entity extents of the YMAP based on the given entities."""
-    emin, emax, _, _ = calc_ymap_extents(entities)
-    ymap.entities_extents_min = emin
-    ymap.entities_extents_max = emax
+    ent_min, ent_max, _, _ = calc_ymap_extents(entities)
+    ymap.entities_extents_min = ent_min
+    ymap.entities_extents_max = ent_max
 
 
 def set_ymap_strm_extents(ymap, entities):
     """Sets the streaming extents of the YMAP based on the given entities."""
-    _, _, smin, smax = calc_ymap_extents(entities)
-    ymap.streaming_extents_min = smin
-    ymap.streaming_extents_max = smax
+    _, _, strm_min, strm_max = calc_ymap_extents(entities)
+    ymap.streaming_extents_min = strm_min
+    ymap.streaming_extents_max = strm_max
+
 
 
 def get_total_flags(self):
@@ -866,3 +735,10 @@ def get_total_flags(self):
 
 def set_total_flags(self, value):
     set_mask(self, "flags", value, MAPENTITY_FLAGS)
+
+
+def box_occluder_mat() -> Material:
+    return get_mat("BoxOccluderMat", (0, 1, 0, 1), 0.5, 1)
+
+def occluder_model_mat() -> Material:
+    return get_mat("ModelOccluderMat", (1, 0.5, 0, 1), 0.895, 1)

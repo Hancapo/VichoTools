@@ -155,7 +155,7 @@ class VICHO_OT_go_to_entity(Operator, YmapMixin):
         bpy.ops.object.select_all(action='DESELECT')
         ent = self.get_ent_by_index(context, self.index)
         lo: Object = ent.linked_object
-        zoom_objects = []
+        zoom_objects: list[Object] = []
         if lo:
             zoom_objects.append(lo)
             if lo.children_recursive:
@@ -252,9 +252,9 @@ class VICHO_OT_select_entity_from_viewport(Operator, YmapMixin):
         return context.active_object.parent and context.active_object.parent.vicho_type != "vicho_ymap_entities"
 
     def execute(self, context):
-        active_obj = context.active_object
+        active_obj: Object = context.active_object
         if active_obj:
-            soll_parent = find_soll_ancestor(active_obj)
+            soll_parent: Object = find_soll_ancestor(active_obj)
             entity, e_idx, ymap, y_idx = self.get_ent_from_viewport_select(context, soll_parent)
             if entity and entity.linked_object.sollum_type in YMAP_ENTITY_SOLLUM_TYPES:
                 self.set_ymap_index(context, y_idx)

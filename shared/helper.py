@@ -1,5 +1,5 @@
 import bpy
-from bpy.types import Object, Collection, Mesh
+from bpy.types import Object, Collection, Mesh, Material
 from mathutils import Vector
 from .funcs import (
     subtract_from_vector,
@@ -14,7 +14,8 @@ from .funcs import (
 from ..vicho_dependencies import dependencies_manager as d
 from .constants import YMAP_ENTITY_SOLLUM_TYPES, COMPAT_OBJECT_TYPES
 from bpy.ops import _BPyOpsSubModOp
-
+import bmesh
+from bmesh.types import BMesh, BMFace, BMVert
 
 class IndexHelper:
     index: bpy.props.IntProperty() # type: ignore
@@ -47,7 +48,7 @@ def get_bounds_from_single_object(obj: Object) -> list[Vector]:
     return corners
 
 
-def get_bound_extents(obj, margin=0):
+def get_bound_extents(obj: Object, margin:int=0):
     """
     Return the object's bounding box min/max vectors,
     with location applied.
@@ -374,12 +375,12 @@ def find_imported_soll_root(filename: str, new_objs: list[Object]) -> Object:
                  not x.parent), None)
 
 
-def get_mat(name, color, rough = 0.0, metallic = 0.0) -> bpy.types.Material:
-    mat = bpy.data.materials.get(name)
+def get_mat(name, color, rough = 0.0, metallic = 0.0) -> Material:
+    mat: Material = bpy.data.materials.get(name)
     if mat:
         return mat
     
-    mat = bpy.data.materials.new(name)
+    mat: Material = bpy.data.materials.new(name)
     mat.use_nodes = True
     bsdf = mat.node_tree.nodes["Principled BSDF"]
     bsdf.inputs[0].default_value = color
@@ -391,6 +392,51 @@ def get_mat(name, color, rough = 0.0, metallic = 0.0) -> bpy.types.Material:
 
     return mat
 
-def assign_mat(obj, mat):
+def assign_mat(obj: Object, mat: Material):
     obj.data.materials.clear()
     obj.data.materials.append(mat)
+
+def split_mesh_by_x(obj: Object, max_verts: int = 255) -> list[list[BMFace]]:
+
+    if obj.type == 'MESH':
+        src_me: Mesh = obj.data
+        
+        bm: BMesh = bmesh.new()
+        bm.from_mesh(src_me)
+
+        bm.faces.ensure_lookup_table()
+        bm.verts.ensure_lookup_table()
+
+        bmesh.ops.triangulate(bm, faces=bm.faces[:])
+
+        bm.faces.ensure_lookup_table()
+        bm.verts.ensure_lookup_table()
+
+        faces_sorted: list[BMFace] = sorted(bm.faces, key=lambda f: f.calc_center_median().x)
+
+        used: set[BMVert] = set()
+        cur: list[BMFace] = []
+        chunks: list[list[BMFace]] = []
+
+        for f in faces_sorted:
+            tri_set = set(f.verts)
+            new = tri_set - used
+
+            if cur and len(used) + len(new) > max_verts:
+                chunks.append(cur)
+                cur = []
+                used = set()
+
+            cur.append(f)
+            used |= tri_set
+
+        if cur:
+            chunks.append(cur)
+
+        return chunks
+    
+    else:
+        return []
+
+def is_mesh_a_cube(obj: Object) -> bool:
+    return obj.type == 'MESH' and len(obj.data.vertices) == 8

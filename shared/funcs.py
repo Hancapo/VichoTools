@@ -9,29 +9,29 @@ import math
 from pathlib import Path
 
 
-def subtract_from_vector(v, f) -> Vector:
+def subtract_from_vector(v: Vector, f: float) -> Vector:
     """Subtract a float value from each component of a vector."""
-    r = Vector((0, 0, 0))
+    r: Vector = Vector((0, 0, 0))
     r.x = v.x - f
     r.y = v.y - f
     r.z = v.z - f
     return r
 
 
-def add_to_vector(v, f) -> Vector:
+def add_to_vector(v: Vector, f: float) -> Vector:
     """Add a float value to each component of a vector."""
-    r = Vector((0, 0, 0))
+    r: Vector = Vector((0, 0, 0))
     r.x = v.x + f
     r.y = v.y + f
     r.z = v.z + f
     return r
 
 
-def get_min_vector_list(vecs) -> Vector:
+def get_min_vector_list(vecs: list) -> Vector:
     """Get the minimum vector from a list of vectors."""
-    x = []
-    y = []
-    z = []
+    x: list = []
+    y: list = []
+    z: list = []
     for v in vecs:
         x.append(v[0])
         y.append(v[1])
@@ -39,11 +39,11 @@ def get_min_vector_list(vecs) -> Vector:
     return Vector((min(x), min(y), min(z)))
 
 
-def get_max_vector_list(vecs) -> Vector:
+def get_max_vector_list(vecs: list) -> Vector:
     """Return the maximum vector from a list of vectors."""
-    x = []
-    y = []
-    z = []
+    x: list = []
+    y: list = []
+    z: list = []
     for v in vecs:
         x.append(v[0])
         y.append(v[1])
@@ -63,7 +63,7 @@ def get_random_string(length=8):
 
 def get_jenkins_hash(name: str) -> int:
     """Compute the Jenkins hash for a given string."""
-    hash = 0
+    hash: int = 0
     for char in name:
         hash += ord(char)
         hash += hash << 10
@@ -87,12 +87,12 @@ def delete_folder(path: str) -> None:
     shutil.rmtree(path)
 
 
-def poll_all(context, *predicates):
+def poll_all(context, *predicates) -> bool:
     """Return True if all predicates return True for the given context."""
     return all(p(context) for p in predicates)
 
 
-def get_folder_list_from_dir(dir: str):
+def get_folder_list_from_dir(dir: str) -> list[str]:
     """Get a list of all folders in a directory."""
     return [str(p) for p in Path(dir).rglob("*") if p.is_dir()]
 
@@ -114,7 +114,7 @@ def calculate_mipmaps_lvls(width: int, height: int) -> int:
     return levels
 
 
-def closest_pow2(value):
+def closest_pow2(value) -> int:
     """"Find the closest power of two to a given value."""
     lower_power = 1
     while lower_power * 2 <= value:
@@ -161,7 +161,7 @@ def closest_pow2_dims(
 
     return int(new_width), int(new_height)
 
-def generate_power_of_two_enum(max_power):
+def generate_power_of_two_enum(max_power) -> list[tuple[str, str, str]]:
     """Generate a list of power of two tuples up to a maximum power."""
     return [(str(2**i), str(2**i), str(2**i)) for i in range(2, max_power + 1)]
 
@@ -178,11 +178,11 @@ def set_bit(value: int, bit: int) -> int:
     """Sets a specific bit in an integer value"""
     return value | (1 << bit)
 
-def enum_to_mask(enum_set):
+def enum_to_mask(enum_set) -> int:
     """Convert a set of enum identifiers to a bitmask."""
     return sum(int(x) for x in enum_set)
 
-def mask_to_enum(mask, enum_items):
+def mask_to_enum(mask, enum_items) -> set:
     """Convert a bitmask to a set of enum identifiers."""
     out = set()
     for ident, *_ in enum_items:
@@ -191,7 +191,7 @@ def mask_to_enum(mask, enum_items):
             out.add(ident)
     return out
 
-def enum_items_to_valid_mask(enum_items):
+def enum_items_to_valid_mask(enum_items) -> int:
     """Get a valid bitmask from enum items."""
     return sum(int(ident) for ident, *_ in enum_items)
 
@@ -209,7 +209,7 @@ def sharpdx_vec_to_tuple(vec) -> tuple[float, float, float]:
     """Convert a SharpDX vector to a tuple."""
     return (vec.X, vec.Y, vec.Z)
 
-def indices_to_faces(indices):
+def indices_to_faces(indices) -> list[tuple]:
     """Convert a list of indices to a list of faces (triplets)."""
     return [(indices[i], indices[i+1], indices[i+2])
             for i in range(0, len(indices), 3)]
