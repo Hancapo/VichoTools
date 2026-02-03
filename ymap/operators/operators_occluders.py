@@ -20,11 +20,15 @@ class YMAP_OT_create_box_occluder(bpy.types.Operator, YmapMixin):
         if len(box_objs) > 0:
             ymap, ymap_box_occl_group  = self.get_ymap(context), self.get_ymap_box_occl_group_obj(context)
             for box_obj in box_objs:
-                new_box_occl = ymap.ymap_box_occluders.add()
-                new_box_occl.name = "Box Occluder"
-                new_box_occl.linked_obj = box_obj
-                box_obj.parent = ymap_box_occl_group
-                assign_mat(box_obj, box_occluder_mat())
+                if box_obj not in [occl.linked_obj for occl in ymap.ymap_box_occluders]:
+                    new_box_occl = ymap.ymap_box_occluders.add()
+                    new_box_occl.name = "Box Occluder"
+                    new_box_occl.linked_obj = box_obj
+                    box_obj.parent = ymap_box_occl_group
+                    assign_mat(box_obj, box_occluder_mat())
+                else:
+                    self.report({'WARNING'}, f"{box_obj.name} is already a box occlusion culling object in {ymap.ymap_object.name} YMAP")
+                    return {'CANCELLED'}
             self.report({'INFO'}, f"Created {len(box_objs)} box occlusion culling objects in {ymap.ymap_object.name} YMAP")
             return {'FINISHED'}
         else:
