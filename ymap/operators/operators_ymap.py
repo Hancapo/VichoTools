@@ -3,7 +3,8 @@ from bpy.props import (BoolProperty,
                        StringProperty, 
                        CollectionProperty, 
                        PointerProperty, 
-                       EnumProperty)
+                       EnumProperty,
+                       IntProperty)
 from bpy_extras.io_utils import ImportHelper
 
 from ..ymap_mixin import YmapMixin
@@ -310,13 +311,17 @@ class VICHO_OT_remove_ymap(bpy.types.Operator, YmapMixin):
         return {'FINISHED'}
     
     def invoke(self, context, event):
-        return context.window_manager.invoke_props_dialog(self, width=600, title="YMAP removal confirmation")
+        return context.window_manager.invoke_props_dialog(self, width=400, title="Remove YMAP")
 
     def draw(self, context):
         layout = self.layout
         col = layout.column()
-        if self.get_ymap(context).ymap_object:
-            col.prop(self, "delete_hierarchy_from_scene", text=f"Delete {self.get_ymap(context).ymap_object.name} entities?")
+        ymap = self.get_ymap(context)
+        if ymap.ymap_object:
+            if ymap.entities:
+                col.prop(self, "delete_hierarchy_from_scene", text=f"Delete {self.get_ymap(context).ymap_object.name} objects from scene?")
+            col.label(text="Are you sure you want to remove this YMAP?")
+            
     
 class VICHO_OT_add_ymap(bpy.types.Operator):
     """Adds a new YMAP item to the scene/ymap list"""
