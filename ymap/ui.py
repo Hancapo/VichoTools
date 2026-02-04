@@ -341,8 +341,14 @@ class YmapTools_Data_PT_Panel(bpy.types.Panel, YmapMixin):
                                     model_col.prop(selected_model_occl, "linked_obj", text="Linked Object", icon="OBJECT_DATA")
                         right_col = main_row.column(align=True)
                         right_col.ui_units_x = 1
-                        right_col.operator(YMAP_OT_create_box_occluder.bl_idname, text="", icon="ADD")
-                        right_col.operator(YMAP_OT_remove_box_occluder.bl_idname, text="", icon="REMOVE")
+                        match ymap.occluder_category:
+                            case "BOX":
+                                right_col.operator(YMAP_OT_create_box_occluder.bl_idname, text="", icon="ADD")
+                                right_col.operator(YMAP_OT_remove_box_occluder.bl_idname, text="", icon="REMOVE")
+                            case "MODEL":
+                                right_col.operator(YMAP_OT_create_model_occluder.bl_idname, text="", icon="ADD")
+                                right_col.operator(YMAP_OT_remove_model_occluder.bl_idname, text="", icon="REMOVE")
+                        
                     case "ymap.physics_dictionaries_menu":
                         self.bl_label = "Physics Dictionaries"
                         new_row = right_col.row(align=False)
