@@ -5,6 +5,7 @@ import bpy
 from bpy.types import Object, Action
 from .uv_anim import UvAnim
 from ..shared.helper import is_drawable, is_drawable_model
+from ..shared.constants import ANIM_SOLLUM_TYPES
 
 def get_anim_objs_from_sel(objs: list[Object]) -> list[AnimObject]:
     """Create a list of AnimObjects from a list of selected objects"""

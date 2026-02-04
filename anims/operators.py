@@ -8,6 +8,7 @@ from .helper import (get_anim_objs_from_sel,
 
 from ..shared.constants import ANIM_SOLLUM_TYPES
 from .enums import ChildType, AnimationType
+from bpy.types import Object
 
 class VICHO_OT_anim_create_ycd_from_selec(bpy.types.Operator):
     """Create a YCD from selected objects"""
@@ -26,8 +27,8 @@ class VICHO_OT_anim_create_ycd_from_selec(bpy.types.Operator):
         auto_start: bool = scene.auto_start_anim_flag
         ycd_name: str = scene.ycd_name
         
-        sel_objs = bpy.context.selected_objects
-        anim_list = get_anim_objs_from_sel(sel_objs)
+        sel_objs: list[Object] = bpy.context.selected_objects
+        anim_list: list = get_anim_objs_from_sel(sel_objs)
         print(anim_list)
         
         if not anim_list:
