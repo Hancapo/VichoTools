@@ -1,8 +1,8 @@
 import bpy
 from ..ymap_mixin import YmapMixin
 from bpy.types import Object
-from ...shared.helper import is_mesh_a_cube, assign_mat, create_cube_obj, delete_obj
-from ..helper import box_occluder_mat, occluder_model_mat, create_box_occluder_item
+from ...shared.helper import is_mesh_a_cube, create_cube_obj, delete_obj
+from ..helper import create_box_occluder_item, create_occluder_model_item
 
 
 class YMAP_OT_create_box_occluder(bpy.types.Operator, YmapMixin):
@@ -15,7 +15,6 @@ class YMAP_OT_create_box_occluder(bpy.types.Operator, YmapMixin):
     def poll(cls, context):
         return cls.get_ymap(context) is not None
     
-
     def execute(self, context):
         box_objs: list[Object] = [obj for obj in context.selected_objects if is_mesh_a_cube(obj)]
         ymap, ymap_box_occl_group  = self.get_ymap(context), self.get_ymap_box_occl_group_obj(context)
@@ -49,7 +48,7 @@ class YMAP_OT_remove_box_occluder(bpy.types.Operator, YmapMixin):
     def execute(self, context):
         ymap = self.get_ymap(context)
         if self.has_occluders(context):
-            index = self.get_ymap_box_occl_index(context)
+            index: int = self.get_ymap_box_occl_index(context)
             box_occls = ymap.ymap_box_occluders
             delete_obj(box_occls[index].linked_obj)
             box_occls.remove(index)
@@ -73,7 +72,21 @@ class YMAP_OT_create_model_occluder(bpy.types.Operator, YmapMixin):
     def poll(cls, context):
         return cls.get_ymap(context) is not None
 
-    ...
+    def execute(self, context):
+        model_objs: list[Object] = [obj for obj in context.selected_objects if obj.type == "MESH"]
+        ymap, ymap_model_occl_group  = self.get_ymap(context), self.get_ymap_model_occl_group_obj(context)
+        if len(model_objs) > 0:
+            for model_obj in model_objs:
+                if model_obj not in [occl.linked_obj for occl in ymap.ymap_model_occluders]:
+                    create_occluder_model_item(model_obj, ymap, ymap_model_occl_group)
+                else:
+                    self.report({'WARNING'}, f"{model_obj.name} is already a model occlusion culling object in {ymap.ymap_object.name} YMAP")
+                    return {'CANCELLED'}
+            self.report({'INFO'}, f"Created {len(model_objs)} model occlusion culling objects in {ymap.ymap_object.name} YMAP")
+            return {'FINISHED'}
+        else:
+            self.report({'WARNING'}, "No object(s) selected")
+            return {'CANCELLED'}
 
 
 class YMAP_OT_remove_model_occluder(bpy.types.Operator, YmapMixin):
