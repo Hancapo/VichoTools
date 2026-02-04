@@ -20,7 +20,8 @@ get_streaming_extents_max,
 get_streaming_extents_min,
 get_ymap_phys_dicts,
 any_occl_exists_in_ymap,
-get_all_occls_models_from_ymap
+get_all_occls_models_from_ymap,
+get_ent_lod_level
 )
 from ..shared.helper import (
     world_corners_of,
@@ -36,7 +37,8 @@ from ..shared.helper import (
     create_mesh_from_data,
     create_obj,
     assign_mat,
-    get_mat
+    get_mat,
+    apply_all_trans
 )
 import bpy
 from ..shared.constants import (
@@ -751,3 +753,13 @@ def create_box_occluder_item(box_obj: Object, ymap, ymap_box_occl_group) -> None
     new_box_occl.linked_obj = box_obj
     box_obj.parent = ymap_box_occl_group
     assign_mat(box_obj, box_occluder_mat())
+
+def create_occluder_model_item(model_obj: Object, ymap, ymap_occl_model_group) -> None:
+    """Creates an occlusion culling model object in the YMAP"""
+    model_obj.name = "Occluder Model"
+    new_occl_model = ymap.ymap_model_occluders.add()
+    new_occl_model.name = "Occluder Model"
+    new_occl_model.linked_obj = model_obj
+    model_obj.parent = ymap_occl_model_group
+    assign_mat(model_obj, occluder_model_mat())
+    apply_all_trans(model_obj)
