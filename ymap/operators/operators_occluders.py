@@ -52,7 +52,7 @@ class YMAP_OT_remove_box_occluder(bpy.types.Operator, YmapMixin):
             box_occls = ymap.ymap_box_occluders
             delete_obj(box_occls[index].linked_obj)
             box_occls.remove(index)
-            ymap.ymap_box_occluders_index = max(0, ymap.ymap_box_occluders_index - 1)
+            ymap.ymap_box_occluders_index = max(0, index - 1)
             if len(box_occls) == 0:
                 ymap.ymap_box_occluders_group_object = None
                 delete_obj(self.get_ymap_box_occl_group_obj(context))
@@ -99,4 +99,19 @@ class YMAP_OT_remove_model_occluder(bpy.types.Operator, YmapMixin):
     def poll(cls, context):
         return cls.has_occluders(context) > 0 and cls.get_ymap_model_occl_index(context) > -1
 
-    ...
+    def execute(self, context):
+        ymap = self.get_ymap(context)
+        if self.has_occluders(context):
+            index: int = self.get_ymap_model_occl_index(context)
+            model_occls = ymap.ymap_model_occluders
+            delete_obj(model_occls[index].linked_obj)
+            model_occls.remove(index)
+            ymap.ymap_model_occluders_index = max(0, index - 1)
+            if len(model_occls) == 0:
+                ymap.ymap_model_occluders_group_object = None
+                delete_obj(self.get_ymap_model_occl_group_obj(context))
+            if not self.has_occluders(context):
+                ymap.ymap_occluders_group_object = None
+                delete_obj(self.get_ymap_occl_group_obj(context))
+            self.report({'INFO'}, f"Removed model occlusion culling object from {ymap.ymap_object.name} YMAP")
+            return {'FINISHED'}

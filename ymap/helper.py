@@ -1,6 +1,6 @@
 from pathlib import Path
 from bpy.types import Object, Collection, Scene, Mesh, Material
-from mathutils import Vector
+from mathutils import Vector, Matrix
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from CodeWalker.GameFiles import (YmapFile) # type: ignore
@@ -21,7 +21,12 @@ get_streaming_extents_min,
 get_ymap_phys_dicts,
 any_occl_exists_in_ymap,
 get_all_occls_models_from_ymap,
-get_ent_lod_level
+get_ent_lod_level,
+is_mlo_instance,
+fill_default_entity_sets,
+get_z_axis_ent,
+get_ent_type,
+get_ent_priority_level
 )
 from ..shared.helper import (
     world_corners_of,
@@ -38,7 +43,6 @@ from ..shared.helper import (
     create_obj,
     assign_mat,
     get_mat,
-    apply_all_trans
 )
 import bpy
 from ..shared.constants import (
@@ -760,6 +764,20 @@ def create_occluder_model_item(model_obj: Object, ymap, ymap_occl_model_group) -
     new_occl_model = ymap.ymap_model_occluders.add()
     new_occl_model.name = "Occluder Model"
     new_occl_model.linked_obj = model_obj
-    model_obj.parent = ymap_occl_model_group
+    set_parent_keep_world(model_obj, ymap_occl_model_group)
     assign_mat(model_obj, occluder_model_mat())
-    apply_all_trans(model_obj)
+
+def set_parent_keep_world(child: Object, new_parent: Object | None) -> None:
+    """Sets the parent of an object while keeping its world position and rotation."""
+    mw: Matrix = child.matrix_world.copy()
+
+    child.parent = new_parent
+    child.parent_type = "OBJECT"
+
+    if new_parent is None:
+        child.matrix_parent_inverse = Matrix.Identity(4)
+    else:
+        child.matrix_parent_inverse = new_parent.matrix_world.inverted() @ mw
+
+    child.matrix_world = mw
+

@@ -462,41 +462,23 @@ def split_mesh_by_x(obj: Object, max_verts: int = 255) -> list[list[BMFace]]:
 def is_mesh_a_cube(obj: Object) -> bool:
     return obj.type == 'MESH' and len(obj.data.vertices) == 8
 
-def apply_all_trans(obj: bpy.types.Object, loc=True, rot=True, scale=True) -> None:
-    """Apply Location/Rotation/Scale"""
-    M = Matrix.Identity(4)
 
-    if loc:
-        M @= Matrix.Translation(obj.location)
+def apply_all_trans(obj: bpy.types.Object) -> None:
+    """Apply ALL transforms (full matrix_basis) to obj.data without bpy.ops, no moving."""
+    if obj is None or obj.data is None:
+        return
 
-    if rot:
-        rm = obj.rotation_mode
-        if rm == 'QUATERNION':
-            M @= obj.rotation_quaternion.to_matrix().to_4x4()
-        elif rm == 'AXIS_ANGLE':
-            angle, x, y, z = obj.rotation_axis_angle
-            M @= Matrix.Rotation(angle, 4, (x, y, z))
-        else:
-            M @= obj.rotation_euler.to_matrix().to_4x4()
+    M = obj.matrix_basis.copy()
 
-    if scale:
-        sx, sy, sz = obj.scale
-        M @= Matrix.Diagonal((sx, sy, sz, 1.0))
+    # Bake full local transform into the data (includes shear)
+    obj.data.transform(M)
+    if obj.type == 'MESH':
+        obj.data.update()
 
-    if obj.data and hasattr(obj.data, "transform"):
-        obj.data.transform(M)
-        if obj.type == 'MESH':
-            obj.data.update()
+    if obj.parent:
+        # Keep matrix_world the same by pushing basis into parent inverse
+        obj.matrix_parent_inverse = obj.matrix_parent_inverse @ M
+        obj.matrix_basis = Matrix.Identity(4)
+    else:
+        obj.matrix_basis = Matrix.Identity(4)
 
-    if loc:
-        obj.location = (0.0, 0.0, 0.0)
-    if rot:
-        rm = obj.rotation_mode
-        if rm == 'QUATERNION':
-            obj.rotation_quaternion = (1.0, 0.0, 0.0, 0.0)
-        elif rm == 'AXIS_ANGLE':
-            obj.rotation_axis_angle = (0.0, 0.0, 1.0, 0.0)
-        else:
-            obj.rotation_euler = (0.0, 0.0, 0.0)
-    if scale:
-        obj.scale = (1.0, 1.0, 1.0)
