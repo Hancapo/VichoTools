@@ -718,6 +718,10 @@ def calc_ymap_flags(bl_ymap) -> tuple[int, int]:
     if bl_ymap.ymap_phys_dicts:
         content_flags = set_bit(content_flags, 6)
 
+    if bl_ymap.ymap_box_occluders or bl_ymap.ymap_model_occluders:
+        content_flags = set_bit(content_flags, 5)
+
+
     return flags, content_flags
 
 
