@@ -13,7 +13,9 @@ from ...shared.helper import (str_loaded_count,
                       set_sollumz_import_settings,
                       set_sollumz_export_format_to_binary,
                       set_sollumz_gen_ver,
-                      get_meta_hash)
+                      get_meta_hash,
+                      split_mesh_by_x,
+                      vec2sharpvec)
 from bpy.types import Object
 from ...vicho_dependencies import dependencies_manager as d
 from typing import TYPE_CHECKING
@@ -25,7 +27,12 @@ if TYPE_CHECKING:
                                       YmapEntityDef, 
                                       MetaHash, 
                                       CEntityDef, 
-                                      MloInstanceData)
+                                      MloInstanceData,
+                                      YmapBoxOccluder,
+                                      BoxOccluder,
+                                      YmapOccludeModel,
+                                      YmapOccludeModelTriangle,
+                                      OccludeModel)
 import time
 import os
 from ..helper import (import_ymap_to_scene,
@@ -39,6 +46,7 @@ from ..helper import (import_ymap_to_scene,
 from ...shared.funcs import sanitize_name
 from .operators import VICHO_OT_open_folder
 from ...shared.constants import GAME_VERSIONS
+from mathutils import Vector
 
 class ImportSettings(bpy.types.PropertyGroup):
     import_entities: BoolProperty(name="Entities", default=True, description="Import entities from the YMAP file(s)") # type: ignore
@@ -188,6 +196,7 @@ class VICHO_OT_export_ymap(bpy.types.Operator, YmapMixin):
             
             ymap_file._CMapData = new_cmapdata
 
+            #Build physicsDictionary
             if ymap.ymap_phys_dicts:
                 phys_dicts: list["MetaHash"] = []
                 for phys_dict in ymap.ymap_phys_dicts:
@@ -238,6 +247,60 @@ class VICHO_OT_export_ymap(bpy.types.Operator, YmapMixin):
 
                         ymap_entity_def.CEntityDef = ent_def
                         ymap_file.AddEntity(ymap_entity_def)
+            #Build box occluders
+            if ymap.ymap_box_occluders:
+                scene_box_occls: list[Object] = [obj.linked_obj for obj in ymap.ymap_box_occluders if obj.linked_obj]
+                new_box_occls: list["YmapBoxOccluder"] = []
+                for i, box in enumerate(scene_box_occls):
+                    bo: "BoxOccluder" = d.BoxOccluder()
+                    ybo: "YmapBoxOccluder" = d.YmapBoxOccluder(None, bo)
+                    ybo.Index = i
+                    ybo.Position = d.Vector3(box.location.x, box.location.y, box.location.z)
+                    ybo.Size = d.Vector3(box.dimensions.x, box.dimensions.y, box.dimensions.z)
+                    if box.rotation_mode != 'QUATERNION':
+                        box.rotation_mode = 'QUATERNION'
+                    ybo.Orientation = d.Quaternion(box.rotation_quaternion.x, box.rotation_quaternion.y, box.rotation_quaternion.z, box.rotation_quaternion.w)
+                    new_box_occls.append(ybo)
+                ymap_file.BoxOccluders = new_box_occls
+
+            #Build occluder models
+            if ymap.ymap_model_occluders:
+                scene_model_occls: list[Object] = ymap.ymap_model_occluders
+                new_model_occls: list["YmapOccludeModel"] = []
+                model_index = 0
+                for smo in scene_model_occls:
+                    smodel = smo.linked_obj
+                    sflags = smo.flags
+
+                    if smodel:
+                        faces_chunks: list[list[Vector]] = split_mesh_by_x(smodel)
+                        for _, chunk in enumerate(faces_chunks):
+                            mo: "OccludeModel" = d.OccludeModel()
+                            ymo: "YmapOccludeModel" = d.YmapOccludeModel(None, mo)
+
+                            tri_list: list["YmapOccludeModelTriangle"] = []
+
+                            tri_index = 0
+                            for j in range(0, len(chunk) - 2, 3):
+                                new_tri: "YmapOccludeModelTriangle" = d.YmapOccludeModelTriangle(
+                                    ymo,
+                                    vec2sharpvec(chunk[j]),
+                                    vec2sharpvec(chunk[j + 1]),
+                                    vec2sharpvec(chunk[j + 2]),
+                                    tri_index
+                                )
+                                tri_list.append(new_tri)
+                                tri_index += 1
+
+                            ymo.Triangles = tri_list
+                            ymo.Index = model_index
+                            ymo.Flags = d.FlagsUint(sflags)
+                            model_index += 1
+
+                            new_model_occls.append(ymo)
+
+                ymap_file.OccludeModels = new_model_occls
+
 
             d.File.WriteAllBytes(f"{self.directory}/{ymap_file.Name}.ymap", ymap_file.Save())
             if self.export_assets:

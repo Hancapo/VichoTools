@@ -35,6 +35,7 @@ class DependenciesManager:
         # SharpDX stuff
         self.Vector3 = None
         self.Vector4 = None
+        self.Quaternion = None
 
         # Ymap stuff
         self.YmapFile = None
@@ -82,6 +83,7 @@ class DependenciesManager:
                 self.Utils,
                 self.Vector3,
                 self.Vector4,
+                self.Quaternion,
                 self.YmapFile,
                 self.YmapEntityDef,
                 self.rage__eLodType,
@@ -163,7 +165,7 @@ class DependenciesManager:
                 RoundMode,
             )
 
-            from SharpDX import Vector3, Vector4
+            from SharpDX import Vector3, Vector4, Quaternion
             from KeepA import FolderBrowser
 
             print("Modules OK")
@@ -177,6 +179,7 @@ class DependenciesManager:
 
             self.Vector3 = Vector3
             self.Vector4 = Vector4
+            self.Quaternion = Quaternion
 
             self.YmapFile = YmapFile
             self.YmapEntityDef = YmapEntityDef

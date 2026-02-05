@@ -12,6 +12,9 @@ from .funcs import (
     enum_items_to_valid_mask,
 )
 from ..vicho_dependencies import dependencies_manager as d
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from SharpDX import Vector3
 from .constants import YMAP_ENTITY_SOLLUM_TYPES, COMPAT_OBJECT_TYPES
 from bpy.ops import _BPyOpsSubModOp
 import bmesh
@@ -416,48 +419,66 @@ def get_mat(name, color, rough = 0.0, metallic = 0.0) -> Material:
 def assign_mat(obj: Object, mat: Material):
     obj.data.materials.clear()
     obj.data.materials.append(mat)
-
-def split_mesh_by_x(obj: Object, max_verts: int = 255) -> list[list[BMFace]]:
-
-    if obj.type == 'MESH':
-        src_me: Mesh = obj.data
-        
-        bm: BMesh = bmesh.new()
-        bm.from_mesh(src_me)
-
-        bm.faces.ensure_lookup_table()
-        bm.verts.ensure_lookup_table()
-
-        bmesh.ops.triangulate(bm, faces=bm.faces[:])
-
-        bm.faces.ensure_lookup_table()
-        bm.verts.ensure_lookup_table()
-
-        faces_sorted: list[BMFace] = sorted(bm.faces, key=lambda f: f.calc_center_median().x)
-
-        used: set[BMVert] = set()
-        cur: list[BMFace] = []
-        chunks: list[list[BMFace]] = []
-
-        for f in faces_sorted:
-            tri_set = set(f.verts)
-            new = tri_set - used
-
-            if cur and len(used) + len(new) > max_verts:
-                chunks.append(cur)
-                cur = []
-                used = set()
-
-            cur.append(f)
-            used |= tri_set
-
-        if cur:
-            chunks.append(cur)
-
-        return chunks
     
-    else:
+def split_mesh_by_x(obj: Object, max_verts: int = 255) -> list[list[Vector]]:
+    if obj.type != 'MESH':
         return []
+
+    src_me: Mesh = obj.data
+
+    bm: BMesh = bmesh.new()
+    bm.from_mesh(src_me)
+
+    bm.faces.ensure_lookup_table()
+    bm.verts.ensure_lookup_table()
+
+    need_tris = any(len(f.verts) != 3 for f in bm.faces)
+    if need_tris:
+        bmesh.ops.triangulate(bm, faces=bm.faces[:])
+        bm.faces.ensure_lookup_table()
+        bm.verts.ensure_lookup_table()
+
+    def emit_faces(faces: list[BMFace]) -> list[Vector]:
+        out: list[Vector] = []
+        for f in faces:
+            if len(f.verts) != 3:
+                continue
+            v0, v1, v2 = f.verts[0], f.verts[1], f.verts[2]
+            out.append(v0.co.copy())
+            out.append(v1.co.copy())
+            out.append(v2.co.copy())
+        return out
+
+    if len(bm.verts) <= max_verts:
+        chunk = emit_faces(list(bm.faces))
+        bm.free()
+        return [chunk] if chunk else []
+
+    faces_sorted: list[BMFace] = sorted(bm.faces, key=lambda f: f.calc_center_median().x)
+
+    used: set[BMVert] = set()
+    cur_faces: list[BMFace] = []
+    chunks: list[list[Vector]] = []
+
+    for f in faces_sorted:
+        tri_set = set(f.verts)
+        new = tri_set - used
+
+        if cur_faces and (len(used) + len(new) > max_verts):
+            chunks.append(emit_faces(cur_faces))
+            cur_faces = []
+            used = set()
+
+        cur_faces.append(f)
+        used |= tri_set
+
+    if cur_faces:
+        chunks.append(emit_faces(cur_faces))
+
+    bm.free()
+    return [c for c in chunks if c]
+
+
 
 def is_mesh_a_cube(obj: Object) -> bool:
     return obj.type == 'MESH' and len(obj.data.vertices) == 8
@@ -482,3 +503,5 @@ def apply_all_trans(obj: bpy.types.Object) -> None:
     else:
         obj.matrix_basis = Matrix.Identity(4)
 
+def vec2sharpvec(vec: Vector) -> "Vector3":
+    return d.Vector3(vec.x, vec.y, vec.z)
