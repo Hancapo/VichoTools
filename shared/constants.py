@@ -41,8 +41,8 @@ YMAP_MAP_DATA_TOGGLES: tuple[tuple[str, str, str, str, int], ...] = (
 )
 
 OCCLUDERS_TOGGLES: tuple[tuple[str, str, str, str, int], ...] = (
-    ("BOX", "Box", "Box", "MESH_CUBE", 0),
-    ("MODEL", "Model", "Model", "OUTLINER_OB_MESH", 1))
+    ("BOX", "Box Occluder", "Box", "MESH_CUBE", 0),
+    ("MODEL", "Occluder Model", "Model", "OUTLINER_OB_MESH", 1))
 
 
 ENTITY_TOGGLES: tuple[tuple[str, str, str, str, int], ...] = (

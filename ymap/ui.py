@@ -131,7 +131,8 @@ class OCCLUDERSLIST_UL_list(bpy.types.UIList):
         self, context, layout, data, item, icon, active_data, active_propname, index
     ):
         if self.layout_type in {"DEFAULT", "COMPACT"}:
-                layout.prop(item, "name", text="", emboss=False, icon_value=get_icon("triangle"))
+                #layout.prop(item, "name", text="", emboss=False, icon_value=get_icon("triangle"))
+                layout.label(text=item.name, icon_value=get_icon("triangle"))
 
 class YmapTools_PT_Panel(bpy.types.Panel):
     bl_label = "Map Data"
@@ -321,7 +322,7 @@ class YmapTools_Data_PT_Panel(bpy.types.Panel, YmapMixin):
                     case "ymap.occluders_menu":
                         self.bl_label = "Occluders"
                         occluder_cat_flow = right_col.grid_flow(row_major=True, columns=2, even_columns=True, even_rows=True, align=True)
-                        occluder_cat_flow.prop(ymap, "occluder_category", expand=True, icon_only=True, emboss=True)
+                        occluder_cat_flow.prop(ymap, "occluder_category", expand=True, icon_only=False, emboss=True)
                         selected_box_occl = self.get_box_occl(context)
                         selected_model_occl = self.get_model_occl(context)
                         match ymap.occluder_category:
