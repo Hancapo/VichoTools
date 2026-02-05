@@ -425,7 +425,7 @@ class VICHO_OT_calculate_ymap_flags(bpy.types.Operator, YmapMixin):
     
     @classmethod
     def poll(cls, context):
-        return cls.has_entities(context)
+        return cls.has_entities(context) or cls.has_occluders(context)
     
     def execute(self, context):
         ymap = self.get_ymap(context)
