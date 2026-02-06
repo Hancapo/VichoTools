@@ -17,6 +17,12 @@ class DependenciesManager:
         self.File = None
         self.Enum = None
         self.UInt32 = None
+        self.Action = None
+        self.Task = None
+        self.CollectTextures = None
+        self.WriteTexturesAsync = None
+        self.HashSet = None
+        self.String = None
 
         # TeximpNet stuff
         self.Surface = None
@@ -31,6 +37,8 @@ class DependenciesManager:
         # CodeWalker stuff
         self.GameFiles = None
         self.Utils = None
+        self.GTA5Keys = None
+        self.GameFileCache = None
 
         # SharpDX stuff
         self.Vector3 = None
@@ -61,6 +69,16 @@ class DependenciesManager:
         
         # KeepA stuff
         self.FolderBrowser = None
+
+        self.gamecache = None
+
+    @property
+    def gamecache(self):
+        return self._gamecache
+    
+    @gamecache.setter
+    def gamecache(self, value):
+        self._gamecache = value
 
     @property
     def available(self):
@@ -103,19 +121,35 @@ class DependenciesManager:
                 self.OccludeModel,
                 self.YmapOccludeModel,
                 self.FlagsUint,
-                self.YmapOccludeModelTriangle
+                self.YmapOccludeModelTriangle,
+                self.Action,
+                self.Task,
+                self.HashSet,
+                self.String,
+                self.CollectTextures,
+                self.WriteTexturesAsync,
+                self.GTA5Keys,
+                self.GameFileCache,
             ]
         )
 
     def load_dependencies(self):
         try:
             p = os.path.dirname(__file__)
-            runtime_loc = rf"{p}\libs\vichotools.json"
+            runtime_loc_net10 = rf"{p}\libs\vichotools.json"
+            runtime_loc_net9 = rf"{p}\libs\vichotools.net9.json"
             libs_loc = rf"{p}\libs"
             os.environ["PATH"] = libs_loc + os.pathsep + os.environ["PATH"]
-            if os.path.exists(runtime_loc):
+            if os.path.exists(runtime_loc_net10):
                 import pythonnet
-                pythonnet.load("coreclr", runtime_config=runtime_loc)
+                try:
+                    pythonnet.load("coreclr", runtime_config=runtime_loc_net10)
+                except Exception:
+                    # Fallback for machines that only have .NET 9 installed.
+                    if os.path.exists(runtime_loc_net9):
+                        pythonnet.load("coreclr", runtime_config=runtime_loc_net9)
+                    else:
+                        raise
             else:
                 return False
 
@@ -129,8 +163,9 @@ class DependenciesManager:
             clr.AddReference(rf"{libs_loc}\KeepA.dll")
             print("References added correctly")
 
-            from System.Collections.Generic import List
-            from System import Enum, UInt32
+            from System.Collections.Generic import List, HashSet
+            from System import Enum, UInt32, Action, String
+            from System.Threading.Tasks import Task
             import CodeWalker.GameFiles as GameFiles
             from System.IO import File
             from CodeWalker.GameFiles import (

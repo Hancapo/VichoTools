@@ -7,6 +7,7 @@ import random
 import time
 import math
 from pathlib import Path
+import tempfile
 
 
 def subtract_from_vector(v: Vector, f: float) -> Vector:
@@ -217,3 +218,6 @@ def indices_to_faces(indices) -> list[tuple]:
 def sharpdx_quat_to_blender_quat(quat) -> Quaternion:
     """Convert a SharpDX quaternion to a Blender quaternion."""
     return Quaternion((quat.W, quat.X, quat.Y, quat.Z))
+
+def create_temp_folder():
+    return tempfile.mkdtemp()
