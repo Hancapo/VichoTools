@@ -136,20 +136,12 @@ class DependenciesManager:
     def load_dependencies(self):
         try:
             p = os.path.dirname(__file__)
-            runtime_loc_net10 = rf"{p}\libs\vichotools.json"
-            runtime_loc_net9 = rf"{p}\libs\vichotools.net9.json"
+            runtime_loc = rf"{p}\libs\vichotools.json"
             libs_loc = rf"{p}\libs"
             os.environ["PATH"] = libs_loc + os.pathsep + os.environ["PATH"]
-            if os.path.exists(runtime_loc_net10):
+            if os.path.exists(runtime_loc):
                 import pythonnet
-                try:
-                    pythonnet.load("coreclr", runtime_config=runtime_loc_net10)
-                except Exception:
-                    # Fallback for machines that only have .NET 9 installed.
-                    if os.path.exists(runtime_loc_net9):
-                        pythonnet.load("coreclr", runtime_config=runtime_loc_net9)
-                    else:
-                        raise
+                pythonnet.load("coreclr", runtime_config=runtime_loc)
             else:
                 return False
 
