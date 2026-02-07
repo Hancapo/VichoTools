@@ -1,6 +1,6 @@
 from __future__ import annotations
 from enum import IntEnum, IntFlag
-from typing import Any, Generic, TypeVar, overload
+from typing import Any, Callable, ClassVar, Generic, TypeVar, overload
 import SharpDX
 
 T = TypeVar("T")
@@ -32,7 +32,7 @@ class ComBaseStreamNative:
     def GetType(self) -> Any: ...
     def ToString(self) -> str: ...
 
-class ComStream:
+class ComStream(ComStreamBase):
     Tag: Any
     NativePointer: Any
     IsDisposed: bool
@@ -62,7 +62,7 @@ class ComStream:
     def UnlockRegion(self, libOffset: int, cb: int, dwLockType: LockType) -> None: ...
     def Write(self, vRef: Any, cb: int) -> int: ...
 
-class ComStreamBase:
+class ComStreamBase(SharpDX.ComObject):
     Tag: Any
     NativePointer: Any
     IsDisposed: bool
@@ -3285,7 +3285,7 @@ class NativeMessage:
     def GetType(self) -> Any: ...
     def ToString(self) -> str: ...
 
-class PropertyBag:
+class PropertyBag(SharpDX.ComObject):
     Count: int
     Keys: list[str]
     Tag: Any

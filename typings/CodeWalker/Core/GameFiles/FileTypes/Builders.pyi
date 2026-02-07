@@ -1,14 +1,9 @@
 from __future__ import annotations
 from enum import IntEnum, IntFlag
-from typing import Any, ClassVar, Generic, TypeVar, overload
+from typing import Any, Callable, ClassVar, Generic, TypeVar, overload
 import CodeWalker
 import SharpDX
-
-T = TypeVar("T")
-T1 = TypeVar("T1")
-T2 = TypeVar("T2")
-T3 = TypeVar("T3")
-T4 = TypeVar("T4")
+import System
 
 class YndBuilder:
     def __init__(self) -> None: ...
@@ -18,11 +13,11 @@ class YndBuilder:
     def ToString(self) -> str: ...
 
 class YnvBuilder:
-    PolyList: list[CodeWalker.GameFiles.YnvPoly]
+    PolyList: System.Collections.Generic.List[CodeWalker.GameFiles.YnvPoly]
     VehicleName: str
     def __init__(self) -> None: ...
     def AddPoly(self, verts: list[SharpDX.Vector3]) -> CodeWalker.GameFiles.YnvPoly: ...
-    def Build(self, forVehicle: bool) -> list[CodeWalker.GameFiles.YnvFile]: ...
+    def Build(self, forVehicle: bool) -> System.Collections.Generic.List[CodeWalker.GameFiles.YnvFile]: ...
     def Equals(self, obj: Any) -> bool: ...
     def GetHashCode(self) -> int: ...
     def GetType(self) -> Any: ...

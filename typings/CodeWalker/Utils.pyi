@@ -1,6 +1,6 @@
 from __future__ import annotations
-from enum import IntEnum
-from typing import Any, ClassVar, overload
+from enum import IntEnum, IntFlag
+from typing import Any, Callable, ClassVar, Generic, TypeVar, overload
 import CodeWalker
 
 class DDSIO:
@@ -295,6 +295,8 @@ class DDSIO:
         @staticmethod
         def IsValid(fmt: DDSIO.DXGI_FORMAT) -> bool: ...
         def ToString(self) -> str: ...
+        @staticmethod
+        def assert_(b: bool) -> None: ...
 
     class Image:
         width: int

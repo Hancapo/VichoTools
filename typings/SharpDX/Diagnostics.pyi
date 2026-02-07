@@ -1,6 +1,8 @@
 from __future__ import annotations
-from typing import Any, ClassVar, overload
+from enum import IntEnum, IntFlag
+from typing import Any, Callable, ClassVar, Generic, TypeVar, overload
 import SharpDX
+import System
 
 class ComObjectEventArgs:
     Object: SharpDX.ComObject
@@ -22,16 +24,16 @@ class ObjectReference:
     def ToString(self) -> str: ...
 
 class ObjectTracker:
-    StackTraceProvider: ClassVar[Any]
+    StackTraceProvider: ClassVar[Callable[..., str]]
     def Equals(self, obj: Any) -> bool: ...
     @overload
     @staticmethod
-    def Find(comObjectPtr: Any) -> list[ObjectReference]: ...
+    def Find(comObjectPtr: Any) -> System.Collections.Generic.List[ObjectReference]: ...
     @overload
     @staticmethod
     def Find(comObject: SharpDX.ComObject) -> ObjectReference: ...
     @staticmethod
-    def FindActiveObjects() -> list[ObjectReference]: ...
+    def FindActiveObjects() -> System.Collections.Generic.List[ObjectReference]: ...
     def GetHashCode(self) -> int: ...
     @staticmethod
     def GetStackTrace() -> str: ...

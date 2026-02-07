@@ -1,8 +1,8 @@
 from __future__ import annotations
-from typing import Any, ClassVar, overload
+from enum import IntEnum, IntFlag
+from typing import Any, Callable, ClassVar, Generic, TypeVar, overload
 
-
-class ASCIIEncoding:
+class ASCIIEncoding(Encoding):
     Preamble: Any
     BodyName: str
     EncodingName: str

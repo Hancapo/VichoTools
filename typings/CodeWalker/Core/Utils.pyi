@@ -1,8 +1,8 @@
 from __future__ import annotations
-from typing import Any, overload
+from enum import IntEnum, IntFlag
+from typing import Any, Callable, ClassVar, Generic, TypeVar, overload
 import CodeWalker
 import SharpDX
-
 
 class BoundingBoxExtensions:
     @staticmethod
@@ -26,11 +26,11 @@ class Gen9Converter:
     ProcessSubfolders: bool
     OverwriteExisting: bool
     CopyUnconverted: bool
-    QuestionFunc: Any
-    ErrorAction: Any
-    LogAction: Any
-    ProgressAction: Any
-    StartStopAction: Any
+    QuestionFunc: Callable[..., bool]
+    ErrorAction: Callable[..., None]
+    LogAction: Callable[..., None]
+    ProgressAction: Callable[..., None]
+    StartStopAction: Callable[..., None]
     def __init__(self) -> None: ...
     def Convert(self) -> None: ...
     def Equals(self, obj: Any) -> bool: ...
@@ -44,4 +44,4 @@ class Gen9Converter:
     def TryConvert(data: list[int], fileType: str, copyunconverted: bool = ...) -> list[int]: ...
     @overload
     @staticmethod
-    def TryConvert(data: list[int], fileType: str, log: Any, relpath: str, copyunconverted: bool, converted: bool) -> list[int]: ...
+    def TryConvert(data: list[int], fileType: str, log: Callable[..., None], relpath: str, copyunconverted: bool, converted: bool) -> list[int]: ...

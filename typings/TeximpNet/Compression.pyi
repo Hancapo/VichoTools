@@ -1,8 +1,7 @@
 from __future__ import annotations
-from enum import IntEnum
-from typing import Any, overload
+from enum import IntEnum, IntFlag
+from typing import Any, Callable, ClassVar, Generic, TypeVar, overload
 import TeximpNet
-
 
 class AlphaMode(IntEnum):
     None_ = 0

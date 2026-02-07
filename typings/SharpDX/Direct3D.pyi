@@ -1,11 +1,11 @@
 from __future__ import annotations
-from enum import IntEnum
-from typing import Any, ClassVar, TypeVar, overload
+from enum import IntEnum, IntFlag
+from typing import Any, Callable, ClassVar, Generic, TypeVar, overload
 import SharpDX
 
 T = TypeVar("T")
 
-class Blob:
+class Blob(SharpDX.ComObject):
     BufferPointer: Any
     BufferSize: SharpDX.PointerSize
     Tag: Any
@@ -37,7 +37,7 @@ class CommonGuid:
 class DestructionNotifier:
     ...
 
-class DeviceMultithread:
+class DeviceMultithread(SharpDX.ComObject):
     Tag: Any
     NativePointer: Any
     IsDisposed: bool

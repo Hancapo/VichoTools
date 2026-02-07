@@ -8,13 +8,24 @@ import TeximpNet as TeximpNet
 import TeximpNet.Compression as TeximpNetCompression
 import SharpDX as SharpDX
 import KeepA as KeepA
+import CWUtils as CWUtils
+
+from System import Action, List, Enum, UInt32, String
+from System.IO import File
+from System.Collections.Generic import HashSet as HashSet
 
 class DependenciesManager:
     clr: Any
-    List: Any
-    File: Any
-    Enum: Any
-    UInt32: Any
+    List: List
+    File: File
+    Enum: Enum
+    UInt32: UInt32
+    Action: Action
+
+    CollectTextures: type[CWUtils.Utils.CollectTextures]
+    WriteTexturesAsync: type[CWUtils.Utils.WriteTexturesAsync]
+    HashSet: type[HashSet]
+    String: type[String]
 
     Surface: type[TeximpNet.Surface]
     Compressor: type[TeximpNetCompression.Compressor]
@@ -30,6 +41,7 @@ class DependenciesManager:
 
     Vector3: type[SharpDX.Vector3]
     Vector4: type[SharpDX.Vector4]
+    Quaternion: type[SharpDX.Quaternion]
 
     YmapFile: type[GameFiles.YmapFile]
     YmapEntityDef: type[GameFiles.YmapEntityDef]
@@ -50,6 +62,10 @@ class DependenciesManager:
     YmapOccludeModel: type[GameFiles.YmapOccludeModel]
     FlagsUint: type[GameFiles.FlagsUint]
     YmapOccludeModelTriangle: type[GameFiles.YmapOccludeModelTriangle]
+
+    GTA5Keys = type[GameFiles.GTA5Keys]
+    GameFileCache = type[GameFiles.GameFileCache]
+    gamecache = type[GameFiles.GameFileCache]
 
     FolderBrowser: type[KeepA.FolderBrowser]
 

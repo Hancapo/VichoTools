@@ -1,10 +1,12 @@
 from __future__ import annotations
 from enum import IntEnum, IntFlag
-from typing import Any, ClassVar, Generic, TypeVar, overload
+from typing import Any, Callable, ClassVar, Generic, TypeVar, overload
 import CodeWalker
 import SharpDX
+import System
 
 T = TypeVar("T")
+U = TypeVar("U")
 
 class AABB_s:
     Min: SharpDX.Vector4
@@ -48,7 +50,7 @@ class AnimChannel:
     def WriteFrame(self, writer: AnimChannelDataWriter) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class AnimChannelCachedQuaternion:
+class AnimChannelCachedQuaternion(AnimChannel):
     Values: list[float]
     QuatIndex: int
     Type: AnimChannelType
@@ -111,9 +113,9 @@ class AnimChannelDataWriter:
     NumFrames: int
     ChunkSize: int
     FrameLength: int
-    ChannelFrameStream: list[int]
-    ChannelFrames: list[list[int]]
-    Bitstream: list[int]
+    ChannelFrameStream: System.Collections.Generic.List[int]
+    ChannelFrames: System.Collections.Generic.List[list[int]]
+    Bitstream: System.Collections.Generic.List[int]
     BitstreamPos: int
     def __init__(self, numFrames: int) -> None: ...
     def AlignChannelItemData(self, channelCount: int, sequenceCount: int) -> None: ...
@@ -146,7 +148,7 @@ class AnimChannelDataWriter:
     def WriteChannelListData(self, c: int) -> None: ...
     def WriteFrameBits(self, bits: int, n: int) -> None: ...
 
-class AnimChannelIndirectQuantizeFloat:
+class AnimChannelIndirectQuantizeFloat(AnimChannel):
     FrameBits: int
     ValueBits: int
     NumInts: int
@@ -176,7 +178,7 @@ class AnimChannelIndirectQuantizeFloat:
     def WriteFrame(self, writer: AnimChannelDataWriter) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class AnimChannelLinearFloat:
+class AnimChannelLinearFloat(AnimChannel):
     Quantum: float
     Offset: float
     Values: list[float]
@@ -202,7 +204,7 @@ class AnimChannelLinearFloat:
     def WriteFrame(self, writer: AnimChannelDataWriter) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class AnimChannelQuantizeFloat:
+class AnimChannelQuantizeFloat(AnimChannel):
     ValueBits: int
     Quantum: float
     Offset: float
@@ -229,7 +231,7 @@ class AnimChannelQuantizeFloat:
     def WriteFrame(self, writer: AnimChannelDataWriter) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class AnimChannelRawFloat:
+class AnimChannelRawFloat(AnimChannel):
     Values: list[float]
     Type: AnimChannelType
     Sequence: int
@@ -252,7 +254,7 @@ class AnimChannelRawFloat:
     def WriteFrame(self, writer: AnimChannelDataWriter) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class AnimChannelStaticFloat:
+class AnimChannelStaticFloat(AnimChannel):
     Value: float
     Type: AnimChannelType
     Sequence: int
@@ -275,7 +277,7 @@ class AnimChannelStaticFloat:
     def WriteFrame(self, writer: AnimChannelDataWriter) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class AnimChannelStaticQuaternion:
+class AnimChannelStaticQuaternion(AnimChannel):
     Value: SharpDX.Quaternion
     Type: AnimChannelType
     Sequence: int
@@ -298,7 +300,7 @@ class AnimChannelStaticQuaternion:
     def WriteFrame(self, writer: AnimChannelDataWriter) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class AnimChannelStaticVector3:
+class AnimChannelStaticVector3(AnimChannel):
     Value: SharpDX.Vector3
     Type: AnimChannelType
     Sequence: int
@@ -347,7 +349,7 @@ class AnimSequence:
     def ToString(self) -> str: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Animation:
+class Animation(ResourceSystemBlock):
     BlockLength: int
     VFT: int
     Unknown_04h: int
@@ -414,7 +416,7 @@ class AnimationBoneId:
     def ToString(self) -> str: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class AnimationMap:
+class AnimationMap(ResourceSystemBlock):
     BlockLength: int
     VFT: int
     Unknown_04h: int
@@ -441,7 +443,7 @@ class AnimationMap:
     def ToString(self) -> str: ...
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
 
-class AnimationMapEntry:
+class AnimationMapEntry(ResourceSystemBlock):
     BlockLength: int
     Hash: MetaHash
     Unknown_04h: int
@@ -773,7 +775,7 @@ class Array_ushort:
     def SwapEnd(self) -> None: ...
     def ToString(self) -> str: ...
 
-class AwcAnimationChunk:
+class AwcAnimationChunk(AwcChunk):
     ChunkSize: int
     Data: list[int]
     ClipDict: ClipDictionary
@@ -833,7 +835,7 @@ class AwcCodecType(IntEnum):
     PCM = 0
     ADPCM = 4
 
-class AwcDataChunk:
+class AwcDataChunk(AwcChunk):
     ChunkSize: int
     Data: list[int]
     ChunkInfo: AwcChunkInfo
@@ -891,7 +893,7 @@ class AwcFile:
     @staticmethod
     def WriteXmlNode(f: AwcFile, sb: Any, indent: int, wavfolder: str, name: str = ...) -> None: ...
 
-class AwcFormatChunk:
+class AwcFormatChunk(AwcChunk):
     ChunkSize: int
     Samples: int
     LoopPoint: int
@@ -916,7 +918,7 @@ class AwcFormatChunk:
     def Write(self, w: DataWriter) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class AwcGestureChunk:
+class AwcGestureChunk(AwcChunk):
     ChunkSize: int
     Gestures: list[AwcGestureChunk.Gesture]
     ChunkInfo: AwcChunkInfo
@@ -950,7 +952,7 @@ class AwcGestureChunk:
         def Write(self, w: DataWriter) -> None: ...
         def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class AwcGranularGrainsChunk:
+class AwcGranularGrainsChunk(AwcChunk):
     ChunkSize: int
     GranularGrains: list[AwcGranularGrainsChunk.GranularGrain]
     UnkFloat1: float
@@ -982,7 +984,7 @@ class AwcGranularGrainsChunk:
         def WriteLine(self, sb: Any) -> None: ...
         def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class AwcGranularLoopsChunk:
+class AwcGranularLoopsChunk(AwcChunk):
     ChunkSize: int
     GranularLoopsCount: int
     GranularLoops: list[AwcGranularLoopsChunk.GranularLoop]
@@ -1012,7 +1014,7 @@ class AwcGranularLoopsChunk:
         def Write(self, w: DataWriter) -> None: ...
         def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class AwcMIDIChunk:
+class AwcMIDIChunk(AwcChunk):
     ChunkSize: int
     Data: list[int]
     ChunkInfo: AwcChunkInfo
@@ -1026,7 +1028,7 @@ class AwcMIDIChunk:
     def Write(self, w: DataWriter) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class AwcMarkersChunk:
+class AwcMarkersChunk(AwcChunk):
     ChunkSize: int
     Markers: list[AwcMarkersChunk.Marker]
     ChunkInfo: AwcChunkInfo
@@ -1055,7 +1057,7 @@ class AwcMarkersChunk:
         def Write(self, w: DataWriter) -> None: ...
         def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class AwcPeakChunk:
+class AwcPeakChunk(AwcChunk):
     ChunkSize: int
     Data: list[int]
     ChunkInfo: AwcChunkInfo
@@ -1069,7 +1071,7 @@ class AwcPeakChunk:
     def Write(self, w: DataWriter) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class AwcSeekTableChunk:
+class AwcSeekTableChunk(AwcChunk):
     ChunkSize: int
     SeekTable: list[int]
     ChunkInfo: AwcChunkInfo
@@ -1192,7 +1194,7 @@ class AwcStreamFormat:
     def Write(self, w: DataWriter) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class AwcStreamFormatChunk:
+class AwcStreamFormatChunk(AwcChunk):
     ChunkSize: int
     BlockCount: int
     BlockSize: int
@@ -1222,7 +1224,7 @@ class AwcStreamInfo:
     def ToString(self) -> str: ...
     def Write(self, w: DataWriter) -> None: ...
 
-class AwcXml:
+class AwcXml(MetaXmlBase):
     def __init__(self) -> None: ...
     def Equals(self, obj: Any) -> bool: ...
     def GetHashCode(self) -> int: ...
@@ -1231,7 +1233,7 @@ class AwcXml:
     def GetXml(awc: AwcFile, outputFolder: str = ...) -> str: ...
     def ToString(self) -> str: ...
 
-class BVH:
+class BVH(ResourceSystemBlock):
     BlockLength: int
     Nodes: ResourceSimpleList64b_s[BVHNode_s]
     Unknown_10h: int
@@ -1261,7 +1263,7 @@ class BVHBuilder:
     MaxTreeNodeCount: ClassVar[int]
     def __init__(self) -> None: ...
     @staticmethod
-    def Build(items: list[BVHBuilderItem], itemThreshold: int) -> BVH: ...
+    def Build(items: System.Collections.Generic.List[BVHBuilderItem], itemThreshold: int) -> BVH: ...
     def Equals(self, obj: Any) -> bool: ...
     def GetHashCode(self) -> int: ...
     def GetType(self) -> Any: ...
@@ -1284,16 +1286,16 @@ class BVHBuilderItem:
 class BVHBuilderNode:
     TotalNodes: int
     TotalItems: int
-    Children: list[BVHBuilderNode]
-    Items: list[BVHBuilderItem]
+    Children: System.Collections.Generic.List[BVHBuilderNode]
+    Items: System.Collections.Generic.List[BVHBuilderItem]
     Min: SharpDX.Vector3
     Max: SharpDX.Vector3
     Index: int
     def __init__(self) -> None: ...
     def Build(self, itemThreshold: int) -> None: ...
     def Equals(self, obj: Any) -> bool: ...
-    def GatherNodes(self, nodes: list[BVHBuilderNode]) -> None: ...
-    def GatherTrees(self, trees: list[BVHBuilderNode]) -> None: ...
+    def GatherNodes(self, nodes: System.Collections.Generic.List[BVHBuilderNode]) -> None: ...
+    def GatherTrees(self, trees: System.Collections.Generic.List[BVHBuilderNode]) -> None: ...
     def GetHashCode(self) -> int: ...
     def GetType(self) -> Any: ...
     def ToString(self) -> str: ...
@@ -1340,7 +1342,7 @@ class BasePathData:
 class BasePathNode:
     Position: SharpDX.Vector3
 
-class Bone:
+class Bone(ResourceSystemBlock):
     BlockLength: int
     Rotation: SharpDX.Quaternion
     Translation: SharpDX.Vector3
@@ -1387,7 +1389,7 @@ class Bone:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class BoundBVH:
+class BoundBVH(BoundGeometry):
     BlockLength: int
     BvhPointer: int
     Unknown_138h: int
@@ -1532,7 +1534,7 @@ class BoundBVH:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class BoundBox:
+class BoundBox(Bounds):
     BlockLength: int
     Type: BoundsType
     Unknown_11h: int
@@ -1598,7 +1600,7 @@ class BoundBox:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class BoundCapsule:
+class BoundCapsule(Bounds):
     BlockLength: int
     Unknown_70h: int
     Unknown_74h: int
@@ -1668,7 +1670,7 @@ class BoundCapsule:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class BoundCloth:
+class BoundCloth(Bounds):
     BlockLength: int
     Type: BoundsType
     Unknown_11h: int
@@ -1734,7 +1736,7 @@ class BoundCloth:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class BoundComposite:
+class BoundComposite(Bounds):
     BlockLength: int
     ChildrenPointer: int
     ChildrenTransformation1Pointer: int
@@ -1831,7 +1833,7 @@ class BoundCompositeChildrenFlags:
     def GetType(self) -> Any: ...
     def ToString(self) -> str: ...
 
-class BoundCylinder:
+class BoundCylinder(Bounds):
     BlockLength: int
     Unknown_70h: int
     Unknown_74h: int
@@ -1901,7 +1903,7 @@ class BoundCylinder:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class BoundDisc:
+class BoundDisc(Bounds):
     BlockLength: int
     Unknown_70h: int
     Unknown_74h: int
@@ -1991,7 +1993,7 @@ class BoundEdgeRef:
     def GetType(self) -> Any: ...
     def ToString(self) -> str: ...
 
-class BoundGeomOctants:
+class BoundGeomOctants(ResourceSystemBlock):
     Counts: list[int]
     Items: list[list[int]]
     BlockLength: int
@@ -2008,7 +2010,7 @@ class BoundGeomOctants:
     def UpdateCounts(self) -> None: ...
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
 
-class BoundGeometry:
+class BoundGeometry(Bounds):
     BlockLength: int
     Unknown_70h: int
     Unknown_74h: int
@@ -2196,7 +2198,7 @@ class BoundPolygon:
     def Write(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class BoundPolygonBox:
+class BoundPolygonBox(BoundPolygon):
     boxType: int
     boxIndex1: int
     boxIndex2: int
@@ -2233,7 +2235,7 @@ class BoundPolygonBox:
     def Write(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class BoundPolygonCapsule:
+class BoundPolygonCapsule(BoundPolygon):
     capsuleType: int
     capsuleIndex1: int
     capsuleRadius: float
@@ -2268,7 +2270,7 @@ class BoundPolygonCapsule:
     def Write(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class BoundPolygonCylinder:
+class BoundPolygonCylinder(BoundPolygon):
     cylinderType: int
     cylinderIndex1: int
     cylinderRadius: float
@@ -2303,7 +2305,7 @@ class BoundPolygonCylinder:
     def Write(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class BoundPolygonSphere:
+class BoundPolygonSphere(BoundPolygon):
     sphereType: int
     sphereIndex: int
     sphereRadius: float
@@ -2335,7 +2337,7 @@ class BoundPolygonSphere:
     def Write(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class BoundPolygonTriangle:
+class BoundPolygonTriangle(BoundPolygon):
     triArea: float
     triIndex1: int
     triIndex2: int
@@ -2392,7 +2394,7 @@ class BoundPolygonType(IntEnum):
     Box = 3
     Cylinder = 4
 
-class BoundSphere:
+class BoundSphere(Bounds):
     BlockLength: int
     Type: BoundsType
     Unknown_11h: int
@@ -2490,7 +2492,7 @@ class BoundVertex_s:
     def GetType(self) -> Any: ...
     def ToString(self) -> str: ...
 
-class Bounds:
+class Bounds(ResourceFileBase):
     BlockLength: int
     Type: BoundsType
     Unknown_11h: int
@@ -2562,7 +2564,7 @@ class Bounds:
     @staticmethod
     def WriteXmlNode(b: Bounds, sb: Any, indent: int, name: str = ...) -> None: ...
 
-class BoundsDictionary:
+class BoundsDictionary(ResourceFileBase):
     BlockLength: int
     Unknown_10h: int
     Unknown_14h: int
@@ -2626,7 +2628,7 @@ class BoundsMaterialType:
     def ToString(self) -> str: ...
 
 class BoundsMaterialTypes:
-    Materials: ClassVar[list[BoundsMaterialData]]
+    Materials: ClassVar[System.Collections.Generic.List[BoundsMaterialData]]
     def Equals(self, obj: Any) -> bool: ...
     def GetHashCode(self) -> int: ...
     @overload
@@ -4729,7 +4731,7 @@ class CacheDatFile:
     def ToString(self) -> str: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class CacheDatXml:
+class CacheDatXml(MetaXmlBase):
     def __init__(self) -> None: ...
     def Equals(self, obj: Any) -> bool: ...
     def GetHashCode(self) -> int: ...
@@ -4755,7 +4757,7 @@ class CacheFileDate:
     def ToString(self) -> str: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class CarColsFile:
+class CarColsFile(GameFile):
     Pso: PsoFile
     Xml: str
     VehicleModelInfo: CVehicleModelInfoVarGlobal
@@ -4778,7 +4780,7 @@ class CarColsFile:
     def Load(self, data: list[int], entry: RpfFileEntry) -> None: ...
     def ToString(self) -> str: ...
 
-class CarModColsFile:
+class CarModColsFile(GameFile):
     Pso: PsoFile
     Xml: str
     VehicleModColours: CVehicleModColours
@@ -4801,7 +4803,7 @@ class CarModColsFile:
     def Load(self, data: list[int], entry: RpfFileEntry) -> None: ...
     def ToString(self) -> str: ...
 
-class CarVariationsFile:
+class CarVariationsFile(GameFile):
     Pso: PsoFile
     Xml: str
     VehicleModelInfo: CVehicleModelInfoVariation
@@ -4856,7 +4858,7 @@ class CharPointer:
     def SwapEnd(self) -> None: ...
     def ToString(self) -> str: ...
 
-class CharacterCloth:
+class CharacterCloth(ResourceSystemBlock):
     BlockLength: int
     VFT: int
     Unknown_10h: ResourceSimpleList64_s[SharpDX.Vector4]
@@ -4892,7 +4894,7 @@ class CharacterCloth:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class CharacterClothController:
+class CharacterClothController(ClothController):
     BlockLength: int
     Indices: ResourceSimpleList64_ushort
     Vertices: ResourceSimpleList64_s[SharpDX.Vector4]
@@ -4940,7 +4942,7 @@ class CharacterClothController:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class ClipAnimation:
+class ClipAnimation(ClipBase):
     BlockLength: int
     AnimationPointer: int
     StartTime: float
@@ -4992,7 +4994,7 @@ class ClipAnimation:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class ClipAnimationList:
+class ClipAnimationList(ClipBase):
     BlockLength: int
     AnimationsPointer: int
     AnimationsCount1: int
@@ -5044,7 +5046,7 @@ class ClipAnimationList:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class ClipAnimationsEntry:
+class ClipAnimationsEntry(ResourceSystemBlock):
     BlockLength: int
     StartTime: float
     EndTime: float
@@ -5068,7 +5070,7 @@ class ClipAnimationsEntry:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class ClipBase:
+class ClipBase(ResourceSystemBlock):
     BlockLength: int
     VFT: int
     Unknown_04h: int
@@ -5112,7 +5114,7 @@ class ClipBase:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class ClipDictionary:
+class ClipDictionary(ResourceFileBase):
     BlockLength: int
     Unknown_10h: int
     Unknown_14h: int
@@ -5153,7 +5155,7 @@ class ClipDictionary:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class ClipMapEntry:
+class ClipMapEntry(ResourceSystemBlock):
     BlockLength: int
     Hash: MetaHash
     Unknown_04h: int
@@ -5178,7 +5180,7 @@ class ClipMapEntry:
     def ToString(self) -> str: ...
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
 
-class ClipProperty:
+class ClipProperty(ResourceSystemBlock):
     BlockLength: int
     VFT: int
     Unknown_04h: int
@@ -5211,7 +5213,7 @@ class ClipProperty:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class ClipPropertyAttribute:
+class ClipPropertyAttribute(ResourceSystemBlock):
     BlockLength: int
     VFT: int
     Unknown_04h: int
@@ -5242,7 +5244,7 @@ class ClipPropertyAttribute:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class ClipPropertyAttributeBool:
+class ClipPropertyAttributeBool(ClipPropertyAttribute):
     BlockLength: int
     Value: int
     Unknown_24h: int
@@ -5275,7 +5277,7 @@ class ClipPropertyAttributeBool:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class ClipPropertyAttributeFloat:
+class ClipPropertyAttributeFloat(ClipPropertyAttribute):
     BlockLength: int
     Value: float
     Unknown_24h: int
@@ -5308,7 +5310,7 @@ class ClipPropertyAttributeFloat:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class ClipPropertyAttributeHashString:
+class ClipPropertyAttributeHashString(ClipPropertyAttribute):
     BlockLength: int
     Value: MetaHash
     Unknown_24h: int
@@ -5341,7 +5343,7 @@ class ClipPropertyAttributeHashString:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class ClipPropertyAttributeInt:
+class ClipPropertyAttributeInt(ClipPropertyAttribute):
     BlockLength: int
     Value: int
     Unknown_24h: int
@@ -5374,7 +5376,7 @@ class ClipPropertyAttributeInt:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class ClipPropertyAttributeString:
+class ClipPropertyAttributeString(ClipPropertyAttribute):
     BlockLength: int
     ValuePointer: int
     ValueLength: int
@@ -5417,7 +5419,7 @@ class ClipPropertyAttributeType(IntEnum):
     Vector4 = 8
     HashString = 12
 
-class ClipPropertyAttributeVector3:
+class ClipPropertyAttributeVector3(ClipPropertyAttribute):
     BlockLength: int
     Value: SharpDX.Vector3
     Unknown_02Ch: float
@@ -5448,7 +5450,7 @@ class ClipPropertyAttributeVector3:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class ClipPropertyAttributeVector4:
+class ClipPropertyAttributeVector4(ClipPropertyAttribute):
     BlockLength: int
     Value: SharpDX.Vector4
     VFT: int
@@ -5478,7 +5480,7 @@ class ClipPropertyAttributeVector4:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class ClipPropertyMap:
+class ClipPropertyMap(ResourceSystemBlock):
     BlockLength: int
     PropertyEntriesPointer: int
     PropertyEntriesCapacity: int
@@ -5501,7 +5503,7 @@ class ClipPropertyMap:
     def ToString(self) -> str: ...
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
 
-class ClipPropertyMapEntry:
+class ClipPropertyMapEntry(ResourceSystemBlock):
     BlockLength: int
     PropertyNameHash: MetaHash
     Unknown_04h: int
@@ -5523,7 +5525,7 @@ class ClipPropertyMapEntry:
     def ToString(self) -> str: ...
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
 
-class ClipTag:
+class ClipTag(ClipProperty):
     BlockLength: int
     StartPhase: float
     EndPhase: float
@@ -5560,7 +5562,7 @@ class ClipTag:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class ClipTagList:
+class ClipTagList(ResourceSystemBlock):
     BlockLength: int
     TagsPointer: int
     TagCount1: int
@@ -5590,7 +5592,7 @@ class ClipType(IntEnum):
     Animation = 1
     AnimationList = 2
 
-class ClothBridgeSimGfx:
+class ClothBridgeSimGfx(ResourceSystemBlock):
     BlockLength: int
     VFT: int
     VertexCount: int
@@ -5636,7 +5638,7 @@ class ClothBridgeSimGfx:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class ClothController:
+class ClothController(ResourceSystemBlock):
     BlockLength: int
     VFT: int
     BridgeSimGfxPointer: int
@@ -5673,7 +5675,7 @@ class ClothController:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class ClothDictionary:
+class ClothDictionary(ResourceFileBase):
     BlockLength: int
     ClothNameHashes: ResourceSimpleList64_s[MetaHash]
     Clothes: ResourcePointerList64[CharacterCloth]
@@ -5720,7 +5722,7 @@ class ClothInstance:
     def ToString(self) -> str: ...
     def Update(self, t: float) -> None: ...
 
-class ClothInstanceTuning:
+class ClothInstanceTuning(ResourceSystemBlock):
     BlockLength: int
     VFT: int
     Unknown_10h: float
@@ -5781,7 +5783,7 @@ class CryptoIO:
     @staticmethod
     def WriteNgTables(fileName: str, tableData: list[list[list[int]]]) -> None: ...
 
-class CutAnimatedLightObject:
+class CutAnimatedLightObject(CutNamedObject):
     vDirection: SharpDX.Vector3
     vColour: SharpDX.Vector3
     vPosition: SharpDX.Vector3
@@ -5816,7 +5818,7 @@ class CutAnimatedLightObject:
     def ToString(self) -> str: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class CutAnimatedParticleEffectObject:
+class CutAnimatedParticleEffectObject(CutNamedObject):
     StreamingName: MetaHash
     AnimStreamingBase: int
     athFxListHash: MetaHash
@@ -5832,7 +5834,7 @@ class CutAnimatedParticleEffectObject:
     def ToString(self) -> str: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class CutAnimationManagerObject:
+class CutAnimationManagerObject(CutObject):
     iObjectId: int
     attributeList: CutParAttributeList
     cutfAttributes: CutFAttributeList
@@ -5844,7 +5846,7 @@ class CutAnimationManagerObject:
     def ToString(self) -> str: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class CutAssetManagerObject:
+class CutAssetManagerObject(CutObject):
     iObjectId: int
     attributeList: CutParAttributeList
     cutfAttributes: CutFAttributeList
@@ -5856,7 +5858,7 @@ class CutAssetManagerObject:
     def ToString(self) -> str: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class CutAudioObject:
+class CutAudioObject(CutNamedObject):
     fOffset: float
     cName: MetaHash
     iObjectId: int
@@ -5878,7 +5880,7 @@ class CutBase:
     def ToString(self) -> str: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class CutBlockingBoundsObject:
+class CutBlockingBoundsObject(CutNamedObject):
     vCorners: list[SharpDX.Vector3]
     fHeight: float
     cName: MetaHash
@@ -5893,7 +5895,7 @@ class CutBlockingBoundsObject:
     def ToString(self) -> str: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class CutBoolValueEventArgs:
+class CutBoolValueEventArgs(CutEventArgs):
     bValue: bool
     attributeList: CutParAttributeList
     cutfAttributes: CutFAttributeList
@@ -5905,7 +5907,7 @@ class CutBoolValueEventArgs:
     def ToString(self) -> str: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class CutCameraCutCharacterLightParams:
+class CutCameraCutCharacterLightParams(CutBase):
     bUseTimeCycleValues: bool
     vDirection: SharpDX.Vector3
     vColour: SharpDX.Vector3
@@ -5918,7 +5920,7 @@ class CutCameraCutCharacterLightParams:
     def ToString(self) -> str: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class CutCameraCutEventArgs:
+class CutCameraCutEventArgs(CutNameEventArgs):
     vPosition: SharpDX.Vector3
     vRotationQuaternion: SharpDX.Quaternion
     fNearDrawDistance: float
@@ -5962,7 +5964,7 @@ class CutCameraCutEventArgs:
     def ToString(self) -> str: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class CutCameraCutTimeOfDayDofModifier:
+class CutCameraCutTimeOfDayDofModifier(CutBase):
     def __init__(self) -> None: ...
     def Equals(self, obj: Any) -> bool: ...
     def GetHashCode(self) -> int: ...
@@ -5971,7 +5973,7 @@ class CutCameraCutTimeOfDayDofModifier:
     def ToString(self) -> str: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class CutCameraObject:
+class CutCameraObject(CutNamedObject):
     AnimStreamingBase: int
     fNearDrawDistance: float
     fFarDrawDistance: float
@@ -5987,7 +5989,7 @@ class CutCameraObject:
     def ToString(self) -> str: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class CutCascadeShadowEventArgs:
+class CutCascadeShadowEventArgs(CutEventArgs):
     cameraCutHashName: MetaHash
     position: SharpDX.Vector3
     radius: float
@@ -6005,7 +6007,7 @@ class CutCascadeShadowEventArgs:
     def ToString(self) -> str: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class CutConcatData:
+class CutConcatData(CutBase):
     cSceneName: MetaHash
     vOffset: SharpDX.Vector3
     fStartTime: float
@@ -6023,7 +6025,7 @@ class CutConcatData:
     def ToString(self) -> str: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class CutDecalEventArgs:
+class CutDecalEventArgs(CutEventArgs):
     vPosition: SharpDX.Vector3
     vRotation: SharpDX.Quaternion
     fWidth: float
@@ -6040,7 +6042,7 @@ class CutDecalEventArgs:
     def ToString(self) -> str: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class CutDecalObject:
+class CutDecalObject(CutNamedObject):
     StreamingName: MetaHash
     RenderId: int
     cName: MetaHash
@@ -6055,7 +6057,7 @@ class CutDecalObject:
     def ToString(self) -> str: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class CutEvent:
+class CutEvent(CutBase):
     fTime: float
     iEventId: CutEventType
     iEventArgsIndex: int
@@ -6070,7 +6072,7 @@ class CutEvent:
     def ToString(self) -> str: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class CutEventArgs:
+class CutEventArgs(CutBase):
     attributeList: CutParAttributeList
     cutfAttributes: CutFAttributeList
     def __init__(self) -> None: ...
@@ -6131,7 +6133,7 @@ class CutEventType(IntEnum):
     VehicleUnk1 = 258
     PedUnk1 = 262
 
-class CutFAttributeList:
+class CutFAttributeList(CutBase):
     Items: list[Any]
     def __init__(self) -> None: ...
     def Equals(self, obj: Any) -> bool: ...
@@ -6155,7 +6157,7 @@ class CutFile:
     def Load(self, data: list[int], entry: RpfFileEntry) -> None: ...
     def ToString(self) -> str: ...
 
-class CutFinalNameEventArgs:
+class CutFinalNameEventArgs(CutEventArgs):
     cName: str
     attributeList: CutParAttributeList
     cutfAttributes: CutFAttributeList
@@ -6167,7 +6169,7 @@ class CutFinalNameEventArgs:
     def ToString(self) -> str: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class CutFixupModelObject:
+class CutFixupModelObject(CutNamedObject):
     vPosition: SharpDX.Vector3
     fRadius: float
     cName: MetaHash
@@ -6182,7 +6184,7 @@ class CutFixupModelObject:
     def ToString(self) -> str: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class CutFloat:
+class CutFloat(CutBase):
     Name: MetaHash
     Value: float
     def __init__(self) -> None: ...
@@ -6193,7 +6195,7 @@ class CutFloat:
     def ToString(self) -> str: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class CutFloatValueEventArgs:
+class CutFloatValueEventArgs(CutEventArgs):
     fValue: float
     attributeList: CutParAttributeList
     cutfAttributes: CutFAttributeList
@@ -6205,7 +6207,7 @@ class CutFloatValueEventArgs:
     def ToString(self) -> str: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class CutHaltFrequency:
+class CutHaltFrequency(CutBase):
     cSceneName: MetaHash
     frames: list[int]
     def __init__(self) -> None: ...
@@ -6216,7 +6218,7 @@ class CutHaltFrequency:
     def ToString(self) -> str: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class CutHiddenModelObject:
+class CutHiddenModelObject(CutNamedObject):
     vPosition: SharpDX.Vector3
     fRadius: float
     cName: MetaHash
@@ -6231,7 +6233,7 @@ class CutHiddenModelObject:
     def ToString(self) -> str: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class CutInt:
+class CutInt(CutBase):
     Name: MetaHash
     Value: int
     def __init__(self) -> None: ...
@@ -6242,7 +6244,7 @@ class CutInt:
     def ToString(self) -> str: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class CutLightObject:
+class CutLightObject(CutNamedObject):
     vDirection: SharpDX.Vector3
     vColour: SharpDX.Vector3
     vPosition: SharpDX.Vector3
@@ -6276,7 +6278,7 @@ class CutLightObject:
     def ToString(self) -> str: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class CutLoadSceneEventArgs:
+class CutLoadSceneEventArgs(CutNameEventArgs):
     vOffset: SharpDX.Vector3
     fRotation: float
     fPitch: float
@@ -6292,7 +6294,7 @@ class CutLoadSceneEventArgs:
     def ToString(self) -> str: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class CutNameEventArgs:
+class CutNameEventArgs(CutEventArgs):
     cName: MetaHash
     attributeList: CutParAttributeList
     cutfAttributes: CutFAttributeList
@@ -6304,7 +6306,7 @@ class CutNameEventArgs:
     def ToString(self) -> str: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class CutNamedObject:
+class CutNamedObject(CutObject):
     cName: MetaHash
     iObjectId: int
     attributeList: CutParAttributeList
@@ -6316,7 +6318,7 @@ class CutNamedObject:
     def ToString(self) -> str: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class CutObject:
+class CutObject(CutBase):
     iObjectId: int
     attributeList: CutParAttributeList
     cutfAttributes: CutFAttributeList
@@ -6327,7 +6329,7 @@ class CutObject:
     def ToString(self) -> str: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class CutObjectIdEvent:
+class CutObjectIdEvent(CutEvent):
     iObjectId: int
     Object: CutObject
     fTime: float
@@ -6344,7 +6346,7 @@ class CutObjectIdEvent:
     def ToString(self) -> str: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class CutObjectIdEventArgs:
+class CutObjectIdEventArgs(CutEventArgs):
     iObjectId: int
     Object: CutObject
     attributeList: CutParAttributeList
@@ -6357,7 +6359,7 @@ class CutObjectIdEventArgs:
     def ToString(self) -> str: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class CutObjectIdListEventArgs:
+class CutObjectIdListEventArgs(CutEventArgs):
     iObjectIdList: list[int]
     ObjectList: list[CutObject]
     attributeList: CutParAttributeList
@@ -6370,7 +6372,7 @@ class CutObjectIdListEventArgs:
     def ToString(self) -> str: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class CutObjectIdNameEventArgs:
+class CutObjectIdNameEventArgs(CutObjectIdEventArgs):
     cName: MetaHash
     iObjectId: int
     Object: CutObject
@@ -6384,7 +6386,7 @@ class CutObjectIdNameEventArgs:
     def ToString(self) -> str: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class CutObjectVariationEventArgs:
+class CutObjectVariationEventArgs(CutObjectIdEventArgs):
     iComponent: int
     iDrawable: int
     iTexture: int
@@ -6400,7 +6402,7 @@ class CutObjectVariationEventArgs:
     def ToString(self) -> str: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class CutOverlayObject:
+class CutOverlayObject(CutNamedObject):
     cRenderTargetName: str
     iOverlayType: int
     modelHashName: MetaHash
@@ -6416,7 +6418,7 @@ class CutOverlayObject:
     def ToString(self) -> str: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class CutParAttributeList:
+class CutParAttributeList(CutBase):
     UserData1: int
     UserData2: int
     def __init__(self) -> None: ...
@@ -6427,7 +6429,7 @@ class CutParAttributeList:
     def ToString(self) -> str: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class CutParticleEffectObject:
+class CutParticleEffectObject(CutNamedObject):
     StreamingName: MetaHash
     athFxListHash: MetaHash
     cName: MetaHash
@@ -6442,7 +6444,7 @@ class CutParticleEffectObject:
     def ToString(self) -> str: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class CutPedModelObject:
+class CutPedModelObject(CutNamedObject):
     StreamingName: MetaHash
     AnimStreamingBase: int
     cAnimExportCtrlSpecFile: MetaHash
@@ -6469,7 +6471,7 @@ class CutPedModelObject:
     def ToString(self) -> str: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class CutPlayParticleEffectEventArgs:
+class CutPlayParticleEffectEventArgs(CutEventArgs):
     vInitialBoneRotation: SharpDX.Quaternion
     vInitialBoneOffset: SharpDX.Vector3
     iAttachParentId: int
@@ -6484,7 +6486,7 @@ class CutPlayParticleEffectEventArgs:
     def ToString(self) -> str: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class CutPropModelObject:
+class CutPropModelObject(CutNamedObject):
     StreamingName: MetaHash
     AnimStreamingBase: int
     cAnimExportCtrlSpecFile: MetaHash
@@ -6504,7 +6506,7 @@ class CutPropModelObject:
     def ToString(self) -> str: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class CutRayfireObject:
+class CutRayfireObject(CutNamedObject):
     StreamingName: MetaHash
     vStartPosition: SharpDX.Vector3
     cName: MetaHash
@@ -6519,7 +6521,7 @@ class CutRayfireObject:
     def ToString(self) -> str: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class CutScreenFadeEventArgs:
+class CutScreenFadeEventArgs(CutEventArgs):
     fValue: float
     color: int
     attributeList: CutParAttributeList
@@ -6532,7 +6534,7 @@ class CutScreenFadeEventArgs:
     def ToString(self) -> str: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class CutScreenFadeObject:
+class CutScreenFadeObject(CutNamedObject):
     cName: MetaHash
     iObjectId: int
     attributeList: CutParAttributeList
@@ -6545,7 +6547,7 @@ class CutScreenFadeObject:
     def ToString(self) -> str: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class CutString:
+class CutString(CutBase):
     Name: MetaHash
     Value: str
     def __init__(self) -> None: ...
@@ -6556,7 +6558,7 @@ class CutString:
     def ToString(self) -> str: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class CutSubtitleEventArgs:
+class CutSubtitleEventArgs(CutNameEventArgs):
     iLanguageID: int
     iTransitionIn: int
     fTransitionInDuration: float
@@ -6574,7 +6576,7 @@ class CutSubtitleEventArgs:
     def ToString(self) -> str: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class CutSubtitleObject:
+class CutSubtitleObject(CutNamedObject):
     cName: MetaHash
     iObjectId: int
     attributeList: CutParAttributeList
@@ -6587,7 +6589,7 @@ class CutSubtitleObject:
     def ToString(self) -> str: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class CutTriggerLightEffectEventArgs:
+class CutTriggerLightEffectEventArgs(CutEventArgs):
     iAttachParentId: int
     iAttachBoneHash: int
     AttachedParentName: MetaHash
@@ -6601,7 +6603,7 @@ class CutTriggerLightEffectEventArgs:
     def ToString(self) -> str: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class CutVehicleExtraEventArgs:
+class CutVehicleExtraEventArgs(CutObjectIdEventArgs):
     pExtraBoneIds: list[int]
     iObjectId: int
     Object: CutObject
@@ -6615,7 +6617,7 @@ class CutVehicleExtraEventArgs:
     def ToString(self) -> str: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class CutVehicleModelObject:
+class CutVehicleModelObject(CutNamedObject):
     StreamingName: MetaHash
     AnimStreamingBase: int
     cAnimExportCtrlSpecFile: MetaHash
@@ -6637,7 +6639,7 @@ class CutVehicleModelObject:
     def ToString(self) -> str: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class CutVehicleVariationEventArgs:
+class CutVehicleVariationEventArgs(CutObjectIdEventArgs):
     iMainBodyColour: int
     iSecondBodyColour: int
     iSpecularColour: int
@@ -6658,7 +6660,7 @@ class CutVehicleVariationEventArgs:
     def ToString(self) -> str: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class CutWeaponModelObject:
+class CutWeaponModelObject(CutNamedObject):
     StreamingName: MetaHash
     AnimStreamingBase: int
     cAnimExportCtrlSpecFile: MetaHash
@@ -6679,7 +6681,7 @@ class CutWeaponModelObject:
     def ToString(self) -> str: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class CutsceneFile2:
+class CutsceneFile2(CutBase):
     fTotalDuration: float
     cFaceDir: str
     iCutsceneFlags: list[int]
@@ -6725,7 +6727,7 @@ class CutsceneFile2:
     def ToString(self) -> str: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat10RelData:
+class Dat10RelData(RelData):
     Type: Dat10RelType
     NameTableOffset: int
     Flags: FlagsUint
@@ -6767,7 +6769,7 @@ class Dat10RelType(IntEnum):
     SynthPreset = 1
     Synth = 3
 
-class Dat10Synth:
+class Dat10Synth(Dat10RelData):
     BuffersCount: int
     RegistersCount: int
     OutputsCount: int
@@ -6799,7 +6801,7 @@ class Dat10Synth:
     @overload
     def __init__(self, d: RelData, br: Any) -> None: ...
     @staticmethod
-    def Assemble(assembly: str, variables: list[Dat10SynthVariable], onError: Any = ...) -> Dat10Synth.AssembleResult: ...
+    def Assemble(assembly: str, variables: list[Dat10SynthVariable], onError: Callable[..., None] = ...) -> Dat10Synth.AssembleResult: ...
     @staticmethod
     def Decode(bytecode: Any) -> Dat10Synth.Instruction: ...
     @staticmethod
@@ -6836,7 +6838,7 @@ class Dat10Synth:
         RegistersCount: int
         StateBlocksCount: int
         VariablesCount: int
-        Constants: list[float]
+        Constants: System.Collections.Generic.List[float]
         def __init__(self) -> None: ...
         def Equals(self, obj: Any) -> bool: ...
         def GetHashCode(self) -> int: ...
@@ -6845,7 +6847,7 @@ class Dat10Synth:
 
     class DisassembleResult:
         Disassembly: str
-        Instructions: list[Dat10Synth.Instruction]
+        Instructions: System.Collections.Generic.List[Dat10Synth.Instruction]
         def __init__(self) -> None: ...
         def Equals(self, obj: Any) -> bool: ...
         def GetHashCode(self) -> int: ...
@@ -7039,7 +7041,7 @@ class Dat10Synth:
         StateBlock = 7
         Ignored = 8
 
-class Dat10SynthPreset:
+class Dat10SynthPreset(Dat10RelData):
     VariableCount: int
     Variables: list[Dat10SynthPresetVariable]
     Type: Dat10RelType
@@ -7108,7 +7110,7 @@ class Dat10SynthVariable:
     def Write(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151AircraftWarningSettings:
+class Dat151AircraftWarningSettings(Dat151RelData):
     MinTimeBetweenDamageReports: int
     TargetedLockedMinTimeInStateToTrigger: int
     TargetedLockedMaxTimeBetweenTriggerAndPlay: int
@@ -7201,7 +7203,7 @@ class Dat151AircraftWarningSettings:
     def WriteTypeAndOffset(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151AlarmSettings:
+class Dat151AlarmSettings(Dat151RelData):
     AlarmLoop: MetaHash
     AlarmDecayCurve: MetaHash
     StopDistance: int
@@ -7245,7 +7247,7 @@ class Dat151AlarmSettings:
     def WriteTypeAndOffset(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151AmbientBankMap:
+class Dat151AmbientBankMap(Dat151RelData):
     AmbienceBanksCount: int
     AmbienceBanks: list[Dat151AmbientBankMapItem]
     Type: Dat151RelType
@@ -7294,7 +7296,7 @@ class Dat151AmbientBankMapItem:
     def Write(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151AmbientRule:
+class Dat151AmbientRule(Dat151RelData):
     Flags: FlagsUint
     Padding01: int
     Padding02: int
@@ -7374,7 +7376,7 @@ class Dat151AmbientRule:
         WorldRelative = 1
         InteriorRelative = 2
 
-class Dat151AmbientSlotMap:
+class Dat151AmbientSlotMap(Dat151RelData):
     AmbienceSlotsCount: int
     AmbienceSlots: list[Dat151AmbientSlotMapItem]
     Type: Dat151RelType
@@ -7427,7 +7429,7 @@ class Dat151AmbientSlotMapItem:
     def Write(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151AmbientZone:
+class Dat151AmbientZone(Dat151RelData):
     Flags: FlagsUint
     Shape: Dat151ZoneShape
     unused0: int
@@ -7528,7 +7530,7 @@ class Dat151AmbientZone:
         def Write(self, bw: Any) -> None: ...
         def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151AmbientZoneList:
+class Dat151AmbientZoneList(Dat151RelData):
     ZoneCount: int
     ZoneHashes: list[MetaHash]
     Type: Dat151RelType
@@ -7565,7 +7567,7 @@ class Dat151AmbientZoneList:
     def WriteTypeAndOffset(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151AnimalFootstepReference:
+class Dat151AnimalFootstepReference(Dat151RelData):
     AnimalFootstepSettingsCount: int
     AnimalFootstepSettings: list[Dat151AnimalFootstepReferenceItem]
     Type: Dat151RelType
@@ -7614,7 +7616,7 @@ class Dat151AnimalFootstepReferenceItem:
     def Write(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151AnimalFootstepSettings:
+class Dat151AnimalFootstepSettings(Dat151RelData):
     WalkAndTrot: MetaHash
     Gallop1: MetaHash
     Gallop2: MetaHash
@@ -7659,7 +7661,7 @@ class Dat151AnimalFootstepSettings:
     def WriteTypeAndOffset(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151AnimalParams:
+class Dat151AnimalParams(Dat151RelData):
     BasePriority: int
     MinFarDistance: float
     MaxDistanceToBankLoad: float
@@ -7728,7 +7730,7 @@ class Dat151AnimalParamsItem:
     def Write(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151AnimalVocalAnimTrigger:
+class Dat151AnimalVocalAnimTrigger(Dat151RelData):
     ItemCount: int
     Items: list[Dat151AnimalVocalAnimTriggerItem]
     Type: Dat151RelType
@@ -7795,7 +7797,7 @@ class Dat151AnimalVocalAnimTriggerItem:
         def Write(self, bw: Any) -> None: ...
         def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151AudioRoadInfo:
+class Dat151AudioRoadInfo(Dat151RelData):
     RoadName: MetaHash
     TyreBumpDistance: float
     Type: Dat151RelType
@@ -7832,7 +7834,7 @@ class Dat151AudioRoadInfo:
     def WriteTypeAndOffset(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151BarConstraint:
+class Dat151BarConstraint(Dat151RelData):
     PatternLength: int
     ValidBar: int
     Type: Dat151RelType
@@ -7869,7 +7871,7 @@ class Dat151BarConstraint:
     def WriteTypeAndOffset(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151BeatConstraint:
+class Dat151BeatConstraint(Dat151RelData):
     ValidSixteenths: int
     Type: Dat151RelType
     NameTableOffset: int
@@ -7905,7 +7907,7 @@ class Dat151BeatConstraint:
     def WriteTypeAndOffset(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151BicycleAudioSettings:
+class Dat151BicycleAudioSettings(Dat151RelData):
     ChainLoop: MetaHash
     SprocketSound: MetaHash
     RePedalSound: MetaHash
@@ -7958,7 +7960,7 @@ class Dat151BicycleAudioSettings:
     def WriteTypeAndOffset(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151BoatAudioSettings:
+class Dat151BoatAudioSettings(Dat151RelData):
     Flags: FlagsUint
     Engine1Loop: MetaHash
     Engine1Vol: MetaHash
@@ -8060,7 +8062,7 @@ class Dat151BoatAudioSettings:
     def WriteTypeAndOffset(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151CarAudioSettings:
+class Dat151CarAudioSettings(Dat151RelData):
     Flags: FlagsUint
     Engine: MetaHash
     GranularEngine: MetaHash
@@ -8175,7 +8177,7 @@ class Dat151CarAudioSettings:
     def WriteTypeAndOffset(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151CarRecordingAudioSettings:
+class Dat151CarRecordingAudioSettings(Dat151RelData):
     Group: MetaHash
     VehicleModelId: int
     ItemCount: int
@@ -8248,7 +8250,7 @@ class Dat151CarRecordingAudioSettingsItem2:
     def Write(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151CarRecordingList:
+class Dat151CarRecordingList(Dat151RelData):
     CarRecordingsCount: int
     CarRecordings: list[Dat151CarRecordingListItem]
     Type: Dat151RelType
@@ -8297,7 +8299,7 @@ class Dat151CarRecordingListItem:
     def Write(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151ClimbingAudioSettings:
+class Dat151ClimbingAudioSettings(Dat151RelData):
     Launch: MetaHash
     Foot: MetaHash
     Knee: MetaHash
@@ -8337,7 +8339,7 @@ class Dat151ClimbingAudioSettings:
     def WriteTypeAndOffset(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151ClothAudioSettings:
+class Dat151ClothAudioSettings(Dat151RelData):
     Flags: FlagsUint
     ImpactSound: MetaHash
     WalkSound: MetaHash
@@ -8387,7 +8389,7 @@ class Dat151ClothAudioSettings:
     def WriteTypeAndOffset(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151ClothList:
+class Dat151ClothList(Dat151RelData):
     ClothesCount: int
     Clothes: list[Dat151ClothListItem]
     Type: Dat151RelType
@@ -8436,7 +8438,7 @@ class Dat151ClothListItem:
     def Write(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151CollisionMaterialSettings:
+class Dat151CollisionMaterialSettings(Dat151RelData):
     Flags: FlagsUint
     HardImpact: MetaHash
     SolidImpact: MetaHash
@@ -8574,7 +8576,7 @@ class Dat151CollisionMaterialSettings:
     def WriteTypeAndOffset(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151CopDispatchInteractionSettings:
+class Dat151CopDispatchInteractionSettings(Dat151RelData):
     MinTimeBetweenInteractions: int
     MinTimeBetweenInteractionsVariance: int
     FirstLinePredelay: int
@@ -8651,7 +8653,7 @@ class Dat151CopDispatchInteractionSettings:
     def WriteTypeAndOffset(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151DirectionalAmbience:
+class Dat151DirectionalAmbience(Dat151RelData):
     Flags: FlagsUint
     SoundNorth: MetaHash
     SoundEast: MetaHash
@@ -8705,7 +8707,7 @@ class Dat151DirectionalAmbience:
     def WriteTypeAndOffset(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151DoorAudioSettings:
+class Dat151DoorAudioSettings(Dat151RelData):
     Sounds: MetaHash
     TuningParams: MetaHash
     MaxOcclusion: float
@@ -8743,7 +8745,7 @@ class Dat151DoorAudioSettings:
     def WriteTypeAndOffset(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151DoorAudioSettingsLink:
+class Dat151DoorAudioSettingsLink(Dat151RelData):
     Door: MetaHash
     Type: Dat151RelType
     NameTableOffset: int
@@ -8779,7 +8781,7 @@ class Dat151DoorAudioSettingsLink:
     def WriteTypeAndOffset(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151DoorList:
+class Dat151DoorList(Dat151RelData):
     DoorsCount: int
     Doors: list[Dat151DoorListItem]
     Type: Dat151RelType
@@ -8828,7 +8830,7 @@ class Dat151DoorListItem:
     def Write(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151DoorTuningParams:
+class Dat151DoorTuningParams(Dat151RelData):
     Flags: FlagsUint
     OpenThresh: float
     HeadingThresh: float
@@ -8872,7 +8874,7 @@ class Dat151DoorTuningParams:
     def WriteTypeAndOffset(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151ElectricEngineAudioSettings:
+class Dat151ElectricEngineAudioSettings(Dat151RelData):
     MasterVolume: int
     SpeedLoop: MetaHash
     SpeedLoop_MinPitch: int
@@ -8923,7 +8925,7 @@ class Dat151ElectricEngineAudioSettings:
     def WriteTypeAndOffset(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151EntityEmitter:
+class Dat151EntityEmitter(Dat151RelData):
     Flags: FlagsUint
     Sound: MetaHash
     MaxDistance: float
@@ -8972,7 +8974,7 @@ class Dat151EntityEmitter:
     def WriteTypeAndOffset(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151EnvironmentRule:
+class Dat151EnvironmentRule(Dat151RelData):
     Flags: FlagsUint
     ReverbSmall: float
     ReverbMedium: float
@@ -9018,7 +9020,7 @@ class Dat151EnvironmentRule:
     def WriteTypeAndOffset(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151ExplosionAudioSettings:
+class Dat151ExplosionAudioSettings(Dat151RelData):
     Flags: FlagsUint
     ExplosionSound: MetaHash
     DebrisSound: MetaHash
@@ -9065,7 +9067,7 @@ class Dat151ExplosionAudioSettings:
     def WriteTypeAndOffset(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151FadeInRadioAction:
+class Dat151FadeInRadioAction(Dat151RelData):
     Flags: FlagsUint
     Constrain: int
     padding00: int
@@ -9109,7 +9111,7 @@ class Dat151FadeInRadioAction:
     def WriteTypeAndOffset(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151FadeOutRadioAction:
+class Dat151FadeOutRadioAction(Dat151RelData):
     Flags: FlagsUint
     Constrain: int
     padding00: int
@@ -9153,7 +9155,7 @@ class Dat151FadeOutRadioAction:
     def WriteTypeAndOffset(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151FoliageSettings:
+class Dat151FoliageSettings(Dat151RelData):
     Run: MetaHash
     Sprint: MetaHash
     Walk: MetaHash
@@ -9191,7 +9193,7 @@ class Dat151FoliageSettings:
     def WriteTypeAndOffset(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151ForceRadioTrackAction:
+class Dat151ForceRadioTrackAction(Dat151RelData):
     Flags: FlagsUint
     Constrain: int
     padding00: int
@@ -9240,7 +9242,7 @@ class Dat151ForceRadioTrackAction:
     def WriteTypeAndOffset(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151FriendGroup:
+class Dat151FriendGroup(Dat151RelData):
     Flags: FlagsUint
     Type: Dat151RelType
     NameTableOffset: int
@@ -9276,7 +9278,7 @@ class Dat151FriendGroup:
     def WriteTypeAndOffset(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151GameObjectHashList:
+class Dat151GameObjectHashList(Dat151RelData):
     Flags: FlagsUint
     GameObjectHashesCount: int
     GameObjectHashes: list[MetaHash]
@@ -9314,7 +9316,7 @@ class Dat151GameObjectHashList:
     def WriteTypeAndOffset(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151GranularEngineAudioSettings:
+class Dat151GranularEngineAudioSettings(Dat151RelData):
     Flags: FlagsUint
     MasterVolume: int
     EngineAccel: MetaHash
@@ -9421,7 +9423,7 @@ class Dat151GroupMapItem:
     def Write(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151GunfightConductorIntensitySettings:
+class Dat151GunfightConductorIntensitySettings(Dat151RelData):
     MaxTimeAfterLastShot: int
     TimeToFakeBulletImpacts: float
     CoverMinTimeToReTriggerFakeBulletImpacts: float
@@ -9495,7 +9497,7 @@ class Dat151HashPair:
     def Write(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151HeliAudioSettings:
+class Dat151HeliAudioSettings(Dat151RelData):
     Flags: FlagsUint
     RotorLoop: MetaHash
     RearRotorLoop: MetaHash
@@ -9627,7 +9629,7 @@ class Dat151HeliAudioSettings:
     def WriteTypeAndOffset(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151InteractiveMusicMood:
+class Dat151InteractiveMusicMood(Dat151RelData):
     Flags: FlagsUint
     FadeInTime: int
     FadeOutTime: int
@@ -9691,7 +9693,7 @@ class Dat151InteractiveMusicMoodItem:
     def Write(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151InteriorRoom:
+class Dat151InteriorRoom(Dat151RelData):
     Flags: FlagsUint
     RoomName: MetaHash
     AmbientZone: MetaHash
@@ -9746,7 +9748,7 @@ class Dat151InteriorRoom:
     def WriteTypeAndOffset(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151InteriorSettings:
+class Dat151InteriorSettings(Dat151RelData):
     Flags: FlagsUint
     InteriorWallaSoundSet: MetaHash
     InteriorReflections: MetaHash
@@ -9786,7 +9788,7 @@ class Dat151InteriorSettings:
     def WriteTypeAndOffset(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151InteriorWeaponMetrics:
+class Dat151InteriorWeaponMetrics(Dat151RelData):
     Wetness: float
     Visability: float
     LPFCutoff: int
@@ -9826,7 +9828,7 @@ class Dat151InteriorWeaponMetrics:
     def WriteTypeAndOffset(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151ItemAudioSettings:
+class Dat151ItemAudioSettings(Dat151RelData):
     FallBackWeapon: MetaHash
     WeaponsCount: int
     Weapons: list[Dat151ItemAudioSettingsItem]
@@ -9876,7 +9878,7 @@ class Dat151ItemAudioSettingsItem:
     def Write(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151MeleeCombatSettings:
+class Dat151MeleeCombatSettings(Dat151RelData):
     SwipeSound: MetaHash
     GeneralHitSound: MetaHash
     PedHitSound: MetaHash
@@ -9951,7 +9953,7 @@ class Dat151MicrophoneItem:
     def Write(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151MicrophoneSettings:
+class Dat151MicrophoneSettings(Dat151RelData):
     Flags: FlagsUint
     MicType: int
     MicrophonesCount: int
@@ -9992,7 +9994,7 @@ class Dat151MicrophoneSettings:
     def WriteTypeAndOffset(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151MicrophoneSettingsReference:
+class Dat151MicrophoneSettingsReference(Dat151RelData):
     MicrophonesCount: int
     Microphones: list[Dat151MicrophoneSettingsReferenceItem]
     Type: Dat151RelType
@@ -10041,7 +10043,7 @@ class Dat151MicrophoneSettingsReferenceItem:
     def Write(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151ModelAudioCollisionSettings:
+class Dat151ModelAudioCollisionSettings(Dat151RelData):
     Flags: FlagsUint
     LastFragTime: int
     MediumIntensity: int
@@ -10111,7 +10113,7 @@ class Dat151ModelAudioCollisionSettingsMaterialItem:
     def Write(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151ModelAudioCollisionSettingsOverrideList:
+class Dat151ModelAudioCollisionSettingsOverrideList(Dat151RelData):
     ItemCount: int
     Items: list[Dat151ModelAudioCollisionSettingsOverrideListItem]
     Type: Dat151RelType
@@ -10160,7 +10162,7 @@ class Dat151ModelAudioCollisionSettingsOverrideListItem:
     def Write(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151ModelFootStepTuning:
+class Dat151ModelFootStepTuning(Dat151RelData):
     FootstepPitchRatioMin: float
     FootstepPitchRatioMax: float
     InLeftPocketProbability: float
@@ -10240,7 +10242,7 @@ class Dat151ModelFootStepTuningItem:
     def Write(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151ModelPhysicsParams:
+class Dat151ModelPhysicsParams(Dat151RelData):
     NumFeet: int
     PedType: int
     FootstepTuningValues: MetaHash
@@ -10305,7 +10307,7 @@ class Dat151ModelPhysicsParamsItem:
     def Write(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151MusicEvent:
+class Dat151MusicEvent(Dat151RelData):
     ActionsCount: int
     Actions: list[MetaHash]
     Type: Dat151RelType
@@ -10342,7 +10344,7 @@ class Dat151MusicEvent:
     def WriteTypeAndOffset(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151PedRaceToPedVoiceGroup:
+class Dat151PedRaceToPedVoiceGroup(Dat151RelData):
     Flags: FlagsUint
     Universal: MetaHash
     White: MetaHash
@@ -10391,7 +10393,7 @@ class Dat151PedRaceToPedVoiceGroup:
     def WriteTypeAndOffset(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151PedScenarioAudioSettings:
+class Dat151PedScenarioAudioSettings(Dat151RelData):
     Flags: FlagsUint
     MaxInstances: int
     Sound: MetaHash
@@ -10444,7 +10446,7 @@ class Dat151PedScenarioAudioSettingsItem:
     def Write(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151PedVoiceGroups:
+class Dat151PedVoiceGroups(Dat151RelData):
     PVGType: int
     PVGBits: int
     VoicePriority: int
@@ -10508,7 +10510,7 @@ class Dat151PedVoiceGroupsItem:
     def Write(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151PedWallaSpeechSettings:
+class Dat151PedWallaSpeechSettings(Dat151RelData):
     SpeechSound: MetaHash
     VolumeAboveRMSLevel: int
     MaxVolume: int
@@ -10564,7 +10566,7 @@ class Dat151PedWallaSpeechSettingsItem:
     def Write(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151PedWallaSpeechSettingsList:
+class Dat151PedWallaSpeechSettingsList(Dat151RelData):
     ItemCount: int
     Items: list[Dat151PedWallaSpeechSettingsListItem]
     Type: Dat151RelType
@@ -10620,7 +10622,7 @@ class Dat151PedWallaSpeechSettingsListItem:
     def Write(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151PlaneAudioSettings:
+class Dat151PlaneAudioSettings(Dat151RelData):
     Flags: FlagsUint
     EngineLoop: MetaHash
     ExhaustLoop: MetaHash
@@ -10753,7 +10755,7 @@ class Dat151PlaneAudioSettings:
     def WriteTypeAndOffset(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151PlayerBreathingSettings:
+class Dat151PlayerBreathingSettings(Dat151RelData):
     TimeBetweenLowRunBreaths: int
     TimeBetweenHighRunBreaths: int
     TimeBetweenExhaustedBreaths: int
@@ -10806,7 +10808,7 @@ class Dat151PlayerBreathingSettings:
     def WriteTypeAndOffset(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151PortalSettings:
+class Dat151PortalSettings(Dat151RelData):
     MaxOcclusion: float
     Type: Dat151RelType
     NameTableOffset: int
@@ -10842,7 +10844,7 @@ class Dat151PortalSettings:
     def WriteTypeAndOffset(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151RadioDjSpeechAction:
+class Dat151RadioDjSpeechAction(Dat151RelData):
     Flags: FlagsUint
     Constrain: int
     padding00: int
@@ -10889,7 +10891,7 @@ class Dat151RadioDjSpeechAction:
     def WriteTypeAndOffset(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151RadioStationList:
+class Dat151RadioStationList(Dat151RelData):
     StationsCount: int
     Stations: list[MetaHash]
     Type: Dat151RelType
@@ -10926,7 +10928,7 @@ class Dat151RadioStationList:
     def WriteTypeAndOffset(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151RadioStationSettings:
+class Dat151RadioStationSettings(Dat151RelData):
     Flags: FlagsUint
     WheelPosition: int
     NextStationSettingsPtr: int
@@ -10970,7 +10972,7 @@ class Dat151RadioStationSettings:
     def WriteTypeAndOffset(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151RadioStationTrackList:
+class Dat151RadioStationTrackList(Dat151RelData):
     Flags: FlagsUint
     Category: int
     padding00: int
@@ -11040,7 +11042,7 @@ class Dat151RadioTrackCategoryDataItem:
     def Write(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151RadioTrackSettings:
+class Dat151RadioTrackSettings(Dat151RelData):
     Sound: MetaHash
     Category: int
     HistorySound: MetaHash
@@ -11079,7 +11081,7 @@ class Dat151RadioTrackSettings:
     def WriteTypeAndOffset(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151RadioTrackTextIDs:
+class Dat151RadioTrackTextIDs(Dat151RelData):
     EventCount: int
     Events: list[Dat151RadioTrackTextIDs.EventData]
     Type: Dat151RelType
@@ -11128,7 +11130,7 @@ class Dat151RadioTrackTextIDs:
         def Write(self, bw: Any) -> None: ...
         def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151RandomisedRadioEmitterSettings:
+class Dat151RandomisedRadioEmitterSettings(Dat151RelData):
     Flags: FlagsUint
     VehicleEmitterBias: float
     StaticEmitter: MetaHash
@@ -11185,7 +11187,7 @@ class Dat151RandomisedRadioEmitterSettings:
     def WriteTypeAndOffset(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151ReflectionsSettings:
+class Dat151ReflectionsSettings(Dat151RelData):
     Flags: FlagsUint
     MinDelay: float
     MaxDelay: float
@@ -11239,7 +11241,7 @@ class Dat151ReflectionsSettings:
     def WriteTypeAndOffset(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151RelData:
+class Dat151RelData(RelData):
     Type: Dat151RelType
     NameTableOffset: int
     NameHash: MetaHash
@@ -11390,7 +11392,7 @@ class Dat151RelType(IntEnum):
     ModelAudioCollisionSettingsOverrideList = 121
     GameObjectHashList = 124
 
-class Dat151ReplayRadioStationTrackList:
+class Dat151ReplayRadioStationTrackList(Dat151RelData):
     Flags: FlagsUint
     TrackCount: int
     Tracks: list[Dat151HashPair]
@@ -11428,7 +11430,7 @@ class Dat151ReplayRadioStationTrackList:
     def WriteTypeAndOffset(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151ScannerCrimeReport:
+class Dat151ScannerCrimeReport(Dat151RelData):
     GenericReportedBySoundRef: MetaHash
     ReportedByPedSoundRef: MetaHash
     ReportedByCopSoundRef: MetaHash
@@ -11485,7 +11487,7 @@ class Dat151ScannerCrimeReportCrimeSet:
     def Write(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151ScannerSpecificLocation:
+class Dat151ScannerSpecificLocation(Dat151RelData):
     padding00: int
     padding01: int
     padding02: int
@@ -11530,7 +11532,7 @@ class Dat151ScannerSpecificLocation:
     def WriteTypeAndOffset(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151ScannerSpecificLocationList:
+class Dat151ScannerSpecificLocationList(Dat151RelData):
     LocationsCount: int
     Locations: list[MetaHash]
     Type: Dat151RelType
@@ -11581,7 +11583,7 @@ class Dat151ScannerSpecificLocationSounds:
     def Write(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151ScannerVehicleParams:
+class Dat151ScannerVehicleParams(Dat151RelData):
     Flags: FlagsUint
     ParamCount: int
     Type: Dat151RelType
@@ -11636,7 +11638,7 @@ class Dat151ScannerVehicleParams:
         def Write(self, bw: Any) -> None: ...
         def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151ScannerVoiceParams:
+class Dat151ScannerVoiceParams(Dat151RelData):
     Black: MetaHash
     Blue: MetaHash
     Brown: MetaHash
@@ -11737,7 +11739,7 @@ class Dat151ScannerVoiceParams:
     def WriteTypeAndOffset(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151ScriptedScannerLine:
+class Dat151ScriptedScannerLine(Dat151RelData):
     Flags: FlagsUint
     PhrasesCount: int
     Phrase: list[Dat151ScriptedScannerLineItem]
@@ -11791,7 +11793,7 @@ class Dat151ScriptedScannerLineItem:
     def Write(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151SetMoodAction:
+class Dat151SetMoodAction(Dat151RelData):
     Flags: FlagsUint
     Constrain: int
     NumTimingConstraints: int
@@ -11836,7 +11838,7 @@ class Dat151SetMoodAction:
     def WriteTypeAndOffset(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151ShoeAudioSettings:
+class Dat151ShoeAudioSettings(Dat151RelData):
     Walk: MetaHash
     DirtyWalk: MetaHash
     CreakyWalk: MetaHash
@@ -11891,7 +11893,7 @@ class Dat151ShoeAudioSettings:
     def WriteTypeAndOffset(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151ShoeList:
+class Dat151ShoeList(Dat151RelData):
     ShoesCount: int
     Shoes: list[Dat151ShoeListItem]
     Type: Dat151RelType
@@ -11940,7 +11942,7 @@ class Dat151ShoeListItem:
     def Write(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151ShoreLineLakeAudioSettings:
+class Dat151ShoreLineLakeAudioSettings(Dat151RelData):
     Flags: FlagsUint
     ActivationBox: SharpDX.Vector4
     RotationAngle: float
@@ -11983,7 +11985,7 @@ class Dat151ShoreLineLakeAudioSettings:
     def WriteTypeAndOffset(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151ShoreLineList:
+class Dat151ShoreLineList(Dat151RelData):
     ShoreLineCount: int
     ShoreLines: list[MetaHash]
     Type: Dat151RelType
@@ -12020,7 +12022,7 @@ class Dat151ShoreLineList:
     def WriteTypeAndOffset(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151ShoreLineOceanAudioSettings:
+class Dat151ShoreLineOceanAudioSettings(Dat151RelData):
     Flags: FlagsUint
     ActivationBox: SharpDX.Vector4
     RotationAngle: float
@@ -12069,7 +12071,7 @@ class Dat151ShoreLineOceanAudioSettings:
     def WriteTypeAndOffset(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151ShoreLinePoolAudioSettings:
+class Dat151ShoreLinePoolAudioSettings(Dat151RelData):
     Flags: FlagsUint
     ActivationBox: SharpDX.Vector4
     RotationAngle: float
@@ -12119,7 +12121,7 @@ class Dat151ShoreLinePoolAudioSettings:
     def WriteTypeAndOffset(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151ShoreLineRiverAudioSettings:
+class Dat151ShoreLineRiverAudioSettings(Dat151RelData):
     Flags: FlagsUint
     ActivationBox: SharpDX.Vector4
     RotationAngle: float
@@ -12164,7 +12166,7 @@ class Dat151ShoreLineRiverAudioSettings:
     def WriteTypeAndOffset(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151SilenceConstraint:
+class Dat151SilenceConstraint(Dat151RelData):
     MinimumDuration: float
     Type: Dat151RelType
     NameTableOffset: int
@@ -12200,7 +12202,7 @@ class Dat151SilenceConstraint:
     def WriteTypeAndOffset(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151SkiAudioSettings:
+class Dat151SkiAudioSettings(Dat151RelData):
     StraightSound: MetaHash
     MinSpeed: float
     MaxSpeed: float
@@ -12244,7 +12246,7 @@ class Dat151SkiAudioSettings:
     def WriteTypeAndOffset(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151SlowMoSettings:
+class Dat151SlowMoSettings(Dat151RelData):
     Scene: MetaHash
     Priority: int
     Release: float
@@ -12283,7 +12285,7 @@ class Dat151SlowMoSettings:
     def WriteTypeAndOffset(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151SpeechContext:
+class Dat151SpeechContext(Dat151RelData):
     Flags: FlagsUint
     ContextName: MetaHash
     RepeatTime: int
@@ -12336,7 +12338,7 @@ class Dat151SpeechContext:
     def WriteTypeAndOffset(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151SpeechContextList:
+class Dat151SpeechContextList(Dat151RelData):
     TriggeredSpeechContextsCount: int
     TriggeredSpeechContexts: list[MetaHash]
     Type: Dat151RelType
@@ -12373,7 +12375,7 @@ class Dat151SpeechContextList:
     def WriteTypeAndOffset(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151SpeechContextVirtual:
+class Dat151SpeechContextVirtual(Dat151RelData):
     Flags: FlagsUint
     ContextNameHash: MetaHash
     RepeatTime: int
@@ -12426,7 +12428,7 @@ class Dat151SpeechContextVirtual:
     def WriteTypeAndOffset(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151SpeechParams:
+class Dat151SpeechParams(Dat151RelData):
     Flags: FlagsUint
     OverrideContextSettings: int
     PreloadTimeoutInMs: int
@@ -12469,7 +12471,7 @@ class Dat151SpeechParams:
     def WriteTypeAndOffset(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151SportsCarRevsSettings:
+class Dat151SportsCarRevsSettings(Dat151RelData):
     EngineVolumeBoost: int
     ExhaustVolumeBoost: int
     RollOffBoost: float
@@ -12526,7 +12528,7 @@ class Dat151SportsCarRevsSettings:
     def WriteTypeAndOffset(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151StartOneShotAction:
+class Dat151StartOneShotAction(Dat151RelData):
     Flags: FlagsUint
     Constrain: int
     padding00: int
@@ -12576,7 +12578,7 @@ class Dat151StartOneShotAction:
     def WriteTypeAndOffset(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151StartTrackAction:
+class Dat151StartTrackAction(Dat151RelData):
     Flags: FlagsUint
     Constrain: int
     padding00: int
@@ -12642,7 +12644,7 @@ class Dat151StartTrackActionItem:
     def Write(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151StaticEmitter:
+class Dat151StaticEmitter(Dat151RelData):
     Flags: FlagsUint
     ChildSound: MetaHash
     RadioStation: MetaHash
@@ -12704,7 +12706,7 @@ class Dat151StaticEmitter:
     def WriteTypeAndOffset(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151StaticEmitterList:
+class Dat151StaticEmitterList(Dat151RelData):
     EmitterCount: int
     EmitterHashes: list[MetaHash]
     Type: Dat151RelType
@@ -12741,7 +12743,7 @@ class Dat151StaticEmitterList:
     def WriteTypeAndOffset(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151StemMix:
+class Dat151StemMix(Dat151RelData):
     Stem1Volume: int
     Stem2Volume: int
     Stem3Volume: int
@@ -12784,7 +12786,7 @@ class Dat151StemMix:
     def WriteTypeAndOffset(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151StopOneShotAction:
+class Dat151StopOneShotAction(Dat151RelData):
     Flags: FlagsUint
     Constrain: int
     padding00: int
@@ -12827,7 +12829,7 @@ class Dat151StopOneShotAction:
     def WriteTypeAndOffset(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151StopTrackAction:
+class Dat151StopTrackAction(Dat151RelData):
     Flags: FlagsUint
     Constrain: int
     padding00: int
@@ -12871,7 +12873,7 @@ class Dat151StopTrackAction:
     def WriteTypeAndOffset(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151TennisVocalizationSettings:
+class Dat151TennisVocalizationSettings(Dat151RelData):
     LightNullWeight: float
     LightLiteWeight: float
     LightMedWeight: float
@@ -12918,7 +12920,7 @@ class Dat151TennisVocalizationSettings:
     def WriteTypeAndOffset(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151TrailerAudioSettings:
+class Dat151TrailerAudioSettings(Dat151RelData):
     BumpSound: MetaHash
     ClatterType: int
     padding00: int
@@ -12967,7 +12969,7 @@ class Dat151TrailerAudioSettings:
     def WriteTypeAndOffset(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151TrainAudioSettings:
+class Dat151TrainAudioSettings(Dat151RelData):
     DriveTone: MetaHash
     DriveToneSynth: MetaHash
     IdleLoop: MetaHash
@@ -13043,7 +13045,7 @@ class Dat151TrainAudioSettings:
     def WriteTypeAndOffset(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151TriggeredSpeechContext:
+class Dat151TriggeredSpeechContext(Dat151RelData):
     Flags: FlagsUint
     TriggeredContextRepeatTime: int
     PrimaryRepeatTime: int
@@ -13105,7 +13107,7 @@ class Dat151TriggeredSpeechContextBackupSpeechContext:
     def Write(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151VehicleCollisionSettings:
+class Dat151VehicleCollisionSettings(Dat151RelData):
     MediumIntensity: MetaHash
     HighIntensity: MetaHash
     SmallScrapeImpact: MetaHash
@@ -13209,7 +13211,7 @@ class Dat151VehicleCollisionSettingsItem:
     def Write(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151VehicleEngineAudioSettings:
+class Dat151VehicleEngineAudioSettings(Dat151RelData):
     MasterVolume: int
     MaxConeAttenuation: int
     FXCompensation: int
@@ -13301,7 +13303,7 @@ class Dat151VehicleEngineAudioSettings:
     def WriteTypeAndOffset(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151WeaponSettings:
+class Dat151WeaponSettings(Dat151RelData):
     Flags: FlagsUint
     FireSound: MetaHash
     SuppressedFireSound: MetaHash
@@ -13405,7 +13407,7 @@ class Dat151WeaponSettings:
     def WriteTypeAndOffset(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151WeatherAudioSettings:
+class Dat151WeatherAudioSettings(Dat151RelData):
     Strength: float
     Blustery: float
     Temperature: float
@@ -13450,7 +13452,7 @@ class Dat151WeatherAudioSettings:
     def WriteTypeAndOffset(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat151WeatherTypeAudioSettingsAudioReference:
+class Dat151WeatherTypeAudioSettingsAudioReference(Dat151RelData):
     WeatherTypesCount: int
     WeatherTypes: list[Dat151WeatherTypeAudioSettingsAudioReferenceItem]
     Type: Dat151RelType
@@ -13504,7 +13506,7 @@ class Dat151ZoneShape(IntEnum):
     Sphere = 1
     Line = 2
 
-class Dat15DynamicMixModuleSettings:
+class Dat15DynamicMixModuleSettings(Dat15RelData):
     FadeIn: int
     FadeOut: int
     ApplyVariable: MetaHash
@@ -13545,7 +13547,7 @@ class Dat15DynamicMixModuleSettings:
     def WriteTypeAndOffsetAndFlags(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat15Group:
+class Dat15Group(Dat15RelData):
     ReferenceCount: int
     FadeTime: float
     Map: MetaHash
@@ -13584,7 +13586,7 @@ class Dat15Group:
     def WriteTypeAndOffsetAndFlags(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat15GroupList:
+class Dat15GroupList(Dat15RelData):
     GroupCount: int
     Groups: list[MetaHash]
     Type: Dat15RelType
@@ -13622,7 +13624,7 @@ class Dat15GroupList:
     def WriteTypeAndOffsetAndFlags(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat15GroupMap:
+class Dat15GroupMap(Dat15RelData):
     ItemCount: int
     Items: list[Dat151GroupMapItem]
     Type: Dat15RelType
@@ -13660,7 +13662,7 @@ class Dat15GroupMap:
     def WriteTypeAndOffsetAndFlags(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat15Patch:
+class Dat15Patch(Dat15RelData):
     FadeIn: int
     FadeOut: int
     PreDelay: float
@@ -13727,7 +13729,7 @@ class Dat15PatchItem:
     def Write(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat15RelData:
+class Dat15RelData(RelData):
     Type: Dat15RelType
     NameTableOffset: int
     Flags: FlagsUint
@@ -13777,7 +13779,7 @@ class Dat15RelType(IntEnum):
     VehicleCollisionModuleSettings = 8
     GroupMap = 9
 
-class Dat15Scene:
+class Dat15Scene(Dat15RelData):
     OnStopScene: MetaHash
     PatchGroupsCount: int
     PatchGroups: list[Dat15SceneItem]
@@ -13831,7 +13833,7 @@ class Dat15SceneItem:
     def Write(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat15SceneState:
+class Dat15SceneState(Dat15RelData):
     ItemCount: int
     Items: list[Dat151HashPair]
     Type: Dat15RelType
@@ -13869,7 +13871,7 @@ class Dat15SceneState:
     def WriteTypeAndOffsetAndFlags(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat15SceneTransitionModuleSettings:
+class Dat15SceneTransitionModuleSettings(Dat15RelData):
     Input: int
     Threshold: float
     Transition: MetaHash
@@ -13908,7 +13910,7 @@ class Dat15SceneTransitionModuleSettings:
     def WriteTypeAndOffsetAndFlags(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat15SceneVariableModuleSettings:
+class Dat15SceneVariableModuleSettings(Dat15RelData):
     SceneVariable: MetaHash
     InputOutputCurve: MetaHash
     Input: int
@@ -13949,7 +13951,7 @@ class Dat15SceneVariableModuleSettings:
     def WriteTypeAndOffsetAndFlags(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat15VehicleCollisionModuleSettings:
+class Dat15VehicleCollisionModuleSettings(Dat15RelData):
     Input: int
     Transition: MetaHash
     Type: Dat15RelType
@@ -13987,7 +13989,7 @@ class Dat15VehicleCollisionModuleSettings:
     def WriteTypeAndOffsetAndFlags(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat16ConstantCurve:
+class Dat16ConstantCurve(Dat16RelData):
     MinInput: float
     MaxInput: float
     Value: float
@@ -14026,7 +14028,7 @@ class Dat16ConstantCurve:
     def WriteTypeAndOffsetAndFlags(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat16DecayingExponentialCurve:
+class Dat16DecayingExponentialCurve(Dat16RelData):
     MinInput: float
     MaxInput: float
     HorizontalScaling: float
@@ -14065,7 +14067,7 @@ class Dat16DecayingExponentialCurve:
     def WriteTypeAndOffsetAndFlags(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat16DecayingSquaredExponentialCurve:
+class Dat16DecayingSquaredExponentialCurve(Dat16RelData):
     MinInput: float
     MaxInput: float
     HorizontalScaling: float
@@ -14104,7 +14106,7 @@ class Dat16DecayingSquaredExponentialCurve:
     def WriteTypeAndOffsetAndFlags(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat16DefaultDistanceAttenuationCurve:
+class Dat16DefaultDistanceAttenuationCurve(Dat16RelData):
     MinInput: float
     MaxInput: float
     Type: Dat16RelType
@@ -14142,7 +14144,7 @@ class Dat16DefaultDistanceAttenuationCurve:
     def WriteTypeAndOffsetAndFlags(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat16DistanceAttenuationValueTableCurve:
+class Dat16DistanceAttenuationValueTableCurve(Dat16RelData):
     MinInput: float
     MaxInput: float
     ValueCount: int
@@ -14182,7 +14184,7 @@ class Dat16DistanceAttenuationValueTableCurve:
     def WriteTypeAndOffsetAndFlags(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat16EqualPowerCurve:
+class Dat16EqualPowerCurve(Dat16RelData):
     MinInput: float
     MaxInput: float
     Flip: int
@@ -14221,7 +14223,7 @@ class Dat16EqualPowerCurve:
     def WriteTypeAndOffsetAndFlags(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat16ExponentialCurve:
+class Dat16ExponentialCurve(Dat16RelData):
     MinInput: float
     MaxInput: float
     Flip: int
@@ -14261,7 +14263,7 @@ class Dat16ExponentialCurve:
     def WriteTypeAndOffsetAndFlags(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat16LinearCurve:
+class Dat16LinearCurve(Dat16RelData):
     MinInput: float
     MaxInput: float
     LeftHandPairX: float
@@ -14303,7 +14305,7 @@ class Dat16LinearCurve:
     def WriteTypeAndOffsetAndFlags(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat16LinearDbCurve:
+class Dat16LinearDbCurve(Dat16RelData):
     MinInput: float
     MaxInput: float
     LeftHandPairX: float
@@ -14345,7 +14347,7 @@ class Dat16LinearDbCurve:
     def WriteTypeAndOffsetAndFlags(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat16OneOverXSquaredCurve:
+class Dat16OneOverXSquaredCurve(Dat16RelData):
     MinInput: float
     MaxInput: float
     HorizontalScaling: float
@@ -14384,7 +14386,7 @@ class Dat16OneOverXSquaredCurve:
     def WriteTypeAndOffsetAndFlags(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat16PiecewiseLinearCurve:
+class Dat16PiecewiseLinearCurve(Dat16RelData):
     MinInput: float
     MaxInput: float
     NumPoints: int
@@ -14424,7 +14426,7 @@ class Dat16PiecewiseLinearCurve:
     def WriteTypeAndOffsetAndFlags(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat16RelData:
+class Dat16RelData(RelData):
     Type: Dat16RelType
     NameTableOffset: int
     Flags: FlagsUint
@@ -14477,7 +14479,7 @@ class Dat16RelType(IntEnum):
     DefaultDistanceAttenuationCurve = 13
     DistanceAttenuationValueTableCurve = 15
 
-class Dat16SineCurve:
+class Dat16SineCurve(Dat16RelData):
     MinInput: float
     MaxInput: float
     StartPhase: float
@@ -14520,7 +14522,7 @@ class Dat16SineCurve:
     def WriteTypeAndOffsetAndFlags(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat16ValueTableCurve:
+class Dat16ValueTableCurve(Dat16RelData):
     MinInput: float
     MaxInput: float
     ValueCount: int
@@ -14560,7 +14562,7 @@ class Dat16ValueTableCurve:
     def WriteTypeAndOffsetAndFlags(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat22Category:
+class Dat22Category(Dat22RelData):
     ParentOverrides: int
     Volume: int
     Pitch: int
@@ -14616,7 +14618,7 @@ class Dat22Category:
     def WriteTypeAndOffsetAndFlags(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat22RelData:
+class Dat22RelData(RelData):
     Type: Dat22RelType
     NameTableOffset: int
     Flags: FlagsUint
@@ -14657,7 +14659,7 @@ class Dat22RelData:
 class Dat22RelType(IntEnum):
     Category = 0
 
-class Dat4ConfigData:
+class Dat4ConfigData(RelData):
     Type: Dat4ConfigType
     NameTableOffset: int
     Flags: FlagsUint
@@ -14694,7 +14696,7 @@ class Dat4ConfigData:
     def Write(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat4ConfigERSettings:
+class Dat4ConfigERSettings(Dat4ConfigData):
     Type: Dat4ConfigType
     NameTableOffset: int
     Flags: FlagsUint
@@ -14744,7 +14746,7 @@ class Dat4ConfigERSettings:
         def Write(self, bw: Any) -> None: ...
         def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat4ConfigFloat:
+class Dat4ConfigFloat(Dat4ConfigData):
     Value: float
     Type: Dat4ConfigType
     NameTableOffset: int
@@ -14780,7 +14782,7 @@ class Dat4ConfigFloat:
     def Write(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat4ConfigInt:
+class Dat4ConfigInt(Dat4ConfigData):
     Value: int
     Type: Dat4ConfigType
     NameTableOffset: int
@@ -14816,7 +14818,7 @@ class Dat4ConfigInt:
     def Write(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat4ConfigString:
+class Dat4ConfigString(Dat4ConfigData):
     Value: str
     Type: Dat4ConfigType
     NameTableOffset: int
@@ -14863,7 +14865,7 @@ class Dat4ConfigType(IntEnum):
     WaveSlotsList = 9
     ERSettings = 10
 
-class Dat4ConfigUnsignedInt:
+class Dat4ConfigUnsignedInt(Dat4ConfigData):
     Value: int
     Type: Dat4ConfigType
     NameTableOffset: int
@@ -14899,7 +14901,7 @@ class Dat4ConfigUnsignedInt:
     def Write(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat4ConfigVariableList:
+class Dat4ConfigVariableList(Dat4ConfigData):
     VariableCount: int
     Variables: list[Dat4ConfigVariableList.VariableValue]
     Type: Dat4ConfigType
@@ -14951,7 +14953,7 @@ class Dat4ConfigVariableList:
         def Write(self, bw: Any) -> None: ...
         def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat4ConfigVector3:
+class Dat4ConfigVector3(Dat4ConfigData):
     Value: SharpDX.Vector3
     Type: Dat4ConfigType
     NameTableOffset: int
@@ -14987,7 +14989,7 @@ class Dat4ConfigVector3:
     def Write(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat4ConfigWaveSlot:
+class Dat4ConfigWaveSlot(Dat4ConfigData):
     LoadType: int
     MaxHeaderSize: int
     Size: int
@@ -15028,7 +15030,7 @@ class Dat4ConfigWaveSlot:
     def Write(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat4ConfigWaveSlotsList:
+class Dat4ConfigWaveSlotsList(Dat4ConfigData):
     WaveSlotsCount: int
     WaveSlots: list[MetaHash]
     Type: Dat4ConfigType
@@ -15065,7 +15067,7 @@ class Dat4ConfigWaveSlotsList:
     def Write(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat4SpeechData:
+class Dat4SpeechData(RelData):
     Type: Dat4SpeechType
     NameTableOffset: int
     ContainerHash: MetaHash
@@ -15106,7 +15108,7 @@ class Dat4SpeechType(IntEnum):
     Hash = 4
     Container = 8
 
-class Dat54AutomationNoteMapSound:
+class Dat54AutomationNoteMapSound(Dat54Sound):
     RangesCount: int
     Ranges: list[Dat54AutomationNoteMapSoundData]
     Type: Dat54SoundType
@@ -15170,7 +15172,7 @@ class Dat54AutomationNoteMapSoundData:
     def Write(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat54AutomationSound:
+class Dat54AutomationSound(Dat54Sound):
     FallBackSound: MetaHash
     PlaybackRate: float
     PlaybackRateVariance: float
@@ -15239,7 +15241,7 @@ class Dat54AutomationSoundVariableOutput:
     def Write(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat54CollapsingStereoSound:
+class Dat54CollapsingStereoSound(Dat54Sound):
     LeftSound: MetaHash
     RightSound: MetaHash
     MinDistance: float
@@ -15296,7 +15298,7 @@ class Dat54CollapsingStereoSound:
     def WriteHeaderXml(self, sb: Any, indent: int) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat54CrossfadeSound:
+class Dat54CrossfadeSound(Dat54Sound):
     NearSound: MetaHash
     FarSound: MetaHash
     Mode: int
@@ -15353,7 +15355,7 @@ class Dat54CrossfadeSound:
     def WriteHeaderXml(self, sb: Any, indent: int) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat54DirectionalSound:
+class Dat54DirectionalSound(Dat54Sound):
     ChildSound: MetaHash
     InnerAngle: float
     OuterAngle: float
@@ -15404,7 +15406,7 @@ class Dat54DirectionalSound:
     def WriteHeaderXml(self, sb: Any, indent: int) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat54DynamicEntitySound:
+class Dat54DynamicEntitySound(Dat54Sound):
     EntitiesCount: int
     Entities: list[MetaHash]
     Type: Dat54SoundType
@@ -15451,7 +15453,7 @@ class Dat54DynamicEntitySound:
     def WriteHeaderXml(self, sb: Any, indent: int) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat54EnvelopeSound:
+class Dat54EnvelopeSound(Dat54Sound):
     Attack: int
     AttackVariance: int
     Decay: int
@@ -15519,7 +15521,7 @@ class Dat54EnvelopeSound:
     def WriteHeaderXml(self, sb: Any, indent: int) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat54EnvironmentSound:
+class Dat54EnvironmentSound(Dat54Sound):
     ChannelID: int
     Type: Dat54SoundType
     Header: RelSoundHeader
@@ -15565,7 +15567,7 @@ class Dat54EnvironmentSound:
     def WriteHeaderXml(self, sb: Any, indent: int) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat54ExternalStreamSound:
+class Dat54ExternalStreamSound(Dat54Sound):
     EnvironmentSound1: MetaHash
     EnvironmentSound2: MetaHash
     EnvironmentSound3: MetaHash
@@ -15614,7 +15616,7 @@ class Dat54ExternalStreamSound:
     def WriteHeaderXml(self, sb: Any, indent: int) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat54FluctuatorSound:
+class Dat54FluctuatorSound(Dat54Sound):
     ChildSound: MetaHash
     FluctuatorsCount: int
     Fluctuators: list[Dat54FluctuatorSoundData]
@@ -15689,7 +15691,7 @@ class Dat54FluctuatorSoundData:
     def Write(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat54GranularSound:
+class Dat54GranularSound(Dat54Sound):
     WaveSlotIndex: int
     Channel0: Dat54GranularSoundFile
     Channel1: Dat54GranularSoundFile
@@ -15791,7 +15793,7 @@ class Dat54GranularSoundFile:
     def Write(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int, varName: str) -> None: ...
 
-class Dat54IfSound:
+class Dat54IfSound(Dat54Sound):
     TrueSound: MetaHash
     FalseSound: MetaHash
     ConditionVariable: MetaHash
@@ -15842,7 +15844,7 @@ class Dat54IfSound:
     def WriteHeaderXml(self, sb: Any, indent: int) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat54KineticSound:
+class Dat54KineticSound(Dat54Sound):
     ChildSound: MetaHash
     Mass: float
     YawAngle: float
@@ -15891,7 +15893,7 @@ class Dat54KineticSound:
     def WriteHeaderXml(self, sb: Any, indent: int) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat54LoopingSound:
+class Dat54LoopingSound(Dat54Sound):
     LoopCount: int
     LoopCountVariance: int
     LoopPoint: int
@@ -15941,7 +15943,7 @@ class Dat54LoopingSound:
     def WriteHeaderXml(self, sb: Any, indent: int) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat54MathOperationSound:
+class Dat54MathOperationSound(Dat54Sound):
     ChildSound: MetaHash
     OperationsCount: int
     Operations: list[Dat54MathOperationSoundData]
@@ -16010,7 +16012,7 @@ class Dat54MathOperationSoundData:
     def Write(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat54ModularSynthSound:
+class Dat54ModularSynthSound(Dat54Sound):
     SynthSound: MetaHash
     SynthPreset: MetaHash
     PlaybackTimeLimit: float
@@ -16078,7 +16080,7 @@ class Dat54ModularSynthSoundVariable:
     def Write(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat54MultitrackSound:
+class Dat54MultitrackSound(Dat54Sound):
     Type: Dat54SoundType
     Header: RelSoundHeader
     ChildSoundsCount: int
@@ -16123,7 +16125,7 @@ class Dat54MultitrackSound:
     def WriteHeaderXml(self, sb: Any, indent: int) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat54OnStopSound:
+class Dat54OnStopSound(Dat54Sound):
     ChildSound: MetaHash
     StopSound: MetaHash
     FinishedSound: MetaHash
@@ -16171,7 +16173,7 @@ class Dat54OnStopSound:
     def WriteHeaderXml(self, sb: Any, indent: int) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat54ParameterTransformSound:
+class Dat54ParameterTransformSound(Dat54Sound):
     ChildSound: MetaHash
     ParameterTransformsCount: int
     ParameterTransforms: list[Dat54ParameterTransformSoundData]
@@ -16257,7 +16259,7 @@ class Dat54ParameterTransformSoundData2:
     def Write(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat54RandomizedSound:
+class Dat54RandomizedSound(Dat54Sound):
     HistoryIndex: int
     HistorySpaceCount: int
     HistorySpace: list[int]
@@ -16307,7 +16309,7 @@ class Dat54RandomizedSound:
     def WriteHeaderXml(self, sb: Any, indent: int) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat54RetriggeredOverlappedSound:
+class Dat54RetriggeredOverlappedSound(Dat54Sound):
     LoopCount: int
     LoopCountVariance: int
     DelayTime: int
@@ -16361,7 +16363,7 @@ class Dat54RetriggeredOverlappedSound:
     def WriteHeaderXml(self, sb: Any, indent: int) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat54SequentialOverlapSound:
+class Dat54SequentialOverlapSound(Dat54Sound):
     DelayTime: int
     DelayTimeVariable: MetaHash
     SequenceDirection: MetaHash
@@ -16409,7 +16411,7 @@ class Dat54SequentialOverlapSound:
     def WriteHeaderXml(self, sb: Any, indent: int) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat54SequentialSound:
+class Dat54SequentialSound(Dat54Sound):
     Type: Dat54SoundType
     Header: RelSoundHeader
     ChildSoundsCount: int
@@ -16454,7 +16456,7 @@ class Dat54SequentialSound:
     def WriteHeaderXml(self, sb: Any, indent: int) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat54SimpleSound:
+class Dat54SimpleSound(Dat54Sound):
     ContainerName: MetaHash
     FileName: MetaHash
     WaveSlotIndex: int
@@ -16502,7 +16504,7 @@ class Dat54SimpleSound:
     def WriteHeaderXml(self, sb: Any, indent: int) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat54Sound:
+class Dat54Sound(RelSound):
     Type: Dat54SoundType
     Header: RelSoundHeader
     ChildSoundsCount: int
@@ -16547,7 +16549,7 @@ class Dat54Sound:
     def WriteHeaderXml(self, sb: Any, indent: int) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat54SoundHashList:
+class Dat54SoundHashList(Dat54Sound):
     UnkShort: int
     SoundHashesCount: int
     SoundHashes: list[MetaHash]
@@ -16595,7 +16597,7 @@ class Dat54SoundHashList:
     def WriteHeaderXml(self, sb: Any, indent: int) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat54SoundSet:
+class Dat54SoundSet(Dat54Sound):
     SoundSetsCount: int
     SoundSets: list[Dat54SoundSetItem]
     Type: Dat54SoundType
@@ -16657,7 +16659,7 @@ class Dat54SoundSetItem:
     def Write(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat54SoundSetList:
+class Dat54SoundSetList(Dat54Sound):
     SoundSetsCount: int
     SoundSets: list[MetaHash]
     Type: Dat54SoundType
@@ -16741,7 +16743,7 @@ class Dat54SoundType(IntEnum):
     SoundSetList = 34
     SoundHashList = 35
 
-class Dat54StreamingSound:
+class Dat54StreamingSound(Dat54Sound):
     Duration: int
     Type: Dat54SoundType
     Header: RelSoundHeader
@@ -16787,7 +16789,7 @@ class Dat54StreamingSound:
     def WriteHeaderXml(self, sb: Any, indent: int) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat54SwitchSound:
+class Dat54SwitchSound(Dat54Sound):
     Variable: MetaHash
     Type: Dat54SoundType
     Header: RelSoundHeader
@@ -16833,7 +16835,7 @@ class Dat54SwitchSound:
     def WriteHeaderXml(self, sb: Any, indent: int) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat54VariableBlockSound:
+class Dat54VariableBlockSound(Dat54Sound):
     ChildSound: MetaHash
     VariableCount: int
     Variables: list[Dat54VariableData]
@@ -16881,7 +16883,7 @@ class Dat54VariableBlockSound:
     def WriteHeaderXml(self, sb: Any, indent: int) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat54VariableCurveSound:
+class Dat54VariableCurveSound(Dat54Sound):
     ChildSound: MetaHash
     InputVariable: MetaHash
     OutputVariable: MetaHash
@@ -16947,7 +16949,7 @@ class Dat54VariableData:
     def Write(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat54VariablePrintValueSound:
+class Dat54VariablePrintValueSound(Dat54Sound):
     Variable: MetaHash
     Value: str
     Type: Dat54SoundType
@@ -16994,7 +16996,7 @@ class Dat54VariablePrintValueSound:
     def WriteHeaderXml(self, sb: Any, indent: int) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Dat54WrapperSound:
+class Dat54WrapperSound(Dat54Sound):
     ChildSound: MetaHash
     LastPlayTime: int
     FallBackSound: MetaHash
@@ -17149,7 +17151,7 @@ class DistantLightsCell:
     def GetType(self) -> Any: ...
     def ToString(self) -> str: ...
 
-class DistantLightsFile:
+class DistantLightsFile(GameFile):
     HD: bool
     GridSize: int
     CellSize: int
@@ -17226,14 +17228,14 @@ class DistantLightsPath:
 
 class DlcContentChangeSet:
     changeSetName: str
-    filesToInvalidate: list[str]
-    filesToDisable: list[str]
-    filesToEnable: list[str]
-    txdToLoad: list[str]
-    txdToUnload: list[str]
-    residentResources: list[str]
-    unregisterResources: list[str]
-    mapChangeSetData: list[DlcContentChangeSet]
+    filesToInvalidate: System.Collections.Generic.List[str]
+    filesToDisable: System.Collections.Generic.List[str]
+    filesToEnable: System.Collections.Generic.List[str]
+    txdToLoad: System.Collections.Generic.List[str]
+    txdToUnload: System.Collections.Generic.List[str]
+    residentResources: System.Collections.Generic.List[str]
+    unregisterResources: System.Collections.Generic.List[str]
+    mapChangeSetData: System.Collections.Generic.List[DlcContentChangeSet]
     associatedMap: str
     requiresLoadingScreen: bool
     loadingScreenContext: str
@@ -17274,8 +17276,8 @@ class DlcContentDataFile:
     def ToString(self) -> str: ...
 
 class DlcContentFile:
-    dataFiles: list[DlcContentDataFile]
-    contentChangeSets: list[DlcContentChangeSet]
+    dataFiles: System.Collections.Generic.List[DlcContentDataFile]
+    contentChangeSets: System.Collections.Generic.List[DlcContentChangeSet]
     DlcFile: RpfFile
     ExtraMounts: dict[str, DlcExtraFolderMountFile]
     RpfDataFiles: dict[str, DlcContentDataFile]
@@ -17301,7 +17303,7 @@ class DlcExtraFolderMount:
     def ToString(self) -> str: ...
 
 class DlcExtraFolderMountFile:
-    FolderMounts: list[DlcExtraFolderMount]
+    FolderMounts: System.Collections.Generic.List[DlcExtraFolderMount]
     def __init__(self) -> None: ...
     def Equals(self, obj: Any) -> bool: ...
     def GetHashCode(self) -> int: ...
@@ -17310,7 +17312,7 @@ class DlcExtraFolderMountFile:
     def ToString(self) -> str: ...
 
 class DlcExtraTitleUpdateFile:
-    Mounts: list[DlcExtraTitleUpdateMount]
+    Mounts: System.Collections.Generic.List[DlcExtraTitleUpdateMount]
     def __init__(self) -> None: ...
     def Equals(self, obj: Any) -> bool: ...
     def GetHashCode(self) -> int: ...
@@ -17331,7 +17333,7 @@ class DlcExtraTitleUpdateMount:
 
 class DlcSetupContentChangesetGroup:
     NameHash: str
-    ContentChangeSets: list[str]
+    ContentChangeSets: System.Collections.Generic.List[str]
     def __init__(self) -> None: ...
     def Equals(self, obj: Any) -> bool: ...
     def GetHashCode(self) -> int: ...
@@ -17343,7 +17345,7 @@ class DlcSetupFile:
     deviceName: str
     datFile: str
     nameHash: str
-    contentChangeSetGroups: list[DlcSetupContentChangesetGroup]
+    contentChangeSetGroups: System.Collections.Generic.List[DlcSetupContentChangesetGroup]
     type: str
     timeStamp: str
     order: int
@@ -17351,7 +17353,7 @@ class DlcSetupFile:
     subPackCount: int
     isLevelPack: bool
     DlcFile: RpfFile
-    DlcSubpacks: list[RpfFile]
+    DlcSubpacks: System.Collections.Generic.List[RpfFile]
     ContentFile: DlcContentFile
     def __init__(self) -> None: ...
     def Equals(self, obj: Any) -> bool: ...
@@ -17360,7 +17362,7 @@ class DlcSetupFile:
     def Load(self, doc: Any) -> None: ...
     def ToString(self) -> str: ...
 
-class Drawable:
+class Drawable(DrawableBase):
     BlockLength: int
     NamePointer: int
     LightAttributes: ResourceSimpleList64[LightAttributes]
@@ -17438,7 +17440,7 @@ class Drawable:
     @staticmethod
     def WriteXmlNode(d: Drawable, sb: Any, indent: int, ddsfolder: str, name: str = ...) -> None: ...
 
-class DrawableBase:
+class DrawableBase(ResourceFileBase):
     BlockLength: int
     ShaderGroupPointer: int
     SkeletonPointer: int
@@ -17505,7 +17507,7 @@ class DrawableBase:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int, ddsfolder: str) -> None: ...
 
-class DrawableDictionary:
+class DrawableDictionary(ResourceFileBase):
     BlockLength: int
     HashesPointer: int
     HashesCount1: int
@@ -17542,7 +17544,7 @@ class DrawableDictionary:
     @staticmethod
     def WriteXmlNode(d: DrawableDictionary, sb: Any, indent: int, ddsfolder: str, name: str = ...) -> None: ...
 
-class DrawableGeometry:
+class DrawableGeometry(ResourceSystemBlock):
     BlockLength: int
     VFT: int
     VertexBufferPointer: int
@@ -17591,7 +17593,7 @@ class DrawableGeometry:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class DrawableModel:
+class DrawableModel(ResourceSystemBlock):
     BlockLength: int
     VFT: int
     GeometriesPointer: int
@@ -17629,7 +17631,7 @@ class DrawableModel:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class DrawableModelsBlock:
+class DrawableModelsBlock(ResourceSystemBlock):
     BlockLength: int
     High: list[DrawableModel]
     Med: list[DrawableModel]
@@ -17664,7 +17666,7 @@ class DrawableModelsBlock:
     def ToString(self) -> str: ...
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
 
-class DrawablePtfx:
+class DrawablePtfx(DrawableBase):
     BlockLength: int
     UnkPointer: int
     ShaderGroupPointer: int
@@ -17736,7 +17738,7 @@ class DrawablePtfx:
     @staticmethod
     def WriteXmlNode(d: DrawablePtfx, sb: Any, indent: int, ddsfolder: str, name: str = ...) -> None: ...
 
-class DrawablePtfxDictionary:
+class DrawablePtfxDictionary(ResourceFileBase):
     BlockLength: int
     HashesPointer: int
     HashesCount1: int
@@ -17857,7 +17859,7 @@ class Endianess(IntEnum):
     LittleEndian = 0
     BigEndian = 1
 
-class EnvClothVerletBehavior:
+class EnvClothVerletBehavior(ResourceSystemBlock):
     BlockLength: int
     FilePosition: int
     BlockLength_Gen9: int
@@ -17879,7 +17881,7 @@ class EnvClothVerletBehavior:
     def ToString(self) -> str: ...
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
 
-class EnvironmentCloth:
+class EnvironmentCloth(ResourceSystemBlock):
     BlockLength: int
     VFT: int
     InstanceTuningPointer: int
@@ -17919,7 +17921,7 @@ class EnvironmentCloth:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int, ddsfolder: str) -> None: ...
 
-class Expression:
+class Expression(ResourceSystemBlock):
     BlockLength: int
     VFT: int
     Unknown_4h: int
@@ -17968,7 +17970,7 @@ class Expression:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class ExpressionDictionary:
+class ExpressionDictionary(ResourceFileBase):
     BlockLength: int
     Unknown_10h: int
     Unknown_14h: int
@@ -18014,7 +18016,7 @@ class ExpressionInstrBase:
     def Write(self, w1: DataWriter, w2: DataWriter) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class ExpressionInstrBlend:
+class ExpressionInstrBlend(ExpressionInstrBase):
     ByteLength: int
     SourceCount: int
     NumSourceWeights: int
@@ -18076,7 +18078,7 @@ class ExpressionInstrBlend:
         def GetType(self) -> Any: ...
         def ToString(self) -> str: ...
 
-class ExpressionInstrBone:
+class ExpressionInstrBone(ExpressionInstrBase):
     TrackIndex: int
     BoneId: int
     Track: int
@@ -18097,7 +18099,7 @@ class ExpressionInstrBone:
     def Write(self, w1: DataWriter, w2: DataWriter) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class ExpressionInstrEmpty:
+class ExpressionInstrEmpty(ExpressionInstrBase):
     Type: ExpressionInstrType
     Offset1: int
     Offset2: int
@@ -18112,7 +18114,7 @@ class ExpressionInstrEmpty:
     def Write(self, w1: DataWriter, w2: DataWriter) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class ExpressionInstrFloat:
+class ExpressionInstrFloat(ExpressionInstrBase):
     Value: float
     Type: ExpressionInstrType
     Offset1: int
@@ -18128,7 +18130,7 @@ class ExpressionInstrFloat:
     def Write(self, w1: DataWriter, w2: DataWriter) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class ExpressionInstrJump:
+class ExpressionInstrJump(ExpressionInstrBase):
     Data1Offset: int
     Data2Offset: int
     Data3Offset: int
@@ -18146,7 +18148,7 @@ class ExpressionInstrJump:
     def Write(self, w1: DataWriter, w2: DataWriter) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class ExpressionInstrLookAt:
+class ExpressionInstrLookAt(ExpressionInstrBase):
     Offset: SharpDX.Vector4
     LookAtAxis: ExpressionInstrLookAt.Axis
     UpAxis: ExpressionInstrLookAt.Axis
@@ -18174,7 +18176,7 @@ class ExpressionInstrLookAt:
         NegativeY = 4
         NegativeZ = 5
 
-class ExpressionInstrSpring:
+class ExpressionInstrSpring(ExpressionInstrBase):
     SpringDescription: ExpressionSpringDescription
     BoneTrackRot: int
     BoneTrackPos: int
@@ -18255,7 +18257,7 @@ class ExpressionInstrType(IntEnum):
     VectorEqual = 72
     VectorNotEqual = 73
 
-class ExpressionInstrVariable:
+class ExpressionInstrVariable(ExpressionInstrBase):
     Variable: MetaHash
     VariableIndex: int
     Type: ExpressionInstrType
@@ -18272,7 +18274,7 @@ class ExpressionInstrVariable:
     def Write(self, w1: DataWriter, w2: DataWriter) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class ExpressionInstrVector:
+class ExpressionInstrVector(ExpressionInstrBase):
     Value: SharpDX.Vector4
     Type: ExpressionInstrType
     Offset1: int
@@ -18331,7 +18333,7 @@ class ExpressionSpringDescription:
     def Write(self, w: DataWriter) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class ExpressionSpringDescriptionBlock:
+class ExpressionSpringDescriptionBlock(ResourceSystemBlock):
     BlockLength: int
     Spring: ExpressionSpringDescription
     FilePosition: int
@@ -18346,7 +18348,7 @@ class ExpressionSpringDescriptionBlock:
     def ToString(self) -> str: ...
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
 
-class ExpressionStream:
+class ExpressionStream(ResourceSystemBlock):
     BlockLength: int
     NameHash: MetaHash
     Data1Length: int
@@ -18422,7 +18424,7 @@ class FlagsUshort:
     def ToShortString(self) -> str: ...
     def ToString(self) -> str: ...
 
-class FragBoneTransforms:
+class FragBoneTransforms(ResourceSystemBlock):
     BlockLength: int
     ItemCount1: int
     ItemCount2: int
@@ -18446,7 +18448,7 @@ class FragBoneTransforms:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int, name: str) -> None: ...
 
-class FragDrawable:
+class FragDrawable(DrawableBase):
     BlockLength: int
     FragMatrix: Matrix4F_s
     BoundPointer: int
@@ -18543,7 +18545,7 @@ class FragDrawable:
     @staticmethod
     def WriteXmlNode(d: FragDrawable, sb: Any, indent: int, ddsfolder: str, name: str = ...) -> None: ...
 
-class FragGlassWindow:
+class FragGlassWindow(ResourceSystemBlock):
     BlockLength: int
     BlockLength_Gen9: int
     ProjectionRow1: SharpDX.Vector3
@@ -18586,7 +18588,7 @@ class FragJointType(IntEnum):
     DOF1 = 0
     DOF3 = 1
 
-class FragPhysArchetype:
+class FragPhysArchetype(ResourceSystemBlock):
     BlockLength: int
     VFT: int
     NamePointer: int
@@ -18639,7 +18641,7 @@ class FragPhysArchetype:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class FragPhysArticulatedBodyType:
+class FragPhysArticulatedBodyType(ResourceSystemBlock):
     BlockLength: int
     VFT: int
     ItemIndices: list[int]
@@ -18671,7 +18673,7 @@ class FragPhysArticulatedBodyType:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class FragPhysEvtSet:
+class FragPhysEvtSet(ResourceSystemBlock):
     BlockLength: int
     VFT: int
     FilePosition: int
@@ -18694,7 +18696,7 @@ class FragPhysEvtSet:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class FragPhysGroupNamesBlock:
+class FragPhysGroupNamesBlock(ResourceSystemBlock):
     BlockLength: int
     data_pointers: list[int]
     data_items: list[FragPhysNameStruct_s]
@@ -18713,7 +18715,7 @@ class FragPhysGroupNamesBlock:
     def ToString(self) -> str: ...
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
 
-class FragPhysJoint1DofType:
+class FragPhysJoint1DofType(FragPhysJointType):
     BlockLength: int
     Unknown_20h: SharpDX.Vector4
     Unknown_30h: SharpDX.Vector4
@@ -18750,7 +18752,7 @@ class FragPhysJoint1DofType:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class FragPhysJoint3DofType:
+class FragPhysJoint3DofType(FragPhysJointType):
     BlockLength: int
     Unknown_20h: SharpDX.Vector4
     Unknown_30h: SharpDX.Vector4
@@ -18791,7 +18793,7 @@ class FragPhysJoint3DofType:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class FragPhysJointType:
+class FragPhysJointType(ResourceSystemBlock):
     BlockLength: int
     VFT: int
     Type: FragJointType
@@ -18838,7 +18840,7 @@ class FragPhysNameStruct_s:
     def GetType(self) -> Any: ...
     def ToString(self) -> str: ...
 
-class FragPhysTransforms:
+class FragPhysTransforms(ResourceSystemBlock):
     BlockLength: int
     VFT: int
     MatricesCount: int
@@ -18861,7 +18863,7 @@ class FragPhysTransforms:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class FragPhysTypeChild:
+class FragPhysTypeChild(ResourceSystemBlock):
     BlockLength: int
     VFT: int
     PristineMass: float
@@ -18923,7 +18925,7 @@ class FragPhysTypeChild:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int, ddsfolder: str) -> None: ...
 
-class FragPhysTypeGroup:
+class FragPhysTypeGroup(ResourceSystemBlock):
     BlockLength: int
     Strength: float
     ForceTransmissionScaleUp: float
@@ -18980,7 +18982,7 @@ class FragPhysTypeGroup:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class FragPhysicsLOD:
+class FragPhysicsLOD(ResourceSystemBlock):
     BlockLength: int
     VFT: int
     Unknown_14h: float
@@ -19059,7 +19061,7 @@ class FragPhysicsLOD:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int, ddsfolder: str) -> None: ...
 
-class FragPhysicsLODGroup:
+class FragPhysicsLODGroup(ResourceSystemBlock):
     BlockLength: int
     VFT: int
     PhysicsLOD1Pointer: int
@@ -19085,7 +19087,7 @@ class FragPhysicsLODGroup:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int, ddsfolder: str) -> None: ...
 
-class FragType:
+class FragType(ResourceFileBase):
     BlockLength: int
     BoundingSphereCenter: SharpDX.Vector3
     BoundingSphereRadius: float
@@ -19166,7 +19168,7 @@ class FragType:
     @staticmethod
     def WriteXmlNode(f: FragType, sb: Any, indent: int, ddsfolder: str, name: str = ...) -> None: ...
 
-class FragVehicleGlassWindows:
+class FragVehicleGlassWindows(ResourceSystemBlock):
     BlockLength: int
     Unknown_0h: int
     Unknown_4h: int
@@ -19254,7 +19256,7 @@ class FragVehicleGlassWindows:
         def WriteLine(self, sb: Any, width: int) -> None: ...
         def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class FrameFilterBase:
+class FrameFilterBase(ResourceSystemBlock):
     BlockLength: int
     VFT: int
     Unknown_04h: int
@@ -19285,7 +19287,7 @@ class FrameFilterBase:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class FrameFilterDictionary:
+class FrameFilterDictionary(ResourceFileBase):
     BlockLength: int
     Unknown_10h: int
     Unknown_14h: int
@@ -19300,7 +19302,7 @@ class FrameFilterDictionary:
     FilePosition: int
     BlockLength_Gen9: int
     def __init__(self) -> None: ...
-    def BuildFromFilterList(self, filters: list[FrameFilterBase]) -> None: ...
+    def BuildFromFilterList(self, filters: System.Collections.Generic.List[FrameFilterBase]) -> None: ...
     def Equals(self, obj: Any) -> bool: ...
     def GetHashCode(self) -> int: ...
     def GetParts(self) -> list[Any]: ...
@@ -19314,7 +19316,7 @@ class FrameFilterDictionary:
     @staticmethod
     def WriteXmlNode(d: FrameFilterDictionary, sb: Any, indent: int, name: str = ...) -> None: ...
 
-class FrameFilterMultiWeight:
+class FrameFilterMultiWeight(FrameFilterBase):
     BlockLength: int
     Entries: ResourceSimpleList64_s[FrameFilterMultiWeight.TrackIdIndex]
     Weights: ResourceSimpleList64_float
@@ -19377,7 +19379,7 @@ class FxcCBuffer:
     Name: str
     NameHash: int
     Variables: list[FxcVariable]
-    VariablesList: list[FxcVariable]
+    VariablesList: System.Collections.Generic.List[FxcVariable]
     def __init__(self) -> None: ...
     def AddVariable(self, vari: FxcVariable) -> None: ...
     def ConsolidateVariables(self) -> None: ...
@@ -19640,7 +19642,7 @@ class FxcVariableType(IntEnum):
     UAVBuffer = 21
     UAVTexture = 22
 
-class FxcXml:
+class FxcXml(MetaXmlBase):
     def __init__(self) -> None: ...
     def Equals(self, obj: Any) -> bool: ...
     def GetHashCode(self) -> int: ...
@@ -19680,9 +19682,9 @@ class GTA5Keys:
     PC_AWC_KEY: ClassVar[list[int]]
     def Equals(self, obj: Any) -> bool: ...
     @staticmethod
-    def Generate(exeData: list[int], updateStatus: Any) -> None: ...
+    def Generate(exeData: list[int], updateStatus: Callable[..., None]) -> None: ...
     @staticmethod
-    def GenerateV2(exeData: list[int], updateStatus: Any) -> None: ...
+    def GenerateV2(exeData: list[int], updateStatus: Callable[..., None]) -> None: ...
     def GetHashCode(self) -> int: ...
     def GetType(self) -> Any: ...
     @staticmethod
@@ -19745,7 +19747,7 @@ class GTACrypto:
     def GetType(self) -> Any: ...
     def ToString(self) -> str: ...
 
-class GameFile:
+class GameFile(CodeWalker.Cacheable[GameFileCacheKey]):
     RpfFileEntry: RpfFileEntry
     Name: str
     FilePath: str
@@ -19774,18 +19776,18 @@ class GameFileCache:
     Gxt2Dict: dict[int, RpfFileEntry]
     AllYmapsDict: dict[int, RpfFileEntry]
     YtypDict: dict[int, YtypFile]
-    AllCacheFiles: list[CacheDatFile]
+    AllCacheFiles: System.Collections.Generic.List[CacheDatFile]
     YmapHierarchyDict: dict[int, MapDataStoreNode]
-    AllManifests: list[YmfFile]
+    AllManifests: System.Collections.Generic.List[YmfFile]
     EnableDlc: bool
     EnableMods: bool
-    DlcPaths: list[str]
-    DlcActiveRpfs: list[RpfFile]
-    DlcSetupFiles: list[DlcSetupFile]
-    DlcExtraFolderMounts: list[DlcExtraFolderMountFile]
+    DlcPaths: System.Collections.Generic.List[str]
+    DlcActiveRpfs: System.Collections.Generic.List[RpfFile]
+    DlcSetupFiles: System.Collections.Generic.List[DlcSetupFile]
+    DlcExtraFolderMounts: System.Collections.Generic.List[DlcExtraFolderMountFile]
     DlcPatchedPaths: dict[str, str]
-    DlcCacheFileList: list[str]
-    DlcNameList: list[str]
+    DlcCacheFileList: System.Collections.Generic.List[str]
+    DlcNameList: System.Collections.Generic.List[str]
     SelectedDlc: str
     ActiveMapRpfFiles: dict[str, RpfFile]
     VehiclesInitDict: dict[MetaHash, VehicleInitData]
@@ -19794,9 +19796,9 @@ class GameFileCache:
     PedDrawableDicts: dict[MetaHash, dict[MetaHash, RpfFileEntry]]
     PedTextureDicts: dict[MetaHash, dict[MetaHash, RpfFileEntry]]
     PedClothDicts: dict[MetaHash, dict[MetaHash, RpfFileEntry]]
-    BaseRpfs: list[RpfFile]
-    AllRpfs: list[RpfFile]
-    DlcRpfs: list[RpfFile]
+    BaseRpfs: System.Collections.Generic.List[RpfFile]
+    AllRpfs: System.Collections.Generic.List[RpfFile]
+    DlcRpfs: System.Collections.Generic.List[RpfFile]
     QueueLength: int
     ItemCount: int
     MemoryUsage: int
@@ -19804,7 +19806,7 @@ class GameFileCache:
     MaxItemsPerLoop: int
     IsInited: bool
     TimeCycleModsDict: dict[int, CodeWalker.World.TimecycleMod]
-    AudioDatRelFiles: list[RelFile]
+    AudioDatRelFiles: System.Collections.Generic.List[RelFile]
     AudioConfigDict: dict[MetaHash, RelData]
     AudioSpeechDict: dict[MetaHash, RelData]
     AudioSynthsDict: dict[MetaHash, RelData]
@@ -19862,9 +19864,9 @@ class GameFileCache:
     def GetYtd(self, hash: int) -> YtdFile: ...
     def GetYtdEntry(self, hash: int) -> RpfFileEntry: ...
     @overload
-    def Init(self, updateStatus: Any, errorLog: Any) -> None: ...
+    def Init(self, updateStatus: Callable[..., None], errorLog: Callable[..., None]) -> None: ...
     @overload
-    def Init(self, updateStatus: Any, errorLog: Any, allRpfs: list[RpfFile]) -> None: ...
+    def Init(self, updateStatus: Callable[..., None], errorLog: Callable[..., None], allRpfs: System.Collections.Generic.List[RpfFile]) -> None: ...
     def InitAudio(self) -> None: ...
     def InitPeds(self) -> None: ...
     def InitStringDicts(self) -> None: ...
@@ -19906,7 +19908,7 @@ class GameFileCache:
     def ToString(self) -> str: ...
     def TryFindTextureInParent(self, texhash: int, txdhash: int) -> Texture: ...
     def TryGetDrawable(self, arche: Archetype) -> DrawableBase: ...
-    def TryGetDrawableAsync(self, arche: Archetype) -> Any: ...
+    def TryGetDrawableAsync(self, arche: Archetype) -> System.Threading.Tasks.Task[Any]: ...
     def TryGetHDTextureHash(self, txdhash: int) -> int: ...
     def TryGetParentYtd(self, hash: int) -> YtdFile: ...
     def TryGetParentYtdHash(self, hash: int) -> int: ...
@@ -19991,7 +19993,7 @@ class GlobalText:
     @staticmethod
     def TryGetString(hash: int) -> str: ...
 
-class GtxdFile:
+class GtxdFile(GameFile):
     Rbf: RbfFile
     TxdRelationships: dict[str, str]
     RpfFileEntry: RpfFileEntry
@@ -20049,7 +20051,7 @@ class HashSearch:
     def SearchHashes(stream: Any, hashes: Any, length: int = ...) -> list[list[int]]: ...
     def ToString(self) -> str: ...
 
-class HeightmapFile:
+class HeightmapFile(GameFile):
     RawFileData: list[int]
     Endianess: Endianess
     Magic: int
@@ -20099,7 +20101,7 @@ class HeightmapFile:
         def ToString(self) -> str: ...
         def Write(self, w: DataWriter) -> None: ...
 
-class HmapXml:
+class HmapXml(MetaXmlBase):
     def __init__(self) -> None: ...
     def Equals(self, obj: Any) -> bool: ...
     def GetHashCode(self) -> int: ...
@@ -20140,7 +20142,7 @@ class IResourceSystemBlock:
 class IResourceXXSystemBlock:
     def GetType(self, reader: ResourceDataReader, parameters: list[Any]) -> IResourceSystemBlock: ...
 
-class IndexBuffer:
+class IndexBuffer(ResourceSystemBlock):
     BlockLength: int
     BlockLength_Gen9: int
     VFT: int
@@ -20324,7 +20326,7 @@ class JointTranslationLimit_s:
     def ToString(self) -> str: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Joints:
+class Joints(ResourceSystemBlock):
     BlockLength: int
     VFT: int
     RotationLimitsPointer: int
@@ -20354,7 +20356,7 @@ class Joints:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class LightAttributes:
+class LightAttributes(ResourceSystemBlock):
     BlockLength: int
     Unknown_0h: int
     Unknown_4h: int
@@ -20422,8 +20424,11 @@ class LightType(IntEnum):
     Spot = 2
     Capsule = 4
 
-class ListBase(Generic[T]):
-    Data: list[T]
+class ListBase(ResourceSystemBlock, Generic[T]):
+    Data: System.Collections.Generic.List[T]
+    @overload
+    def __getitem__(self, index: int) -> T: ...
+    def __setitem__(self, index: int, value: T) -> None: ...
     Count: int
     IsReadOnly: bool
     FilePosition: int
@@ -20473,6 +20478,7 @@ class ListBase(Generic[T]):
         Name: str
         PropertyType: Any
         Converter: Any
+        ConverterFromRegisteredType: Any
         IsLocalizable: bool
         SerializationVisibility: Any
         SupportsChangeEvents: bool
@@ -20480,7 +20486,7 @@ class ListBase(Generic[T]):
         IsBrowsable: bool
         DesignTimeOnly: bool
         def __init__(self, coll: ListBase[T], i: int) -> None: ...
-        def AddValueChanged(self, component: Any, handler: Any) -> None: ...
+        def AddValueChanged(self, component: Any, handler: Callable[..., None]) -> None: ...
         def CanResetValue(self, component: Any) -> bool: ...
         def Equals(self, obj: Any) -> bool: ...
         @overload
@@ -20495,7 +20501,7 @@ class ListBase(Generic[T]):
         def GetHashCode(self) -> int: ...
         def GetType(self) -> Any: ...
         def GetValue(self, component: Any) -> Any: ...
-        def RemoveValueChanged(self, component: Any, handler: Any) -> None: ...
+        def RemoveValueChanged(self, component: Any, handler: Callable[..., None]) -> None: ...
         def ResetValue(self, component: Any) -> None: ...
         def SetValue(self, component: Any, value: Any) -> None: ...
         def ShouldSerializeValue(self, component: Any) -> bool: ...
@@ -20510,7 +20516,7 @@ class LookUpTableGenerator:
     def GetType(self) -> Any: ...
     def ToString(self) -> str: ...
 
-class MCAnchorProps:
+class MCAnchorProps(MetaWrapper):
     Owner: MCPedPropInfo
     Data: CAnchorProps
     Props: list[int]
@@ -20523,7 +20529,7 @@ class MCAnchorProps:
     def Save(self, mb: MetaBuilder) -> MetaPOINTER: ...
     def ToString(self) -> str: ...
 
-class MCComponentInfo:
+class MCComponentInfo(MetaWrapper):
     Owner: MCPedVariationInfo
     Data: CComponentInfo
     ComponentType: int
@@ -20540,7 +20546,7 @@ class MCComponentInfo:
     def Save(self, mb: MetaBuilder) -> MetaPOINTER: ...
     def ToString(self) -> str: ...
 
-class MCEntityDef:
+class MCEntityDef(MetaWrapper):
     Data: CEntityDef
     Extensions: list[MetaWrapper]
     OwnerMlo: MloArchetype
@@ -20559,7 +20565,7 @@ class MCEntityDef:
     def Save(self, mb: MetaBuilder) -> MetaPOINTER: ...
     def ToString(self) -> str: ...
 
-class MCExtensionDefAudioCollisionSettings:
+class MCExtensionDefAudioCollisionSettings(MetaWrapper):
     Data: CExtensionDefAudioCollisionSettings
     Name: str
     def __init__(self) -> None: ...
@@ -20570,7 +20576,7 @@ class MCExtensionDefAudioCollisionSettings:
     def Save(self, mb: MetaBuilder) -> MetaPOINTER: ...
     def ToString(self) -> str: ...
 
-class MCExtensionDefAudioEmitter:
+class MCExtensionDefAudioEmitter(MetaWrapper):
     Data: CExtensionDefAudioEmitter
     Name: str
     def __init__(self) -> None: ...
@@ -20581,7 +20587,7 @@ class MCExtensionDefAudioEmitter:
     def Save(self, mb: MetaBuilder) -> MetaPOINTER: ...
     def ToString(self) -> str: ...
 
-class MCExtensionDefBuoyancy:
+class MCExtensionDefBuoyancy(MetaWrapper):
     Data: CExtensionDefBuoyancy
     Name: str
     def __init__(self) -> None: ...
@@ -20592,7 +20598,7 @@ class MCExtensionDefBuoyancy:
     def Save(self, mb: MetaBuilder) -> MetaPOINTER: ...
     def ToString(self) -> str: ...
 
-class MCExtensionDefDoor:
+class MCExtensionDefDoor(MetaWrapper):
     Data: CExtensionDefDoor
     Name: str
     def __init__(self) -> None: ...
@@ -20603,7 +20609,7 @@ class MCExtensionDefDoor:
     def Save(self, mb: MetaBuilder) -> MetaPOINTER: ...
     def ToString(self) -> str: ...
 
-class MCExtensionDefExplosionEffect:
+class MCExtensionDefExplosionEffect(MetaWrapper):
     Data: CExtensionDefExplosionEffect
     explosionName: str
     Name: str
@@ -20615,7 +20621,7 @@ class MCExtensionDefExplosionEffect:
     def Save(self, mb: MetaBuilder) -> MetaPOINTER: ...
     def ToString(self) -> str: ...
 
-class MCExtensionDefExpression:
+class MCExtensionDefExpression(MetaWrapper):
     Data: CExtensionDefExpression
     Name: str
     def __init__(self) -> None: ...
@@ -20626,7 +20632,7 @@ class MCExtensionDefExpression:
     def Save(self, mb: MetaBuilder) -> MetaPOINTER: ...
     def ToString(self) -> str: ...
 
-class MCExtensionDefLadder:
+class MCExtensionDefLadder(MetaWrapper):
     Data: CExtensionDefLadder
     Name: str
     def __init__(self) -> None: ...
@@ -20637,7 +20643,7 @@ class MCExtensionDefLadder:
     def Save(self, mb: MetaBuilder) -> MetaPOINTER: ...
     def ToString(self) -> str: ...
 
-class MCExtensionDefLightEffect:
+class MCExtensionDefLightEffect(MetaWrapper):
     Data: CExtensionDefLightEffect
     instances: list[CLightAttrDef]
     Name: str
@@ -20649,7 +20655,7 @@ class MCExtensionDefLightEffect:
     def Save(self, mb: MetaBuilder) -> MetaPOINTER: ...
     def ToString(self) -> str: ...
 
-class MCExtensionDefLightShaft:
+class MCExtensionDefLightShaft(MetaWrapper):
     Data: CExtensionDefLightShaft
     Name: str
     def __init__(self) -> None: ...
@@ -20660,7 +20666,7 @@ class MCExtensionDefLightShaft:
     def Save(self, mb: MetaBuilder) -> MetaPOINTER: ...
     def ToString(self) -> str: ...
 
-class MCExtensionDefParticleEffect:
+class MCExtensionDefParticleEffect(MetaWrapper):
     Data: CExtensionDefParticleEffect
     fxName: str
     Name: str
@@ -20672,7 +20678,7 @@ class MCExtensionDefParticleEffect:
     def Save(self, mb: MetaBuilder) -> MetaPOINTER: ...
     def ToString(self) -> str: ...
 
-class MCExtensionDefProcObject:
+class MCExtensionDefProcObject(MetaWrapper):
     Data: CExtensionDefProcObject
     Name: str
     def __init__(self) -> None: ...
@@ -20683,7 +20689,7 @@ class MCExtensionDefProcObject:
     def Save(self, mb: MetaBuilder) -> MetaPOINTER: ...
     def ToString(self) -> str: ...
 
-class MCExtensionDefSpawnPoint:
+class MCExtensionDefSpawnPoint(MetaWrapper):
     Parent: Any
     ScenarioRegion: MCScenarioPointRegion
     Data: CExtensionDefSpawnPoint
@@ -20722,7 +20728,7 @@ class MCExtensionDefSpawnPoint:
     def Save(self, mb: MetaBuilder) -> MetaPOINTER: ...
     def ToString(self) -> str: ...
 
-class MCExtensionDefSpawnPointOverride:
+class MCExtensionDefSpawnPointOverride(MetaWrapper):
     Data: CExtensionDefSpawnPointOverride
     Name: str
     def __init__(self) -> None: ...
@@ -20733,7 +20739,7 @@ class MCExtensionDefSpawnPointOverride:
     def Save(self, mb: MetaBuilder) -> MetaPOINTER: ...
     def ToString(self) -> str: ...
 
-class MCExtensionDefWindDisturbance:
+class MCExtensionDefWindDisturbance(MetaWrapper):
     Data: CExtensionDefWindDisturbance
     Name: str
     def __init__(self) -> None: ...
@@ -20744,7 +20750,7 @@ class MCExtensionDefWindDisturbance:
     def Save(self, mb: MetaBuilder) -> MetaPOINTER: ...
     def ToString(self) -> str: ...
 
-class MCMloEntitySet:
+class MCMloEntitySet(MetaWrapper):
     Data: CMloEntitySet
     Locations: list[int]
     Entities: list[MCEntityDef]
@@ -20763,7 +20769,7 @@ class MCMloEntitySet:
     def Save(self, mb: MetaBuilder) -> MetaPOINTER: ...
     def ToString(self) -> str: ...
 
-class MCMloPortalDef:
+class MCMloPortalDef(MetaWrapper):
     Data: CMloPortalDef
     Corners: list[SharpDX.Vector4]
     AttachedObjects: list[int]
@@ -20782,7 +20788,7 @@ class MCMloPortalDef:
     def Save(self, mb: MetaBuilder) -> MetaPOINTER: ...
     def ToString(self) -> str: ...
 
-class MCMloRoomDef:
+class MCMloRoomDef(MetaWrapper):
     Data: CMloRoomDef
     RoomName: str
     AttachedObjects: list[int]
@@ -20806,7 +20812,7 @@ class MCMloRoomDef:
     def Save(self, mb: MetaBuilder) -> MetaPOINTER: ...
     def ToString(self) -> str: ...
 
-class MCPVComponentData:
+class MCPVComponentData(MetaWrapper):
     Owner: MCPedVariationInfo
     Data: CPVComponentData
     numAvailTex: int
@@ -20825,7 +20831,7 @@ class MCPVComponentData:
     def Save(self, mb: MetaBuilder) -> MetaPOINTER: ...
     def ToString(self) -> str: ...
 
-class MCPVDrawblData:
+class MCPVDrawblData(MetaWrapper):
     Owner: MCPVComponentData
     Data: CPVDrawblData
     TexData: list[CPVTextureData]
@@ -20850,7 +20856,7 @@ class MCPVDrawblData:
     def Save(self, mb: MetaBuilder) -> MetaPOINTER: ...
     def ToString(self) -> str: ...
 
-class MCPedPropInfo:
+class MCPedPropInfo(MetaWrapper):
     Owner: MCPedVariationInfo
     Data: CPedPropInfo
     PropMetaData: list[MCPedPropMetaData]
@@ -20867,7 +20873,7 @@ class MCPedPropInfo:
     def Save(self, mb: MetaBuilder) -> MetaPOINTER: ...
     def ToString(self) -> str: ...
 
-class MCPedPropMetaData:
+class MCPedPropMetaData(MetaWrapper):
     Owner: MCPedPropInfo
     Data: CPedPropMetaData
     TexData: list[CPedPropTexData]
@@ -20880,7 +20886,7 @@ class MCPedPropMetaData:
     def Save(self, mb: MetaBuilder) -> MetaPOINTER: ...
     def ToString(self) -> str: ...
 
-class MCPedSelectionSet:
+class MCPedSelectionSet(MetaWrapper):
     Owner: MCPedVariationInfo
     Data: CPedSelectionSet
     Name: str
@@ -20895,7 +20901,7 @@ class MCPedSelectionSet:
     def Save(self, mb: MetaBuilder) -> MetaPOINTER: ...
     def ToString(self) -> str: ...
 
-class MCPedVariationInfo:
+class MCPedVariationInfo(MetaWrapper):
     Data: CPedVariationInfo
     ComponentIndices: list[int]
     ComponentData3: list[MCPVComponentData]
@@ -20917,7 +20923,7 @@ class MCPedVariationInfo:
     def Save(self, mb: MetaBuilder) -> MetaPOINTER: ...
     def ToString(self) -> str: ...
 
-class MCScenarioChain:
+class MCScenarioChain(MetaWrapper):
     Region: MCScenarioPointRegion
     Data: CScenarioChain
     Unk1: int
@@ -20938,7 +20944,7 @@ class MCScenarioChain:
     def Save(self, mb: MetaBuilder) -> MetaPOINTER: ...
     def ToString(self) -> str: ...
 
-class MCScenarioChainingEdge:
+class MCScenarioChainingEdge(MetaWrapper):
     Region: MCScenarioPointRegion
     Data: CScenarioChainingEdge
     NodeFrom: MCScenarioChainingNode
@@ -20963,7 +20969,7 @@ class MCScenarioChainingEdge:
     def Save(self, mb: MetaBuilder) -> MetaPOINTER: ...
     def ToString(self) -> str: ...
 
-class MCScenarioChainingGraph:
+class MCScenarioChainingGraph(MetaWrapper):
     Region: MCScenarioPointRegion
     Data: CScenarioChainingGraph
     Nodes: list[MCScenarioChainingNode]
@@ -20993,7 +20999,7 @@ class MCScenarioChainingGraph:
     def Save(self, mb: MetaBuilder) -> MetaPOINTER: ...
     def ToString(self) -> str: ...
 
-class MCScenarioChainingNode:
+class MCScenarioChainingNode(MetaWrapper):
     Parent: MCScenarioChainingGraph
     Region: MCScenarioPointRegion
     ScenarioNode: CodeWalker.World.ScenarioNode
@@ -21021,7 +21027,7 @@ class MCScenarioChainingNode:
     def Save(self, mb: MetaBuilder) -> MetaPOINTER: ...
     def ToString(self) -> str: ...
 
-class MCScenarioEntityOverride:
+class MCScenarioEntityOverride(MetaWrapper):
     Parent: Any
     Region: MCScenarioPointRegion
     Data: CScenarioEntityOverride
@@ -21048,7 +21054,7 @@ class MCScenarioEntityOverride:
     def Save(self, mb: MetaBuilder) -> MetaPOINTER: ...
     def ToString(self) -> str: ...
 
-class MCScenarioPoint:
+class MCScenarioPoint(MetaWrapper):
     Container: MCScenarioPointContainer
     Region: MCScenarioPointRegion
     Data: CScenarioPoint
@@ -21089,7 +21095,7 @@ class MCScenarioPoint:
     def Save(self, mb: MetaBuilder) -> MetaPOINTER: ...
     def ToString(self) -> str: ...
 
-class MCScenarioPointCluster:
+class MCScenarioPointCluster(MetaWrapper):
     Region: MCScenarioPointRegion
     Data: CScenarioPointCluster
     Points: MCScenarioPointContainer
@@ -21113,7 +21119,7 @@ class MCScenarioPointCluster:
     def Save(self, mb: MetaBuilder) -> MetaPOINTER: ...
     def ToString(self) -> str: ...
 
-class MCScenarioPointContainer:
+class MCScenarioPointContainer(MetaWrapper):
     Parent: Any
     Region: MCScenarioPointRegion
     Data: CScenarioPointContainer
@@ -21140,7 +21146,7 @@ class MCScenarioPointContainer:
     def Save(self, mb: MetaBuilder) -> MetaPOINTER: ...
     def ToString(self) -> str: ...
 
-class MCScenarioPointLookUps:
+class MCScenarioPointLookUps(MetaWrapper):
     Region: MCScenarioPointRegion
     Data: CScenarioPointLookUps
     TypeNames: list[MetaHash]
@@ -21164,7 +21170,7 @@ class MCScenarioPointLookUps:
     def Save(self, mb: MetaBuilder) -> MetaPOINTER: ...
     def ToString(self) -> str: ...
 
-class MCScenarioPointRegion:
+class MCScenarioPointRegion(MetaWrapper):
     Ymt: YmtFile
     Data: CScenarioPointRegion
     Points: MCScenarioPointContainer
@@ -21282,7 +21288,7 @@ class Matrix4F_s:
     def ToMatrix(self) -> SharpDX.Matrix: ...
     def ToString(self) -> str: ...
 
-class Meta:
+class Meta(ResourceFileBase):
     BlockLength: int
     Unknown_10h: int
     Unknown_14h: int
@@ -21375,7 +21381,7 @@ class MetaBuilder:
 
 class MetaBuilderBlock:
     StructureNameHash: MetaName
-    Items: list[list[int]]
+    Items: System.Collections.Generic.List[list[int]]
     TotalSize: int
     Index: int
     BasePointer: int
@@ -21397,7 +21403,7 @@ class MetaBuilderPointer:
     def GetType(self) -> Any: ...
     def ToString(self) -> str: ...
 
-class MetaDataBlock:
+class MetaDataBlock(ResourceSystemBlock):
     BlockLength: int
     StructureNameHash: MetaName
     DataLength: int
@@ -21415,7 +21421,7 @@ class MetaDataBlock:
     def ToString(self) -> str: ...
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
 
-class MetaEncryptedStringsBlock:
+class MetaEncryptedStringsBlock(ResourceSystemBlock):
     BlockLength: int
     Count: int
     EncryptedData: list[int]
@@ -21440,7 +21446,7 @@ class MetaEnumEntryInfo_s:
     def GetType(self) -> Any: ...
     def ToString(self) -> str: ...
 
-class MetaEnumInfo:
+class MetaEnumInfo(ResourceSystemBlock):
     BlockLength: int
     EnumNameHash: MetaName
     EnumKey: int
@@ -41880,7 +41886,7 @@ class MetaStructureEntryInfo_s:
     def GetType(self) -> Any: ...
     def ToString(self) -> str: ...
 
-class MetaStructureInfo:
+class MetaStructureInfo(ResourceSystemBlock):
     BlockLength: int
     StructureNameHash: MetaName
     StructureKey: int
@@ -42049,7 +42055,7 @@ class MetaWrapper:
     def Save(self, mb: MetaBuilder) -> MetaPOINTER: ...
     def ToString(self) -> str: ...
 
-class MetaXml:
+class MetaXml(MetaXmlBase):
     def __init__(self) -> None: ...
     def Equals(self, obj: Any) -> bool: ...
     def GetHashCode(self) -> int: ...
@@ -42203,14 +42209,14 @@ class MetaXmlBase:
     def WriteHashItemArray(sb: Any, arr: list[MetaHash], ind: int, name: str) -> None: ...
     @overload
     @staticmethod
-    def WriteItemArray(sb: Any, arr: list[T], ind: int, name: str, typeName: str, formatter: Any) -> None: ...
+    def WriteItemArray(sb: Any, arr: list[T], ind: int, name: str, typeName: str, formatter: Callable[..., str]) -> None: ...
     @overload
     @staticmethod
     def WriteItemArray(sb: Any, arr: list[T], ind: int, name: str) -> None: ...
     @staticmethod
-    def WriteRawArray(sb: Any, arr: list[T], ind: int, name: str, typeName: str, formatter: Any = ..., arrRowSize: int = ...) -> None: ...
+    def WriteRawArray(sb: Any, arr: list[T], ind: int, name: str, typeName: str, formatter: Callable[..., str] = ..., arrRowSize: int = ...) -> None: ...
     @staticmethod
-    def WriteRawArrayContent(sb: Any, arr: list[T], ind: int, formatter: Any = ..., arrRowSize: int = ...) -> None: ...
+    def WriteRawArrayContent(sb: Any, arr: list[T], ind: int, formatter: Callable[..., str] = ..., arrRowSize: int = ...) -> None: ...
     @staticmethod
     def WriteStringItemArray(sb: Any, arr: list[str], ind: int, name: str) -> None: ...
     @staticmethod
@@ -42222,7 +42228,7 @@ class MetaXmlBase:
         Item = 2
         ItemAndType = 3
 
-class MloArchetype:
+class MloArchetype(Archetype):
     Type: MetaName
     MloArchetypeDef: CMloArchetypeDef
     entities: list[MCEntityDef]
@@ -42298,7 +42304,7 @@ class MloInstanceData:
 
 class MloInstanceEntitySet:
     EntitySet: MCMloEntitySet
-    Entities: list[YmapEntityDef]
+    Entities: System.Collections.Generic.List[YmapEntityDef]
     Instance: MloInstanceData
     Locations: list[int]
     Visible: bool
@@ -42311,7 +42317,7 @@ class MloInstanceEntitySet:
     def GetType(self) -> Any: ...
     def ToString(self) -> str: ...
 
-class MorphController:
+class MorphController(ResourceSystemBlock):
     BlockLength: int
     VFT: int
     Unknown_18h_Pointer: int
@@ -42339,7 +42345,7 @@ class MorphController:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Mrage__phCapsuleBoundDef:
+class Mrage__phCapsuleBoundDef(MetaWrapper):
     Data: rage__phCapsuleBoundDef
     OwnerName: str
     Name: str
@@ -42354,7 +42360,7 @@ class Mrage__phCapsuleBoundDef:
     def Save(self, mb: MetaBuilder) -> MetaPOINTER: ...
     def ToString(self) -> str: ...
 
-class Mrage__phVerletClothCustomBounds:
+class Mrage__phVerletClothCustomBounds(MetaWrapper):
     Data: rage__phVerletClothCustomBounds
     CollisionData: list[Mrage__phCapsuleBoundDef]
     Name: str
@@ -42391,7 +42397,7 @@ class MrfCondition:
     def Write(self, w: DataWriter) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class MrfConditionBitTestBase:
+class MrfConditionBitTestBase(MrfCondition):
     DataSize: int
     BitPosition: int
     Invert: bool
@@ -42411,7 +42417,7 @@ class MrfConditionBitTestBase:
     def Write(self, w: DataWriter) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class MrfConditionBoolParameterEquals:
+class MrfConditionBoolParameterEquals(MrfConditionWithParameterAndBoolValueBase):
     DataSize: int
     ParameterName: MetaHash
     Value: bool
@@ -42430,7 +42436,7 @@ class MrfConditionBoolParameterEquals:
     def Write(self, w: DataWriter) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class MrfConditionBoolParameterExists:
+class MrfConditionBoolParameterExists(MrfConditionWithParameterAndBoolValueBase):
     Invert: bool
     DataSize: int
     ParameterName: MetaHash
@@ -42450,7 +42456,7 @@ class MrfConditionBoolParameterExists:
     def Write(self, w: DataWriter) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class MrfConditionEventOccurred:
+class MrfConditionEventOccurred(MrfConditionWithParameterAndBoolValueBase):
     Invert: bool
     DataSize: int
     ParameterName: MetaHash
@@ -42470,7 +42476,7 @@ class MrfConditionEventOccurred:
     def Write(self, w: DataWriter) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class MrfConditionMoveNetworkFlag:
+class MrfConditionMoveNetworkFlag(MrfConditionBitTestBase):
     DataSize: int
     BitPosition: int
     Invert: bool
@@ -42490,7 +42496,7 @@ class MrfConditionMoveNetworkFlag:
     def Write(self, w: DataWriter) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class MrfConditionMoveNetworkTrigger:
+class MrfConditionMoveNetworkTrigger(MrfConditionBitTestBase):
     DataSize: int
     BitPosition: int
     Invert: bool
@@ -42510,7 +42516,7 @@ class MrfConditionMoveNetworkTrigger:
     def Write(self, w: DataWriter) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class MrfConditionParameterGreaterOrEqual:
+class MrfConditionParameterGreaterOrEqual(MrfConditionWithParameterAndValueBase):
     DataSize: int
     ParameterName: MetaHash
     Value: float
@@ -42529,7 +42535,7 @@ class MrfConditionParameterGreaterOrEqual:
     def Write(self, w: DataWriter) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class MrfConditionParameterGreaterThan:
+class MrfConditionParameterGreaterThan(MrfConditionWithParameterAndValueBase):
     DataSize: int
     ParameterName: MetaHash
     Value: float
@@ -42548,7 +42554,7 @@ class MrfConditionParameterGreaterThan:
     def Write(self, w: DataWriter) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class MrfConditionParameterInsideRange:
+class MrfConditionParameterInsideRange(MrfConditionWithParameterAndRangeBase):
     DataSize: int
     ParameterName: MetaHash
     MaxValue: float
@@ -42568,7 +42574,7 @@ class MrfConditionParameterInsideRange:
     def Write(self, w: DataWriter) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class MrfConditionParameterLessOrEqual:
+class MrfConditionParameterLessOrEqual(MrfConditionWithParameterAndValueBase):
     DataSize: int
     ParameterName: MetaHash
     Value: float
@@ -42587,7 +42593,7 @@ class MrfConditionParameterLessOrEqual:
     def Write(self, w: DataWriter) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class MrfConditionParameterLessThan:
+class MrfConditionParameterLessThan(MrfConditionWithParameterAndValueBase):
     DataSize: int
     ParameterName: MetaHash
     Value: float
@@ -42606,7 +42612,7 @@ class MrfConditionParameterLessThan:
     def Write(self, w: DataWriter) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class MrfConditionParameterOutsideRange:
+class MrfConditionParameterOutsideRange(MrfConditionWithParameterAndRangeBase):
     DataSize: int
     ParameterName: MetaHash
     MaxValue: float
@@ -42626,7 +42632,7 @@ class MrfConditionParameterOutsideRange:
     def Write(self, w: DataWriter) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class MrfConditionTimeGreaterThan:
+class MrfConditionTimeGreaterThan(MrfConditionWithValueBase):
     DataSize: int
     Value: float
     Type: MrfConditionType
@@ -42644,7 +42650,7 @@ class MrfConditionTimeGreaterThan:
     def Write(self, w: DataWriter) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class MrfConditionTimeLessThan:
+class MrfConditionTimeLessThan(MrfConditionWithValueBase):
     DataSize: int
     Value: float
     Type: MrfConditionType
@@ -42677,7 +42683,7 @@ class MrfConditionType(IntEnum):
     BoolParameterExists = 11
     BoolParameterEquals = 12
 
-class MrfConditionWithParameterAndBoolValueBase:
+class MrfConditionWithParameterAndBoolValueBase(MrfCondition):
     DataSize: int
     ParameterName: MetaHash
     Value: bool
@@ -42696,7 +42702,7 @@ class MrfConditionWithParameterAndBoolValueBase:
     def Write(self, w: DataWriter) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class MrfConditionWithParameterAndRangeBase:
+class MrfConditionWithParameterAndRangeBase(MrfCondition):
     DataSize: int
     ParameterName: MetaHash
     MaxValue: float
@@ -42716,7 +42722,7 @@ class MrfConditionWithParameterAndRangeBase:
     def Write(self, w: DataWriter) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class MrfConditionWithParameterAndValueBase:
+class MrfConditionWithParameterAndValueBase(MrfCondition):
     DataSize: int
     ParameterName: MetaHash
     Value: float
@@ -42735,7 +42741,7 @@ class MrfConditionWithParameterAndValueBase:
     def Write(self, w: DataWriter) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class MrfConditionWithValueBase:
+class MrfConditionWithValueBase(MrfCondition):
     DataSize: int
     Value: float
     Type: MrfConditionType
@@ -42753,7 +42759,7 @@ class MrfConditionWithValueBase:
     def Write(self, w: DataWriter) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class MrfFile:
+class MrfFile(GameFile):
     RawFileData: list[int]
     Magic: int
     Version: int
@@ -42863,7 +42869,7 @@ class MrfNode:
     def Write(self, w: DataWriter) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class MrfNodeAddN:
+class MrfNodeAddN(MrfNodeNBase):
     SynchronizerTagFlags: MrfSynchronizerTagFlags
     Unk2: list[int]
     Unk2ParameterName: MetaHash
@@ -42907,7 +42913,7 @@ class MrfNodeAddN:
     def Write(self, w: DataWriter) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class MrfNodeAddSubtract:
+class MrfNodeAddSubtract(MrfNodePairWeightedBase):
     SynchronizerTagFlags: MrfSynchronizerTagFlags
     Weight: float
     WeightParameterName: MetaHash
@@ -42952,7 +42958,7 @@ class MrfNodeAddSubtract:
     def Write(self, w: DataWriter) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class MrfNodeAnimation:
+class MrfNodeAnimation(MrfNodeWithFlagsBase):
     AnimationUnkDataLength: int
     AnimationUnkData: list[int]
     AnimationName: MetaHash
@@ -42984,7 +42990,7 @@ class MrfNodeAnimation:
     def Write(self, w: DataWriter) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class MrfNodeBlend:
+class MrfNodeBlend(MrfNodePairWeightedBase):
     SynchronizerTagFlags: MrfSynchronizerTagFlags
     Weight: float
     WeightParameterName: MetaHash
@@ -43029,7 +43035,7 @@ class MrfNodeBlend:
     def Write(self, w: DataWriter) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class MrfNodeBlendN:
+class MrfNodeBlendN(MrfNodeNBase):
     SynchronizerTagFlags: MrfSynchronizerTagFlags
     Unk2: list[int]
     Unk2ParameterName: MetaHash
@@ -43073,7 +43079,7 @@ class MrfNodeBlendN:
     def Write(self, w: DataWriter) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class MrfNodeCapture:
+class MrfNodeCapture(MrfNodeWithChildBase):
     FrameParameterName: MetaHash
     Unk3: MetaHash
     FrameType: MrfValueType
@@ -43102,7 +43108,7 @@ class MrfNodeCapture:
     def Write(self, w: DataWriter) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class MrfNodeClip:
+class MrfNodeClip(MrfNodeWithFlagsBase):
     ClipParameterName: MetaHash
     ClipContainerType: MrfClipContainerType
     ClipContainerName: MetaHash
@@ -43153,7 +43159,7 @@ class MrfNodeEventId(IntEnum):
     Clip_Unk3 = 3
     Clip_Unk4 = 4
 
-class MrfNodeExpression:
+class MrfNodeExpression(MrfNodeWithChildBase):
     ExpressionDictionaryName: MetaHash
     ExpressionName: MetaHash
     ExpressionParameterName: MetaHash
@@ -43200,7 +43206,7 @@ class MrfNodeExpressionVariable:
     def GetType(self) -> Any: ...
     def ToString(self) -> str: ...
 
-class MrfNodeExtrapolate:
+class MrfNodeExtrapolate(MrfNodeWithChildBase):
     Damping: float
     DampingParameterName: MetaHash
     DampingType: MrfValueType
@@ -43228,7 +43234,7 @@ class MrfNodeExtrapolate:
     def Write(self, w: DataWriter) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class MrfNodeFilter:
+class MrfNodeFilter(MrfNodeWithChildAndFilterBase):
     FrameFilterDictionaryName: MetaHash
     FrameFilterName: MetaHash
     FrameFilterParameterName: MetaHash
@@ -43257,7 +43263,7 @@ class MrfNodeFilter:
     def Write(self, w: DataWriter) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class MrfNodeFrame:
+class MrfNodeFrame(MrfNodeWithFlagsBase):
     FrameParameterName: MetaHash
     Unk3: MetaHash
     FrameType: MrfValueType
@@ -43283,7 +43289,7 @@ class MrfNodeFrame:
     def Write(self, w: DataWriter) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class MrfNodeIdentity:
+class MrfNodeIdentity(MrfNode):
     NodeType: MrfNodeType
     NodeIndex: int
     Name: MetaHash
@@ -43302,7 +43308,7 @@ class MrfNodeIdentity:
     def Write(self, w: DataWriter) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class MrfNodeIk:
+class MrfNodeIk(MrfNode):
     NodeType: MrfNodeType
     NodeIndex: int
     Name: MetaHash
@@ -43321,7 +43327,7 @@ class MrfNodeIk:
     def Write(self, w: DataWriter) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class MrfNodeInlinedStateMachine:
+class MrfNodeInlinedStateMachine(MrfNodeStateBase):
     FallbackNodeOffset: int
     FallbackNodeFileOffset: int
     States: list[MrfStateRef]
@@ -43357,7 +43363,7 @@ class MrfNodeInlinedStateMachine:
     def Write(self, w: DataWriter) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class MrfNodeInvalid:
+class MrfNodeInvalid(MrfNode):
     NodeType: MrfNodeType
     NodeIndex: int
     Name: MetaHash
@@ -43376,7 +43382,7 @@ class MrfNodeInvalid:
     def Write(self, w: DataWriter) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class MrfNodeJointLimit:
+class MrfNodeJointLimit(MrfNodeWithChildAndFilterBase):
     FrameFilterDictionaryName: MetaHash
     FrameFilterName: MetaHash
     FrameFilterParameterName: MetaHash
@@ -43405,7 +43411,7 @@ class MrfNodeJointLimit:
     def Write(self, w: DataWriter) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class MrfNodeMerge:
+class MrfNodeMerge(MrfNodePairBase):
     SynchronizerTagFlags: MrfSynchronizerTagFlags
     FrameFilterDictionaryName: MetaHash
     FrameFilterName: MetaHash
@@ -43444,7 +43450,7 @@ class MrfNodeMerge:
     def Write(self, w: DataWriter) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class MrfNodeMergeN:
+class MrfNodeMergeN(MrfNodeNBase):
     SynchronizerTagFlags: MrfSynchronizerTagFlags
     Unk2: list[int]
     Unk2ParameterName: MetaHash
@@ -43488,7 +43494,7 @@ class MrfNodeMergeN:
     def Write(self, w: DataWriter) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class MrfNodeMirror:
+class MrfNodeMirror(MrfNodeWithChildAndFilterBase):
     FrameFilterDictionaryName: MetaHash
     FrameFilterName: MetaHash
     FrameFilterParameterName: MetaHash
@@ -43517,7 +43523,7 @@ class MrfNodeMirror:
     def Write(self, w: DataWriter) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class MrfNodeNBase:
+class MrfNodeNBase(MrfNodeWithFlagsBase):
     SynchronizerTagFlags: MrfSynchronizerTagFlags
     Unk2: list[int]
     Unk2ParameterName: MetaHash
@@ -43572,7 +43578,7 @@ class MrfNodeNChildData:
     def GetType(self) -> Any: ...
     def ToString(self) -> str: ...
 
-class MrfNodePairBase:
+class MrfNodePairBase(MrfNodeWithFlagsBase):
     Child0Offset: int
     Child0FileOffset: int
     Child1Offset: int
@@ -43600,7 +43606,7 @@ class MrfNodePairBase:
     def Write(self, w: DataWriter) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class MrfNodePairWeightedBase:
+class MrfNodePairWeightedBase(MrfNodePairBase):
     SynchronizerTagFlags: MrfSynchronizerTagFlags
     Weight: float
     WeightParameterName: MetaHash
@@ -43688,7 +43694,7 @@ class MrfNodeParameterId(IntEnum):
     Clip_Looped = 4
     Animation_Unk5 = 5
 
-class MrfNodePm:
+class MrfNodePm(MrfNodeWithFlagsBase):
     MotionUnkDataLength: int
     MotionUnkData: list[int]
     MotionName: MetaHash
@@ -43719,7 +43725,7 @@ class MrfNodePm:
     def Write(self, w: DataWriter) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class MrfNodePose:
+class MrfNodePose(MrfNodeWithFlagsBase):
     Unk1: int
     Unk1Type: MrfValueType
     Flags: int
@@ -43743,7 +43749,7 @@ class MrfNodePose:
     def Write(self, w: DataWriter) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class MrfNodeProxy:
+class MrfNodeProxy(MrfNode):
     NodeParameterName: MetaHash
     NodeType: MrfNodeType
     NodeIndex: int
@@ -43763,7 +43769,7 @@ class MrfNodeProxy:
     def Write(self, w: DataWriter) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class MrfNodeReference:
+class MrfNodeReference(MrfNode):
     MoveNetworkName: MetaHash
     InitialParametersOffset: int
     InitialParametersFileOffset: int
@@ -43816,7 +43822,7 @@ class MrfNodeReferenceNamePair:
     def ToString(self) -> str: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class MrfNodeState:
+class MrfNodeState(MrfNodeStateBase):
     InputParametersOffset: int
     InputParametersFileOffset: int
     InputParameterCount: int
@@ -43854,7 +43860,7 @@ class MrfNodeState:
     FileDataSize: int
     def __init__(self) -> None: ...
     def Equals(self, obj: Any) -> bool: ...
-    def GetChildren(self, excludeTailNodes: bool) -> list[MrfNode]: ...
+    def GetChildren(self, excludeTailNodes: bool) -> System.Collections.Generic.List[MrfNode]: ...
     def GetHashCode(self) -> int: ...
     def GetType(self) -> Any: ...
     def Read(self, r: DataReader) -> None: ...
@@ -43865,7 +43871,7 @@ class MrfNodeState:
     def Write(self, w: DataWriter) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class MrfNodeStateBase:
+class MrfNodeStateBase(MrfNode):
     InitialNodeOffset: int
     InitialNodeFileOffset: int
     StateUnk3: int
@@ -43897,7 +43903,7 @@ class MrfNodeStateBase:
     def Write(self, w: DataWriter) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class MrfNodeStateMachine:
+class MrfNodeStateMachine(MrfNodeStateBase):
     States: list[MrfStateRef]
     InitialNodeOffset: int
     InitialNodeFileOffset: int
@@ -43930,7 +43936,7 @@ class MrfNodeStateMachine:
     def Write(self, w: DataWriter) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class MrfNodeSubNetwork:
+class MrfNodeSubNetwork(MrfNode):
     SubNetworkParameterName: MetaHash
     NodeType: MrfNodeType
     NodeIndex: int
@@ -43950,7 +43956,7 @@ class MrfNodeSubNetwork:
     def Write(self, w: DataWriter) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class MrfNodeTail:
+class MrfNodeTail(MrfNode):
     NodeType: MrfNodeType
     NodeIndex: int
     Name: MetaHash
@@ -44000,7 +44006,7 @@ class MrfNodeType(IntEnum):
     Reference = 31
     Max = 32
 
-class MrfNodeWithChildAndFilterBase:
+class MrfNodeWithChildAndFilterBase(MrfNodeWithChildBase):
     FrameFilterDictionaryName: MetaHash
     FrameFilterName: MetaHash
     FrameFilterParameterName: MetaHash
@@ -44029,7 +44035,7 @@ class MrfNodeWithChildAndFilterBase:
     def Write(self, w: DataWriter) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class MrfNodeWithChildBase:
+class MrfNodeWithChildBase(MrfNodeWithFlagsBase):
     ChildOffset: int
     ChildFileOffset: int
     Child: MrfNode
@@ -44054,7 +44060,7 @@ class MrfNodeWithChildBase:
     def Write(self, w: DataWriter) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class MrfNodeWithFlagsBase:
+class MrfNodeWithFlagsBase(MrfNode):
     Flags: int
     NodeType: MrfNodeType
     NodeIndex: int
@@ -44151,7 +44157,7 @@ class MrfStateOperator:
     def Write(self, w: DataWriter) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class MrfStateOperatorAdd:
+class MrfStateOperatorAdd(MrfStateOperator):
     Unk1_Unused: int
     Type: MrfOperatorType
     @overload
@@ -44166,7 +44172,7 @@ class MrfStateOperatorAdd:
     def Write(self, w: DataWriter) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class MrfStateOperatorFinish:
+class MrfStateOperatorFinish(MrfStateOperator):
     Unk1_Unused: int
     Type: MrfOperatorType
     @overload
@@ -44181,7 +44187,7 @@ class MrfStateOperatorFinish:
     def Write(self, w: DataWriter) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class MrfStateOperatorMultiply:
+class MrfStateOperatorMultiply(MrfStateOperator):
     Unk1_Unused: int
     Type: MrfOperatorType
     @overload
@@ -44196,7 +44202,7 @@ class MrfStateOperatorMultiply:
     def Write(self, w: DataWriter) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class MrfStateOperatorPushLiteral:
+class MrfStateOperatorPushLiteral(MrfStateOperator):
     Value: float
     Type: MrfOperatorType
     @overload
@@ -44211,7 +44217,7 @@ class MrfStateOperatorPushLiteral:
     def Write(self, w: DataWriter) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class MrfStateOperatorPushParameter:
+class MrfStateOperatorPushParameter(MrfStateOperator):
     ParameterName: MetaHash
     Type: MrfOperatorType
     @overload
@@ -44226,7 +44232,7 @@ class MrfStateOperatorPushParameter:
     def Write(self, w: DataWriter) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class MrfStateOperatorRemap:
+class MrfStateOperatorRemap(MrfStateOperator):
     DataOffset: int
     Min: float
     Max: float
@@ -44353,7 +44359,7 @@ class MrfWeightModifierType(IntEnum):
     SlowIn = 2
     None_ = 3
 
-class MrfXml:
+class MrfXml(MetaXmlBase):
     def __init__(self) -> None: ...
     def Equals(self, obj: Any) -> bool: ...
     def GetHashCode(self) -> int: ...
@@ -44378,7 +44384,7 @@ class MrfXml:
     @staticmethod
     def WriteOperator(sb: Any, indent: int, name: str, op: MrfStateOperator) -> None: ...
 
-class NavMesh:
+class NavMesh(ResourceFileBase):
     BlockLength: int
     ContentFlags: NavMeshFlags
     VersionUnk1: int
@@ -44481,7 +44487,7 @@ class NavMeshFlags(IntFlag):
     Unknown8 = 8
     Unknown16 = 16
 
-class NavMeshListPart(Generic[T]):
+class NavMeshListPart(ResourceSystemBlock, Generic[T]):
     BlockLength: int
     Pointer: int
     Count: int
@@ -44499,7 +44505,7 @@ class NavMeshListPart(Generic[T]):
     def ToString(self) -> str: ...
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
 
-class NavMeshList(Generic[T]):
+class NavMeshList(ResourceSystemBlock, Generic[T]):
     BlockLength: int
     VFT: int
     Unknown_04h: int
@@ -44519,13 +44525,13 @@ class NavMeshList(Generic[T]):
     BlockLength_Gen9: int
     def __init__(self) -> None: ...
     def Equals(self, obj: Any) -> bool: ...
-    def GetFullList(self) -> list[T]: ...
+    def GetFullList(self) -> System.Collections.Generic.List[T]: ...
     def GetHashCode(self) -> int: ...
     def GetParts(self) -> list[Any]: ...
     def GetReferences(self) -> list[IResourceBlock]: ...
     def GetType(self) -> Any: ...
     def Read(self, reader: ResourceDataReader, parameters: list[Any]) -> None: ...
-    def RebuildList(self, items: list[T]) -> None: ...
+    def RebuildList(self, items: System.Collections.Generic.List[T]) -> None: ...
     def ToString(self) -> str: ...
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
 
@@ -44589,7 +44595,7 @@ class NavMeshPortal:
     def GetType(self) -> Any: ...
     def ToString(self) -> str: ...
 
-class NavMeshSector:
+class NavMeshSector(ResourceSystemBlock):
     BlockLength: int
     AABBMin: SharpDX.Vector4
     AABBMax: SharpDX.Vector4
@@ -44622,7 +44628,7 @@ class NavMeshSector:
     def ToString(self) -> str: ...
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
 
-class NavMeshSectorData:
+class NavMeshSectorData(ResourceSystemBlock):
     BlockLength: int
     PointsStartID: int
     Unused_04h: int
@@ -44726,11 +44732,11 @@ class Node:
     def Equals(self, obj: Any) -> bool: ...
     def GetHashCode(self) -> int: ...
     def GetType(self) -> Any: ...
-    def ReadXml(self, node: Any, allLinksList: list[NodeLink]) -> None: ...
+    def ReadXml(self, node: Any, allLinksList: System.Collections.Generic.List[NodeLink]) -> None: ...
     def ToString(self) -> str: ...
     def WriteXml(self, sb: Any, indent: int, allLinks: list[NodeLink]) -> None: ...
 
-class NodeDictionary:
+class NodeDictionary(ResourceFileBase):
     BlockLength: int
     NodesPointer: int
     NodesCount: int
@@ -44786,7 +44792,7 @@ class NodeJunction:
     def Equals(self, obj: Any) -> bool: ...
     def GetHashCode(self) -> int: ...
     def GetType(self) -> Any: ...
-    def ReadXml(self, node: Any, allHeightmapDataList: list[int]) -> None: ...
+    def ReadXml(self, node: Any, allHeightmapDataList: System.Collections.Generic.List[int]) -> None: ...
     def ToString(self) -> str: ...
     def WriteXml(self, sb: Any, indent: int, allHeightmapData: list[int]) -> None: ...
 
@@ -44837,7 +44843,7 @@ class OccludeModel:
 class PackedFile:
     def Load(self, data: list[int], entry: RpfFileEntry) -> None: ...
 
-class ParticleBehaviour:
+class ParticleBehaviour(ResourceSystemBlock):
     BlockLength: int
     VFT: int
     Type: ParticleBehaviourType
@@ -44870,7 +44876,7 @@ class ParticleBehaviour:
     @staticmethod
     def WriteXmlNode(b: ParticleBehaviour, sb: Any, indent: int, name: str) -> None: ...
 
-class ParticleBehaviourAcceleration:
+class ParticleBehaviourAcceleration(ParticleBehaviour):
     BlockLength: int
     XYZMinKFP: ParticleKeyframeProp
     XYZMaxKFP: ParticleKeyframeProp
@@ -44906,7 +44912,7 @@ class ParticleBehaviourAcceleration:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class ParticleBehaviourAge:
+class ParticleBehaviourAge(ParticleBehaviour):
     BlockLength: int
     VFT: int
     Type: ParticleBehaviourType
@@ -44933,7 +44939,7 @@ class ParticleBehaviourAge:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class ParticleBehaviourAnimateTexture:
+class ParticleBehaviourAnimateTexture(ParticleBehaviour):
     BlockLength: int
     AnimRateKFP: ParticleKeyframeProp
     KeyframeMode: int
@@ -44968,7 +44974,7 @@ class ParticleBehaviourAnimateTexture:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class ParticleBehaviourAttractor:
+class ParticleBehaviourAttractor(ParticleBehaviour):
     BlockLength: int
     StrengthKFP: ParticleKeyframeProp
     VFT: int
@@ -44996,7 +45002,7 @@ class ParticleBehaviourAttractor:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class ParticleBehaviourCollision:
+class ParticleBehaviourCollision(ParticleBehaviour):
     BlockLength: int
     BouncinessKFP: ParticleKeyframeProp
     BounceDirVarKFP: ParticleKeyframeProp
@@ -45034,7 +45040,7 @@ class ParticleBehaviourCollision:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class ParticleBehaviourColour:
+class ParticleBehaviourColour(ParticleBehaviour):
     BlockLength: int
     RGBAMinKFP: ParticleKeyframeProp
     RGBAMaxKFP: ParticleKeyframeProp
@@ -45070,7 +45076,7 @@ class ParticleBehaviourColour:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class ParticleBehaviourDampening:
+class ParticleBehaviourDampening(ParticleBehaviour):
     BlockLength: int
     XYZMinKFP: ParticleKeyframeProp
     XYZMaxKFP: ParticleKeyframeProp
@@ -45106,7 +45112,7 @@ class ParticleBehaviourDampening:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class ParticleBehaviourDecal:
+class ParticleBehaviourDecal(ParticleBehaviour):
     BlockLength: int
     DimensionsKFP: ParticleKeyframeProp
     AlphaKFP: ParticleKeyframeProp
@@ -45152,7 +45158,7 @@ class ParticleBehaviourDecal:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class ParticleBehaviourDecalPool:
+class ParticleBehaviourDecalPool(ParticleBehaviour):
     BlockLength: int
     VelocityThreshold: float
     LiquidType: int
@@ -45186,7 +45192,7 @@ class ParticleBehaviourDecalPool:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class ParticleBehaviourFogVolume:
+class ParticleBehaviourFogVolume(ParticleBehaviour):
     BlockLength: int
     RGBTintMinKFP: ParticleKeyframeProp
     RGBTintMaxKFP: ParticleKeyframeProp
@@ -45227,7 +45233,7 @@ class ParticleBehaviourFogVolume:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class ParticleBehaviourLight:
+class ParticleBehaviourLight(ParticleBehaviour):
     BlockLength: int
     RGBMinKFP: ParticleKeyframeProp
     RGBMaxKFP: ParticleKeyframeProp
@@ -45273,7 +45279,7 @@ class ParticleBehaviourLight:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class ParticleBehaviourLiquid:
+class ParticleBehaviourLiquid(ParticleBehaviour):
     BlockLength: int
     VelocityThreshold: float
     LiquidType: int
@@ -45308,7 +45314,7 @@ class ParticleBehaviourLiquid:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class ParticleBehaviourMatrixWeight:
+class ParticleBehaviourMatrixWeight(ParticleBehaviour):
     BlockLength: int
     mtxWeightKFP: ParticleKeyframeProp
     ReferenceSpace: int
@@ -45339,7 +45345,7 @@ class ParticleBehaviourMatrixWeight:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class ParticleBehaviourModel:
+class ParticleBehaviourModel(ParticleBehaviour):
     BlockLength: int
     ColourControlShaderID: int
     CameraShrink: float
@@ -45372,7 +45378,7 @@ class ParticleBehaviourModel:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class ParticleBehaviourNoise:
+class ParticleBehaviourNoise(ParticleBehaviour):
     BlockLength: int
     PosNoiseMinKFP: ParticleKeyframeProp
     PosNoiseMaxKFP: ParticleKeyframeProp
@@ -45408,7 +45414,7 @@ class ParticleBehaviourNoise:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class ParticleBehaviourRiver:
+class ParticleBehaviourRiver(ParticleBehaviour):
     BlockLength: int
     VelocityMult: float
     Influence: float
@@ -45438,7 +45444,7 @@ class ParticleBehaviourRiver:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class ParticleBehaviourRotation:
+class ParticleBehaviourRotation(ParticleBehaviour):
     BlockLength: int
     InitialAngleMinKFP: ParticleKeyframeProp
     InitialAngleMaxKFP: ParticleKeyframeProp
@@ -45476,7 +45482,7 @@ class ParticleBehaviourRotation:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class ParticleBehaviourSize:
+class ParticleBehaviourSize(ParticleBehaviour):
     BlockLength: int
     WhdMinKFP: ParticleKeyframeProp
     WhdMaxKFP: ParticleKeyframeProp
@@ -45512,7 +45518,7 @@ class ParticleBehaviourSize:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class ParticleBehaviourSprite:
+class ParticleBehaviourSprite(ParticleBehaviour):
     BlockLength: int
     AlignAxis: SharpDX.Vector3
     padding00: int
@@ -45557,7 +45563,7 @@ class ParticleBehaviourSprite:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class ParticleBehaviourTrail:
+class ParticleBehaviourTrail(ParticleBehaviour):
     BlockLength: int
     TexInfoKFP: ParticleKeyframeProp
     AlignAxis: SharpDX.Vector3
@@ -45623,7 +45629,7 @@ class ParticleBehaviourType(IntEnum):
     AnimateTexture = 3970452510
     Age = 4122164138
 
-class ParticleBehaviourVelocity:
+class ParticleBehaviourVelocity(ParticleBehaviour):
     BlockLength: int
     VFT: int
     Type: ParticleBehaviourType
@@ -45650,7 +45656,7 @@ class ParticleBehaviourVelocity:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class ParticleBehaviourWind:
+class ParticleBehaviourWind(ParticleBehaviour):
     BlockLength: int
     InfluenceKFP: ParticleKeyframeProp
     unused00: int
@@ -45689,7 +45695,7 @@ class ParticleBehaviourWind:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class ParticleBehaviourZCull:
+class ParticleBehaviourZCull(ParticleBehaviour):
     BlockLength: int
     HeightKFP: ParticleKeyframeProp
     FadeDistKFP: ParticleKeyframeProp
@@ -45723,7 +45729,7 @@ class ParticleBehaviourZCull:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class ParticleDomain:
+class ParticleDomain(ResourceSystemBlock):
     BlockLength: int
     VFT: int
     Index: int
@@ -45768,7 +45774,7 @@ class ParticleDomain:
     @staticmethod
     def WriteXmlNode(d: ParticleDomain, sb: Any, indent: int, name: str) -> None: ...
 
-class ParticleDomainAttractor:
+class ParticleDomainAttractor(ParticleDomain):
     BlockLength: int
     VFT: int
     Index: int
@@ -45807,7 +45813,7 @@ class ParticleDomainAttractor:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class ParticleDomainBox:
+class ParticleDomainBox(ParticleDomain):
     BlockLength: int
     VFT: int
     Index: int
@@ -45846,7 +45852,7 @@ class ParticleDomainBox:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class ParticleDomainCylinder:
+class ParticleDomainCylinder(ParticleDomain):
     BlockLength: int
     VFT: int
     Index: int
@@ -45885,7 +45891,7 @@ class ParticleDomainCylinder:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class ParticleDomainSphere:
+class ParticleDomainSphere(ParticleDomain):
     BlockLength: int
     VFT: int
     Index: int
@@ -45930,7 +45936,7 @@ class ParticleDomainType(IntEnum):
     Cylinder = 2
     Attractor = 3
 
-class ParticleDrawable:
+class ParticleDrawable(ResourceSystemBlock):
     BlockLength: int
     BoundBoxWidth: float
     BoundBoxHeight: float
@@ -45957,7 +45963,7 @@ class ParticleDrawable:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class ParticleEffectRule:
+class ParticleEffectRule(ResourceSystemBlock):
     BlockLength: int
     VFT: int
     Unknown_8h: int
@@ -46046,7 +46052,7 @@ class ParticleEffectRule:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class ParticleEffectRuleDictionary:
+class ParticleEffectRuleDictionary(ResourceSystemBlock):
     BlockLength: int
     VFT: int
     EffectRuleNameHashes: ResourceSimpleList64_s[MetaHash]
@@ -46069,7 +46075,7 @@ class ParticleEffectRuleDictionary:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class ParticleEffectSpawner:
+class ParticleEffectSpawner(ResourceSystemBlock):
     BlockLength: int
     VFT: int
     padding01: int
@@ -46112,7 +46118,7 @@ class ParticleEffectSpawner:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class ParticleEffectsList:
+class ParticleEffectsList(ResourceFileBase):
     BlockLength: int
     NamePointer: int
     TextureDictionaryPointer: int
@@ -46153,7 +46159,7 @@ class ParticleEffectsList:
     @staticmethod
     def WriteXmlNode(p: ParticleEffectsList, sb: Any, indent: int, ddsfolder: str, name: str = ...) -> None: ...
 
-class ParticleEmitterRule:
+class ParticleEmitterRule(ResourceSystemBlock):
     BlockLength: int
     VFT: int
     RefCount: int
@@ -46202,7 +46208,7 @@ class ParticleEmitterRule:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class ParticleEmitterRuleDictionary:
+class ParticleEmitterRuleDictionary(ResourceSystemBlock):
     BlockLength: int
     VFT: int
     EmitterRuleNameHashes: ResourceSimpleList64_s[MetaHash]
@@ -46225,7 +46231,7 @@ class ParticleEmitterRuleDictionary:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class ParticleEventEmitter:
+class ParticleEventEmitter(ResourceSystemBlock):
     BlockLength: int
     VFT: int
     Index: int
@@ -46266,7 +46272,7 @@ class ParticleEventEmitter:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class ParticleEvolutionList:
+class ParticleEvolutionList(ResourceSystemBlock):
     BlockLength: int
     Evolutions: ResourceSimpleList64[ParticleEvolutions]
     EvolvedKeyframeProps: ResourceSimpleList64[ParticleEvolvedKeyframeProps]
@@ -46287,7 +46293,7 @@ class ParticleEvolutionList:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class ParticleEvolutions:
+class ParticleEvolutions(ResourceSystemBlock):
     BlockLength: int
     NamePointer: int
     padding00: int
@@ -46305,7 +46311,7 @@ class ParticleEvolutions:
     def ToString(self) -> str: ...
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
 
-class ParticleEvolvedKeyframePropMap:
+class ParticleEvolvedKeyframePropMap(ResourceSystemBlock):
     BlockLength: int
     Name: ParticleKeyframePropName
     ItemPointer: int
@@ -46323,7 +46329,7 @@ class ParticleEvolvedKeyframePropMap:
     def ToString(self) -> str: ...
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
 
-class ParticleEvolvedKeyframeProps:
+class ParticleEvolvedKeyframeProps(ResourceSystemBlock):
     BlockLength: int
     EvolvedKeyframes: ResourceSimpleList64[ParticleEvolvedKeyframes]
     Name: ParticleKeyframePropName
@@ -46342,7 +46348,7 @@ class ParticleEvolvedKeyframeProps:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class ParticleEvolvedKeyframes:
+class ParticleEvolvedKeyframes(ResourceSystemBlock):
     BlockLength: int
     Keyframe: ResourceSimpleList64[ParticleKeyframePropValue]
     padding00: int
@@ -46366,7 +46372,7 @@ class ParticleEvolvedKeyframes:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class ParticleKeyframeProp:
+class ParticleKeyframeProp(ResourceSystemBlock):
     BlockLength: int
     VFT: int
     padding00: int
@@ -46417,7 +46423,7 @@ class ParticleKeyframePropName:
     def ToCleanString(self) -> str: ...
     def ToString(self) -> str: ...
 
-class ParticleKeyframePropValue:
+class ParticleKeyframePropValue(ResourceSystemBlock):
     BlockLength: int
     KeyframeTime: SharpDX.Vector4
     KeyframeValue: SharpDX.Vector4
@@ -46435,7 +46441,7 @@ class ParticleKeyframePropValue:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class ParticleRule:
+class ParticleRule(ResourceSystemBlock):
     BlockLength: int
     VFT: int
     RefCount: int
@@ -46509,7 +46515,7 @@ class ParticleRule:
     padding06: int
     padding08: int
     def __init__(self) -> None: ...
-    def BuildBehaviours(self, blist: list[ParticleBehaviour]) -> None: ...
+    def BuildBehaviours(self, blist: System.Collections.Generic.List[ParticleBehaviour]) -> None: ...
     def Equals(self, obj: Any) -> bool: ...
     def GetHashCode(self) -> int: ...
     def GetParts(self) -> list[Any]: ...
@@ -46521,7 +46527,7 @@ class ParticleRule:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int, ddsfolder: str) -> None: ...
 
-class ParticleRuleBiasLink:
+class ParticleRuleBiasLink(ResourceSystemBlock):
     BlockLength: int
     Name: PsoChar32
     padding00: int
@@ -46547,7 +46553,7 @@ class ParticleRuleBiasLink:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class ParticleRuleDictionary:
+class ParticleRuleDictionary(ResourceSystemBlock):
     BlockLength: int
     VFT: int
     ParticleRuleNameHashes: ResourceSimpleList64_s[MetaHash]
@@ -46570,7 +46576,7 @@ class ParticleRuleDictionary:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int, ddsfolder: str) -> None: ...
 
-class ParticleShaderVar:
+class ParticleShaderVar(ResourceSystemBlock):
     BlockLength: int
     VFT: int
     Name: MetaHash
@@ -46602,7 +46608,7 @@ class ParticleShaderVar:
     @staticmethod
     def WriteXmlNode(v: ParticleShaderVar, sb: Any, indent: int, name: str) -> None: ...
 
-class ParticleShaderVarKeyframe:
+class ParticleShaderVarKeyframe(ParticleShaderVar):
     BlockLength: int
     ShaderVarID: int
     IsKeyframeable: int
@@ -46637,7 +46643,7 @@ class ParticleShaderVarKeyframe:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class ParticleShaderVarKeyframeItem:
+class ParticleShaderVarKeyframeItem(ResourceSystemBlock):
     BlockLength: int
     Unknown_0h: float
     Unknown_4h: float
@@ -46659,7 +46665,7 @@ class ParticleShaderVarKeyframeItem:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class ParticleShaderVarTexture:
+class ParticleShaderVarTexture(ParticleShaderVar):
     BlockLength: int
     ShaderVarID: int
     IsKeyframeable: int
@@ -46705,7 +46711,7 @@ class ParticleShaderVarType(IntEnum):
     Texture = 6
     Keyframe = 7
 
-class ParticleShaderVarVector:
+class ParticleShaderVarVector(ParticleShaderVar):
     BlockLength: int
     ShaderVarID: int
     IsKeyFrameable: int
@@ -46743,16 +46749,16 @@ class ParticleShaderVarVector:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class PathBVH:
+class PathBVH(PathBVHNode):
     Depth: int
     MaxDepth: int
     Threshold: int
-    Nodes: list[BasePathNode]
+    Nodes: System.Collections.Generic.List[BasePathNode]
     Box: SharpDX.BoundingBox
     Sphere: SharpDX.BoundingSphere
     Node1: PathBVHNode
     Node2: PathBVHNode
-    def __init__(self, nodes: list[BasePathNode], threshold: int, maxdepth: int) -> None: ...
+    def __init__(self, nodes: System.Collections.Generic.IEnumerable[BasePathNode], threshold: int, maxdepth: int) -> None: ...
     def Build(self) -> None: ...
     def CalcBounds(self) -> None: ...
     def Equals(self, obj: Any) -> bool: ...
@@ -46765,7 +46771,7 @@ class PathBVHNode:
     Depth: int
     MaxDepth: int
     Threshold: int
-    Nodes: list[BasePathNode]
+    Nodes: System.Collections.Generic.List[BasePathNode]
     Box: SharpDX.BoundingBox
     Sphere: SharpDX.BoundingSphere
     Node1: PathBVHNode
@@ -46779,7 +46785,7 @@ class PathBVHNode:
     def ToString(self) -> str: ...
     def UpdateForNode(self, node: BasePathNode) -> None: ...
 
-class PedFile:
+class PedFile(GameFile):
     Meta: Meta
     Pso: PsoFile
     Rbf: RbfFile
@@ -46805,7 +46811,7 @@ class PedFile:
     def Load(self, data: list[int], entry: RpfFileEntry) -> None: ...
     def ToString(self) -> str: ...
 
-class PedsFile:
+class PedsFile(GameFile):
     Pso: PsoFile
     Xml: str
     InitDataList: CPedModelInfo__InitDataList
@@ -46939,7 +46945,7 @@ class PsoBuilder:
 
 class PsoBuilderBlock:
     StructureNameHash: MetaName
-    Items: list[list[int]]
+    Items: System.Collections.Generic.List[list[int]]
     TotalSize: int
     Index: int
     BasePointer: int
@@ -47195,7 +47201,7 @@ class PsoEnumEntryInfo:
     def ToString(self) -> str: ...
     def Write(self, writer: DataWriter) -> None: ...
 
-class PsoEnumInfo:
+class PsoEnumInfo(PsoElementInfo):
     Type: int
     EntriesCount: int
     Entries: list[PsoEnumEntryInfo]
@@ -47346,7 +47352,7 @@ class PsoStructureEntryInfo:
     def ToString(self) -> str: ...
     def Write(self, writer: DataWriter) -> None: ...
 
-class PsoStructureInfo:
+class PsoStructureInfo(PsoElementInfo):
     Type: int
     EntriesCount: int
     Unk: int
@@ -47439,7 +47445,7 @@ class PsoTypes:
     def GetUintArrayRaw(pso: PsoFile, arr: Array_uint) -> list[int]: ...
     def ToString(self) -> str: ...
 
-class PsoXml:
+class PsoXml(MetaXmlBase):
     def __init__(self) -> None: ...
     def Equals(self, obj: Any) -> bool: ...
     def GetHashCode(self) -> int: ...
@@ -47519,7 +47525,7 @@ class RbfEntryDescription:
 class RbfFile:
     current: RbfStructure
     stack: Any
-    descriptors: list[RbfEntryDescription]
+    descriptors: System.Collections.Generic.List[RbfEntryDescription]
     outDescriptors: dict[str, int]
     def __init__(self) -> None: ...
     def Equals(self, obj: Any) -> bool: ...
@@ -47580,8 +47586,8 @@ class RbfString:
 
 class RbfStructure:
     Name: str
-    Children: list[IRbfType]
-    Attributes: list[IRbfType]
+    Children: System.Collections.Generic.List[IRbfType]
+    Attributes: System.Collections.Generic.List[IRbfType]
     DataType: int
     def __init__(self) -> None: ...
     def Equals(self, obj: Any) -> bool: ...
@@ -47603,7 +47609,7 @@ class RbfUint32:
     def Save(self, file: RbfFile, writer: DataWriter) -> None: ...
     def ToString(self) -> str: ...
 
-class RbfXml:
+class RbfXml(MetaXmlBase):
     def __init__(self) -> None: ...
     def Equals(self, obj: Any) -> bool: ...
     def GetHashCode(self) -> int: ...
@@ -47659,7 +47665,7 @@ class RelData:
     def Write(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class RelFile:
+class RelFile(GameFile):
     RawFileData: list[int]
     RelType: RelDatFileType
     DataLength: int
@@ -47684,12 +47690,12 @@ class RelFile:
     RelDataDict: dict[int, RelData]
     IsAudioConfig: bool
     HasChanged: bool
-    HashesMap: ClassVar[dict[RelFile.HashesMapKey, list[RelFile.HashesMapValue]]]
+    HashesMap: ClassVar[dict[RelFile.HashesMapKey, System.Collections.Generic.List[RelFile.HashesMapValue]]]
     RpfFileEntry: RpfFileEntry
     Name: str
     FilePath: str
     Type: GameFileType
-    SaveWarnings: list[str]
+    SaveWarnings: System.Collections.Generic.List[str]
     Loaded: bool
     LoadQueued: bool
     Key: GameFileCacheKey
@@ -47747,7 +47753,7 @@ class RelIndexString:
     def GetType(self) -> Any: ...
     def ToString(self) -> str: ...
 
-class RelSound:
+class RelSound(RelData):
     Header: RelSoundHeader
     ChildSoundsCount: int
     ChildSounds: list[RelData]
@@ -47839,7 +47845,7 @@ class RelSoundHeader:
     def Write(self, bw: Any) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class RelXml:
+class RelXml(MetaXmlBase):
     def __init__(self) -> None: ...
     def Equals(self, obj: Any) -> bool: ...
     def GetHashCode(self) -> int: ...
@@ -47928,7 +47934,7 @@ class ResourceBuilder:
         def TakeBestBlock(self, maxSize: int) -> ResourceBuilder.ResourceBuilderBlock: ...
         def ToString(self) -> str: ...
 
-class ResourceDataReader:
+class ResourceDataReader(DataReader):
     FileEntry: RpfResourceFileEntry
     Length: int
     Position: int
@@ -47975,7 +47981,7 @@ class ResourceDataReader:
     def ReadVector4(self) -> SharpDX.Vector4: ...
     def ToString(self) -> str: ...
 
-class ResourceDataWriter:
+class ResourceDataWriter(DataWriter):
     Length: int
     Position: int
     Endianess: Endianess
@@ -48019,7 +48025,7 @@ class ResourceDataWriter:
     def WriteStructs(self, val: list[T]) -> None: ...
     def WriteUlongs(self, val: list[int]) -> None: ...
 
-class ResourceFileBase:
+class ResourceFileBase(ResourceSystemBlock):
     BlockLength: int
     FileVFT: int
     FileUnknown: int
@@ -48048,7 +48054,7 @@ class ResourceGraphicsBlock:
     def ToString(self) -> str: ...
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
 
-class ResourcePagesInfo:
+class ResourcePagesInfo(ResourceSystemBlock):
     BlockLength: int
     Unknown_0h: int
     Unknown_4h: int
@@ -48068,10 +48074,13 @@ class ResourcePagesInfo:
     def ToString(self) -> str: ...
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
 
-class ResourcePointerArray64(Generic[T]):
+class ResourcePointerArray64(ResourceSystemBlock, Generic[T]):
     BlockLength: int
     data_pointers: list[int]
     data_items: list[T]
+    @overload
+    def __getitem__(self, index: int) -> T: ...
+    def __setitem__(self, index: int, value: T) -> None: ...
     Count: int
     IsReadOnly: bool
     FilePosition: int
@@ -48097,13 +48106,16 @@ class ResourcePointerArray64(Generic[T]):
     def ToString(self) -> str: ...
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
 
-class ResourcePointerList64(Generic[T]):
+class ResourcePointerList64(ResourceSystemBlock, Generic[T]):
     BlockLength: int
     EntriesPointer: int
     EntriesCount: int
     EntriesCapacity: int
     data_pointers: list[int]
     data_items: list[T]
+    @overload
+    def __getitem__(self, index: int) -> T: ...
+    def __setitem__(self, index: int, value: T) -> None: ...
     Count: int
     IsReadOnly: bool
     FilePosition: int
@@ -48140,10 +48152,13 @@ class ResourcePointerListHeader:
     def GetType(self) -> Any: ...
     def ToString(self) -> str: ...
 
-class ResourceSimpleArray(Generic[T]):
+class ResourceSimpleArray(ListBase[T], Generic[T]):
     BlockLength: int
     BlockLength_Gen9: int
-    Data: list[T]
+    Data: System.Collections.Generic.List[T]
+    @overload
+    def __getitem__(self, index: int) -> T: ...
+    def __setitem__(self, index: int, value: T) -> None: ...
     Count: int
     IsReadOnly: bool
     FilePosition: int
@@ -48182,7 +48197,7 @@ class ResourceSimpleArray(Generic[T]):
     def ToString(self) -> str: ...
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
 
-class ResourceSimpleList64_byte:
+class ResourceSimpleList64_byte(ResourceSystemBlock):
     BlockLength: int
     EntriesPointer: int
     EntriesCount: int
@@ -48200,7 +48215,7 @@ class ResourceSimpleList64_byte:
     def ToString(self) -> str: ...
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
 
-class ResourceSimpleList64_float:
+class ResourceSimpleList64_float(ResourceSystemBlock):
     BlockLength: int
     EntriesPointer: int
     EntriesCount: int
@@ -48218,7 +48233,7 @@ class ResourceSimpleList64_float:
     def ToString(self) -> str: ...
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
 
-class ResourceSimpleList64_s(Generic[T]):
+class ResourceSimpleList64_s(ResourceSystemBlock, Generic[T]):
     BlockLength: int
     EntriesPointer: int
     EntriesCount: int
@@ -48236,7 +48251,7 @@ class ResourceSimpleList64_s(Generic[T]):
     def ToString(self) -> str: ...
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
 
-class ResourceSimpleList64_uint:
+class ResourceSimpleList64_uint(ResourceSystemBlock):
     BlockLength: int
     EntriesPointer: int
     EntriesCount: int
@@ -48254,7 +48269,7 @@ class ResourceSimpleList64_uint:
     def ToString(self) -> str: ...
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
 
-class ResourceSimpleList64_ulong:
+class ResourceSimpleList64_ulong(ResourceSystemBlock):
     BlockLength: int
     EntriesPointer: int
     EntriesCount: int
@@ -48272,7 +48287,7 @@ class ResourceSimpleList64_ulong:
     def ToString(self) -> str: ...
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
 
-class ResourceSimpleList64_ushort:
+class ResourceSimpleList64_ushort(ResourceSystemBlock):
     BlockLength: int
     EntriesPointer: int
     EntriesCount: int
@@ -48290,7 +48305,7 @@ class ResourceSimpleList64_ushort:
     def ToString(self) -> str: ...
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
 
-class ResourceSimpleList64(Generic[T]):
+class ResourceSimpleList64(ResourceSystemBlock, Generic[T]):
     BlockLength: int
     EntriesPointer: int
     EntriesCount: int
@@ -48308,7 +48323,7 @@ class ResourceSimpleList64(Generic[T]):
     def ToString(self) -> str: ...
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
 
-class ResourceSimpleList64b_s(Generic[T]):
+class ResourceSimpleList64b_s(ResourceSystemBlock, Generic[T]):
     BlockLength: int
     EntriesPointer: int
     EntriesCount: int
@@ -48339,7 +48354,7 @@ class ResourceSystemBlock:
     def ToString(self) -> str: ...
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
 
-class ResourceSystemDataBlock:
+class ResourceSystemDataBlock(ResourceSystemBlock):
     Data: list[int]
     DataLength: int
     BlockLength: int
@@ -48355,7 +48370,7 @@ class ResourceSystemDataBlock:
     def ToString(self) -> str: ...
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
 
-class ResourceSystemStructBlock(Generic[T]):
+class ResourceSystemStructBlock(ResourceSystemBlock, Generic[T]):
     Items: list[T]
     ItemCount: int
     StructureSize: int
@@ -48372,7 +48387,7 @@ class ResourceSystemStructBlock(Generic[T]):
     def ToString(self) -> str: ...
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
 
-class ResourecTypedSystemBlock:
+class ResourecTypedSystemBlock(ResourceSystemBlock):
     FilePosition: int
     BlockLength: int
     BlockLength_Gen9: int
@@ -48388,7 +48403,7 @@ class ResourecTypedSystemBlock:
     def ToString(self) -> str: ...
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
 
-class RpfBinaryFileEntry:
+class RpfBinaryFileEntry(RpfFileEntry):
     FileUncompressedSize: int
     EncryptionType: int
     FileOffset: int
@@ -48416,7 +48431,7 @@ class RpfBinaryFileEntry:
     def ToString(self) -> str: ...
     def Write(self, writer: DataWriter) -> None: ...
 
-class RpfDirectoryEntry:
+class RpfDirectoryEntry(RpfEntry):
     EntriesIndex: int
     EntriesCount: int
     File: RpfFile
@@ -48427,8 +48442,8 @@ class RpfDirectoryEntry:
     Name: str
     NameLower: str
     Path: str
-    Directories: list[RpfDirectoryEntry]
-    Files: list[RpfFileEntry]
+    Directories: System.Collections.Generic.List[RpfDirectoryEntry]
+    Files: System.Collections.Generic.List[RpfFileEntry]
     H1: int
     H2: int
     def __init__(self) -> None: ...
@@ -48483,8 +48498,8 @@ class RpfFile:
     EntryCount: int
     NamesLength: int
     Encryption: RpfEncryption
-    AllEntries: list[RpfEntry]
-    Children: list[RpfFile]
+    AllEntries: System.Collections.Generic.List[RpfEntry]
+    Children: System.Collections.Generic.List[RpfFile]
     Parent: RpfFile
     ParentFileEntry: RpfBinaryFileEntry
     CurrentFileReader: Any
@@ -48519,16 +48534,16 @@ class RpfFile:
     def CreateResourceFileEntry(data: list[int], ver: int) -> RpfResourceFileEntry: ...
     def DecompressBytes(self, bytes: list[int]) -> list[int]: ...
     @staticmethod
-    def Defragment(file: RpfFile, progress: Any = ..., recursive: bool = ...) -> None: ...
+    def Defragment(file: RpfFile, progress: Callable[..., None] = ..., recursive: bool = ...) -> None: ...
     @staticmethod
     def DeleteEntry(entry: RpfEntry) -> None: ...
     @staticmethod
-    def EnsureValidEncryption(file: RpfFile, confirm: Any, recursive: bool = ...) -> bool: ...
+    def EnsureValidEncryption(file: RpfFile, confirm: Callable[..., bool], recursive: bool = ...) -> bool: ...
     def Equals(self, obj: Any) -> bool: ...
     def ExtractFile(self, entry: RpfFileEntry) -> list[int]: ...
     def ExtractFileBinary(self, entry: RpfBinaryFileEntry, br: Any) -> list[int]: ...
     def ExtractFileResource(self, entry: RpfResourceFileEntry, br: Any) -> list[int]: ...
-    def ExtractScripts(self, outputfolder: str, updateStatus: Any) -> None: ...
+    def ExtractScripts(self, outputfolder: str, updateStatus: Callable[..., None]) -> None: ...
     def FindChildArchive(self, f: RpfFileEntry) -> RpfFile: ...
     def GetDefragmentedFileSize(self, recursive: bool = ...) -> int: ...
     @overload
@@ -48538,9 +48553,9 @@ class RpfFile:
     @staticmethod
     def GetFile(e: RpfEntry, data: list[int]) -> T: ...
     @overload
-    def GetFiles(self, folder: str, recurse: bool) -> list[RpfFileEntry]: ...
+    def GetFiles(self, folder: str, recurse: bool) -> System.Collections.Generic.List[RpfFileEntry]: ...
     @overload
-    def GetFiles(self, dir: RpfDirectoryEntry, result: list[RpfFileEntry], recurse: bool) -> None: ...
+    def GetFiles(self, dir: RpfDirectoryEntry, result: System.Collections.Generic.List[RpfFileEntry], recurse: bool) -> None: ...
     def GetHashCode(self) -> int: ...
     def GetPhysicalFilePath(self) -> str: ...
     @staticmethod
@@ -48556,13 +48571,13 @@ class RpfFile:
     def RenameArchive(file: RpfFile, newname: str) -> None: ...
     @staticmethod
     def RenameEntry(entry: RpfEntry, newname: str) -> None: ...
-    def ScanStructure(self, updateStatus: Any, errorLog: Any) -> None: ...
+    def ScanStructure(self, updateStatus: Callable[..., None], errorLog: Callable[..., None]) -> None: ...
     @staticmethod
     def SetEncryptionType(file: RpfFile, encryption: RpfEncryption) -> None: ...
     def TestExtractAllFiles(self) -> str: ...
     def ToString(self) -> str: ...
 
-class RpfFileEntry:
+class RpfFileEntry(RpfEntry):
     FileOffset: int
     FileSize: int
     IsEncrypted: bool
@@ -48592,14 +48607,14 @@ class RpfManager:
     ExcludePaths: list[str]
     EnableMods: bool
     BuildExtendedJenkIndex: bool
-    UpdateStatus: Any
-    ErrorLog: Any
-    BaseRpfs: list[RpfFile]
-    ModRpfs: list[RpfFile]
-    DlcRpfs: list[RpfFile]
-    AllRpfs: list[RpfFile]
-    DlcNoModRpfs: list[RpfFile]
-    AllNoModRpfs: list[RpfFile]
+    UpdateStatus: Callable[..., None]
+    ErrorLog: Callable[..., None]
+    BaseRpfs: System.Collections.Generic.List[RpfFile]
+    ModRpfs: System.Collections.Generic.List[RpfFile]
+    DlcRpfs: System.Collections.Generic.List[RpfFile]
+    AllRpfs: System.Collections.Generic.List[RpfFile]
+    DlcNoModRpfs: System.Collections.Generic.List[RpfFile]
+    AllNoModRpfs: System.Collections.Generic.List[RpfFile]
     RpfDict: dict[str, RpfFile]
     EntryDict: dict[str, RpfEntry]
     ModRpfDict: dict[str, RpfFile]
@@ -48624,13 +48639,13 @@ class RpfManager:
     def GetHashCode(self) -> int: ...
     def GetType(self) -> Any: ...
     @overload
-    def Init(self, folder: str, gen9: bool, updateStatus: Any, errorLog: Any, rootOnly: bool = ..., buildIndex: bool = ...) -> None: ...
+    def Init(self, folder: str, gen9: bool, updateStatus: Callable[..., None], errorLog: Callable[..., None], rootOnly: bool = ..., buildIndex: bool = ...) -> None: ...
     @overload
-    def Init(self, allRpfs: list[RpfFile], gen9: bool) -> None: ...
+    def Init(self, allRpfs: System.Collections.Generic.List[RpfFile], gen9: bool) -> None: ...
     def LoadFile(self, file: T, e: RpfEntry) -> bool: ...
     def ToString(self) -> str: ...
 
-class RpfResourceFileEntry:
+class RpfResourceFileEntry(RpfFileEntry):
     SystemFlags: RpfResourcePageFlags
     GraphicsFlags: RpfResourcePageFlags
     Version: int
@@ -48697,7 +48712,7 @@ class RpfResourcePageFlags:
     def GetType(self) -> Any: ...
     def ToString(self) -> str: ...
 
-class Sequence:
+class Sequence(ResourceSystemBlock):
     BlockLength: int
     Unknown_00h: MetaHash
     DataLength: int
@@ -48756,7 +48771,7 @@ class SequenceRootChannelRef:
     def ToString(self) -> str: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class ShaderFX:
+class ShaderFX(ResourceSystemBlock):
     BlockLength: int
     BlockLength_Gen9: int
     ParametersPointer: int
@@ -48797,7 +48812,7 @@ class ShaderFX:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class ShaderGroup:
+class ShaderGroup(ResourceSystemBlock):
     BlockLength: int
     VFT: int
     TextureDictionaryPointer: int
@@ -48842,7 +48857,7 @@ class ShaderParamInfoG9:
     def GetType(self) -> Any: ...
     def ToString(self) -> str: ...
 
-class ShaderParamInfosG9:
+class ShaderParamInfosG9(ResourceSystemBlock):
     BlockLength: int
     NumBuffers: int
     NumTextures: int
@@ -50576,7 +50591,7 @@ class ShaderParameter:
     def ToString(self) -> str: ...
     def Write(self, writer: ResourceDataWriter) -> None: ...
 
-class ShaderParametersBlock:
+class ShaderParametersBlock(ResourceSystemBlock):
     BlockLength: int
     BlockLength_Gen9: int
     BaseSize: int
@@ -50617,7 +50632,7 @@ class ShaderResourceViewDimensionG9(IntEnum):
     TextureCube = 130
     Texture3D = 163
 
-class ShaderResourceViewG9:
+class ShaderResourceViewG9(ResourceSystemBlock):
     BlockLength: int
     VFT: int
     Unknown_08h: int
@@ -50637,7 +50652,7 @@ class ShaderResourceViewG9:
     def ToString(self) -> str: ...
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
 
-class Skeleton:
+class Skeleton(ResourceSystemBlock):
     BlockLength: int
     VFT: int
     Unknown_4h: int
@@ -50694,7 +50709,7 @@ class Skeleton:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class SkeletonBoneTag:
+class SkeletonBoneTag(ResourceSystemBlock):
     BlockLength: int
     BoneTag: int
     BoneIndex: int
@@ -50712,7 +50727,7 @@ class SkeletonBoneTag:
     def ToString(self) -> str: ...
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
 
-class SkeletonBonesBlock:
+class SkeletonBonesBlock(ResourceSystemBlock):
     BlockLength: int
     Count: int
     Items: list[Bone]
@@ -50760,7 +50775,7 @@ class TextHash:
     def GetType(self) -> Any: ...
     def ToString(self) -> str: ...
 
-class Texture:
+class Texture(TextureBase):
     BlockLength: int
     BlockLength_Gen9: int
     MemoryUsage: int
@@ -50840,7 +50855,7 @@ class Texture:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int, ddsfolder: str) -> None: ...
 
-class TextureBase:
+class TextureBase(ResourceSystemBlock):
     BlockLength: int
     BlockLength_Gen9: int
     VFT: int
@@ -50925,7 +50940,7 @@ class TextureBase:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int, ddsfolder: str) -> None: ...
 
-class TextureData:
+class TextureData(ResourceGraphicsBlock):
     BlockLength: int
     FullData: list[int]
     FilePosition: int
@@ -50938,7 +50953,7 @@ class TextureData:
     def ToString(self) -> str: ...
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
 
-class TextureDictionary:
+class TextureDictionary(ResourceFileBase):
     BlockLength: int
     Unknown_10h: int
     Unknown_14h: int
@@ -50955,7 +50970,7 @@ class TextureDictionary:
     FilePosition: int
     BlockLength_Gen9: int
     def __init__(self) -> None: ...
-    def BuildFromTextureList(self, textures: list[Texture]) -> None: ...
+    def BuildFromTextureList(self, textures: System.Collections.Generic.List[Texture]) -> None: ...
     def EnsureGen9(self) -> None: ...
     def Equals(self, obj: Any) -> bool: ...
     def GetHashCode(self) -> int: ...
@@ -51161,7 +51176,7 @@ class TextureUsageFlags(IntFlag):
     MAPS_HALF = 8388608
     UNK24 = 16777216
 
-class TimeArchetype:
+class TimeArchetype(Archetype):
     Type: MetaName
     TimeArchetypeDef: CTimeArchetypeDef
     TimeFlags: int
@@ -51217,7 +51232,7 @@ class Unknown_C_004:
     def ToString(self) -> str: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Unknown_C_006:
+class Unknown_C_006(ResourceSystemBlock):
     BlockLength: int
     Unknown_50h: ResourceSimpleList64_s[SharpDX.Vector4]
     Unknown_60h: ResourceSimpleList64_ushort
@@ -51272,7 +51287,7 @@ class Unknown_C_006:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class Unknown_C_007:
+class Unknown_C_007(ResourceSystemBlock):
     BlockLength: int
     FilePosition: int
     BlockLength_Gen9: int
@@ -51392,7 +51407,7 @@ class VehicleInitData:
     def Load(self, node: Any) -> None: ...
     def ToString(self) -> str: ...
 
-class VehicleLayoutsFile:
+class VehicleLayoutsFile(GameFile):
     Xml: str
     RpfFileEntry: RpfFileEntry
     Name: str
@@ -51423,7 +51438,7 @@ class VehicleOverrideRagdollThreshold:
     def GetType(self) -> Any: ...
     def ToString(self) -> str: ...
 
-class VehicleRecordEntry:
+class VehicleRecordEntry(ResourceSystemBlock):
     BlockLength: int
     Velocity: SharpDX.Vector3
     Forward: SharpDX.Vector3
@@ -51461,7 +51476,7 @@ class VehicleRecordEntry:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class VehicleRecordList:
+class VehicleRecordList(ResourceFileBase):
     BlockLength: int
     Entries: ResourceSimpleList64[VehicleRecordEntry]
     FileVFT: int
@@ -51486,9 +51501,9 @@ class VehicleRecordList:
     @staticmethod
     def WriteXmlNode(l: VehicleRecordList, sb: Any, indent: int, name: str = ...) -> None: ...
 
-class VehiclesFile:
+class VehiclesFile(GameFile):
     ResidentTxd: str
-    InitDatas: list[VehicleInitData]
+    InitDatas: System.Collections.Generic.List[VehicleInitData]
     TxdRelationships: dict[str, str]
     RpfFileEntry: RpfFileEntry
     Name: str
@@ -51509,7 +51524,7 @@ class VehiclesFile:
     def Load(self, data: list[int], entry: RpfFileEntry) -> None: ...
     def ToString(self) -> str: ...
 
-class VerletCloth:
+class VerletCloth(ResourceSystemBlock):
     BlockLength: int
     VFT: int
     BoundPointer: int
@@ -51582,7 +51597,7 @@ class VerletCloth:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class VertexBuffer:
+class VertexBuffer(ResourceSystemBlock):
     BlockLength: int
     BlockLength_Gen9: int
     VFT: int
@@ -51659,7 +51674,7 @@ class VertexComponentTypes:
     def GetType(self) -> Any: ...
     def ToString(self) -> str: ...
 
-class VertexData:
+class VertexData(ResourceSystemBlock):
     BlockLength: int
     VertexStride: int
     VertexCount: int
@@ -51703,7 +51718,7 @@ class VertexData:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class VertexDeclaration:
+class VertexDeclaration(ResourceSystemBlock):
     BlockLength: int
     Flags: int
     Stride: int
@@ -51728,7 +51743,7 @@ class VertexDeclaration:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int, name: str) -> None: ...
 
-class VertexDeclarationG9:
+class VertexDeclarationG9(ResourceSystemBlock):
     BlockLength: int
     Offsets: list[int]
     Sizes: list[int]
@@ -51884,7 +51899,7 @@ class VertexTypeGTAV3:
     def GetType(self) -> Any: ...
     def ToString(self) -> str: ...
 
-class WatermapFile:
+class WatermapFile(GameFile):
     RawFileData: list[int]
     Magic: int
     Version: int
@@ -51950,7 +51965,7 @@ class WatermapFile:
         def Read(self, r: DataReader) -> None: ...
         def ToString(self) -> str: ...
 
-    class WaterFlow:
+    class WaterFlow(WatermapFile.WaterItem):
         VectorCount: int
         Unk11: int
         VectorOffset: int
@@ -52009,7 +52024,7 @@ class WatermapFile:
         Lake = 2
         Pool = 3
 
-    class WaterPool:
+    class WaterPool(WatermapFile.WaterItem):
         Position: SharpDX.Vector3
         Unk04: int
         Size: SharpDX.Vector3
@@ -52027,7 +52042,7 @@ class WatermapFile:
         def Read(self, r: DataReader) -> None: ...
         def ToString(self) -> str: ...
 
-class WatermapXml:
+class WatermapXml(MetaXmlBase):
     def __init__(self) -> None: ...
     def Equals(self, obj: Any) -> bool: ...
     def GetHashCode(self) -> int: ...
@@ -52036,7 +52051,7 @@ class WatermapXml:
     def GetXml(wmf: WatermapFile) -> str: ...
     def ToString(self) -> str: ...
 
-class WaypointRecordEntry:
+class WaypointRecordEntry(ResourceSystemBlock):
     BlockLength: int
     FilePosition: int
     BlockLength_Gen9: int
@@ -52057,7 +52072,7 @@ class WaypointRecordEntry:
     def Write(self, writer: ResourceDataWriter, parameters: list[Any]) -> None: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class WaypointRecordList:
+class WaypointRecordList(ResourceFileBase):
     BlockLength: int
     FileVFT: int
     FileUnknown: int
@@ -52430,7 +52445,7 @@ class XmlYnv:
     @staticmethod
     def GetYnv(doc: Any) -> YnvFile: ...
     @staticmethod
-    def ReadItemList(node: Any, name: str) -> list[T]: ...
+    def ReadItemList(node: Any, name: str) -> System.Collections.Generic.List[T]: ...
     def ToString(self) -> str: ...
 
 class XmlYpdb:
@@ -52498,7 +52513,7 @@ class XmlYwr:
     def GetYwr(doc: Any, inputFolder: str = ...) -> YwrFile: ...
     def ToString(self) -> str: ...
 
-class YbnFile:
+class YbnFile(GameFile):
     Bounds: Bounds
     HasChanged: bool
     RpfFileEntry: RpfFileEntry
@@ -52526,7 +52541,7 @@ class YbnFile:
     def Save(self) -> list[int]: ...
     def ToString(self) -> str: ...
 
-class YbnXml:
+class YbnXml(MetaXmlBase):
     def __init__(self) -> None: ...
     def Equals(self, obj: Any) -> bool: ...
     @staticmethod
@@ -52537,7 +52552,7 @@ class YbnXml:
     def GetXml(ybn: YbnFile) -> str: ...
     def ToString(self) -> str: ...
 
-class YcdFile:
+class YcdFile(GameFile):
     ClipDictionary: ClipDictionary
     ClipMap: dict[MetaHash, ClipMapEntry]
     AnimMap: dict[MetaHash, AnimationMapEntry]
@@ -52568,7 +52583,7 @@ class YcdFile:
     def SaveOpenFormatsAnimation(self, crAnim: Animation, outStream: Any) -> None: ...
     def ToString(self) -> str: ...
 
-class YcdXml:
+class YcdXml(MetaXmlBase):
     def __init__(self) -> None: ...
     def Equals(self, obj: Any) -> bool: ...
     def GetHashCode(self) -> int: ...
@@ -52577,7 +52592,7 @@ class YcdXml:
     def GetXml(ycd: YcdFile) -> str: ...
     def ToString(self) -> str: ...
 
-class YddFile:
+class YddFile(GameFile):
     DrawableDict: DrawableDictionary
     Dict: dict[int, Drawable]
     Drawables: list[Drawable]
@@ -52605,7 +52620,7 @@ class YddFile:
     def Save(self) -> list[int]: ...
     def ToString(self) -> str: ...
 
-class YddXml:
+class YddXml(MetaXmlBase):
     def __init__(self) -> None: ...
     def Equals(self, obj: Any) -> bool: ...
     def GetHashCode(self) -> int: ...
@@ -52614,7 +52629,7 @@ class YddXml:
     def GetXml(ydd: YddFile, outputFolder: str = ...) -> str: ...
     def ToString(self) -> str: ...
 
-class YdrFile:
+class YdrFile(GameFile):
     Drawable: Drawable
     RpfFileEntry: RpfFileEntry
     Name: str
@@ -52640,7 +52655,7 @@ class YdrFile:
     def Save(self) -> list[int]: ...
     def ToString(self) -> str: ...
 
-class YdrXml:
+class YdrXml(MetaXmlBase):
     def __init__(self) -> None: ...
     def Equals(self, obj: Any) -> bool: ...
     def GetHashCode(self) -> int: ...
@@ -52649,7 +52664,7 @@ class YdrXml:
     def GetXml(ydr: YdrFile, outputFolder: str = ...) -> str: ...
     def ToString(self) -> str: ...
 
-class YedFile:
+class YedFile(GameFile):
     ExpressionDictionary: ExpressionDictionary
     LoadException: str
     ExprMap: dict[MetaHash, Expression]
@@ -52674,7 +52689,7 @@ class YedFile:
     def Save(self) -> list[int]: ...
     def ToString(self) -> str: ...
 
-class YedXml:
+class YedXml(MetaXmlBase):
     def __init__(self) -> None: ...
     def Equals(self, obj: Any) -> bool: ...
     def GetHashCode(self) -> int: ...
@@ -52683,7 +52698,7 @@ class YedXml:
     def GetXml(yed: YedFile, outputFolder: str = ...) -> str: ...
     def ToString(self) -> str: ...
 
-class YfdFile:
+class YfdFile(GameFile):
     FrameFilterDictionary: FrameFilterDictionary
     LoadException: str
     RpfFileEntry: RpfFileEntry
@@ -52706,7 +52721,7 @@ class YfdFile:
     def Save(self) -> list[int]: ...
     def ToString(self) -> str: ...
 
-class YfdXml:
+class YfdXml(MetaXmlBase):
     def __init__(self) -> None: ...
     def Equals(self, obj: Any) -> bool: ...
     def GetHashCode(self) -> int: ...
@@ -52715,7 +52730,7 @@ class YfdXml:
     def GetXml(yfd: YfdFile) -> str: ...
     def ToString(self) -> str: ...
 
-class YftFile:
+class YftFile(GameFile):
     Fragment: FragType
     RpfFileEntry: RpfFileEntry
     Name: str
@@ -52741,7 +52756,7 @@ class YftFile:
     def Save(self) -> list[int]: ...
     def ToString(self) -> str: ...
 
-class YftXml:
+class YftXml(MetaXmlBase):
     def __init__(self) -> None: ...
     def Equals(self, obj: Any) -> bool: ...
     def GetHashCode(self) -> int: ...
@@ -52750,7 +52765,7 @@ class YftXml:
     def GetXml(yft: YftFile, outputFolder: str = ...) -> str: ...
     def ToString(self) -> str: ...
 
-class YldFile:
+class YldFile(GameFile):
     ClothDictionary: ClothDictionary
     Dict: dict[int, CharacterCloth]
     LoadException: str
@@ -52774,7 +52789,7 @@ class YldFile:
     def Save(self) -> list[int]: ...
     def ToString(self) -> str: ...
 
-class YldXml:
+class YldXml(MetaXmlBase):
     def __init__(self) -> None: ...
     def Equals(self, obj: Any) -> bool: ...
     def GetHashCode(self) -> int: ...
@@ -52925,7 +52940,7 @@ class YmapEntityDef:
         def GetType(self) -> Any: ...
         def ToString(self) -> str: ...
 
-class YmapFile:
+class YmapFile(GameFile):
     Meta: Meta
     Pso: PsoFile
     Rbf: RbfFile
@@ -52958,7 +52973,7 @@ class YmapFile:
     MloEntities: list[YmapEntityDef]
     ChildYmaps: list[YmapFile]
     MergedWithParent: bool
-    SaveWarnings: list[str]
+    SaveWarnings: System.Collections.Generic.List[str]
     LodManagerUpdate: bool
     LodManagerOldEntities: list[YmapEntityDef]
     Loaded: bool
@@ -53023,7 +53038,7 @@ class YmapGrassInstanceBatch:
     BrushRadius: float
     HasChanged: bool
     def __init__(self) -> None: ...
-    def CreateInstancesAtMouse(self, batch: YmapGrassInstanceBatch, mouseRay: CodeWalker.World.SpaceRayIntersectResult, radius: float, amount: int, spawnRayFunc: Any, color: SharpDX.Color, ao: int, scale: int, pad: SharpDX.Vector3, randomScale: bool) -> None: ...
+    def CreateInstancesAtMouse(self, batch: YmapGrassInstanceBatch, mouseRay: CodeWalker.World.SpaceRayIntersectResult, radius: float, amount: int, spawnRayFunc: Callable[..., CodeWalker.World.SpaceRayIntersectResult], color: SharpDX.Color, ao: int, scale: int, pad: SharpDX.Vector3, randomScale: bool) -> None: ...
     def Equals(self, obj: Any) -> bool: ...
     def EraseInstancesAtMouse(self, batch: YmapGrassInstanceBatch, mouseRay: CodeWalker.World.SpaceRayIntersectResult, radius: float) -> bool: ...
     def GetHashCode(self) -> int: ...
@@ -53121,7 +53136,7 @@ class YmapOccludeModel:
     def RayIntersect(self, ray: SharpDX.Ray, hitdist: float) -> YmapOccludeModelTriangle: ...
     def ToString(self) -> str: ...
 
-class YmapOccludeModelTriangle:
+class YmapOccludeModelTriangle(CodeWalker.TriangleBVHItem):
     Model: YmapOccludeModel
     Ymap: YmapFile
     Index: int
@@ -53177,7 +53192,7 @@ class YmfFile:
     def Load(self, data: list[int], entry: RpfFileEntry) -> None: ...
     def ToString(self) -> str: ...
 
-class YmfImapDependency2:
+class YmfImapDependency2(PsoClass[CImapDependencies]):
     Dep: CImapDependencies
     itypDepArray: list[MetaHash]
     def __init__(self) -> None: ...
@@ -53187,7 +53202,7 @@ class YmfImapDependency2:
     def Init(self, pso: PsoFile, v: CImapDependencies) -> None: ...
     def ToString(self) -> str: ...
 
-class YmfInterior:
+class YmfInterior(PsoClass[CInteriorBoundsFiles]):
     Interior: CInteriorBoundsFiles
     Bounds: list[MetaHash]
     def __init__(self) -> None: ...
@@ -53197,7 +53212,7 @@ class YmfInterior:
     def Init(self, pso: PsoFile, v: CInteriorBoundsFiles) -> None: ...
     def ToString(self) -> str: ...
 
-class YmfItypDependency2:
+class YmfItypDependency2(PsoClass[CItypDependencies]):
     Dep: CItypDependencies
     itypDepArray: list[MetaHash]
     def __init__(self) -> None: ...
@@ -53207,7 +53222,7 @@ class YmfItypDependency2:
     def Init(self, pso: PsoFile, v: CItypDependencies) -> None: ...
     def ToString(self) -> str: ...
 
-class YmfMapDataGroup:
+class YmfMapDataGroup(PsoClass[CMapDataGroup]):
     DataGroup: CMapDataGroup
     Bounds: list[MetaHash]
     WeatherTypes: list[MetaHash]
@@ -53221,7 +53236,7 @@ class YmfMapDataGroup:
     def Init(self, pso: PsoFile, v: CMapDataGroup) -> None: ...
     def ToString(self) -> str: ...
 
-class YmtFile:
+class YmtFile(GameFile):
     Meta: Meta
     Pso: PsoFile
     Rbf: RbfFile
@@ -53236,7 +53251,7 @@ class YmtFile:
     Name: str
     FilePath: str
     Type: GameFileType
-    SaveWarnings: list[str]
+    SaveWarnings: System.Collections.Generic.List[str]
     Loaded: bool
     LoadQueued: bool
     Key: GameFileCacheKey
@@ -53280,7 +53295,7 @@ class YmtScenarioPointManifest:
     def Load(self, pso: PsoFile) -> None: ...
     def ToString(self) -> str: ...
 
-class YndFile:
+class YndFile(GameFile):
     NodeDictionary: NodeDictionary
     Nodes: list[YndNode]
     Links: list[YndLink]
@@ -53301,7 +53316,7 @@ class YndFile:
     Name: str
     FilePath: str
     Type: GameFileType
-    SaveWarnings: list[str]
+    SaveWarnings: System.Collections.Generic.List[str]
     Loaded: bool
     LoadQueued: bool
     Key: GameFileCacheKey
@@ -53312,7 +53327,7 @@ class YndFile:
     @overload
     def __init__(self, entry: RpfFileEntry) -> None: ...
     def AddNode(self) -> YndNode: ...
-    def AddYndNode(self, space: CodeWalker.World.Space, affectedFiles: Any) -> YndNode: ...
+    def AddYndNode(self, space: CodeWalker.World.Space, affectedFiles: System.Collections.Generic.HashSet[YndFile]) -> YndNode: ...
     def BuildBVH(self) -> None: ...
     def BuildStructs(self) -> None: ...
     def Equals(self, obj: Any) -> bool: ...
@@ -53491,7 +53506,7 @@ class YndNodeSpeed(IntEnum):
     Fast = 2
     Faster = 3
 
-class YndXml:
+class YndXml(MetaXmlBase):
     def __init__(self) -> None: ...
     def Equals(self, obj: Any) -> bool: ...
     def GetHashCode(self) -> int: ...
@@ -53523,14 +53538,14 @@ class YnvEdge:
     def Init(self, ynv: YnvFile, edge: NavMeshEdge) -> None: ...
     def ToString(self) -> str: ...
 
-class YnvFile:
+class YnvFile(GameFile):
     Nav: NavMesh
-    Vertices: list[SharpDX.Vector3]
-    Indices: list[int]
-    Edges: list[YnvEdge]
-    Polys: list[YnvPoly]
-    Portals: list[YnvPortal]
-    Points: list[YnvPoint]
+    Vertices: System.Collections.Generic.List[SharpDX.Vector3]
+    Indices: System.Collections.Generic.List[int]
+    Edges: System.Collections.Generic.List[YnvEdge]
+    Polys: System.Collections.Generic.List[YnvPoly]
+    Portals: System.Collections.Generic.List[YnvPortal]
+    Points: System.Collections.Generic.List[YnvPoint]
     PathVertices: list[EditorVertex]
     TriangleVerts: list[EditorVertex]
     NodePositions: list[SharpDX.Vector4]
@@ -53550,7 +53565,7 @@ class YnvFile:
     Name: str
     FilePath: str
     Type: GameFileType
-    SaveWarnings: list[str]
+    SaveWarnings: System.Collections.Generic.List[str]
     Loaded: bool
     LoadQueued: bool
     Key: GameFileCacheKey
@@ -53701,7 +53716,7 @@ class YnvPortal:
     def ToString(self) -> str: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class YnvXml:
+class YnvXml(MetaXmlBase):
     def __init__(self) -> None: ...
     def Equals(self, obj: Any) -> bool: ...
     def GetHashCode(self) -> int: ...
@@ -53710,7 +53725,7 @@ class YnvXml:
     def GetXml(ynv: YnvFile) -> str: ...
     def ToString(self) -> str: ...
 
-class YpdbFile:
+class YpdbFile(GameFile):
     SerializerVersion: int
     PoseMatcherVersion: int
     Signature: int
@@ -53743,7 +53758,7 @@ class YpdbFile:
     def ToString(self) -> str: ...
     def WriteXml(self, sb: Any, indent: int) -> None: ...
 
-class YpdbXml:
+class YpdbXml(MetaXmlBase):
     def __init__(self) -> None: ...
     def Equals(self, obj: Any) -> bool: ...
     def GetHashCode(self) -> int: ...
@@ -53752,7 +53767,7 @@ class YpdbXml:
     def GetXml(ypdb: YpdbFile) -> str: ...
     def ToString(self) -> str: ...
 
-class YptFile:
+class YptFile(GameFile):
     PtfxList: ParticleEffectsList
     DrawableDict: dict[int, DrawableBase]
     EffectDict: dict[MetaHash, ParticleEffectRule]
@@ -53782,7 +53797,7 @@ class YptFile:
     def Save(self) -> list[int]: ...
     def ToString(self) -> str: ...
 
-class YptXml:
+class YptXml(MetaXmlBase):
     def __init__(self) -> None: ...
     def Equals(self, obj: Any) -> bool: ...
     def GetHashCode(self) -> int: ...
@@ -53791,7 +53806,7 @@ class YptXml:
     def GetXml(ypt: YptFile, outputFolder: str = ...) -> str: ...
     def ToString(self) -> str: ...
 
-class YtdFile:
+class YtdFile(GameFile):
     TextureDict: TextureDictionary
     RpfFileEntry: RpfFileEntry
     Name: str
@@ -53817,7 +53832,7 @@ class YtdFile:
     def Save(self) -> list[int]: ...
     def ToString(self) -> str: ...
 
-class YtdXml:
+class YtdXml(MetaXmlBase):
     def __init__(self) -> None: ...
     def Equals(self, obj: Any) -> bool: ...
     def GetHashCode(self) -> int: ...
@@ -53826,7 +53841,7 @@ class YtdXml:
     def GetXml(ytd: YtdFile, outputFolder: str = ...) -> str: ...
     def ToString(self) -> str: ...
 
-class YtypFile:
+class YtypFile(GameFile):
     Meta: Meta
     Pso: PsoFile
     Rbf: RbfFile
@@ -53841,7 +53856,7 @@ class YtypFile:
     Name: str
     FilePath: str
     Type: GameFileType
-    SaveWarnings: list[str]
+    SaveWarnings: System.Collections.Generic.List[str]
     Loaded: bool
     LoadQueued: bool
     Key: GameFileCacheKey
@@ -53866,7 +53881,7 @@ class YtypFile:
     def Save(self) -> list[int]: ...
     def ToString(self) -> str: ...
 
-class YvrFile:
+class YvrFile(GameFile):
     Records: VehicleRecordList
     RpfFileEntry: RpfFileEntry
     Name: str
@@ -53888,7 +53903,7 @@ class YvrFile:
     def Save(self) -> list[int]: ...
     def ToString(self) -> str: ...
 
-class YvrXml:
+class YvrXml(MetaXmlBase):
     def __init__(self) -> None: ...
     def Equals(self, obj: Any) -> bool: ...
     def GetHashCode(self) -> int: ...
@@ -53897,7 +53912,7 @@ class YvrXml:
     def GetXml(yvr: YvrFile) -> str: ...
     def ToString(self) -> str: ...
 
-class YwrFile:
+class YwrFile(GameFile):
     Waypoints: WaypointRecordList
     RpfFileEntry: RpfFileEntry
     Name: str
@@ -53919,7 +53934,7 @@ class YwrFile:
     def Save(self) -> list[int]: ...
     def ToString(self) -> str: ...
 
-class YwrXml:
+class YwrXml(MetaXmlBase):
     def __init__(self) -> None: ...
     def Equals(self, obj: Any) -> bool: ...
     def GetHashCode(self) -> int: ...
@@ -54257,7 +54272,7 @@ class sirenSettings_188820339:
     def GetType(self) -> Any: ...
     def ToString(self) -> str: ...
 
-class string_r:
+class string_r(ResourceSystemBlock):
     BlockLength: int
     Value: str
     FilePosition: int

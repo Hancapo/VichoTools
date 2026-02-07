@@ -1,13 +1,10 @@
 from __future__ import annotations
 from enum import IntEnum, IntFlag
-from typing import Any, ClassVar, TypeVar, overload
+from typing import Any, Callable, ClassVar, Generic, TypeVar, overload
+import System
 import TeximpNet
 
 T = TypeVar("T")
-T1 = TypeVar("T1")
-T2 = TypeVar("T2")
-T3 = TypeVar("T3")
-T4 = TypeVar("T4")
 TFrom = TypeVar("TFrom")
 TTo = TypeVar("TTo")
 V = TypeVar("V")
@@ -287,7 +284,7 @@ class MemoryHelper:
     @staticmethod
     def CopyMemory(pDest: Any, pSrc: Any, sizeInBytesToCopy: int) -> None: ...
     @staticmethod
-    def Count(source: list[T]) -> int: ...
+    def Count(source: System.Collections.Generic.IEnumerable[T]) -> int: ...
     @staticmethod
     def DisposeCollection(collection: Any) -> None: ...
     def Equals(self, obj: Any) -> bool: ...
@@ -466,3 +463,7 @@ class TeximpException:
     @overload
     def GetType(self) -> Any: ...
     def ToString(self) -> str: ...
+
+from . import Compression
+from . import DDS
+from . import Unmanaged
