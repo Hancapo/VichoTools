@@ -1,5 +1,7 @@
 import importlib
+import os
 import subprocess
+import time
 import traceback
 from bpy.types import Object
 from ..shared.helper import get_active_obj, zoom_to_objs
@@ -54,29 +56,88 @@ def any_transform_items() -> bool:
     return active_obj is not None and len(active_obj.transforms_list) > 0
 
 def is_dotnet_installed():
+    return is_dotnet_runtime_installed(major=9)
+
+
+_DOTNET_CHECK_CACHE = {
+    "ts": 0.0,
+    "major": None,
+    "result": False,
+    "dotnet_path": None,
+}
+_DOTNET_CHECK_TTL_SECONDS = 15.0
+
+
+def _find_dotnet_executable() -> str | None:
+    # Blender's environment may not inherit your user PATH, so try common locations too.
+    candidates = []
+    candidates.append(shutil.which("dotnet"))
+
+    # Typical install locations.
+    pf = os.environ.get("ProgramW6432") or os.environ.get("ProgramFiles")
+    pfx86 = os.environ.get("ProgramFiles(x86)")
+    local = os.environ.get("LOCALAPPDATA")
+
+    if pf:
+        candidates.append(os.path.join(pf, "dotnet", "dotnet.exe"))
+    if pfx86:
+        candidates.append(os.path.join(pfx86, "dotnet", "dotnet.exe"))
+    if local:
+        candidates.append(os.path.join(local, "Microsoft", "dotnet", "dotnet.exe"))
+
+    for p in candidates:
+        if p and os.path.exists(p):
+            return p
+    return None
+
+
+def is_dotnet_runtime_installed(*, major: int) -> bool:
     try:
-        dotnet_path = shutil.which("dotnet")
+        now = time.monotonic()
+        if (
+            _DOTNET_CHECK_CACHE["major"] == major
+            and (now - float(_DOTNET_CHECK_CACHE["ts"])) < _DOTNET_CHECK_TTL_SECONDS
+        ):
+            return bool(_DOTNET_CHECK_CACHE["result"])
+
+        dotnet_path = _find_dotnet_executable()
+        _DOTNET_CHECK_CACHE["ts"] = now
+        _DOTNET_CHECK_CACHE["major"] = major
+        _DOTNET_CHECK_CACHE["dotnet_path"] = dotnet_path
+
         if dotnet_path is None:
-            print(
-                "The 'dotnet' command was not found. Please ensure .NET is installed and the PATH environment variable is set correctly."
-            )
+            _DOTNET_CHECK_CACHE["result"] = False
             return False
 
+        create_no_window = getattr(subprocess, "CREATE_NO_WINDOW", 0)
         result = subprocess.run(
-            [dotnet_path, "--list-runtimes"], capture_output=True, text=True
+            [dotnet_path, "--list-runtimes"],
+            capture_output=True,
+            text=True,
+            creationflags=create_no_window,
         )
         if result.returncode != 0:
+            _DOTNET_CHECK_CACHE["result"] = False
             return False
 
-        for line in result.stdout.splitlines():
-            if "Microsoft.NETCore.App 9" in line:
-                return True
-        return False
+        target_prefix = f"Microsoft.NETCore.App {major}."
+        ok = any(line.startswith(target_prefix) for line in result.stdout.splitlines())
+        _DOTNET_CHECK_CACHE["result"] = ok
+        return ok
     except Exception as e:
         print(f"Error checking .NET installation: {e}")
         traceback.print_exc()
+        _DOTNET_CHECK_CACHE["result"] = False
         return False
 
 
 def is_pythonnet_loaded():
-    return importlib.util.find_spec("pythonnet") is not None
+    # find_spec can be false-negative in some Blender extension layouts; fall back to import.
+    if importlib.util.find_spec("pythonnet") is not None:
+        return True
+    try:
+        import pythonnet  # noqa: F401
+
+        return True
+    except Exception:
+        return False

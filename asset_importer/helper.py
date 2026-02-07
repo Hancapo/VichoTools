@@ -1,10 +1,11 @@
+from __future__ import annotations
 from ..vicho_dependencies import dependencies_manager as d
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from CodeWalker.GameFiles import GameFileCache, YdrFile, YftFile, Drawable, Texture, YmapFile
-    from System.Collections.Generic import HashSet
+    from CodeWalker.GameFiles import GameFileCache, YdrFile, YftFile, Drawable, Texture # type: ignore
+    from System.Collections.Generic import HashSet # type: ignore
 from pathlib import Path
-from ..ymap.helper import set_sollumz_import_settings
+from ..shared.helper import set_sollumz_import_settings
 import bpy
 from ..shared.funcs import create_temp_folder
 import traceback
@@ -17,7 +18,6 @@ def add_entity_to_scene(name: str) -> bool:
         asset = bpy.data.objects.get(name)
         if not asset:
             asset = next((obj for obj in bpy.data.objects if name in obj.name), None)
-            
         if asset and asset.asset_data:
             new_obj = asset.copy()
             new_obj.data = asset.data.copy()
@@ -48,7 +48,7 @@ def load_gta_cache(path: str) -> bool:
         traceback.print_exc()
         return False
 
-def extract_textures(rage_file: "YdrFile" | "YftFile", format: str, gamecache: "GameFileCache") -> bool:
+def process_rage_file(rage_file: "YdrFile" | "YftFile", format: str, gamecache: "GameFileCache") -> bool:
     try:
         print("Loading " + rage_file.Name)
         temp_folder: str = create_temp_folder()
@@ -56,6 +56,7 @@ def extract_textures(rage_file: "YdrFile" | "YftFile", format: str, gamecache: "
         textures: "HashSet[Texture]" = d.HashSet[d.GameFiles.Texture]()
         texturesMissing: "HashSet[str]" = d.HashSet[str]()
         extract_path: Path = Path(temp_folder, "alltextures")
+        parent_path: Path = extract_path.parent
         print(f"textures path: {str(extract_path)}")
         extract_path.mkdir(parents=True, exist_ok=True)
         drawable: "Drawable" = (
@@ -72,8 +73,9 @@ def extract_textures(rage_file: "YdrFile" | "YftFile", format: str, gamecache: "
         d.Task.Run(
             d.Action(lambda: d.WriteTexturesAsync(textures, str(extract_path)))
         ).Wait()
-        print(f"Expected path: " + str(rage_file.FilePath))
-        import_asset_sollumz(rage_file.FilePath)
+        rage_file_path: Path = Path(parent_path, rage_file.Name)
+        d.File.WriteAllBytes(str(rage_file_path), rage_file.Save())
+        import_asset_sollumz(str(rage_file_path))
         bpy.ops.file.find_missing_files(directory=str(extract_path))
         return True
     except Exception as e:
@@ -81,18 +83,18 @@ def extract_textures(rage_file: "YdrFile" | "YftFile", format: str, gamecache: "
         return False
 
 
-def import_asset_from_pm(name: str, gamecache: "GameFileCache") -> bool:
+def get_asset_from_pm(name: str, gamecache: "GameFileCache") -> bool:
     entity_uint: int = d.JenkHash.GenHash(name)
     print(entity_uint)
     ydr: "YdrFile"
     yft: "YftFile"
     if (ydr := d.gamecache.GetYdr(entity_uint)) is not None:
         ydr.Load(ydr.RpfFileEntry.File.ExtractFile(ydr.RpfFileEntry), ydr.RpfFileEntry)
-        extract_textures(ydr, "ydr", gamecache)
+        process_rage_file(ydr, "ydr", gamecache)
         return True
     elif (yft := d.gamecache.GetYft(entity_uint)) is not None:
         yft.Load(yft.RpfFileEntry.File.ExtractFile(yft.RpfFileEntry), yft.RpfFileEntry)
-        extract_textures(yft, "yft", gamecache)
+        process_rage_file(yft, "yft", gamecache)
         return True
     return False
 
@@ -103,5 +105,5 @@ def import_asset_sollumz(p: str):
     set_sollumz_import_settings(True)
     p_path: Path = Path(p)
     bpy.ops.sollumz.import_assets(
-        directory=str(p_path.parent), files=[{"name": p_path.stem}]
+        directory=str(p_path.parent), files=[{"name": p_path.name}]
     )
