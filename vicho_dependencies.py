@@ -150,9 +150,13 @@ class DependenciesManager:
             print("CLR OK")
 
             clr.AddReference(rf"{libs_loc}\CodeWalker.Core.dll")
+            clr.AddReference(rf"{libs_loc}\CWUtils.dll")
             clr.AddReference("System.Collections")
             clr.AddReference(rf"{libs_loc}\TeximpNet.dll")
             clr.AddReference(rf"{libs_loc}\KeepA.dll")
+            # These are shipped alongside the extension; adding them explicitly makes import more reliable.
+            clr.AddReference(rf"{libs_loc}\SharpDX.dll")
+            clr.AddReference(rf"{libs_loc}\SharpDX.Mathematics.dll")
             print("References added correctly")
 
             from System.Collections.Generic import List, HashSet
@@ -182,6 +186,7 @@ class DependenciesManager:
                 YmapOccludeModelTriangle
             )
             import CodeWalker.Utils as Utils
+            from CWUtils import Utils as CWUtils
             from TeximpNet import Surface as Surface, ImageFilter as ImageFilter
             from TeximpNet.Compression import (
                 Compressor,
@@ -194,6 +199,7 @@ class DependenciesManager:
 
             from SharpDX import Vector3, Vector4, Quaternion
             from KeepA import FolderBrowser
+            from CWUtils import Utils as CWUtils
 
             print("Modules OK")
 
@@ -201,8 +207,14 @@ class DependenciesManager:
 
             self.GameFiles = GameFiles
             self.Utils = Utils
+            self.CollectTextures = CWUtils.CollectTextures
+            self.WriteTexturesAsync = CWUtils.WriteTexturesAsync
             self.Enum = Enum
             self.UInt32 = UInt32
+            self.HashSet = HashSet
+            self.Action = Action
+            self.String = String
+            self.Task = Task
 
             self.Vector3 = Vector3
             self.Vector4 = Vector4
@@ -221,6 +233,8 @@ class DependenciesManager:
             self.JenkHash = JenkHash
             self.JenkIndex = JenkIndex
             self.CMapData = CMapData
+            self.GameFileCache = GameFiles.GameFileCache
+            self.GTA5Keys = GameFiles.GTA5Keys
 
             self.BoxOccluder = BoxOccluder
             self.YmapBoxOccluder = YmapBoxOccluder
@@ -242,6 +256,9 @@ class DependenciesManager:
             self.RoundMode = RoundMode
             
             self.FolderBrowser = FolderBrowser
+
+            self.CollectTextures = CWUtils.CollectTextures
+            self.WriteTexturesAsync = CWUtils.WriteTexturesAsync
 
             print("Dependencies loaded OK")
             print(f"dependencies.available: {self.available}")
