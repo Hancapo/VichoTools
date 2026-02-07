@@ -1,6 +1,7 @@
 import bpy
 from bpy.types import Object, Collection, Mesh, Material
 from mathutils import Vector, Matrix
+import traceback
 from .funcs import (
     subtract_from_vector,
     add_to_vector,
@@ -16,10 +17,13 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from SharpDX import Vector3
     from System.Collections.Generic import List
+    from System import Action
 from .constants import YMAP_ENTITY_SOLLUM_TYPES, COMPAT_OBJECT_TYPES
 from bpy.ops import _BPyOpsSubModOp
 import bmesh
 from bmesh.types import BMesh, BMFace, BMVert
+import os
+from pathlib import Path
 
 class IndexHelper:
     index: bpy.props.IntProperty() # type: ignore
@@ -492,13 +496,11 @@ def apply_all_trans(obj: bpy.types.Object) -> None:
 
     M = obj.matrix_basis.copy()
 
-    # Bake full local transform into the data (includes shear)
     obj.data.transform(M)
     if obj.type == 'MESH':
         obj.data.update()
 
     if obj.parent:
-        # Keep matrix_world the same by pushing basis into parent inverse
         obj.matrix_parent_inverse = obj.matrix_parent_inverse @ M
         obj.matrix_basis = Matrix.Identity(4)
     else:
@@ -506,3 +508,34 @@ def apply_all_trans(obj: bpy.types.Object) -> None:
 
 def vec2sharpvec(vec: Vector) -> "Vector3":
     return d.Vector3(vec.x, vec.y, vec.z)
+
+def update_status() -> "Action[str]": 
+    return d.Action[str](lambda x: print(x))
+
+def fix_gta_path(path: str) -> str:
+    path = bpy.path.abspath(path)
+    path = str(Path(path).resolve())
+    os.chdir(path)
+    return path
+def load_gta_cache(path: str) -> bool:
+    try:
+        d.GTA5Keys.LoadFromPath(path)
+        d.gamecache = d.GameFileCache(
+            2147483648,
+            10,
+            fix_gta_path(path),
+            False,
+            "mp2025_02_g9ec",
+            False,
+            "Installers;_CommonRedist;fix",
+        )
+        d.gamecache.LoadAudio = False
+        d.gamecache.LoadVehicles = False
+        d.gamecache.LoadPeds = False
+        d.gamecache.Init(update_status(), update_status())
+        return True
+    except Exception as e:
+        print(f"Error detail: {e}")
+
+        traceback.print_exc()
+        return False

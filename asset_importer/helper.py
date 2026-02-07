@@ -10,8 +10,7 @@ import bpy
 from ..shared.funcs import create_temp_folder
 import traceback
 
-def update_status():
-    return d.Action[str](lambda x: print(x))
+
 
 def add_entity_to_scene(name: str) -> bool:
     if bpy.context.scene.add_asset_to_scene:
@@ -25,28 +24,7 @@ def add_entity_to_scene(name: str) -> bool:
             return True
     return False
             
-def load_gta_cache(path: str) -> bool:
-    try:
-        d.GTA5Keys.LoadFromPath(path)
-        d.gamecache = d.GameFileCache(
-            2147483648,
-            10,
-            path,
-            False,
-            "mp2025_01_g9ec",
-            False,
-            "Installers;_CommonRedist",
-        )
-        d.gamecache.LoadAudio = False
-        d.gamecache.LoadVehicles = False
-        d.gamecache.LoadPeds = False
-        d.gamecache.Init(update_status(), update_status())
-        return True
-    except Exception as e:
-        print(f"Error detail: {e}")
 
-        traceback.print_exc()
-        return False
 
 def process_rage_file(rage_file: "YdrFile" | "YftFile", format: str, gamecache: "GameFileCache") -> bool:
     try:

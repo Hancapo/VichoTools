@@ -1,7 +1,6 @@
 import bpy
 from . import http_server
 from http.server import HTTPServer
-from .helper import load_gta_cache
 from threading import Thread
 from .helper import get_asset_from_pm, add_entity_to_scene
 from ..vicho_dependencies import dependencies_manager as d
@@ -54,15 +53,3 @@ class VICHO_OT_start_asset_server(bpy.types.Operator):
         return {'FINISHED'}
     
     
-class VICHO_OT_load_game_files(bpy.types.Operator):
-    """Load Game Files"""
-    bl_idname = "assetimporter.load_game_files"
-    bl_label = "Load GTA V Files"
-    
-    def execute(self, context):
-        if load_gta_cache("C:/Program Files (x86)/Steam/steamapps/common/Grand Theft Auto V"):
-            self.report({"INFO"}, "Game files successfully loaded")
-            context.scene.is_vicho_gta_loaded = True
-        else:
-            self.report({"ERROR"}, "Couldn't load game files, try again.")
-        return {'FINISHED'}

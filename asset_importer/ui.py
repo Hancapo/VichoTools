@@ -1,6 +1,6 @@
 import bpy
 from ..icons_load import get_icon
-from .operators import VICHO_OT_start_asset_server, VICHO_OT_load_game_files
+from .operators import VICHO_OT_start_asset_server
 from ..vicho_dependencies import dependencies_manager as d
 
 class AssetImporterPanel(bpy.types.Panel):
@@ -26,8 +26,6 @@ class AssetImporterPanel(bpy.types.Panel):
         if d.gamecache:
             row1.enabled = False
             row.enabled = True
-        
-        row1.operator(VICHO_OT_load_game_files.bl_idname, text="Load Game Files")
         
         row.alert = is_server_running
         row.operator(VICHO_OT_start_asset_server.bl_idname, text="Stop Server" if is_server_running else "Start server")
