@@ -15,6 +15,7 @@ from ..vicho_dependencies import dependencies_manager as d
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from SharpDX import Vector3
+    from System.Collections.Generic import List
 from .constants import YMAP_ENTITY_SOLLUM_TYPES, COMPAT_OBJECT_TYPES
 from bpy.ops import _BPyOpsSubModOp
 import bmesh

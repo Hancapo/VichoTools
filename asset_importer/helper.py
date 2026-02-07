@@ -1,13 +1,18 @@
 from ..vicho_dependencies import dependencies_manager as d
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from CodeWalker.GameFiles import GameFileCache, YdrFile, YftFile, Drawable, Texture, YmapFile
+    from System.Collections.Generic import HashSet
 from pathlib import Path
 from ..ymap.helper import set_sollumz_import_settings
 import bpy
 from ..shared.funcs import create_temp_folder
+import traceback
 
 def update_status():
     return d.Action[str](lambda x: print(x))
 
-def add_entity_to_scene(name) -> bool:
+def add_entity_to_scene(name: str) -> bool:
     if bpy.context.scene.add_asset_to_scene:
         asset = bpy.data.objects.get(name)
         if not asset:
@@ -35,33 +40,25 @@ def load_gta_cache(path: str) -> bool:
         d.gamecache.LoadAudio = False
         d.gamecache.LoadVehicles = False
         d.gamecache.LoadPeds = False
-        
         d.gamecache.Init(update_status(), update_status())
         return True
     except Exception as e:
         print(f"Error detail: {e}")
-        import traceback
 
         traceback.print_exc()
         return False
 
-def extract_asset_xml(rage_file, format: str, gamecache) -> bool:
+def extract_textures(rage_file: "YdrFile" | "YftFile", format: str, gamecache: "GameFileCache") -> bool:
     try:
         print("Loading " + rage_file.Name)
         temp_folder: str = create_temp_folder()
         print(temp_folder)
-        filename = d.String.Empty
-        xml_content, filename = d.MetaXml.GetXml(
-            rage_file, filename, f"{str(temp_folder)}/{rage_file.Name.split('.')[0]}"
-        )
-        xml_file = f"{temp_folder}/{rage_file.Name}.xml"
-        d.File.WriteAllText(str(xml_file), xml_content)
-        textures = d.HashSet[d.GameFiles.Texture]()
-        texturesMissing = d.HashSet[str]()
-        extract = Path(temp_folder, "alltextures")
-        print(f"textures path: {str(extract)}")
-        extract.mkdir(parents=True, exist_ok=True)
-        drawable = (
+        textures: "HashSet[Texture]" = d.HashSet[d.GameFiles.Texture]()
+        texturesMissing: "HashSet[str]" = d.HashSet[str]()
+        extract_path: Path = Path(temp_folder, "alltextures")
+        print(f"textures path: {str(extract_path)}")
+        extract_path.mkdir(parents=True, exist_ok=True)
+        drawable: "Drawable" = (
             rage_file.Drawable if format == "ydr" else rage_file.Fragment.Drawable
         )
         if drawable:
@@ -73,36 +70,38 @@ def extract_asset_xml(rage_file, format: str, gamecache) -> bool:
                 )
             ).Wait()
         d.Task.Run(
-            d.Action(lambda: d.WriteTexturesAsync(textures, str(extract)))
+            d.Action(lambda: d.WriteTexturesAsync(textures, str(extract_path)))
         ).Wait()
-        import_asset_sollumz(xml_file)
-        bpy.ops.file.find_missing_files(directory=str(extract))
+        print(f"Expected path: " + str(rage_file.FilePath))
+        import_asset_sollumz(rage_file.FilePath)
+        bpy.ops.file.find_missing_files(directory=str(extract_path))
         return True
     except Exception as e:
         print(e)
         return False
 
 
-def import_asset_from_pm(name: str, gamecache) -> bool:
+def import_asset_from_pm(name: str, gamecache: "GameFileCache") -> bool:
     entity_uint: int = d.JenkHash.GenHash(name)
     print(entity_uint)
+    ydr: "YdrFile"
+    yft: "YftFile"
     if (ydr := d.gamecache.GetYdr(entity_uint)) is not None:
         ydr.Load(ydr.RpfFileEntry.File.ExtractFile(ydr.RpfFileEntry), ydr.RpfFileEntry)
-        extract_asset_xml(ydr, "ydr", gamecache)
+        extract_textures(ydr, "ydr", gamecache)
         return True
     elif (yft := d.gamecache.GetYft(entity_uint)) is not None:
         yft.Load(yft.RpfFileEntry.File.ExtractFile(yft.RpfFileEntry), yft.RpfFileEntry)
-        extract_asset_xml(yft, "yft", gamecache)
+        extract_textures(yft, "yft", gamecache)
         return True
     return False
-
 
 def import_asset_sollumz(p: str):
     if bpy.context.mode != 'OBJECT':
         bpy.ops.object.mode_set(mode='OBJECT')
     bpy.ops.object.select_all(action='DESELECT')
     set_sollumz_import_settings(True)
-    p_path = Path(p)
+    p_path: Path = Path(p)
     bpy.ops.sollumz.import_assets(
-        directory=str(p_path.parent), files=[{"name": p_path.stem + ".xml"}]
+        directory=str(p_path.parent), files=[{"name": p_path.stem}]
     )
