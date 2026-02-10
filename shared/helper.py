@@ -512,7 +512,7 @@ def vec2sharpvec(vec: Vector) -> "Vector3":
 def update_status() -> "Action[str]": 
     return d.Action[str](lambda x: print(x))
 
-def fix_gta_path(path: str) -> str:
+def fix_path(path: str) -> str:
     path = bpy.path.abspath(path)
     path = str(Path(path).resolve())
     os.chdir(path)
@@ -523,7 +523,7 @@ def load_gta_cache(path: str) -> bool:
         d.gamecache = d.GameFileCache(
             2147483648,
             10,
-            fix_gta_path(path),
+            fix_path(path),
             False,
             "mp2025_02_g9ec",
             False,
@@ -536,6 +536,5 @@ def load_gta_cache(path: str) -> bool:
         return True
     except Exception as e:
         print(f"Error detail: {e}")
-
         traceback.print_exc()
         return False

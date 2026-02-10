@@ -221,26 +221,3 @@ def sharpdx_quat_to_blender_quat(quat) -> Quaternion:
 
 def create_temp_folder():
     return tempfile.mkdtemp()
-
-def load_gta_cache(path: str) -> bool:
-    try:
-        d.GTA5Keys.LoadFromPath(path)
-        d.gamecache = d.GameFileCache(
-            2147483648,
-            10,
-            path,
-            False,
-            "mp2025_01_g9ec",
-            False,
-            "Installers;_CommonRedist",
-        )
-        d.gamecache.LoadAudio = False
-        d.gamecache.LoadVehicles = False
-        d.gamecache.LoadPeds = False
-        d.gamecache.Init(update_status(), update_status())
-        return True
-    except Exception as e:
-        print(f"Error detail: {e}")
-
-        traceback.print_exc()
-        return False

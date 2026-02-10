@@ -159,12 +159,12 @@ class DependenciesManager:
             clr.AddReference(rf"{libs_loc}\SharpDX.Mathematics.dll")
             print("References added correctly")
 
-            from System.Collections.Generic import List, HashSet
-            from System import Enum, UInt32, Action, String
-            from System.Threading.Tasks import Task
-            import CodeWalker.GameFiles as GameFiles
-            from System.IO import File
-            from CodeWalker.GameFiles import (
+            from System.Collections.Generic import List, HashSet # type: ignore
+            from System import Enum, UInt32, Action, String # type: ignore
+            from System.Threading.Tasks import Task # type: ignore
+            import CodeWalker.GameFiles as GameFiles # type: ignore
+            from System.IO import File # type: ignore
+            from CodeWalker.GameFiles import ( # type: ignore
                 YmapFile,
                 YmapEntityDef,
                 rage__eLodType,
@@ -185,10 +185,10 @@ class DependenciesManager:
                 FlagsUint,
                 YmapOccludeModelTriangle
             )
-            import CodeWalker.Utils as Utils
-            from CWUtils import Utils as CWUtils
-            from TeximpNet import Surface as Surface, ImageFilter as ImageFilter
-            from TeximpNet.Compression import (
+            import CodeWalker.Utils as Utils # type: ignore
+            from CWUtils import Utils as CWUtils # type: ignore
+            from TeximpNet import Surface as Surface, ImageFilter as ImageFilter # type: ignore
+            from TeximpNet.Compression import ( # type: ignore
                 Compressor,
                 CompressionFormat,
                 CompressionQuality,
@@ -197,9 +197,9 @@ class DependenciesManager:
                 RoundMode,
             )
 
-            from SharpDX import Vector3, Vector4, Quaternion
-            from KeepA import FolderBrowser
-            from CWUtils import Utils as CWUtils
+            from SharpDX import Vector3, Vector4, Quaternion # type: ignore
+            from KeepA import FolderBrowser # type: ignore
+            from CWUtils import Utils as CWUtils # type: ignore
 
             print("Modules OK")
 
