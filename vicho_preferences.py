@@ -1,7 +1,7 @@
 import bpy
 from .vicho_dependencies import dependencies_manager as d
 from .vicho_operators import VICHO_OT_install_dotnet, VICHO_OT_import_strings
-from .shared.helper import str_loaded_count, load_gta_cache
+from .shared.helper import str_loaded_count
 from .misc.helper import is_dotnet_installed
 from .icons_load import get_icon
 
@@ -15,24 +15,8 @@ TAB_SETTINGS = (
 )
 
 authors = ["MrVicho13"]
-members = ["(placeholder)"]
 
-class VICHO_OT_load_game_files(bpy.types.Operator):
-    """Load Game Files"""
-    bl_idname = "assetimporter.load_game_files"
-    bl_label = "Load GTA V Files"
 
-    @classmethod
-    def poll(cls, context):
-        return get_addon_preferences().gta5_dir is not None and d.gamecache is None
-    
-    def execute(self, context):
-        if load_gta_cache(get_addon_preferences().gta5_dir):
-            self.report({"INFO"}, "Game files successfully loaded")
-            context.scene.is_vicho_gta_loaded = True
-        else:
-            self.report({"ERROR"}, "Couldn't load game files, try again.")
-        return {'FINISHED'}
 
 
 class VichoToolsAddonProperties(bpy.types.AddonPreferences):
@@ -139,7 +123,7 @@ class VichoToolsAddonProperties(bpy.types.AddonPreferences):
             case "asset_import":
                 col = layout.column(align=True)
                 col.prop(self, "gta5_dir", icon="FILE_FOLDER")
-                col.operator(VICHO_OT_load_game_files.bl_idname, icon="FILE_TICK")
+                col.operator("assetimporter.load_gta_cache", icon="FILE_TICK")
 
             case "dependencies":
                 col = layout.column(align=True)
@@ -201,14 +185,6 @@ class VichoToolsAddonProperties(bpy.types.AddonPreferences):
                 row = layout.row(align=True)
                 row.alignment = "CENTER"
                 col = row.column(align=True)
-                col.alignment = "CENTER"
-                col.label(text="Members", icon="GROUP")
-                for member in members:
-                    r = layout.row(align=True)
-                    r.alignment = "CENTER"
-                    c = r.column(align=True)
-                    c.alignment = "CENTER"
-                    c.label(text=member)
 
                 layout.separator(type="LINE", factor=2.0)
                 row = layout.row(align=True)
