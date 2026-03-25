@@ -5,3 +5,4 @@ ytd/__pycache__/ytd_helper.cpython-310.pyc
 __pycache__/__init__.cpython-310.pyc
 __pycache__/__init__.cpython-310.pyc
 *.pyc
+.vscode/settings.json

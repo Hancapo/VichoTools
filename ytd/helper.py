@@ -7,6 +7,8 @@ from pathlib import Path
 from .misc import get_dds, closest_pow2, closest_pow2_dims, calculate_mipmaps_lvls
 from ..misc.funcs import is_obj_in_any_collection
 
+_objects_to_remove = []
+
 def ytd_index_changed(self, context):
     if len(self.ytd_list) != 0:
         selected_item = self.ytd_list[self.ytd_active_index]
@@ -16,10 +18,20 @@ def ytd_index_changed(self, context):
             new_mesh.mesh = mesh.mesh
 
 
-
+def _deferred_remove():
+    global _objects_to_remove
+    for obj in _objects_to_remove:
+        try:
+            bpy.data.objects.remove(obj, do_unlink=True)
+        except Exception:
+            pass
+    _objects_to_remove.clear()
+    return None  # Don't repeat the timer
 
 
 def remove_invalid_meshes(scene):
+    global _objects_to_remove
+
     for ytd_index in reversed(range(len(scene.ytd_list))):
         ytd = scene.ytd_list[ytd_index]
         for mesh_index, mesh in reversed(list(enumerate(ytd.mesh_list))):
@@ -32,7 +44,7 @@ def remove_invalid_meshes(scene):
                     and mesh.mesh.name not in bpy.context.view_layer.objects
                     and not is_obj_in_any_collection(mesh.mesh)
                 ):
-                    bpy.data.objects.remove(mesh.mesh, do_unlink=True)
+                    _objects_to_remove.append(mesh.mesh)
                 ytd.mesh_list.remove(mesh_index)
                 switch_ytd_selected_index(scene)
 
@@ -50,6 +62,8 @@ def switch_ytd_selected_index(scene):
 @persistent
 def update_post(scene, depsgraph):
     remove_invalid_meshes(scene)
+    if _objects_to_remove:
+        bpy.app.timers.register(_deferred_remove, first_interval=0.0)
 
 def texture_list_from_dds_files(ddsFiles: list[str]):
     textureList = d.List[d.GameFiles.Texture]()
