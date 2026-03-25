@@ -1,0 +1,12 @@
+# List only the top-level Python modules this extension uses.
+# Dependency wheels are resolved automatically by pip download.
+#
+# Optional sections:
+#   [common]           Applies to both release tracks.
+#   [blender42_to_50]  Only for Blender 4.2-5.0 / Python 3.11.
+#   [blender51_plus]   Only for Blender 5.1+ / Python 3.13.
+#
+# Optional local wheel syntax:
+#   wheel:relative/path/to/file.whl
+
+pythonnet==3.0.5
