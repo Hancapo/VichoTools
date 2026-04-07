@@ -7,16 +7,16 @@ maintainer = "MrVicho13 <vicho0202@gmail.com>"
 type = "add-on"
 website = "https://vichomodding.gitbook.io/main/blender-stuff/recommended-add-ons/modding/vichos-tools"
 tags = ["Animation", "Import-Export", "3D View", "Object", "Mesh", "Material"]
-blender_version_min = "4.2.0"
+blender_version_min = "5.1.0"
 
 license = ["SPDX:MIT",]
 
 platforms = ["windows-x64",]
 
 wheels = [
-    "./wheels/cffi-1.17.1-cp311-cp311-win_amd64.whl",
-    "./wheels/clr_loader-0.2.7.post0-py3-none-any.whl",
-    "./wheels/pycparser-2.22-py3-none-any.whl",
+    "./wheels/cffi-2.0.0-cp313-cp313-win_amd64.whl",
+    "./wheels/clr_loader-0.2.10-py3-none-any.whl",
+    "./wheels/pycparser-3.0-py3-none-any.whl",
     "./wheels/pythonnet-3.0.5-py3-none-any.whl"
 ]
 
