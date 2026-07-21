@@ -1,3 +1,4 @@
 *.pyc
 tools/
 .vscode/
+.zed/

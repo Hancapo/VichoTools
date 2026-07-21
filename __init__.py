@@ -17,7 +17,7 @@ if "auto_load" in locals():
 from . import auto_load  # noqa: E402
 from . import icons_load # noqa: E402
 
-from .ymap import key_maps # noqa: E402
+#from .ymap import key_maps # noqa: E402
 
 auto_load.init()
 
