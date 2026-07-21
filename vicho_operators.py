@@ -1,9 +1,6 @@
 import bpy
-import webbrowser
 from bpy.props import StringProperty
 from bpy_extras.io_utils import ImportHelper
-from .shared.constants import DOTNET_LINK
-from .shared.helper import resolve_hashes_from_file, str_loaded_count
 
 class ContextSelectionRestrictedHelper:
     @classmethod
@@ -130,23 +127,6 @@ class VICHO_OT_rename_all_cas(bpy.types.Operator, ContextSelectionRestrictedHelp
 
         return {"FINISHED"}
 
-class VICHO_OT_install_dotnet(bpy.types.Operator):
-    bl_idname = "vicho.installdotnetruntime"
-    bl_label = "Install .NET 9 runtime"
-    bl_description = "Install .NET 9 runtime"
-
-    def execute(self, context):
-        try:
-            webbrowser.open(DOTNET_LINK)
-            self.report({"INFO"}, "Download .NET 9 runtime from Microsoft's website")
-        except Exception:
-            self.report(
-                {"ERROR"},
-                "Error opening web browser to download .NET 9 runtime from Microsoft's website",
-            )
-
-        return {"FINISHED"}
-
 class VICHO_OT_fake_op(bpy.types.Operator):
     """Fake operator"""
 
@@ -156,27 +136,3 @@ class VICHO_OT_fake_op(bpy.types.Operator):
     def execute(self, context):
         print("Fake operator")
         return {"FINISHED"}
-    
-class VICHO_OT_import_strings(bpy.types.Operator, ImportHelper):
-    """Import strings from a file"""
-
-    bl_idname = "vicho.importstrings"
-    bl_label = "Import strings"
-    
-    filename_ext = ".txt"
-    
-    filter_glob: StringProperty(default="*.txt", options={"HIDDEN"}) # type: ignore
-    load_on_startup: bpy.props.BoolProperty(name="Load on startup", default=False, description="Load strings on startup") # type: ignore
-    
-    def execute(self, context):
-        resolve_hashes_from_file(self.filepath)
-        self.report({"INFO"}, f"Resolved {str_loaded_count()} hashes from file")
-        return {"FINISHED"}
-    
-    def invoke(self, context, event):
-        context.window_manager.fileselect_add(self)
-        return {"RUNNING_MODAL"}
-    
-    def draw(self, context):
-        layout = self.layout
-        layout.prop(self, "load_on_startup")

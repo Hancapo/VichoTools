@@ -1,29 +1,22 @@
 import bpy
 from bpy.types import Object, Collection, Mesh, Material
 from mathutils import Vector, Matrix
-import traceback
 from .funcs import (
     subtract_from_vector,
     add_to_vector,
     get_min_vector_list,
     get_max_vector_list,
-    try_parse_int,
     mask_to_enum,
     enum_to_mask,
     enum_items_to_valid_mask,
 )
-from ..vicho_dependencies import dependencies_manager as d
-from typing import TYPE_CHECKING
-if TYPE_CHECKING:
-    from SharpDX import Vector3
-    from System.Collections.Generic import List
-    from System import Action
-from .constants import YMAP_ENTITY_SOLLUM_TYPES, COMPAT_OBJECT_TYPES
+#from .constants import YMAP_ENTITY_SOLLUM_TYPES, COMPAT_OBJECT_TYPES
 from bpy.ops import _BPyOpsSubModOp
 import bmesh
 from bmesh.types import BMesh, BMFace, BMVert
 import os
 from pathlib import Path
+from .win32_funcs import select_folder
 
 class IndexHelper:
     index: bpy.props.IntProperty() # type: ignore
@@ -73,7 +66,7 @@ def get_bound_extents(obj: Object, margin:int=0):
 
 def abs_path(path: str) -> str:
     """Get the absolute path from a relative path using Blender's path system."""
-    return bpy.path.abspath(path)
+    return str(Path(bpy.path.abspath(path)).resolve())
 
 
 def is_obj_in_any_collection(obj: Object) -> bool:
@@ -170,16 +163,6 @@ def delete_unused_objs_from_scene() -> None:
         if not is_object_in_scene(obj):
             delete_obj(obj)
 
-
-def get_meta_hash(name: str):
-    """Get the meta hash for a given name."""
-    int_hash: int | None = try_parse_int(name)
-    return (
-        d.MetaHash(d.JenkHash.GenHash(name))
-        if int_hash is None
-        else d.MetaHash(int_hash)
-    )
-
 def get_hierarchy(root: Object) -> list[Object]:
     """Collect root and all its descendants."""
     return [root, *root.children_recursive]
@@ -209,9 +192,7 @@ def delete_mesh(mesh: Mesh) -> None:
 
 def get_path_from_folder_dialog() -> str | None:
     """Open a folder dialog and return the selected path."""
-    file_browser = d.FolderBrowser()
-    result = file_browser.GetSelectedPath()
-    return result if result else None
+    return select_folder()
 
 def is_active_obj() -> bool:
     """Check if there is an active object in the context."""
@@ -261,19 +242,6 @@ def set_mask(self, prop_name, value, enum_items):
     valid_mask = enum_items_to_valid_mask(enum_items)
     m = int(value) & valid_mask
     setattr(self, prop_name, mask_to_enum(m, enum_items))
-
-def resolve_hashes_from_file(file_path: str) -> None:
-    """Load hashes from a text file into CodeWalker's JenkIndex."""
-    all_txt_lines: list[str] = open(file_path, "r").readlines()
-    for line in all_txt_lines:
-        d.JenkIndex.Ensure(line.strip())
-
-def str_loaded_count() -> int:
-    """Return the count of loaded strings within CodeWalker's String indexes."""
-    if d.available:
-        return d.JenkIndex.GetAllStrings().Length
-    else:
-        return None
     
 def run_ops_without_view_layer_update(func) -> None:
     """Run a function without triggering view layer updates."""
@@ -506,35 +474,8 @@ def apply_all_trans(obj: bpy.types.Object) -> None:
     else:
         obj.matrix_basis = Matrix.Identity(4)
 
-def vec2sharpvec(vec: Vector) -> "Vector3":
-    return d.Vector3(vec.x, vec.y, vec.z)
-
-def update_status() -> "Action[str]": 
-    return d.Action[str](lambda x: print(x))
-
 def fix_path(path: str) -> str:
     path = bpy.path.abspath(path)
     path = str(Path(path).resolve())
     os.chdir(path)
     return path
-def load_gta_cache(path: str) -> bool:
-    try:
-        d.GTA5Keys.LoadFromPath(path)
-        d.gamecache = d.GameFileCache(
-            2147483648,
-            10,
-            fix_path(path),
-            False,
-            "mp2025_02_g9ec",
-            False,
-            "Installers;_CommonRedist;fix",
-        )
-        d.gamecache.LoadAudio = False
-        d.gamecache.LoadVehicles = False
-        d.gamecache.LoadPeds = False
-        d.gamecache.Init(update_status(), update_status())
-        return True
-    except Exception as e:
-        print(f"Error detail: {e}")
-        traceback.print_exc()
-        return False

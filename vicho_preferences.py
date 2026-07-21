@@ -1,8 +1,4 @@
 import bpy
-from .vicho_dependencies import dependencies_manager as d
-from .vicho_operators import VICHO_OT_install_dotnet, VICHO_OT_import_strings
-from .shared.helper import str_loaded_count
-from .misc.helper import is_dotnet_installed
 from .icons_load import get_icon
 
 TAB_SETTINGS = (
@@ -16,13 +12,9 @@ TAB_SETTINGS = (
 
 authors = ["MrVicho13"]
 
-
-
-
-class VichoToolsAddonProperties(bpy.types.AddonPreferences):
+class AddonProperties(bpy.types.AddonPreferences):
     bl_idname = __package__
 
-    # General placeholders (fill in later)
     asset_database_dir: bpy.props.StringProperty(
         name="Asset Database Folder",
         subtype="DIR_PATH",
@@ -54,7 +46,6 @@ class VichoToolsAddonProperties(bpy.types.AddonPreferences):
     load_strings_on_startup: bpy.props.BoolProperty(
         name="Load strings on startup", default=False, description="If enabled, strings will be loaded on startup")  # type: ignore
 
-    # Map data placeholders (fill in later)
     map_data_dir: bpy.props.StringProperty(
         name="Map Data Folder",
         subtype="DIR_PATH",
@@ -62,7 +53,6 @@ class VichoToolsAddonProperties(bpy.types.AddonPreferences):
         default="",
     )  # type: ignore
 
-    # Asset import placeholders (fill in later)
     gta5_dir: bpy.props.StringProperty(
         name="Grand Theft Auto V Folder",
         subtype="DIR_PATH",
@@ -79,7 +69,7 @@ class VichoToolsAddonProperties(bpy.types.AddonPreferences):
         
     def draw(self, context):
         layout = self.layout
-        strings_loaded: int = str_loaded_count()
+        #strings_loaded: int = str_loaded_count()
 
         tabs = layout.grid_flow(
             row_major=True,
@@ -99,13 +89,13 @@ class VichoToolsAddonProperties(bpy.types.AddonPreferences):
                 col.prop(self, "asset_database_dir", icon="FILE_FOLDER")
                 col.prop(self, "strings_filepath", icon="FILE")
                 col.prop(self, "load_strings_on_startup", icon="CHECKBOX_HLT")
-                if strings_loaded is not None:
-                    op = col.operator(
-                        VICHO_OT_import_strings.bl_idname,
-                        text=f"Load Strings ({str(strings_loaded)})",
-                        icon="FILE_TICK",
-                    )
-                    op.load_on_startup = self.load_strings_on_startup
+                # if strings_loaded is not None:
+                #     op = col.operator(
+                #         VICHO_OT_import_strings.bl_idname,
+                #         text=f"Load Strings ({str(strings_loaded)})",
+                #         icon="FILE_TICK",
+                #     )
+                #     op.load_on_startup = self.load_strings_on_startup
 
             case "texture_dictionary":
                 col = layout.column(align=False)
@@ -120,32 +110,10 @@ class VichoToolsAddonProperties(bpy.types.AddonPreferences):
                 col.prop(self, "map_data_dir", icon="FILE_FOLDER")
                 col.label(text="(Placeholder) Map data settings go here.", icon="INFO")
 
-            case "asset_import":
-                col = layout.column(align=True)
-                col.prop(self, "gta5_dir", icon="FILE_FOLDER")
-                col.operator("assetimporter.load_gta_cache", icon="FILE_TICK")
-
-            case "dependencies":
-                col = layout.column(align=True)
-
-                if not is_dotnet_installed():
-                    col.operator(
-                        VICHO_OT_install_dotnet.bl_idname,
-                        text="Install .NET 9 runtime",
-                        icon="SCRIPTPLUGINS",
-                    )
-                else:
-                    col.label(text=".NET 9 x64 Runtime is already installed.")
-
-                col.separator()
-
-                if d.available:
-                    col.label(text="Dependencies are loaded.")
-                else:
-                    col.label(
-                        text="Dependencies aren't loaded (restart Blender after installing deps).",
-                        icon="ERROR",
-                    )
+            # case "asset_import":
+            #     col = layout.column(align=True)
+            #     col.prop(self, "gta5_dir", icon="FILE_FOLDER")
+            #     col.operator("assetimporter.load_gta_cache", icon="FILE_TICK")
 
             case "about":
                 row = layout.row(align=True)
@@ -194,11 +162,11 @@ class VichoToolsAddonProperties(bpy.types.AddonPreferences):
                 col.label(text="VichoTools (placeholder)", icon="HOME")
                 col.separator()
 
-def get_addon_preferences() -> VichoToolsAddonProperties:
+def get_addon_preferences() -> AddonProperties:
     return bpy.context.preferences.addons[__package__].preferences
 
 def register():
-    bpy.utils.register_class(VichoToolsAddonProperties)
+    bpy.utils.register_class(AddonProperties)
 
 def unregister():
-    bpy.utils.unregister_class(VichoToolsAddonProperties)
+    bpy.utils.unregister_class(AddonProperties)

@@ -1,14 +1,12 @@
 import hashlib
 import shutil
-from mathutils import Vector, Quaternion
+from mathutils import Vector
 import string
 import uuid
 import random
 import time
-import math
 from pathlib import Path
 import tempfile
-
 
 def subtract_from_vector(v: Vector, f: float) -> Vector:
     """Subtract a float value from each component of a vector."""
@@ -61,20 +59,6 @@ def get_random_string(length=8):
     rdm_str = f"{rd_part}{ts}{uuid_str}"
     return rdm_str
 
-
-def get_jenkins_hash(name: str) -> int:
-    """Compute the Jenkins hash for a given string."""
-    hash: int = 0
-    for char in name:
-        hash += ord(char)
-        hash += hash << 10
-        hash ^= hash >> 6
-    hash += hash << 3
-    hash ^= hash >> 11
-    hash += hash << 15
-    return hash & 0xFFFFFFFF
-
-
 def try_parse_int(value: str) -> int | None:
     """Try to parse a string as an integer."""
     try:
@@ -101,66 +85,6 @@ def get_folder_list_from_dir(dir: str) -> list[str]:
 def get_files_by_ext(path: str, ext: str) -> list[str]:
     """Get a list of all files with a specific extension in a directory."""
     return [str(p) for p in Path(path).rglob(f"*.{ext}")]
-
-
-def calculate_mipmaps_lvls(width: int, height: int) -> int:
-    """Calculate the number of mipmap levels for given dimensions."""
-    if width <= 4 or height <= 4:
-        return 1
-    levels = 1
-    while width > 4 and height > 4:
-        width = max(1, width // 2)
-        height = max(1, height // 2)
-        levels += 1
-    return levels
-
-
-def closest_pow2(value) -> int:
-    """"Find the closest power of two to a given value."""
-    lower_power = 1
-    while lower_power * 2 <= value:
-        lower_power *= 2
-    higher_power = lower_power * 2
-    return lower_power if (value - lower_power < higher_power - value) else higher_power
-
-
-def closest_pow2_dims(
-    width: int, height: int, max_dimension: int, make_half: bool
-) -> tuple[int, int]:
-    """Calculate the closest power of two dimensions with constraints."""
-    width, height = closest_pow2(width), closest_pow2(height)
-    new_width, new_height = width, height
-
-    if max_dimension == 0:
-        max_dimension = max(width, height)
-
-    use_width = width % max_dimension == 0
-    use_height = height % max_dimension == 0
-
-    if use_width and use_height:
-        if width / max_dimension > height / max_dimension:
-            num = width
-        else:
-            num = height
-    elif use_width and not use_height:
-        num = width
-    else:
-        num = height
-
-    log_calc = math.log2(num / max_dimension)
-
-    for _ in range(0, int(log_calc)):
-        if new_width <= 4 or new_height <= 4:
-            break
-        new_width /= 2
-        new_height /= 2
-
-    if make_half:
-        if new_width / 2 >= 4 and new_height / 2 >= 4:
-            new_width /= 2
-            new_height /= 2
-
-    return int(new_width), int(new_height)
 
 def generate_power_of_two_enum(max_power) -> list[tuple[str, str, str]]:
     """Generate a list of power of two tuples up to a maximum power."""
@@ -206,18 +130,10 @@ def get_hash_from_bytes(data: bytes, algorithm:str = "sha256") -> str:
     hash_object.update(data)
     return hash_object.hexdigest()
 
-def sharpdx_vec_to_tuple(vec) -> tuple[float, float, float]:
-    """Convert a SharpDX vector to a tuple."""
-    return (vec.X, vec.Y, vec.Z)
-
 def indices_to_faces(indices) -> list[tuple]:
     """Convert a list of indices to a list of faces (triplets)."""
     return [(indices[i], indices[i+1], indices[i+2])
             for i in range(0, len(indices), 3)]
-
-def sharpdx_quat_to_blender_quat(quat) -> Quaternion:
-    """Convert a SharpDX quaternion to a Blender quaternion."""
-    return Quaternion((quat.W, quat.X, quat.Y, quat.Z))
 
 def create_temp_folder():
     return tempfile.mkdtemp()
